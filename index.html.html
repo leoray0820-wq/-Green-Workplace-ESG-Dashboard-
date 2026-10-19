@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="h-full bg-slate-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>綠色職場永續數據儀表板 (Green Workplace ESG Dashboard)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            700: '#15803d',
+                            800: '#166534',
+                            900: '#14532d',
+                            950: '#052e16',
+                        },
+                        emeraldCustom: {
+                            500: '#10b981',
+                            600: '#059669',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'Microsoft JhengHei', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Modern scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="h-full text-slate-800 flex flex-col font-sans antialiased">
+
+    <!-- Header Section -->
+    <header class="bg-forest-900 text-white shadow-lg sticky top-0 z-30 border-b border-forest-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-emerald-500/20 rounded-xl border border-emerald-400/30 text-emerald-400">
+                    <i class="fa-solid fa-leaf text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        綠色職場永續數據儀表板
+                        <span class="text-xs font-normal px-2 py-0.5 bg-emerald-800 text-emerald-200 rounded-full hidden md:inline-block">GRI 306 Standard</span>
+                    </h1>
+                    <p class="text-xs text-forest-100 hidden sm:block">Green Workplace ESG Dashboard</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-3">
+                <button onclick="openModal()" class="inline-flex items-center px-3.5 py-2 rounded-lg text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm transition-all duration-200 hover:shadow-md active:scale-95">
+                    <i class="fa-solid fa-plus mr-2"></i>新增數據
+                </button>
+                <button onclick="exportToCSV()" class="inline-flex items-center px-3.5 py-2 rounded-lg text-sm font-semibold bg-forest-800 hover:bg-forest-700 text-emerald-100 border border-forest-700 shadow-sm transition-all duration-200">
+                    <i class="fa-solid fa-file-csv mr-2 text-emerald-400"></i>導出 CSV
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- KPI Stat Cards Section -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- Card 1: Total Waste -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">累計廢棄物轉化量</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2" id="kpi-total-waste">0 <span class="text-sm font-normal text-slate-500">kg</span></h3>
+                    </div>
+                    <div class="p-3 bg-amber-50 text-amber-600 rounded-xl">
+                        <i class="fa-solid fa-recycle text-2xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500">
+                    <span class="text-emerald-600 font-medium flex items-center mr-1">
+                        <i class="fa-solid fa-arrow-trend-up mr-1"></i>有機廢棄物
+                    </span>
+                    <span>循環再利用數據</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-amber-400"></div>
+            </div>
+
+            <!-- Card 2: Carbon Reduction -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">範疇三減碳估算量</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-forest-700 mt-2" id="kpi-carbon-reduction">0 <span class="text-sm font-normal text-slate-500">kg CO₂e</span></h3>
+                    </div>
+                    <div class="p-3 bg-forest-50 text-forest-700 rounded-xl">
+                        <i class="fa-solid fa-smog text-2xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500">
+                    <span class="text-forest-700 font-semibold mr-1">算式:</span>
+                    <span>總重量 × 2.1 kg CO₂e</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-forest-600"></div>
+            </div>
+
+            <!-- Card 3: Fertilizer Produced -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">預估蚓糞肥產出</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-2" id="kpi-fertilizer">0 <span class="text-sm font-normal text-slate-500">kg</span></h3>
+                    </div>
+                    <div class="p-3 bg-emerald-50 text-emerald-600 rounded-xl">
+                        <i class="fa-solid fa-seedling text-2xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500">
+                    <span class="text-emerald-600 font-semibold mr-1">算式:</span>
+                    <span>總重量 × 30% 轉換率</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-emerald-500"></div>
+            </div>
+
+            <!-- Card 4: Participation & Nodes -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wider">參與人次與場域節點</p>
+                        <h3 class="text-2xl sm:text-3xl font-extrabold text-indigo-600 mt-2" id="kpi-participants">0 <span class="text-sm font-normal text-slate-500">人次</span></h3>
+                    </div>
+                    <div class="p-3 bg-indigo-50 text-indigo-600 rounded-xl">
+                        <i class="fa-solid fa-users text-2xl"></i>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center text-xs text-slate-500">
+                    <span class="text-indigo-600 font-medium mr-1" id="kpi-nodes-count">場域數: 0 處</span>
+                    <span>｜綠色職場活躍中</span>
+                </div>
+                <div class="absolute bottom-0 left-0 right-0 h-1 bg-indigo-500"></div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Line/Bar Chart -->
+            <div class="lg:col-span-2 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-forest-700"></i>
+                        廢棄物投放趨勢與減碳估算
+                    </h2>
+                    <span class="text-xs text-slate-400">近幾次記錄趨勢</span>
+                </div>
+                <div class="h-64 sm:h-80 relative">
+                    <canvas id="trendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Doughnut Chart -->
+            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-emerald-600"></i>
+                        廢棄物種類比例
+                    </h2>
+                    <span class="text-xs text-slate-400">重量占比</span>
+                </div>
+                <div class="h-64 sm:h-80 relative flex items-center justify-center">
+                    <canvas id="typeChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table & Toolbar Section -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Toolbar -->
+            <div class="p-4 border-b border-slate-100 bg-slate-50/50 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-base font-bold text-slate-800">數據明細紀錄</h2>
+                    <span id="record-count-badge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-forest-100 text-forest-800">0 筆資料</span>
+                </div>
+                
+                <!-- Filter and Search Controls -->
+                <div class="flex flex-col sm:flex-row gap-2.5 sm:items-center">
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                        <input type="text" id="searchInput" oninput="renderTable()" placeholder="搜尋部門、類別、筆記..." class="pl-9 pr-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-forest-500 focus:border-forest-500 w-full sm:w-48 outline-none transition">
+                    </div>
+                    <select id="categoryFilter" onchange="renderTable()" class="px-3 py-1.5 text-xs bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none transition">
+                        <option value="ALL">全部類別</option>
+                        <option value="WASTE">廢棄物/廚餘投放</option>
+                        <option value="BIODIVERSITY">生物多樣性觀察</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Table View -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs sm:text-sm text-slate-600">
+                    <thead class="bg-slate-100/70 text-slate-700 font-semibold border-b border-slate-200">
+                        <tr>
+                            <th class="py-3 px-4">類型</th>
+                            <th class="py-3 px-4">日期</th>
+                            <th class="py-3 px-4">項目/部門</th>
+                            <th class="py-3 px-4">重量/指數</th>
+                            <th class="py-3 px-4">減碳估算</th>
+                            <th class="py-3 px-4">觀察筆記/場域</th>
+                            <th class="py-3 px-4 text-center">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody" class="divide-y divide-slate-100">
+                        <!-- Table rows populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Empty State Placeholder -->
+            <div id="emptyState" class="hidden p-8 text-center text-slate-400">
+                <i class="fa-solid fa-folder-open text-4xl mb-2 text-slate-300"></i>
+                <p class="text-sm">尚無任何記錄數據，點擊右上角「新增數據」開始建立記錄。</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Data Entry Modal Container -->
+    <div id="dataModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full overflow-hidden transform transition-all flex flex-col max-h-[90vh]">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-forest-900 text-white flex justify-between items-center">
+                <h3 class="text-base font-bold flex items-center gap-2">
+                    <i class="fa-solid fa-pen-to-square text-emerald-400"></i>
+                    新增永續數據記錄
+                </h3>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Tab Headers -->
+            <div class="flex border-b border-slate-200 bg-slate-50">
+                <button id="tab-btn-waste" onclick="switchTab('WASTE')" class="flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-forest-700 text-forest-800 bg-white flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-dumpster-fire"></i>廢棄物/廚餘投放
+                </button>
+                <button id="tab-btn-bio" onclick="switchTab('BIODIVERSITY')" class="flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-bug"></i>生物多樣性觀察
+                </button>
+            </div>
+
+            <!-- Modal Body Forms -->
+            <div class="p-6 overflow-y-auto flex-1">
+                <!-- Form 1: Waste Form -->
+                <form id="wasteForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">投放日期 *</label>
+                        <input type="date" id="wasteDate" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">投放類別 *</label>
+                            <select id="wasteCategory" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                                <option value="咖啡渣">咖啡渣</option>
+                                <option value="茶渣">茶渣</option>
+                                <option value="團膳廚餘">團膳廚餘</option>
+                                <option value="園區落葉">園區落葉</option>
+                                <option value="果皮生廚餘">果皮生廚餘</option>
+                                <option value="其他有機物">其他有機物</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">重量 (kg) *</label>
+                            <input type="number" step="0.1" min="0.1" id="wasteWeight" placeholder="例如: 12.5" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">處理部門</label>
+                            <input type="text" id="wasteDepartment" placeholder="例如: 行政總務部" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">場域編號/位置</label>
+                            <input type="text" id="wasteLocation" placeholder="例如: A棟蚯蚓箱#01" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">參與體驗人數 (人次)</label>
+                        <input type="number" min="1" id="wasteParticipants" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                    </div>
+                </form>
+
+                <!-- Form 2: Biodiversity Form -->
+                <form id="bioForm" class="space-y-4 hidden">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">觀察日期 *</label>
+                        <input type="date" id="bioDate" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">蚯蚓活躍度評分</label>
+                            <select id="bioWormActivity" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                                <option value="5">⭐⭐⭐⭐⭐ 5 星 (極佳)</option>
+                                <option value="4">⭐⭐⭐⭐ 4 星 (良好)</option>
+                                <option value="3" selected>⭐⭐⭐ 3 星 (正常)</option>
+                                <option value="2">⭐⭐ 2 星 (偏低)</option>
+                                <option value="1">⭐ 1 星 (停滯)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">土壤溫度 (°C)</label>
+                            <input type="number" step="0.1" id="bioTemp" placeholder="24.5" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">土壤濕度 (%)</label>
+                            <input type="number" step="1" id="bioHumidity" placeholder="60" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-700 mb-1">觀察場域</label>
+                            <input type="text" id="bioLocation" placeholder="例如: 綠色中庭農場" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">生態筆記/發現物種</label>
+                        <textarea id="bioNotes" rows="2" placeholder="備註物種數量、微生物發酵狀況或植物發芽紀錄..." class="w-full px-3 py-2 border border-slate-300 rounded-lg text-xs sm:text-sm focus:ring-2 focus:ring-forest-500 focus:border-forest-500 outline-none"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 bg-slate-100 border-t border-slate-200 flex justify-end space-x-2">
+                <button onclick="closeModal()" class="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-200 rounded-lg transition">取消</button>
+                <button onclick="saveRecord()" class="px-4 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg shadow-sm transition">儲存資料</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500 mt-auto">
+        <p>綠色職場永續數據儀表板 &copy; 2026 Green Workplace ESG Initiative | Compliant with GRI 306 Guidelines</p>
+    </footer>
+
+    <!-- App Main Logic JavaScript -->
+    <script>
+        // Storage Key Definition
+        const STORAGE_KEY = 'green_esg_dashboard_data';
+
+        // Default Demo Data
+        const initialDemoData = [
+            { id: '1', type: 'WASTE', date: '2026-10-15', category: '咖啡渣', weight: 15.0, department: '行政部', location: 'A棟蚯蚓箱', participants: 3 },
+            { id: '2', type: 'WASTE', date: '2026-10-16', category: '團膳廚餘', weight: 28.5, department: '員工餐廳', location: 'B區堆肥區', participants: 5 },
+            { id: '3', type: 'BIODIVERSITY', date: '2026-10-17', activity: '5', temp: 23.5, humidity: 65, location: 'A棟蚯蚓箱', notes: '太平二號蚯蚓群聚活躍，床土分解情況良好。' },
+            { id: '4', type: 'WASTE', date: '2026-10-18', category: '茶渣', weight: 12.0, department: '研發中心', location: 'A棟蚯蚓箱', participants: 2 },
+            { id: '5', type: 'BIODIVERSITY', date: '2026-10-19', activity: '4', temp: 24.0, humidity: 60, location: 'B區堆肥區', notes: '觀察到少量幼蟲與益菌絲斑塊，通氣良好。' }
+        ];
+
+        // State variables
+        let appData = [];
+        let currentTab = 'WASTE'; // WASTE or BIODIVERSITY
+        let trendChartInstance = null;
+        let typeChartInstance = null;
+
+        // Initialize App on Page Load
+        window.onload = function() {
+            // Set default date inputs to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('wasteDate').value = today;
+            document.getElementById('bioDate').value = today;
+
+            // Load data from LocalStorage or initialize demo
+            loadData();
+            
+            // Render all UI sections
+            refreshUI();
+        };
+
+        // LocalStorage Loader
+        function loadData() {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved) {
+                try {
+                    appData = JSON.parse(saved);
+                } catch(e) {
+                    console.error("Failed to parse LocalStorage data", e);
+                    appData = [...initialDemoData];
+                }
+            } else {
+                appData = [...initialDemoData];
+                saveDataToStorage();
+            }
+        }
+
+        function saveDataToStorage() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        }
+
+        // Global UI Refresh Controller
+        function refreshUI() {
+            updateKPIs();
+            renderTable();
+            renderCharts();
+        }
+
+        // Calculate and Update KPI Stat Cards
+        function updateKPIs() {
+            let totalWaste = 0;
+            let totalParticipants = 0;
+            const nodesSet = new Set();
+
+            appData.forEach(item => {
+                if (item.type === 'WASTE') {
+                    totalWaste += parseFloat(item.weight || 0);
+                    totalParticipants += parseInt(item.participants || 1, 10);
+                    if (item.location) nodesSet.add(item.location);
+                } else if (item.type === 'BIODIVERSITY') {
+                    if (item.location) nodesSet.add(item.location);
+                }
+            });
+
+            // Scope 3 Carbon Calculation: Weight * 2.1 kg CO2e/kg
+            const carbonReduction = totalWaste * 2.1;
+            // Vermicompost Estimation: Weight * 30%
+            const fertilizer = totalWaste * 0.3;
+
+            // DOM Updates
+            document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-carbon-reduction').innerHTML = `${carbonReduction.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg CO₂e</span>`;
+            document.getElementById('kpi-fertilizer').innerHTML = `${fertilizer.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-participants').innerHTML = `${totalParticipants} <span class="text-sm font-normal text-slate-500">人次</span>`;
+            document.getElementById('kpi-nodes-count').innerText = `場域數: ${nodesSet.size} 處`;
+        }
+
+        // Render Data Table with Search and Category Filtering
+        function renderTable() {
+            const tbody = document.getElementById('dataTableBody');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase().trim();
+            const categoryFilter = document.getElementById('categoryFilter').value;
+
+            tbody.innerHTML = '';
+
+            const filteredData = appData.filter(item => {
+                // Category Filter
+                if (categoryFilter !== 'ALL' && item.type !== categoryFilter) {
+                    return false;
+                }
+                // Keyword Search
+                if (searchKeyword) {
+                    const matchCategory = (item.category || '').toLowerCase().includes(searchKeyword);
+                    const matchDept = (item.department || '').toLowerCase().includes(searchKeyword);
+                    const matchLoc = (item.location || '').toLowerCase().includes(searchKeyword);
+                    const matchNotes = (item.notes || '').toLowerCase().includes(searchKeyword);
+                    return matchCategory || matchDept || matchLoc || matchNotes;
+                }
+                return true;
+            });
+
+            // Update record badge count
+            document.getElementById('record-count-badge').innerText = `${filteredData.length} 筆資料`;
+
+            if (filteredData.length === 0) {
+                document.getElementById('emptyState').classList.remove('hidden');
+            } else {
+                document.getElementById('emptyState').classList.add('hidden');
+            }
+
+            // Render Table Rows
+            filteredData.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50/80 transition-colors";
+
+                if (item.type === 'WASTE') {
+                    const carbon = (parseFloat(item.weight) * 2.1).toFixed(1);
+                    tr.innerHTML = `
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
+                                <i class="fa-solid fa-dumpster mr-1 text-[10px]"></i>投放
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-900">${item.date}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-semibold text-slate-800">${item.category}</div>
+                            <div class="text-xs text-slate-400">${item.department || '未填寫部門'}</div>
+                        </td>
+                        <td class="py-3 px-4 font-bold text-amber-700">${item.weight} kg</td>
+                        <td class="py-3 px-4 font-semibold text-forest-700">+${carbon} kg CO₂e</td>
+                        <td class="py-3 px-4 text-xs text-slate-500">${item.location || '-'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="deleteRecord('${item.id}')" class="text-slate-400 hover:text-red-600 transition" title="刪除筆記">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                } else if (item.type === 'BIODIVERSITY') {
+                    const stars = '⭐'.repeat(parseInt(item.activity || 3));
+                    tr.innerHTML = `
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">
+                                <i class="fa-solid fa-bug mr-1 text-[10px]"></i>生態
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 font-medium text-slate-900">${item.date}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-semibold text-slate-800">生態巡檢</div>
+                            <div class="text-xs text-slate-400">${item.location || '場域點'}</div>
+                        </td>
+                        <td class="py-3 px-4">
+                            <div class="text-xs">${stars}</div>
+                            <div class="text-[11px] text-slate-400">${item.temp || '--'}°C / ${item.humidity || '--'}%</div>
+                        </td>
+                        <td class="py-3 px-4 text-xs text-slate-400">N/A (生態指標)</td>
+                        <td class="py-3 px-4 text-xs text-slate-600 max-w-xs truncate" title="${item.notes || ''}">${item.notes || '無註記'}</td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="deleteRecord('${item.id}')" class="text-slate-400 hover:text-red-600 transition" title="刪除筆記">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Render Dynamic Chart.js Analytics
+        function renderCharts() {
+            // Filter Waste Entries
+            const wasteEntries = appData.filter(d => d.type === 'WASTE').sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Prepare Aggregated Category Data for Doughnut Chart
+            const categoryTotals = {};
+            wasteEntries.forEach(entry => {
+                const cat = entry.category || '其他';
+                categoryTotals[cat] = (categoryTotals[cat] || 0) + parseFloat(entry.weight || 0);
+            });
+
+            // 1. Line / Bar Chart (Trend)
+            const dates = wasteEntries.map(e => e.date);
+            const weights = wasteEntries.map(e => parseFloat(e.weight));
+            const carbons = wasteEntries.map(e => (parseFloat(e.weight) * 2.1).toFixed(1));
+
+            const ctxTrend = document.getElementById('trendChart').getContext('2d');
+            if (trendChartInstance) trendChartInstance.destroy();
+
+            trendChartInstance = new Chart(ctxTrend, {
+                type: 'bar',
+                data: {
+                    labels: dates.length ? dates : ['無數據'],
+                    datasets: [
+                        {
+                            label: '投放重量 (kg)',
+                            data: weights.length ? weights : [0],
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            borderColor: 'rgba(245, 158, 11, 1)',
+                            borderWidth: 1,
+                            borderRadius: 4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: '減碳量 (kg CO₂e)',
+                            data: carbons.length ? carbons : [0],
+                            type: 'line',
+                            borderColor: '#15803d',
+                            backgroundColor: 'rgba(21, 128, 61, 0.1)',
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.3,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '重量 (kg)', font: { size: 10 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: { drawOnChartArea: false },
+                            title: { display: true, text: 'CO₂e (kg)', font: { size: 10 } }
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'top', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+
+            // 2. Doughnut Chart (Category Breakdowns)
+            const ctxType = document.getElementById('typeChart').getContext('2d');
+            if (typeChartInstance) typeChartInstance.destroy();
+
+            const catLabels = Object.keys(categoryTotals);
+            const catData = Object.values(categoryTotals);
+
+            typeChartInstance = new Chart(ctxType, {
+                type: 'doughnut',
+                data: {
+                    labels: catLabels.length ? catLabels : ['尚無資料'],
+                    datasets: [{
+                        data: catData.length ? catData : [1],
+                        backgroundColor: [
+                            '#15803d', '#10b981', '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // Delete Individual Record
+        function deleteRecord(id) {
+            if (confirm("確定要刪除此筆記錄嗎？")) {
+                appData = appData.filter(item => item.id !== id);
+                saveDataToStorage();
+                refreshUI();
+            }
+        }
+
+        // Modal Controls & Tab Switcher
+        function openModal() {
+            document.getElementById('dataModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('dataModal').classList.add('hidden');
+        }
+
+        function switchTab(tabType) {
+            currentTab = tabType;
+            const wasteBtn = document.getElementById('tab-btn-waste');
+            const bioBtn = document.getElementById('tab-btn-bio');
+            const wasteForm = document.getElementById('wasteForm');
+            const bioForm = document.getElementById('bioForm');
+
+            if (tabType === 'WASTE') {
+                wasteBtn.className = "flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-forest-700 text-forest-800 bg-white flex items-center justify-center gap-2";
+                bioBtn.className = "flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center justify-center gap-2";
+                wasteForm.classList.remove('hidden');
+                bioForm.classList.add('hidden');
+            } else {
+                bioBtn.className = "flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-forest-700 text-forest-800 bg-white flex items-center justify-center gap-2";
+                wasteBtn.className = "flex-1 py-3 text-xs sm:text-sm font-semibold border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center justify-center gap-2";
+                bioForm.classList.remove('hidden');
+                wasteForm.classList.add('hidden');
+            }
+        }
+
+        // Save Form Record
+        function saveRecord() {
+            const newId = Date.now().toString();
+
+            if (currentTab === 'WASTE') {
+                const date = document.getElementById('wasteDate').value;
+                const category = document.getElementById('wasteCategory').value;
+                const weight = parseFloat(document.getElementById('wasteWeight').value);
+                const department = document.getElementById('wasteDepartment').value;
+                const location = document.getElementById('wasteLocation').value;
+                const participants = parseInt(document.getElementById('wasteParticipants').value || 1, 10);
+
+                if (!date || isNaN(weight) || weight <= 0) {
+                    alert("請填寫正確的日期與重量！");
+                    return;
+                }
+
+                appData.unshift({
+                    id: newId,
+                    type: 'WASTE',
+                    date,
+                    category,
+                    weight,
+                    department,
+                    location,
+                    participants
+                });
+
+            } else {
+                const date = document.getElementById('bioDate').value;
+                const activity = document.getElementById('bioWormActivity').value;
+                const temp = document.getElementById('bioTemp').value;
+                const humidity = document.getElementById('bioHumidity').value;
+                const location = document.getElementById('bioLocation').value;
+                const notes = document.getElementById('bioNotes').value;
+
+                if (!date) {
+                    alert("請選擇觀察日期！");
+                    return;
+                }
+
+                appData.unshift({
+                    id: newId,
+                    type: 'BIODIVERSITY',
+                    date,
+                    activity,
+                    temp,
+                    humidity,
+                    location,
+                    notes
+                });
+            }
+
+            saveDataToStorage();
+            refreshUI();
+            closeModal();
+
+            // Reset form text fields
+            document.getElementById('wasteWeight').value = '';
+            document.getElementById('bioNotes').value = '';
+        }
+
+        // Export Data to CSV (GRI 306 Auditing Compatible)
+        function exportToCSV() {
+            if (appData.length === 0) {
+                alert("目前尚無數據可供導出！");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Excel Chinese support
+            csvContent += "ID,紀錄類型,日期,投放類別/項目,重量(kg),估算減碳量(kg CO2e),部門,場域編號,參與人次,蚯蚓活躍度(星),土壤溫度(C),土壤濕度(%),生態觀察筆記\n";
+
+            appData.forEach(item => {
+                const isWaste = item.type === 'WASTE';
+                const carbon = isWaste ? (parseFloat(item.weight) * 2.1).toFixed(2) : '0';
+                
+                const row = [
+                    item.id,
+                    isWaste ? '廢棄物投放' : '生物多樣性',
+                    item.date,
+                    item.category || '生態巡檢',
+                    item.weight || '',
+                    carbon,
+                    `"${item.department || ''}"`,
+                    `"${item.location || ''}"`,
+                    item.participants || '',
+                    item.activity || '',
+                    item.temp || '',
+                    item.humidity || '',
+                    `"${(item.notes || '').replace(/"/g, '""')}"`
+                ];
+                csvContent += row.join(",") + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `Green_Workplace_ESG_Data_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+</html>
