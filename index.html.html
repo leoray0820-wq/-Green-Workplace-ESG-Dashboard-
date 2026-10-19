@@ -231,10 +231,10 @@
                     </div>
                 </div>
 
-                <!-- Photo Upload Field -->
+                <!-- Photo Upload Field with Compression -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">現場照片 (相片觀察與憑證)</label>
-                    <input type="file" id="form-photo" accept="image/*" onchange="previewImage(event)" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-forest-50 file:text-forest-600 hover:file:bg-forest-100">
+                    <input type="file" id="form-photo" accept="image/*" onchange="previewAndCompressImage(event)" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-forest-50 file:text-forest-600 hover:file:bg-forest-100">
                     <div id="photo-preview-container" class="mt-3 hidden relative w-32 h-32 rounded-lg border border-slate-200 overflow-hidden">
                         <img id="photo-preview" src="" class="w-full h-full object-cover">
                         <button type="button" onclick="removePhoto()" class="absolute top-1 right-1 bg-red-500 text-white rounded-full p-1 shadow hover:bg-red-600"><i data-lucide="x" class="w-3 h-3"></i></button>
@@ -267,23 +267,79 @@
         </div>
     </div>
 
-    <!-- Application JavaScript Logic -->
+    <!-- Application JavaScript Logic with IndexedDB -->
     <script>
-        // Default Mock Data
-        let db = JSON.parse(localStorage.getItem('green_esg_db')) || [
-            { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
-            { id: 2, date: '2026-10-16', type: 'waste', category: '團膳廚餘', amount: 40.0, dept: '總務部', notes: '植物性殘渣', photo: '' },
-            { id: 3, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
-        ];
-
+        let db = null;
+        let memoryRecords = [];
         let currentPhotoBase64 = '';
         let chartInstance = null;
 
+        // Initialize IndexedDB
+        const request = indexedDB.Open("GreenESGDB", 1);
+        
+        request.onerror = function(event) {
+            console.error("IndexedDB error: ", event.target.error);
+        };
+
+        request.onupgradeneeded = function(event) {
+            const dbInstance = event.target.result;
+            if (!dbInstance.objectStoreNames.contains("records")) {
+                dbInstance.createObjectStore("records", { keyPath: "id" });
+            }
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            loadAllRecords();
+        };
+
         document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-            updateDashboard();
             lucide.createIcons();
         });
+
+        function loadAllRecords() {
+            if (!db) {
+                // Fallback demo data if DB not ready
+                memoryRecords = [
+                    { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
+                    { id: 2, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
+                ];
+                updateDashboard();
+                return;
+            }
+
+            const transaction = db.transaction(["records"], "readonly");
+            const store = transaction.objectStore("records");
+            const request = store.getAll();
+
+            request.onsuccess = function(event) {
+                memoryRecords = event.target.result;
+                if (memoryRecords.length === 0) {
+                    // Seed initial demo data
+                    memoryRecords = [
+                        { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
+                        { id: 2, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
+                    ];
+                    memoryRecords.forEach(rec => saveToDB(rec));
+                }
+                updateDashboard();
+            };
+        }
+
+        function saveToDB(record) {
+            if (!db) return;
+            const transaction = db.transaction(["records"], "readwrite");
+            const store = transaction.objectStore("records");
+            store.put(record);
+        }
+
+        function deleteFromDB(id) {
+            if (!db) return;
+            const transaction = db.transaction(["records"], "readwrite");
+            const store = transaction.objectStore("records");
+            store.delete(id);
+        }
 
         function switchTab(tab) {
             if(tab === 'dashboard') {
@@ -301,13 +357,11 @@
         }
 
         function updateDashboard() {
-            localStorage.setItem('green_esg_db', JSON.stringify(db));
-            
             // Calculate KPIs
-            const totalWaste = db.filter(i => i.type === 'waste').reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-            const carbonReduced = totalWaste * 2.1; // 2.1 kg CO2e saved per kg waste
-            const vermicompost = totalWaste * 0.3; // 30% conversion rate
-            const bioLogsCount = db.filter(i => i.type === 'bio' || i.photo).length;
+            const totalWaste = memoryRecords.filter(i => i.type === 'waste').reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const carbonReduced = totalWaste * 2.1; 
+            const vermicompost = totalWaste * 0.3; 
+            const bioLogsCount = memoryRecords.filter(i => i.type === 'bio' || i.photo).length;
 
             document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
             document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg CO₂e</span>`;
@@ -321,9 +375,8 @@
         function renderChart() {
             const ctx = document.getElementById('trendChart').getContext('2d');
             
-            // Group waste by date
             const wasteByDate = {};
-            db.filter(i => i.type === 'waste').forEach(item => {
+            memoryRecords.filter(i => i.type === 'waste').forEach(item => {
                 wasteByDate[item.date] = (wasteByDate[item.date] || 0) + item.amount;
             });
 
@@ -360,13 +413,14 @@
             const tbody = document.getElementById('data-table-body');
             tbody.innerHTML = '';
 
-            const filtered = db.filter(item => 
+            const filtered = memoryRecords.filter(item => 
                 (item.category && item.category.toLowerCase().includes(search)) ||
                 (item.dept && item.dept.toLowerCase().includes(search)) ||
                 (item.notes && item.notes.toLowerCase().includes(search))
             );
 
-            filtered.reverse().forEach(item => {
+            // Sort by ID descending (newest first)
+            filtered.sort((a, b) => b.id - a.id).forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
                 
@@ -375,7 +429,7 @@
                 const amountText = isWaste ? `${item.amount} kg` : `⭐ ${item.rating || '-'} 星`;
                 
                 const photoThumb = item.photo ? 
-                    `<img src="${item.photo}" onclick="openLightbox('${item.photo}', '${item.notes}')" class="w-10 h-10 object-cover rounded-lg cursor-pointer hover:opacity-80">` : 
+                    `<img src="${item.photo}" onclick="openLightbox('${item.photo}', '${(item.notes||'').replace(/'/g, "\\'")}')" class="w-10 h-10 object-cover rounded-lg cursor-pointer hover:opacity-80">` : 
                     `<div class="w-10 h-10 bg-slate-100 text-slate-300 rounded-lg flex items-center justify-center"><i data-lucide="image-off" class="w-4 h-4"></i></div>`;
 
                 tr.innerHTML = `
@@ -401,7 +455,7 @@
             const emptyState = document.getElementById('gallery-empty');
             container.innerHTML = '';
 
-            const photoItems = db.filter(i => i.photo);
+            const photoItems = memoryRecords.filter(i => i.photo);
 
             if (photoItems.length === 0) {
                 emptyState.classList.remove('hidden');
@@ -410,11 +464,11 @@
                 emptyState.classList.add('hidden');
             }
 
-            photoItems.reverse().forEach(item => {
+            photoItems.sort((a, b) => b.id - a.id).forEach(item => {
                 const card = document.createElement('div');
                 card.className = "bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition";
                 card.innerHTML = `
-                    <div class="h-48 overflow-hidden bg-slate-100 cursor-pointer relative" onclick="openLightbox('${item.photo}', '${item.notes}')">
+                    <div class="h-48 overflow-hidden bg-slate-100 cursor-pointer relative" onclick="openLightbox('${item.photo}', '${(item.notes||'').replace(/'/g, "\\'")}')">
                         <img src="${item.photo}" class="w-full h-full object-cover hover:scale-105 transition duration-300">
                         <span class="absolute top-2 right-2 px-2 py-0.5 text-xs font-bold rounded-full bg-black/60 text-white backdrop-blur-sm">${item.date}</span>
                     </div>
@@ -430,18 +484,47 @@
             });
         }
 
-        // Photo Upload Handling
-        function previewImage(event) {
+        // Image Compression & Preview
+        function previewAndCompressImage(event) {
             const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    currentPhotoBase64 = e.target.result;
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    // Compress to JPEG with 0.7 quality
+                    currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                    
                     document.getElementById('photo-preview').src = currentPhotoBase64;
                     document.getElementById('photo-preview-container').classList.remove('hidden');
                 };
-                reader.readAsDataURL(file);
-            }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
         }
 
         function removePhoto() {
@@ -496,14 +579,16 @@
                 newRecord.rating = parseInt(document.getElementById('form-worm-rating').value);
             }
 
-            db.push(newRecord);
+            memoryRecords.push(newRecord);
+            saveToDB(newRecord);
             updateDashboard();
             closeModal();
         }
 
         function deleteRecord(id) {
             if(confirm('確定要刪除此筆資料嗎？')) {
-                db = db.filter(i => i.id !== id);
+                memoryRecords = memoryRecords.filter(i => i.id !== id);
+                deleteFromDB(id);
                 updateDashboard();
             }
         }
@@ -521,10 +606,10 @@
 
         // CSV Export
         function exportCSV() {
-            let csv = '\uFEFF'; // BOM for UTF-8
+            let csv = '\uFEFF'; 
             csv += 'ID,日期,類型,類別,數量/評分,單位,估算減碳(kgCO2e),記錄部門,備註\n';
 
-            db.forEach(item => {
+            memoryRecords.forEach(item => {
                 const isWaste = item.type === 'waste';
                 const carbon = isWaste ? (item.amount * 2.1).toFixed(1) : '0';
                 const amount = isWaste ? item.amount : item.rating;
