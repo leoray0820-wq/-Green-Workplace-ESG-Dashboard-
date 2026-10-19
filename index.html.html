@@ -46,12 +46,15 @@
                 </div>
             </div>
             
-            <div class="flex items-center space-x-3">
-                <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                    <i data-lucide="plus-circle" class="w-4 h-4 mr-2"></i> 投放廚餘/資材
+            <div class="flex items-center space-x-2 flex-wrap">
+                <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 投放廚餘
                 </button>
-                <button onclick="openModal('bio')" class="bg-forest-500 hover:bg-forest-700 text-white border border-emerald-400 px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                    <i data-lucide="bug" class="w-4 h-4 mr-2"></i> 生物多樣性紀錄
+                <button onclick="openModal('bio')" class="bg-forest-500 hover:bg-forest-700 text-white border border-emerald-400 px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="bug" class="w-4 h-4 mr-1.5"></i> 生態紀錄
+                </button>
+                <button onclick="exportJSON()" title="備份所有資料" class="bg-slate-700 hover:bg-slate-800 text-white p-2 rounded-lg text-sm transition">
+                    <i data-lucide="save" class="w-4 h-4"></i>
                 </button>
             </div>
         </div>
@@ -132,10 +135,10 @@
             </div>
         </div>
 
-        <!-- Section 2: Photo Gallery View (Hidden by default) -->
+        <!-- Section 2: Photo Gallery View -->
         <div id="view-gallery" class="hidden space-y-6">
             <div id="gallery-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                <!-- Dynamic Photo Cards Will Appear Here -->
+                <!-- Dynamic Photo Cards -->
             </div>
             <div id="gallery-empty" class="text-center py-12 text-slate-400 hidden">
                 <i data-lucide="image-off" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
@@ -231,7 +234,6 @@
                     </div>
                 </div>
 
-                <!-- Photo Upload Field with Compression -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">現場照片 (相片觀察與憑證)</label>
                     <input type="file" id="form-photo" accept="image/*" onchange="previewAndCompressImage(event)" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-forest-50 file:text-forest-600 hover:file:bg-forest-100">
@@ -267,20 +269,16 @@
         </div>
     </div>
 
-    <!-- Application JavaScript Logic with IndexedDB -->
+    <!-- Application Script -->
     <script>
         let db = null;
         let memoryRecords = [];
         let currentPhotoBase64 = '';
         let chartInstance = null;
 
-        // Initialize IndexedDB
-        const request = indexedDB.Open("GreenESGDB", 1);
+        // Initialize IndexedDB with immediate sync
+        const request = indexedDB.open("GreenESGDB", 1);
         
-        request.onerror = function(event) {
-            console.error("IndexedDB error: ", event.target.error);
-        };
-
         request.onupgradeneeded = function(event) {
             const dbInstance = event.target.result;
             if (!dbInstance.objectStoreNames.contains("records")) {
@@ -293,34 +291,30 @@
             loadAllRecords();
         };
 
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-            lucide.createIcons();
-        });
+        request.onerror = function(event) {
+            console.error("DB Error", event.target.error);
+            // Fallback to initial demo data if DB fails
+            memoryRecords = getInitialData();
+            updateDashboard();
+        };
+
+        function getInitialData() {
+            return [
+                { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
+                { id: 2, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
+            ];
+        }
 
         function loadAllRecords() {
-            if (!db) {
-                // Fallback demo data if DB not ready
-                memoryRecords = [
-                    { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
-                    { id: 2, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
-                ];
-                updateDashboard();
-                return;
-            }
-
+            if (!db) return;
             const transaction = db.transaction(["records"], "readonly");
             const store = transaction.objectStore("records");
-            const request = store.getAll();
+            const req = store.getAll();
 
-            request.onsuccess = function(event) {
+            req.onsuccess = function(event) {
                 memoryRecords = event.target.result;
-                if (memoryRecords.length === 0) {
-                    // Seed initial demo data
-                    memoryRecords = [
-                        { id: 1, date: '2026-10-15', type: 'waste', category: '咖啡渣', amount: 25.0, dept: '永續委員會', notes: '全棟茶水間咖啡渣收集', photo: '' },
-                        { id: 2, date: '2026-10-18', type: 'bio', category: '蚯蚓活躍度評分', title: '頂樓花園一號箱觀察', rating: 5, dept: 'HR綠色小組', notes: '發現大量幼蟲，環境濕度極佳', photo: '' }
-                    ];
+                if (!memoryRecords || memoryRecords.length === 0) {
+                    memoryRecords = getInitialData();
                     memoryRecords.forEach(rec => saveToDB(rec));
                 }
                 updateDashboard();
@@ -341,6 +335,11 @@
             store.delete(id);
         }
 
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+            lucide.createIcons();
+        });
+
         function switchTab(tab) {
             if(tab === 'dashboard') {
                 document.getElementById('view-dashboard').classList.remove('hidden');
@@ -357,7 +356,6 @@
         }
 
         function updateDashboard() {
-            // Calculate KPIs
             const totalWaste = memoryRecords.filter(i => i.type === 'waste').reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
             const carbonReduced = totalWaste * 2.1; 
             const vermicompost = totalWaste * 0.3; 
@@ -374,7 +372,6 @@
 
         function renderChart() {
             const ctx = document.getElementById('trendChart').getContext('2d');
-            
             const wasteByDate = {};
             memoryRecords.filter(i => i.type === 'waste').forEach(item => {
                 wasteByDate[item.date] = (wasteByDate[item.date] || 0) + item.amount;
@@ -419,7 +416,6 @@
                 (item.notes && item.notes.toLowerCase().includes(search))
             );
 
-            // Sort by ID descending (newest first)
             filtered.sort((a, b) => b.id - a.id).forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
@@ -484,7 +480,6 @@
             });
         }
 
-        // Image Compression & Preview
         function previewAndCompressImage(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -500,15 +495,9 @@
                     let height = img.height;
 
                     if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
                     }
 
                     canvas.width = width;
@@ -516,9 +505,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Compress to JPEG with 0.7 quality
                     currentPhotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                    
                     document.getElementById('photo-preview').src = currentPhotoBase64;
                     document.getElementById('photo-preview-container').classList.remove('hidden');
                 };
@@ -533,7 +520,6 @@
             document.getElementById('photo-preview-container').classList.add('hidden');
         }
 
-        // Modal Control
         function openModal(type) {
             document.getElementById('form-type').value = type;
             document.getElementById('modal').classList.remove('hidden');
@@ -593,7 +579,6 @@
             }
         }
 
-        // Lightbox
         function openLightbox(src, caption) {
             document.getElementById('lightbox-img').src = src;
             document.getElementById('lightbox-caption').innerText = caption || '';
@@ -604,7 +589,6 @@
             document.getElementById('lightbox').classList.add('hidden');
         }
 
-        // CSV Export
         function exportCSV() {
             let csv = '\uFEFF'; 
             csv += 'ID,日期,類型,類別,數量/評分,單位,估算減碳(kgCO2e),記錄部門,備註\n';
@@ -623,6 +607,14 @@
             link.href = URL.createObjectURL(blob);
             link.download = `Green_ESG_Data_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
+        }
+
+        function exportJSON() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(memoryRecords));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `green_esg_backup_${new Date().toISOString().split('T')[0]}.json`);
+            dlAnchor.click();
         }
     </script>
 </body>
