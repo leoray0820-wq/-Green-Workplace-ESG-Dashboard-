@@ -325,37 +325,7 @@
 
     <!-- Application Script -->
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
-
-        let cloudRecords = [];
-        let compressedPhotoBase64 = '';
-        let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
-
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-            loadCloudData();
-            lucide.createIcons();
-        });
-
-        function loadCloudData() {
-            const spinner = document.getElementById('sync-spinner');
-            if (spinner) spinner.classList.add('animate-spin');
-
-            fetch(GOOGLE_SCRIPT_URL)
-                .then(res => res.json())
-                .then(data => {
-                    cloudRecords = Array.isArray(data) ? data : [];
-                    updateDeptDropdown();
-                    filterData();
-                })
-                .catch(err => {
-                    console.error("Cloud fetch failed:", err);
-                    alert("無法連線至雲端資料庫，請檢查 Apps Script 網址是否正確。");
-                })
-                .finally(() => {
-                    if (spinner) spinner.classList.remove('animate-spin');
-                });
-        }
+        
 
         // 初始化測試資料庫
         const INITIAL_DATA = [
