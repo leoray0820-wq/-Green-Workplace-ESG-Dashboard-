@@ -378,7 +378,7 @@
             const currentSelected = deptSelect.value;
             const departments = [...new Set(cloudRecords.map(item => item.dept).filter(Boolean))];
             
-            deptSelect.innerHTML = `<option value="">總覽 (總覽)</option>`;
+            deptSelect.innerHTML = `<option value="">總覽</option>`;
             departments.forEach(dept => {
                 const opt = document.createElement('option');
                 opt.value = dept;
