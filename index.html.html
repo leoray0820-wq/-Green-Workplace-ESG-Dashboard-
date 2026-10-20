@@ -245,42 +245,42 @@
             </div>
 
             <!-- Data Table Section -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
-                    <div>
-                        <h2 class="text-base font-bold text-slate-800">歷史稽核數據清單</h2>
-                        <p class="text-xs text-slate-400">已套用企業隔離保護機制，僅顯示權限範圍內之數據</p>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <input type="text" id="table-search" oninput="filterData()" placeholder="搜尋細項、部門、填寫人..." class="border border-slate-200 rounded-xl px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <button onclick="exportCSV()" class="bg-slate-900 hover:bg-black text-white px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm transition">
-                            📥 導出報表 (CSV)
-                        </button>
-                    </div>
+        <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
+                <div>
+                    <h2 class="text-base font-bold text-slate-800">歷史稽核數據清單</h2>
+                    <p class="text-xs text-slate-400">數據已同步至 Google 試算表，圖片已存入 Google 雲端硬碟</p>
                 </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs">
-                        <thead>
-                            <tr class="bg-slate-50 text-slate-500 uppercase tracking-wider border-b border-slate-100">
-                                <th class="p-4">所屬企業</th>
-                                <th class="p-4">憑證狀態</th>
-                                <th class="p-4">日期</th>
-                                <th class="p-4">類型</th>
-                                <th class="p-4">細項類別 / 主題</th>
-                                <th class="p-4">數量 / 評分</th>
-                                <th class="p-4">估算減碳量</th>
-                                <th class="p-4">記錄單位</th>
-                                <th class="p-4">填寫人</th>
-                                <th class="p-4">備註</th>
-                            </tr>
-                        </thead>
-                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
-                    </table>
+                <div class="flex items-center space-x-3">
+                    <input type="text" id="table-search" oninput="filterData()" placeholder="搜尋類別、部門、填寫人或備註..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> 導出紀錄
+                    </button>
                 </div>
             </div>
-        </main>
-    </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
+                            <th class="p-4">雲端憑證照片</th>
+                            <th class="p-4">日期</th>
+                            <th class="p-4">記錄類型</th>
+                            <th class="p-4">細項類別 / 主題</th>
+                            <th class="p-4">數量 / 評分</th>
+                            <th class="p-4">估算減碳量</th>
+                            <th class="p-4">記錄部門</th>
+                            <th class="p-4">填寫人</th>
+                            <th class="p-4">現場備註</th>
+                        </tr>
+                    </thead>
+                    <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-700">
+                        <!-- Dynamic Rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
     <!-- Modal Form (填報視窗) -->
     <div id="modal" class="fixed inset-0 bg-black/60 modal-blur z-50 flex items-center justify-center hidden p-4">
