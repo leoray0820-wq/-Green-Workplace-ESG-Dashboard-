@@ -472,14 +472,15 @@
         }
 
         // -----------------------------------------------------------------
-        // ☁️ 雲端同步核心 2：將表單資料寫入 Google 試算表 (POST)
+       // -----------------------------------------------------------------
+        // ☁️ 雲端同步核心：將表單與壓縮照片寫入 Google 試算表與雲端硬碟 (POST)
         // -----------------------------------------------------------------
         function handleModalSubmit(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `⏳ 正在寫入雲端...`;
+            submitBtn.innerHTML = `⏳ 正在上傳照片並寫入雲端...`;
 
             const type = document.getElementById('form-type').value;
             const isWaste = type === 'waste';
@@ -500,35 +501,76 @@
                 carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
                 dept: document.getElementById('form-dept').value,
                 author: document.getElementById('form-author').value,
-                notes: document.getElementById('form-notes').value
+                notes: document.getElementById('form-notes').value,
+                photoBase64: window.compressedPhotoBase64 || '' // 對應圖片壓縮變數
             };
 
-            // 1. 本地預先寫入 (即時顯示)
-            database.push(payload);
-            localStorage.setItem('esg_database', JSON.stringify(database));
-            filterData();
-
-            // 2. 背景同步至 Google Apps Script 雲端試算表
+            // 背景同步至 Google Apps Script 雲端試算表
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 body: JSON.stringify(payload)
             })
             .then(res => res.json())
             .then(res => {
-                alert('🎉 資料已成功寫入 Google 雲端試算表！');
-                closeModal();
-                loadCloudData(); // 重新拉取同步
+                if(res.status === "success") {
+                    alert('🎉 資料與憑證照片已成功同步至 Google 雲端！');
+                    closeModal();
+                    loadCloudData(); // 重新向雲端拉取最新資料並重新繪製圖表
+                } else {
+                    alert('上傳失敗：' + (res.message || '未知錯誤'));
+                }
             })
             .catch(err => {
                 console.error("雲端寫入失敗:", err);
-                alert('⚠️ 已存在本機快取，但網路同步異常，請確認 Apps Script 部署設定');
-                closeModal();
+                alert('⚠️ 網路同步異常，請確認 Apps Script 部署設定是否為「所有人」');
             })
             .finally(() => {
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = `確認填報並同步雲端`;
+                submitBtn.innerHTML = `確認並上傳雲端`;
             });
         }
+
+        // 確保照片壓縮全域變數存在
+        window.compressedPhotoBase64 = '';
+        function compressImage(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                window.compressedPhotoBase64 = '';
+                document.getElementById('photo-preview-container').classList.add('hidden');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    const MAX_HEIGHT = 800;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    } else {
+                        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+                    
+                    window.compressedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById('photo-preview').src = window.compressedPhotoBase64;
+                    document.getElementById('photo-preview-container').classList.remove('hidden');
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+     
 
         // 根據權限邊界過濾數據
         function getAccessibleRecords() {
