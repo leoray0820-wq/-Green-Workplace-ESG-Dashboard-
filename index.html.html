@@ -391,6 +391,10 @@
                 });
             }
         };
+        function handleLogin(event) {
+    event.preventDefault(); // 這一行極為重要！用來阻止網頁自動重新整理
+    // 您的登入邏輯...
+}
 
         // 1鍵快速登入邏輯 (免打字)
         function quickLogin(roleType) {
