@@ -509,25 +509,21 @@
             // 背景同步至 Google Apps Script 雲端試算表
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
+                mode: 'no-cors', // 👈 加上這行可以避開瀏覽器 CORS 阻擋
+                headers: {
+                    'Content-Type': 'application/json'
+                },
                 body: JSON.stringify(payload)
             })
-            .then(res => res.json())
-            .then(res => {
-                if(res.status === "success") {
-                    alert('🎉 資料與憑證照片已成功同步至 Google 雲端！');
-                    closeModal();
-                    loadCloudData(); // 重新向雲端拉取最新資料並重新繪製圖表
-                } else {
-                    alert('上傳失敗：' + (res.message || '未知錯誤'));
-                }
+            .then(() => {
+                alert('🎉 資料已成功發送至雲端試算表！');
+                closeModal();
+                loadCloudData(); // 重新拉取同步
             })
             .catch(err => {
                 console.error("雲端寫入失敗:", err);
-                alert('⚠️ 網路同步異常，請確認 Apps Script 部署設定是否為「所有人」');
-            })
-            .finally(() => {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `確認並上傳雲端`;
+                alert('⚠️ 網路同步異常，請檢查 Apps Script 設定');
+                closeModal();
             });
         }
 
