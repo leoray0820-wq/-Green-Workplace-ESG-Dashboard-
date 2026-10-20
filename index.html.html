@@ -55,22 +55,32 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        <!-- Global Filter Bar (新增部門與全域篩選器) -->
+        <!-- Global Filter Bar (多重數據篩選器：部門 + 紀錄類型) -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
                     <i data-lucide="filter" class="w-5 h-5"></i>
                 </div>
                 <div>
-                    <h3 class="text-sm font-bold text-slate-800">數據篩選面板</h3>
-                    <p class="text-xs text-slate-400">即時切換部門檢視特定場域減碳表現</p>
+                    <h3 class="text-sm font-bold text-slate-800">進階數據篩選面板</h3>
+                    <p class="text-xs text-slate-400">依部門與行動類型精準分析永續指標</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3 flex-wrap">
+                <!-- 依部門篩選 -->
                 <div>
-                    <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">依部門篩選</label>
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">記錄部門</label>
                     <select id="filter-dept" onchange="filterData()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
                         <option value="">全部門 (全公司總覽)</option>
+                    </select>
+                </div>
+                <!-- 依紀錄類型篩選 (新增：減碳行動 / 生態觀察) -->
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">紀錄類型</label>
+                    <select id="filter-type" onchange="filterData()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
+                        <option value="">全部類型 (總覽)</option>
+                        <option value="waste">🌱 減碳行動</option>
+                        <option value="bio">🐞 生態觀察</option>
                     </select>
                 </div>
             </div>
@@ -159,11 +169,11 @@
                 </div>
             </div>
 
-            <!-- Category Donut Chart (新增廢棄物種類佔比圓餅圖) -->
+            <!-- Category Donut Chart -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex flex-col justify-between">
                 <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center">
                     <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-emerald-500"></i>
-                    廢棄物種類佔比分析
+                    資材種類與主題佔比分析
                 </h2>
                 <div class="h-64 relative flex items-center justify-center">
                     <canvas id="categoryChart"></canvas>
@@ -179,7 +189,7 @@
                     <p class="text-xs text-slate-400">數據已同步至 Google 試算表，圖片已存入 Google 雲端硬碟</p>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <input type="text" id="table-search" oninput="renderTable()" placeholder="搜尋類別、部門、填寫人或備註..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                    <input type="text" id="table-search" oninput="filterData()" placeholder="搜尋類別、部門、填寫人或備註..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
                         <i data-lucide="download" class="w-4 h-4 mr-2"></i> 導出紀錄
                     </button>
@@ -246,7 +256,7 @@
                 <div id="field-bio-details" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">觀察主題</label>
-                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓活躍度 / 土壤生物觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓翻耕活躍度 / 土壤蕈類觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">蚯蚓活躍度評分 (1-5 星)</label>
@@ -298,7 +308,7 @@
 
     <!-- Frontend Script -->
     <script>
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwo4xL9N-RDKdb5zD2GgtgwxJEImRKNiyPMr0HrXGwel_werkYMZwe7HpPKl08zVDiq/exec";
 
         let cloudRecords = [];
         let compressedPhotoBase64 = '';
@@ -336,7 +346,6 @@
             const deptSelect = document.getElementById('filter-dept');
             const currentSelected = deptSelect.value;
             
-            // 收集所有不重複的部門
             const departments = [...new Set(cloudRecords.map(item => item.dept).filter(Boolean))];
             
             deptSelect.innerHTML = `<option value="">全部門 (全公司總覽)</option>`;
@@ -350,11 +359,16 @@
             deptSelect.value = currentSelected;
         }
 
-        // 篩選核心邏輯
+        // 多重條件篩選核心邏輯 (部門 + 紀錄類型)
         function getFilteredRecords() {
             const selectedDept = document.getElementById('filter-dept').value;
-            if (!selectedDept) return cloudRecords;
-            return cloudRecords.filter(item => item.dept === selectedDept);
+            const selectedType = document.getElementById('filter-type').value;
+
+            return cloudRecords.filter(item => {
+                const matchDept = !selectedDept || item.dept === selectedDept;
+                const matchType = !selectedType || item.type === selectedType;
+                return matchDept && matchType;
+            });
         }
 
         function filterData() {
@@ -414,14 +428,14 @@
             });
         }
 
-        // 新增：渲染廢棄物種類佔比圓餅圖 (Doughnut Chart)
+        // 渲染種類與主題佔比圓餅圖 (支援減碳資材或生物觀察主題)
         function renderCategoryChart(records) {
             const ctx = document.getElementById('categoryChart').getContext('2d');
             const categoryMap = {};
 
-            records.filter(i => i.type === 'waste').forEach(item => {
-                const cat = item.category || '其他';
-                categoryMap[cat] = (categoryMap[cat] || 0) + (parseFloat(item.amount) || 0);
+            records.forEach(item => {
+                const cat = item.category || '未分類';
+                categoryMap[cat] = (categoryMap[cat] || 0) + (item.type === 'waste' ? (parseFloat(item.amount) || 1) : 1);
             });
 
             const labels = Object.keys(categoryMap);
@@ -429,7 +443,6 @@
 
             if (categoryChartInstance) categoryChartInstance.destroy();
 
-            // 如果沒有資料時顯示預設提示
             if (labels.length === 0) {
                 categoryChartInstance = new Chart(ctx, {
                     type: 'doughnut',
