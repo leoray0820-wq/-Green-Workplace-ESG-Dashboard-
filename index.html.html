@@ -55,7 +55,7 @@
     <!-- Main Container -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-        <!-- Global Filter Bar (多重數據篩選器：部門 + 紀錄類型) -->
+        <!-- Global Filter Bar -->
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
@@ -63,18 +63,16 @@
                 </div>
                 <div>
                     <h3 class="text-sm font-bold text-slate-800">進階數據篩選面板</h3>
-                    <p class="text-xs text-slate-400">依部門與行動類型精準分析永續指標</p>
+                    <p class="text-xs text-slate-400">依部門與行動類型精準分析永續與生態指標</p>
                 </div>
             </div>
             <div class="flex items-center space-x-3 flex-wrap">
-                <!-- 依部門篩選 -->
                 <div>
                     <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">記錄部門</label>
                     <select id="filter-dept" onchange="filterData()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
                         <option value="">全部門 (全公司總覽)</option>
                     </select>
                 </div>
-                <!-- 依紀錄類型篩選 (新增：減碳行動 / 生態觀察) -->
                 <div>
                     <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">紀錄類型</label>
                     <select id="filter-type" onchange="filterData()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
@@ -91,28 +89,28 @@
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-2">
                     <i data-lucide="file-check-2" class="w-5 h-5 text-emerald-600"></i>
-                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">第三方稽核與方法學合規聲明 (Methodology & Boundary Notice)</h3>
+                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">第三方稽核與方法學合規聲明 (GRI & TNFD Framework)</h3>
                 </div>
-                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">符合 GRI 306-4 規範</span>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">符合 GRI 306 & TNFD 規範</span>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
                 <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
                         <i data-lucide="globe" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 1. 國際公認框架 (Baseline)
                     </p>
-                    <p class="leading-relaxed text-slate-500">本系統遵循 <strong class="text-slate-700">IPCC 2006 Guidelines Vol.5 (Biological Treatment)</strong> 指導方針，以「傳統掩埋厭氧分解產生高 GWP 甲烷 (CH_4)」作為替代對照基準。</p>
+                    <p class="leading-relaxed text-slate-500">減碳遵循 <strong class="text-slate-700">IPCC 2006</strong> 掩埋替代法；生態觀察依循 <strong class="text-slate-700">TNFD</strong> 自然相關財務揭露之生物多樣性指標。</p>
                 </div>
                 <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
                         <i data-lucide="shield-alert" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 2. 保守估計原則 (Conservativeness)
                     </p>
-                    <p class="leading-relaxed text-slate-500">減碳效益採用保守估計之 <strong class="text-slate-700">2.1 kg CO₂e / kg</strong> 替代係數，主動扣減好氧轉化過程微量排放，避免綠色誇大（Greenwashing）。</p>
+                    <p class="leading-relaxed text-slate-500">減碳效益採用保守估計之 <strong class="text-slate-700">2.1 kg CO₂e / kg</strong> 替代係數，生態活躍度透過五星量化評分進行客觀追蹤。</p>
                 </div>
                 <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
                         <i data-lucide="box" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 3. 清楚界定系統邊界 (System Boundary)
                     </p>
-                    <p class="leading-relaxed text-slate-500">邊界僅涵蓋「場域有機質收集 \ 模組化生物轉化 \ 蚓糞肥產出」。無範疇一直接排放，範疇三外判運輸碳排不列入本計算法。</p>
+                    <p class="leading-relaxed text-slate-500">涵蓋場域有機質轉化減碳量、土壤有機碳增匯效益，以及模組化設備周邊之生物多樣性動態存證。</p>
                 </div>
             </div>
         </div>
@@ -156,11 +154,11 @@
             </div>
         </div>
 
-        <!-- Charts Section (趨勢長條圖 + 種類佔比圓餅圖) -->
+        <!-- Charts Section (動態依類型切換為減碳趨勢 或 生態多樣性趨勢) -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Trend Chart -->
+            <!-- Trend Chart (動態適應：減碳長條圖 或 生態活躍度折線圖) -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 lg:col-span-2">
-                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                <h2 id="trend-chart-title" class="text-base font-bold text-slate-800 mb-4 flex items-center">
                     <i data-lucide="trending-up" class="w-5 h-5 mr-2 text-forest-500"></i>
                     總體廢棄物轉化趨勢分析
                 </h2>
@@ -169,9 +167,9 @@
                 </div>
             </div>
 
-            <!-- Category Donut Chart -->
+            <!-- Category / Topic Donut Chart (動態適應：資材種類佔比 或 生態觀察主題佔比) -->
             <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex flex-col justify-between">
-                <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center">
+                <h2 id="category-chart-title" class="text-base font-bold text-slate-800 mb-4 flex items-center">
                     <i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-emerald-500"></i>
                     資材種類與主題佔比分析
                 </h2>
@@ -255,11 +253,11 @@
 
                 <div id="field-bio-details" class="hidden space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">觀察主題</label>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">觀察主題 / 物種名稱</label>
                         <input type="text" id="form-bio-title" placeholder="例如：蚯蚓翻耕活躍度 / 土壤蕈類觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">蚯蚓活躍度評分 (1-5 星)</label>
+                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">生態活躍度評分 (1-5 星)</label>
                         <select id="form-worm-rating" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                             <option value="5">⭐⭐⭐⭐⭐ (極度活躍/集群明顯)</option>
                             <option value="4">⭐⭐⭐⭐ (良好進食)</option>
@@ -330,7 +328,7 @@
                 .then(data => {
                     cloudRecords = Array.isArray(data) ? data : [];
                     updateDeptDropdown();
-                    filterData(); // 更新畫面與圖表
+                    filterData();
                 })
                 .catch(err => {
                     console.error("Cloud fetch failed:", err);
@@ -341,11 +339,9 @@
                 });
         }
 
-        // 動態載入部門下拉選單選項
         function updateDeptDropdown() {
             const deptSelect = document.getElementById('filter-dept');
             const currentSelected = deptSelect.value;
-            
             const departments = [...new Set(cloudRecords.map(item => item.dept).filter(Boolean))];
             
             deptSelect.innerHTML = `<option value="">全部門 (全公司總覽)</option>`;
@@ -355,11 +351,9 @@
                 opt.textContent = dept;
                 deptSelect.appendChild(opt);
             });
-            
             deptSelect.value = currentSelected;
         }
 
-        // 多重條件篩選核心邏輯 (部門 + 紀錄類型)
         function getFilteredRecords() {
             const selectedDept = document.getElementById('filter-dept').value;
             const selectedType = document.getElementById('filter-type').value;
@@ -387,97 +381,148 @@
             document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
             document.getElementById('kpi-bio-logs').innerHTML = `${photoCount} <span class="text-sm font-normal text-slate-500">張存證</span>`;
 
-            renderTrendChart(records);
-            renderCategoryChart(records);
+            renderCharts(records);
             renderTable(records);
         }
 
-        function renderTrendChart(records) {
-            const ctx = document.getElementById('trendChart').getContext('2d');
-            const wasteByDate = {};
-            
-            records.filter(i => i.type === 'waste').forEach(item => {
-                wasteByDate[item.date] = (wasteByDate[item.date] || 0) + item.amount;
-            });
-
-            const labels = Object.keys(wasteByDate).sort();
-            const data = labels.map(date => wasteByDate[date]);
+        // 智慧動態圖表渲染核心 (依據當前選取的類型自動切換圖表形態)
+        function renderCharts(records) {
+            const selectedType = document.getElementById('filter-type').value;
+            const trendCtx = document.getElementById('trendChart').getContext('2d');
+            const catCtx = document.getElementById('categoryChart').getContext('2d');
 
             if (trendChartInstance) trendChartInstance.destroy();
-
-            trendChartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: '每日處理廢棄物 (kg)',
-                        data: data,
-                        backgroundColor: '#10b981',
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        }
-
-        // 渲染種類與主題佔比圓餅圖 (支援減碳資材或生物觀察主題)
-        function renderCategoryChart(records) {
-            const ctx = document.getElementById('categoryChart').getContext('2d');
-            const categoryMap = {};
-
-            records.forEach(item => {
-                const cat = item.category || '未分類';
-                categoryMap[cat] = (categoryMap[cat] || 0) + (item.type === 'waste' ? (parseFloat(item.amount) || 1) : 1);
-            });
-
-            const labels = Object.keys(categoryMap);
-            const data = Object.values(categoryMap);
-
             if (categoryChartInstance) categoryChartInstance.destroy();
 
-            if (labels.length === 0) {
-                categoryChartInstance = new Chart(ctx, {
+            if (selectedType === 'bio') {
+                // === 生態觀察模式 ===
+                document.getElementById('trend-chart-title').innerHTML = `<i data-lucide="activity" class="w-5 h-5 mr-2 text-indigo-500"></i>生物多樣性活躍度評分趨勢`;
+                document.getElementById('category-chart-title').innerHTML = `<i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-indigo-500"></i>生態觀察主題與物種佔比`;
+
+                // 1. 生態活躍度折線圖
+                const bioByDate = {};
+                records.filter(i => i.type === 'bio').forEach(item => {
+                    bioByDate[item.date] = (bioByDate[item.date] || 0) + (parseInt(item.rating) || 0);
+                });
+                const labels = Object.keys(bioByDate).sort();
+                const data = labels.map(date => bioByDate[date]);
+
+                trendChartInstance = new Chart(trendCtx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '生態活躍度總評分 (星數)',
+                            data: data,
+                            borderColor: '#6366f1',
+                            backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                            fill: true,
+                            tension: 0.3,
+                            borderWidth: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, max: 25, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                // 2. 生態觀察主題佔比圓餅圖
+                const topicMap = {};
+                records.filter(i => i.type === 'bio').forEach(item => {
+                    const topic = item.category || '一般觀察';
+                    topicMap[topic] = (topicMap[topic] || 0) + 1;
+                });
+                const topLabels = Object.keys(topicMap);
+                const topData = Object.values(topicMap);
+
+                categoryChartInstance = new Chart(catCtx, {
                     type: 'doughnut',
                     data: {
-                        labels: ['尚無數據'],
-                        datasets: [{ data: [1], backgroundColor: ['#e2e8f0'] }]
+                        labels: topLabels.length ? topLabels : ['尚無觀察紀錄'],
+                        datasets: [{
+                            data: topData.length ? topData : [1],
+                            backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                        cutout: '65%'
+                    }
                 });
-                return;
-            }
 
-            categoryChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b'],
-                        borderWidth: 2,
-                        borderColor: '#ffffff'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { boxWidth: 12, font: { size: 11 } }
-                        }
+            } else {
+                // === 減碳行動或總覽模式 ===
+                document.getElementById('trend-chart-title').innerHTML = `<i data-lucide="trending-up" class="w-5 h-5 mr-2 text-forest-500"></i>總體廢棄物轉化趨勢分析`;
+                document.getElementById('category-chart-title').innerHTML = `<i data-lucide="pie-chart" class="w-5 h-5 mr-2 text-emerald-500"></i>資材種類佔比分析`;
+
+                const wasteRecords = records.filter(i => i.type === 'waste');
+                const wasteByDate = {};
+                wasteRecords.forEach(item => {
+                    wasteByDate[item.date] = (wasteByDate[item.date] || 0) + item.amount;
+                });
+                const labels = Object.keys(wasteByDate).sort();
+                const data = labels.map(date => wasteByDate[date]);
+
+                trendChartInstance = new Chart(trendCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: '每日處理廢棄物 (kg)',
+                            data: data,
+                            backgroundColor: '#10b981',
+                            borderRadius: 6
+                        }]
                     },
-                    cutout: '65%'
-                }
-            });
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+                            x: { grid: { display: false } }
+                        }
+                    }
+                });
+
+                const categoryMap = {};
+                wasteRecords.forEach(item => {
+                    const cat = item.category || '其他';
+                    categoryMap[cat] = (categoryMap[cat] || 0) + (parseFloat(item.amount) || 0);
+                });
+                const catLabels = Object.keys(categoryMap);
+                const catData = Object.values(categoryMap);
+
+                categoryChartInstance = new Chart(catCtx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: catLabels.length ? catLabels : ['尚無減碳紀錄'],
+                        datasets: [{
+                            data: catData.length ? catData : [1],
+                            backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'],
+                            borderWidth: 2,
+                            borderColor: '#ffffff'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } },
+                        cutout: '65%'
+                    }
+                });
+            }
+            lucide.createIcons();
         }
 
         function renderTable(records) {
@@ -611,8 +656,7 @@
                 payload.category = document.getElementById('form-category-waste').value;
                 payload.amount = parseFloat(document.getElementById('form-amount').value) || 0;
             } else {
-                payload.category = '生物多樣性';
-                payload.title = document.getElementById('form-bio-title').value;
+                payload.category = document.getElementById('form-bio-title').value || '生態觀察';
                 payload.rating = parseInt(document.getElementById('form-worm-rating').value);
             }
 
