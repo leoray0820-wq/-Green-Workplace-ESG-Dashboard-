@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESG 雲端多租戶管理系統 | 方案 C 企業防護版</title>
+    <title>永續行動數據紀錄 | 多租戶雲端稽核系統</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js -->
@@ -22,552 +22,763 @@
             }
         }
     </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+        }
+    </style>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen relative flex flex-col">
 
-    <!-- =================================================================== -->
-    <!-- 1. 登入介面 (Login View) -->
-    <!-- =================================================================== -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-forest-700 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+    <!-- ==================== LOGIN MODAL / OVERLAY ==================== -->
+    <div id="login-overlay" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-100">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 bg-forest-100 text-forest-600 rounded-2xl flex items-center justify-center mx-auto mb-3 shadow-inner">
                     <i data-lucide="shield-check" class="w-10 h-10"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800">ESG 永續雲端管理系統</h2>
-                <p class="text-xs text-slate-400">方案 C：多租戶數據隔離與權限驗證入口</p>
+                <h2 class="text-2xl font-bold text-slate-800">ESG 多租戶數據管理平台</h2>
+                <p class="text-xs text-slate-500 mt-1">GRI 306 & TNFD 企業稽核隔離系統</p>
             </div>
 
-            <form onsubmit="handleLogin(event)" class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">企業電子郵件 (Email)</label>
-                    <input type="email" id="login-email" required placeholder="admin@esg.com 或 userA@companyA.com" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
-                </div>
+            <!-- Fast Login Quick Buttons -->
+            <div class="mb-6 space-y-2">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">⚡ 一鍵快速免密體驗 (Quick Access)</p>
+                
+                <button type="button" onclick="quickLogin('ADMIN')" class="w-full text-left p-3 rounded-xl border border-amber-200 bg-amber-50/60 hover:bg-amber-100 transition flex items-center justify-between group">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-amber-500 text-white rounded-lg group-hover:scale-105 transition-transform"><i data-lucide="crown" class="w-5 h-5"></i></div>
+                        <div>
+                            <div class="text-xs font-bold text-amber-900">永續總管理者 (Admin)</div>
+                            <div class="text-[11px] text-amber-700">可檢視全公司/切換所有企業資料</div>
+                        </div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-amber-600"></i>
+                </button>
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">密碼</label>
-                    <input type="password" id="login-password" required placeholder="••••••••" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
-                </div>
+                <button type="button" onclick="quickLogin('COMP_A')" class="w-full text-left p-3 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 transition flex items-center justify-between group">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-emerald-600 text-white rounded-lg group-hover:scale-105 transition-transform"><i data-lucide="building-2" class="w-5 h-5"></i></div>
+                        <div>
+                            <div class="text-xs font-bold text-emerald-900">Company A (綠色科技)</div>
+                            <div class="text-[11px] text-emerald-700">專屬隔離權限，獨立試算表視角</div>
+                        </div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-emerald-600"></i>
+                </button>
 
-                <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 rounded-xl shadow-lg transition flex items-center justify-center">
-                    <i data-lucide="log-in" class="w-4 h-4 mr-2"></i> 安全驗證登入
+                <button type="button" onclick="quickLogin('COMP_B')" class="w-full text-left p-3 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100 transition flex items-center justify-between group">
+                    <div class="flex items-center space-x-3">
+                        <div class="p-2 bg-blue-600 text-white rounded-lg group-hover:scale-105 transition-transform"><i data-lucide="building" class="w-5 h-5"></i></div>
+                        <div>
+                            <div class="text-xs font-bold text-blue-900">Company B (環保製造)</div>
+                            <div class="text-[11px] text-blue-700">專屬隔離權限，獨立試算表視角</div>
+                        </div>
+                    </div>
+                    <i data-lucide="arrow-right" class="w-4 h-4 text-blue-600"></i>
+                </button>
+            </div>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-200"></div>
+                <span class="flex-shrink mx-3 text-slate-400 text-xs font-semibold">或手動輸入帳號</span>
+                <div class="flex-grow border-t border-slate-200"></div>
+            </div>
+
+            <!-- Manual Login Form -->
+            <form onsubmit="handleManualLogin(event)" class="mt-3 space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">電子郵件</label>
+                    <input type="email" id="login-email" placeholder="admin@esg.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase mb-1">密碼</label>
+                    <input type="password" id="login-password" placeholder="admin123" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                </div>
+                <button type="submit" class="w-full py-2.5 bg-forest-600 hover:bg-forest-700 text-white font-bold rounded-lg text-sm shadow-md transition">
+                    安全登入系統
                 </button>
             </form>
-
-            <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-xs text-slate-500 space-y-1">
-                <p class="font-bold text-slate-700">💡 快速測試帳號資訊：</p>
-                <p>• 👑 總管理者：<code>admin@esg.com</code> / <code>admin123</code></p>
-                <p>• 🏢 企業 A：<code>userA@companyA.com</code> / <code>user123</code></p>
-                <p>• 🏢 企業 B：<code>userB@companyB.com</code> / <code>user123</code></p>
-            </div>
         </div>
     </div>
 
+    <!-- ==================== MAIN APPLICATION SCREEN ==================== -->
+    <div id="app-screen" class="hidden flex-1 flex flex-col">
 
-    <!-- =================================================================== -->
-    <!-- 2. 主儀表板介面 (Dashboard View) -->
-    <!-- =================================================================== -->
-    <div id="app-screen" class="hidden">
-        
         <!-- Header -->
         <header class="bg-forest-600 text-white shadow-md sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap justify-between items-center gap-4">
                 <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-emerald-500 rounded-lg text-forest-700">
-                        <i data-lucide="building-2" class="w-6 h-6"></i>
+                    <div class="p-2 bg-emerald-500 rounded-lg text-forest-700 shadow-sm">
+                        <i data-lucide="leaf" class="w-6 h-6"></i>
                     </div>
                     <div>
-                        <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
-                            <span id="header-company-name">企業內部儀表板</span>
-                            <span id="role-badge" class="text-xs bg-emerald-400 text-forest-700 font-extrabold px-2 py-0.5 rounded-full">管理權限</span>
-                        </h1>
-                        <p class="text-xs text-emerald-200">GRI 306 & TNFD 雲端隔離與多租戶數據稽核系統</p>
+                        <div class="flex items-center space-x-2">
+                            <h1 class="text-lg font-bold tracking-wide">永續行動數據管理平台</h1>
+                            <span id="role-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-400 text-amber-950">
+                                總管理者
+                            </span>
+                        </div>
+                        <p class="text-xs text-emerald-200" id="header-company-name">全場域跨企業總覽數據視角</p>
                     </div>
                 </div>
                 
                 <div class="flex items-center space-x-3">
-                    <div class="text-right hidden sm:block">
-                        <p id="user-display-email" class="text-xs font-semibold text-white"></p>
-                        <p id="user-display-company" class="text-[10px] text-emerald-200"></p>
+                    <div class="hidden sm:block text-right">
+                        <p class="text-xs font-bold text-emerald-100" id="user-display-email">admin@esg.com</p>
+                        <p class="text-[10px] text-emerald-300" id="user-display-tenant">內部專屬 ID: ALL</p>
                     </div>
 
-                    <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                        <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 填報減碳
+                    <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center shadow-sm transition">
+                        <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 填報廢棄物
                     </button>
-                    <button onclick="openModal('bio')" class="bg-forest-700 hover:bg-black text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                        <i data-lucide="bug" class="w-4 h-4 mr-1.5"></i> 填報生態
+                    <button onclick="openModal('bio')" class="bg-forest-700 hover:bg-forest-800 text-white px-3.5 py-2 rounded-lg text-sm font-semibold flex items-center shadow-sm transition">
+                        <i data-lucide="bug" class="w-4 h-4 mr-1.5"></i> 生態觀察
                     </button>
-                    <button onclick="handleLogout()" class="bg-rose-500 hover:bg-rose-600 text-white p-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition" title="登出系統">
+                    <button onclick="logout()" class="bg-red-500/80 hover:bg-red-600 text-white p-2 rounded-lg text-sm font-medium transition" title="登出系統">
                         <i data-lucide="log-out" class="w-4 h-4"></i>
                     </button>
                 </div>
             </div>
         </header>
 
-        <!-- Main Content -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        <!-- Main Body -->
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1 w-full">
 
-            <!-- 總管理者專屬切換面板 (一般企業用戶不可見) -->
-            <div id="admin-control-panel" class="hidden bg-amber-50 border border-amber-200 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2 bg-amber-500 text-white rounded-lg">
-                        <i data-lucide="crown" class="w-5 h-5"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-amber-900">總管理者最高監控面板 (Super Admin Control)</h3>
-                        <p class="text-xs text-amber-700">您正處於跨企業總覽視角，可自由調閱或切換個別企業視角</p>
-                    </div>
+            <!-- Admin Multi-Tenant Filter Bar (Visible only to ADMIN) -->
+            <div id="admin-tenant-selector" class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent p-4 rounded-xl border border-amber-200/80 flex flex-wrap items-center justify-between gap-4">
+                <div class="flex items-center space-x-2 text-amber-900 font-bold text-sm">
+                    <i data-lucide="sliders" class="w-5 h-5 text-amber-600"></i>
+                    <span>[總管理者權限] 切換租戶檢視視角：</span>
                 </div>
-                <div>
-                    <select id="admin-company-select" onchange="filterData()" class="border border-amber-300 rounded-lg px-3 py-1.5 text-sm font-bold text-amber-900 focus:ring-2 focus:ring-amber-500 outline-none bg-white">
-                        <option value="ALL">🌐 全場域所有企業彙總 (Total Overview)</option>
-                        <option value="CompanyA">🏢 僅看 A 公司 (Company A)</option>
-                        <option value="CompanyB">🏢 僅看 B 公司 (Company B)</option>
-                    </select>
+                <div class="flex items-center space-x-2">
+                    <button onclick="setAdminTenantFilter('ALL')" id="filter-btn-ALL" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white shadow-sm">全場域匯總</button>
+                    <button onclick="setAdminTenantFilter('CompanyA')" id="filter-btn-CompanyA" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">Company A (綠色科技)</button>
+                    <button onclick="setAdminTenantFilter('CompanyB')" id="filter-btn-CompanyB" class="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50">Company B (環保製造)</button>
                 </div>
             </div>
 
             <!-- KPI Impact Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><i data-lucide="scale" class="w-8 h-8"></i></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80 flex items-center space-x-4">
+                    <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><i data-lucide="scale" class="w-7 h-7"></i></div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">累計廢棄物轉化</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-total-waste">0.0 <span class="text-sm font-normal text-slate-500">kg</span></p>
-                        <p class="text-xs text-emerald-600 mt-1">GRI 306-4 規範追溯</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">累計廢棄物轉化</p>
+                        <p class="text-2xl font-black text-slate-800" id="kpi-total-waste">0.0 <span class="text-xs font-normal text-slate-500">kg</span></p>
+                        <p class="text-[11px] text-emerald-600 font-semibold mt-0.5">GRI 306-4 規範追溯</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3 bg-teal-100 text-teal-600 rounded-xl"><i data-lucide="cloud-off" class="w-8 h-8"></i></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80 flex items-center space-x-4">
+                    <div class="p-3 bg-teal-100 text-teal-600 rounded-xl"><i data-lucide="cloud-off" class="w-7 h-7"></i></div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">範疇三減碳效益</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-carbon-reduced">0.0 <span class="text-sm font-normal text-slate-500">kg CO₂e</span></p>
-                        <p class="text-xs text-teal-600 mt-1">IPCC 保守替代係數 2.1</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">範疇三減碳效益</p>
+                        <p class="text-2xl font-black text-slate-800" id="kpi-carbon-reduced">0.0 <span class="text-xs font-normal text-slate-500">kg CO₂e</span></p>
+                        <p class="text-[11px] text-teal-600 font-semibold mt-0.5">係數 2.1 kgCO₂e/kg</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3 bg-amber-100 text-amber-600 rounded-xl"><i data-lucide="sparkles" class="w-8 h-8"></i></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80 flex items-center space-x-4">
+                    <div class="p-3 bg-amber-100 text-amber-600 rounded-xl"><i data-lucide="sparkles" class="w-7 h-7"></i></div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">產出有機蚓糞肥</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-vermicompost">0.0 <span class="text-sm font-normal text-slate-500">kg</span></p>
-                        <p class="text-xs text-amber-600 mt-1">土壤有機碳 SOC 增匯</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">產出有機蚓糞肥</p>
+                        <p class="text-2xl font-black text-slate-800" id="kpi-vermicompost">0.0 <span class="text-xs font-normal text-slate-500">kg</span></p>
+                        <p class="text-[11px] text-amber-600 font-semibold mt-0.5">土壤有機碳 SOC 增匯</p>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl"><i data-lucide="camera" class="w-8 h-8"></i></div>
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80 flex items-center space-x-4">
+                    <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl"><i data-lucide="camera" class="w-7 h-7"></i></div>
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">雲端憑證照片</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-bio-logs">0 <span class="text-sm font-normal text-slate-500">張存證</span></p>
-                        <p class="text-xs text-indigo-600 mt-1">TNFD 資訊透明度</p>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">生物多樣性紀錄</p>
+                        <p class="text-2xl font-black text-slate-800" id="kpi-bio-logs">0 <span class="text-xs font-normal text-slate-500">筆觀測</span></p>
+                        <p class="text-[11px] text-indigo-600 font-semibold mt-0.5">TNFD 生態指標合規</p>
                     </div>
                 </div>
             </div>
 
-            <!-- 4大圖表區塊 (本公司專屬數據) -->
-            <div class="space-y-6">
-                <h2 class="text-lg font-bold text-slate-800 flex items-center">
-                    <i data-lucide="layout-grid" class="w-5 h-5 mr-2 text-forest-500"></i>
-                    數據統計 4 大圖表全景
-                </h2>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center"><i data-lucide="trending-up" class="w-4 h-4 mr-1.5 text-emerald-600"></i> 廢棄物轉化趨勢</h3>
-                            <p class="text-[11px] text-slate-400 mb-3">每日資材處理重量 (kg)</p>
-                        </div>
-                        <div class="h-52"><canvas id="chart-waste-trend"></canvas></div>
+            <!-- 4 Visual Charts Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Chart 1: Waste Trend -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i data-lucide="trending-up" class="w-4 h-4 mr-2 text-emerald-500"></i> 廢棄物轉化趨勢 (kg)
+                        </h3>
+                        <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">Chart 1</span>
                     </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center"><i data-lucide="pie-chart" class="w-4 h-4 mr-1.5 text-emerald-600"></i> 資材種類佔比</h3>
-                            <p class="text-[11px] text-slate-400 mb-3">廢棄物與有機資材分佈</p>
-                        </div>
-                        <div class="h-52 relative flex items-center justify-center"><canvas id="chart-waste-category"></canvas></div>
+                    <div class="h-60 relative">
+                        <canvas id="chart-waste-trend"></canvas>
                     </div>
+                </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center"><i data-lucide="activity" class="w-4 h-4 mr-1.5 text-indigo-600"></i> 生物多樣性趨勢</h3>
-                            <p class="text-[11px] text-slate-400 mb-3">生態活躍度評分 (1-5 星星)</p>
-                        </div>
-                        <div class="h-52"><canvas id="chart-bio-trend"></canvas></div>
+                <!-- Chart 2: Material Category Distribution -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i data-lucide="pie-chart" class="w-4 h-4 mr-2 text-teal-500"></i> 資材/廚餘種類佔比
+                        </h3>
+                        <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">Chart 2</span>
                     </div>
+                    <div class="h-60 relative flex justify-center">
+                        <canvas id="chart-waste-cat"></canvas>
+                    </div>
+                </div>
 
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center"><i data-lucide="bug" class="w-4 h-4 mr-1.5 text-indigo-600"></i> 生態觀察主題佔比</h3>
-                            <p class="text-[11px] text-slate-400 mb-3">觀察物種與生態現象分佈</p>
-                        </div>
-                        <div class="h-52 relative flex items-center justify-center"><canvas id="chart-bio-category"></canvas></div>
+                <!-- Chart 3: Biodiversity Rating Trend -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i data-lucide="activity" class="w-4 h-4 mr-2 text-indigo-500"></i> 蚯蚓活躍度/生態指標歷史走勢
+                        </h3>
+                        <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">Chart 3</span>
+                    </div>
+                    <div class="h-60 relative">
+                        <canvas id="chart-bio-trend"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 4: Biodiversity Category Distribution -->
+                <div class="bg-white rounded-xl shadow-sm p-5 border border-slate-200/80">
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-sm font-bold text-slate-800 flex items-center">
+                            <i data-lucide="bug" class="w-4 h-4 mr-2 text-amber-500"></i> 生物多樣性觀察主題分佈
+                        </h3>
+                        <span class="text-[11px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded font-mono">Chart 4</span>
+                    </div>
+                    <div class="h-60 relative flex justify-center">
+                        <canvas id="chart-bio-cat"></canvas>
                     </div>
                 </div>
             </div>
 
             <!-- Data Table Section -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
-                <div class="p-6 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200/80 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
                     <div>
                         <h2 class="text-base font-bold text-slate-800">歷史稽核數據清單</h2>
-                        <p class="text-xs text-slate-400">已套用企業隔離保護機制，僅顯示權限範圍內之數據</p>
+                        <p class="text-xs text-slate-400">目前僅顯示您具備檢視權限的數據資料紀錄</p>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <input type="text" id="table-search" oninput="filterData()" placeholder="搜尋類別、部門、填寫人..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                            <i data-lucide="download" class="w-4 h-4 mr-2"></i> 導出本公司報表
+                    <div class="flex items-center space-x-3 flex-wrap gap-2">
+                        <!-- Department Filter -->
+                        <select id="table-dept-filter" onchange="renderTable()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="ALL">所有部門 (All Depts)</option>
+                            <option value="行政總務部">行政總務部</option>
+                            <option value="員工餐廳">員工餐廳</option>
+                            <option value="廠區綠化組">廠區綠化組</option>
+                            <option value="研發中心">研發中心</option>
+                        </select>
+
+                        <!-- Search -->
+                        <input type="text" id="table-search" oninput="renderTable()" placeholder="搜尋類別、人員或備註..." class="border border-slate-200 rounded-lg px-3 py-1.5 text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+                        
+                        <!-- Export CSV -->
+                        <button onclick="exportCSV()" class="bg-slate-800 hover:bg-slate-900 text-white px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center shadow-sm transition">
+                            <i data-lucide="download" class="w-3.5 h-3.5 mr-1.5"></i> 導出 CSV
                         </button>
                     </div>
                 </div>
 
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-sm">
+                    <table class="w-full text-left border-collapse text-xs">
                         <thead>
-                            <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
-                                <th class="p-4">所屬企業</th>
-                                <th class="p-4">憑證照片</th>
-                                <th class="p-4">日期</th>
-                                <th class="p-4">類型</th>
-                                <th class="p-4">細項類別 / 主題</th>
-                                <th class="p-4">數量 / 評分</th>
-                                <th class="p-4">估算減碳量</th>
-                                <th class="p-4">記錄部門</th>
-                                <th class="p-4">填寫人</th>
-                                <th class="p-4">備註</th>
+                            <tr class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-100">
+                                <th class="p-3.5">所屬企業 (Tenant)</th>
+                                <th class="p-3.5">日期</th>
+                                <th class="p-3.5">紀錄類型</th>
+                                <th class="p-3.5">細項類別 / 主題</th>
+                                <th class="p-3.5">數量 / 評分</th>
+                                <th class="p-3.5">估算減碳量</th>
+                                <th class="p-3.5">部門 / 填寫人</th>
+                                <th class="p-3.5">現場照片憑證</th>
+                                <th class="p-3.5">備註說明</th>
                             </tr>
                         </thead>
-                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-700"></tbody>
+                        <tbody id="data-table-body" class="divide-y divide-slate-100 text-slate-700">
+                            <!-- Dynamic Table Rows -->
+                        </tbody>
                     </table>
                 </div>
             </div>
+
         </main>
     </div>
 
-    <!-- Modal Form -->
-    <div id="modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
-        <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+    <!-- ==================== RECORD MODAL FORM ==================== -->
+    <div id="record-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-forest-600 text-white p-4 px-6 flex justify-between items-center">
-                <h3 id="modal-title" class="text-lg font-bold flex items-center"><i data-lucide="cloud-upload" class="w-5 h-5 mr-2"></i> 雲端數據填報</h3>
-                <button onclick="closeModal()" class="text-slate-200 hover:text-white"><i data-lucide="x" class="w-6 h-6"></i></button>
+                <h3 id="modal-title" class="text-base font-bold flex items-center">
+                    <i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> 填報數據資料
+                </h3>
+                <button onclick="closeModal()" class="text-slate-300 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
-            <form id="record-form" onsubmit="handleCloudSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1">
+            <form id="record-form" onsubmit="handleFormSubmit(event)" class="p-6 space-y-4 overflow-y-auto flex-1 text-xs">
                 <input type="hidden" id="form-type" value="waste">
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">日期</label>
-                    <input type="date" id="form-date" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                </div>
-
-                <div id="field-category-waste">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">廢棄物/資材種類</label>
-                    <select id="form-category-waste" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                        <option value="咖啡渣">咖啡渣</option>
-                        <option value="茶渣">茶葉渣/茶包</option>
-                        <option value="生廚餘">生廚餘 (植物性)</option>
-                        <option value="熟廚餘">熟廚餘</option>
-                        <option value="落葉與枯枝">落葉與枯枝</option>
+                <!-- Target Company (Admin only option) -->
+                <div id="admin-form-company-select" class="hidden">
+                    <label class="block font-bold text-slate-600 uppercase mb-1">歸屬企業 (Admin 設定)</label>
+                    <select id="form-company-id" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="CompanyA">Company A (綠色科技)</option>
+                        <option value="CompanyB">Company B (環保製造)</option>
                     </select>
                 </div>
 
-                <div id="field-amount-waste">
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">投放重量 (kg)</label>
-                    <input type="number" step="0.1" id="form-amount" placeholder="例如：12.5" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                <div>
+                    <label class="block font-bold text-slate-600 uppercase mb-1">日期</label>
+                    <input type="date" id="form-date" required class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
                 </div>
 
-                <div id="field-bio-details" class="hidden space-y-4">
+                <!-- Fields for Waste -->
+                <div id="field-category-waste" class="space-y-4">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">觀察主題 / 物種名稱</label>
-                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓翻耕活躍度 / 土壤蕈類觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block font-bold text-slate-600 uppercase mb-1">廢棄物 / 資材種類</label>
+                        <select id="form-category-waste" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="咖啡渣">咖啡渣</option>
+                            <option value="茶葉渣">茶葉渣 / 茶包</option>
+                            <option value="生廚餘">生廚餘 (蔬菜水果切塊)</option>
+                            <option value="落葉枯枝">落葉與枯枝</option>
+                            <option value="熟廚餘">熟廚餘</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">生態活躍度評分 (1-5 星)</label>
-                        <select id="form-worm-rating" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
-                            <option value="5">⭐⭐⭐⭐⭐ (極度活躍/集群明顯)</option>
-                            <option value="4">⭐⭐⭐⭐ (良好進食)</option>
-                            <option value="3">⭐⭐⭐ (正常活動)</option>
-                            <option value="2">⭐⭐ (活動偏緩慢)</option>
-                            <option value="1">⭐ (需要調整環境濕度/通氣)</option>
+                        <label class="block font-bold text-slate-600 uppercase mb-1">投放重量 (kg)</label>
+                        <input type="number" step="0.1" min="0.1" id="form-amount" placeholder="例如：12.5" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                </div>
+
+                <!-- Fields for Bio -->
+                <div id="field-bio-details" class="hidden space-y-4">
+                    <div>
+                        <label class="block font-bold text-slate-600 uppercase mb-1">觀察主題</label>
+                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓翻耕活躍度 / 土壤菌絲生長" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-bold text-slate-600 uppercase mb-1">蚯蚓活躍度評分 (1-5 星)</label>
+                        <select id="form-worm-rating" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="5">⭐⭐⭐⭐⭐ (5分 - 極度活躍/土壤鬆軟)</option>
+                            <option value="4">⭐⭐⭐⭐ (4分 - 良好進食)</option>
+                            <option value="3">⭐⭐⭐ (3分 - 正常活動)</option>
+                            <option value="2">⭐⭐ (2分 - 活動偏慢)</option>
+                            <option value="1">⭐ (1分 - 需調整環境溫濕度)</option>
                         </select>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">記錄部門</label>
-                        <input type="text" id="form-dept" placeholder="行政總務部" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block font-bold text-slate-600 uppercase mb-1">紀錄部門</label>
+                        <select id="form-dept" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                            <option value="行政總務部">行政總務部</option>
+                            <option value="員工餐廳">員工餐廳</option>
+                            <option value="廠區綠化組">廠區綠化組</option>
+                            <option value="研發中心">研發中心</option>
+                        </select>
                     </div>
                     <div>
-                        <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">填寫人</label>
-                        <input type="text" id="form-author" placeholder="王小明" required class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <label class="block font-bold text-slate-600 uppercase mb-1">填寫人</label>
+                        <input type="text" id="form-author" placeholder="例如：王小明" required class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                 </div>
 
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">備註 / 現場紀錄</label>
-                    <textarea id="form-notes" rows="3" placeholder="紀錄現場狀況..." class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                    <label class="block font-bold text-slate-600 uppercase mb-1">照片存證模擬 (選擇範本照片)</label>
+                    <select id="form-photo-sim" class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <option value="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300">🌱 綠色植物/有機資材</option>
+                        <option value="https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=300">🍂 落葉 compost 現場</option>
+                        <option value="https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=300">☕ 咖啡渣回收現場</option>
+                    </select>
                 </div>
 
-                <div class="pt-4 flex justify-end space-x-3">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium shadow-sm">確認填報</button>
+                <div>
+                    <label class="block font-bold text-slate-600 uppercase mb-1">備註紀錄</label>
+                    <textarea id="form-notes" rows="2" placeholder="備註現場狀況或濕度測量結果..." class="w-full border border-slate-200 rounded-lg p-2 focus:ring-2 focus:ring-emerald-500 outline-none"></textarea>
+                </div>
+
+                <div class="pt-2 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-lg hover:bg-slate-50 font-semibold">取消</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold shadow-sm">確認儲存</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Frontend Script Logic -->
+    <!-- ==================== JAVASCRIPT LOGIC ==================== -->
     <script>
         // 👈 請將您部署 Apps Script 所獲得的「網頁應用程式網址」貼在這裡
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
-
-    let currentUser = null;
-    let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
-    // ... 後續程式碼
-        // 預設示範數據庫 (含 CompanyA 與 CompanyB 隔離數據)
-        let mockDatabase = [
-            { id: 101, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-15", type: "waste", category: "咖啡渣", amount: 25.5, carbon: 53.6, dept: "總務部", author: "陳大明", notes: "員工餐廳咖啡渣回收" },
-            { id: 102, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-18", type: "bio", category: "蚯蚓活動度", rating: 5, carbon: 0, dept: "永續小組", author: "林小華", notes: "1號箱分解快速" },
-            { id: 201, companyId: "CompanyB", companyName: "Company B 生態企業", date: "2026-10-16", type: "waste", category: "生廚餘", amount: 42.0, carbon: 88.2, dept: "團膳部", author: "張阿姨", notes: "廚房葉菜類廚餘" },
-            { id: 202, companyId: "CompanyB", companyName: "Company B 生態企業", date: "2026-10-19", type: "bio", category: "土壤蕈類", rating: 4, carbon: 0, dept: "廠務部", author: "李工程師", notes: "發現微生菌絲生長" }
-        ];
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
 
         let currentUser = null;
         let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
+      
+        // Pre-seeded local sample database for instant initialization
+        const DEFAULT_SEED_DATA = [
+            // Company A Data
+            { id: 101, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-10", type: "waste", category: "咖啡渣", amount: 15.5, carbon: 32.6, dept: "行政總務部", author: "陳大明", photo: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=300", notes: "行政大樓一樓咖啡機回收" },
+            { id: 102, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-12", type: "waste", category: "茶葉渣", amount: 8.0, carbon: 16.8, dept: "員工餐廳", author: "林小華", photo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300", notes: "餐廳午餐廢茶葉收集" },
+            { id: 103, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-15", type: "bio", category: "生物多樣性", title: "蚯蚓翻耕活躍度", rating: 5, carbon: 0, dept: "廠區綠化組", author: "張專員", photo: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=300", notes: "床體濕度良好，觀察到高密度活躍" },
+            { id: 104, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-18", type: "waste", category: "落葉枯枝", amount: 22.0, carbon: 46.2, dept: "廠區綠化組", author: "張專員", photo: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=300", notes: "修剪樹枝碎屑堆肥處理" },
 
+            // Company B Data
+            { id: 201, companyId: "CompanyB", companyName: "Company B 環保製造", date: "2026-10-11", type: "waste", category: "生廚餘", amount: 30.0, carbon: 63.0, dept: "員工餐廳", author: "李主任", photo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300", notes: "餐廳蔬菜剩餘處理" },
+            { id: 202, companyId: "CompanyB", companyName: "Company B 環保製造", date: "2026-10-14", type: "bio", category: "生物多樣性", title: "土壤菌絲與微生物觀察", rating: 4, carbon: 0, dept: "研發中心", author: "王研究員", photo: "https://images.unsplash.com/photo-1588880331179-bc9b93a8cb5e?w=300", notes: "白色菌絲分佈均勻" },
+            { id: 203, companyId: "CompanyB", companyName: "Company B 環保製造", date: "2026-10-17", type: "waste", category: "咖啡渣", amount: 12.0, carbon: 25.2, dept: "行政總務部", author: "趙助理", photo: "https://images.unsplash.com/photo-1530587191325-3db32d826c18?w=300", notes: "研發大樓茶水間回收" },
+            { id: 204, companyId: "CompanyB", companyName: "Company B 環保製造", date: "2026-10-19", type: "waste", category: "熟廚餘", amount: 18.5, carbon: 38.9, dept: "員工餐廳", author: "李主任", photo: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=300", notes: "經高溫降解處理" }
+        ];
+
+        // Global State Variables
+        let localRecords = [];
+        let currentUser = null;
+        let adminActiveTenantFilter = 'ALL'; // 'ALL', 'CompanyA', 'CompanyB'
+
+        // Chart instances
+        let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
+
+        // Initialize on Load
         document.addEventListener('DOMContentLoaded', () => {
+            initLocalStorageData();
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
             lucide.createIcons();
         });
 
-        // 升級版登入邏輯：支援自訂帳號與動態企業識別
-function handleLogin(e) {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value.trim().toLowerCase();
-    const pass = document.getElementById('login-password').value;
-
-    if (!email || !pass) {
-        alert('請輸入完整的 Email 與密碼！');
-        return;
-    }
-
-    // 1. 判斷是否為總管理者
-    if (email === 'admin@esg.com' || email.includes('admin')) {
-        currentUser = { 
-            email: email, 
-            role: 'ADMIN', 
-            companyId: 'ALL', 
-            companyName: '全場域總管理中心' 
-        };
-    } else {
-        // 2. 自動根據 Email 網域或名稱判斷企業 (例如: user@companyA.com -> Company A)
-        let domain = email.split('@')[1] || 'default';
-        let companyCode = domain.split('.')[0].toUpperCase(); // 例如 COMPANYA
-        
-        currentUser = { 
-            email: email, 
-            role: 'USER', 
-            companyId: companyCode, 
-            companyName: `🏢 ${companyCode} 專屬企業` 
-        };
-    }
-
-    // 切換介面
-    document.getElementById('login-screen').classList.add('hidden');
-    document.getElementById('app-screen').classList.remove('hidden');
-
-    // 更新抬頭與權限 UI
-    document.getElementById('header-company-name').innerText = currentUser.companyName;
-    document.getElementById('user-display-email').innerText = currentUser.email;
-    document.getElementById('user-display-company').innerText = currentUser.companyName;
-
-    if (currentUser.role === 'ADMIN') {
-        document.getElementById('role-badge').innerText = '總管理者';
-        document.getElementById('role-badge').className = 'text-xs bg-amber-400 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full';
-        document.getElementById('admin-control-panel').classList.remove('hidden');
-    } else {
-        document.getElementById('role-badge').innerText = '企業用戶 (數據已隔離)';
-        document.getElementById('role-badge').className = 'text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full';
-        document.getElementById('admin-control-panel').classList.add('hidden');
-    }
-
-    filterData();
-    if (typeof loadCloudData === 'function') loadCloudData();
-    lucide.createIcons();
-}
-
-        function handleLogout() {
-            currentUser = null;
-            document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('login-email').value = '';
-            document.getElementById('login-password').value = '';
+        // Local Storage Initialization
+        function initLocalStorageData() {
+            const stored = localStorage.getItem('esg_multi_tenant_db');
+            if (stored) {
+                try {
+                    localRecords = JSON.parse(stored);
+                } catch (e) {
+                    localRecords = DEFAULT_SEED_DATA;
+                }
+            } else {
+                localRecords = DEFAULT_SEED_DATA;
+                saveDataToStorage();
+            }
         }
 
-        // 根據使用者權限（Security Boundary）徹底隔離數據
-        function getAccessibleRecords() {
+        function saveDataToStorage() {
+            localStorage.setItem('esg_multi_tenant_db', JSON.stringify(localRecords));
+        }
+
+        // ==================== AUTHENTICATION LOGIC ==================== //
+        function quickLogin(roleType) {
+            if (roleType === 'ADMIN') {
+                loginUser('admin@esg.com', 'ADMIN', 'ALL', '全場域總管理中心');
+            } else if (roleType === 'COMP_A') {
+                loginUser('companyA@esg.com', 'USER', 'CompanyA', 'Company A 綠色科技');
+            } else if (roleType === 'COMP_B') {
+                loginUser('companyB@esg.com', 'USER', 'CompanyB', 'Company B 環保製造');
+            }
+        }
+
+        function handleManualLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim().toLowerCase();
+            
+            if (email.includes('admin')) {
+                loginUser(email, 'ADMIN', 'ALL', '全場域總管理中心');
+            } else if (email.includes('companyb')) {
+                loginUser(email, 'USER', 'CompanyB', 'Company B 環保製造');
+            } else {
+                loginUser(email || 'companyA@esg.com', 'USER', 'CompanyA', 'Company A 綠色科技');
+            }
+        }
+
+        function loginUser(email, role, companyId, companyName) {
+            currentUser = { email, role, companyId, companyName };
+            adminActiveTenantFilter = 'ALL';
+
+            // Hide overlay, show app
+            document.getElementById('login-overlay').classList.add('hidden');
+            document.getElementById('app-screen').classList.remove('hidden');
+
+            // Set UI details
+            document.getElementById('user-display-email').innerText = currentUser.email;
+            document.getElementById('user-display-tenant').innerText = `租戶識別: ${currentUser.companyId}`;
+
+            const badge = document.getElementById('role-badge');
+            const tenantSelector = document.getElementById('admin-tenant-selector');
+
+            if (currentUser.role === 'ADMIN') {
+                badge.innerText = "永續總管理者";
+                badge.className = "px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-400 text-amber-950";
+                document.getElementById('header-company-name').innerText = "全場域跨企業總覽數據視角";
+                tenantSelector.classList.remove('hidden');
+                document.getElementById('admin-form-company-select').classList.remove('hidden');
+            } else {
+                badge.innerText = `企業主管 (${currentUser.companyName})`;
+                badge.className = "px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-300 text-forest-700";
+                document.getElementById('header-company-name').innerText = `${currentUser.companyName} 專屬數據`;
+                tenantSelector.classList.add('hidden');
+                document.getElementById('admin-form-company-select').classList.add('hidden');
+            }
+
+            refreshDashboard();
+            lucide.createIcons();
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('app-screen').classList.add('hidden');
+            document.getElementById('login-overlay').classList.remove('hidden');
+        }
+
+        // Admin Filter Switcher
+        function setAdminTenantFilter(tenant) {
+            adminActiveTenantFilter = tenant;
+            ['ALL', 'CompanyA', 'CompanyB'].forEach(t => {
+                const btn = document.getElementById(`filter-btn-${t}`);
+                if (t === tenant) {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-white shadow-sm";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50";
+                }
+            });
+            refreshDashboard();
+        }
+
+        // Filter Data Based on User Role & Admin Selection
+        function getFilteredRecords() {
             if (!currentUser) return [];
 
             if (currentUser.role === 'ADMIN') {
-                const selected = document.getElementById('admin-company-select').value;
-                if (selected === 'ALL') return mockDatabase;
-                return mockDatabase.filter(item => item.companyId === selected);
+                if (adminActiveTenantFilter === 'ALL') {
+                    return localRecords;
+                } else {
+                    return localRecords.filter(r => r.companyId === adminActiveTenantFilter);
+                }
             } else {
-                // 🔐 普通企業使用者限制：僅能存取與自己 companyId 相符的數據
-                return mockDatabase.filter(item => item.companyId === currentUser.companyId);
+                // Strict Company Data Isolation
+                return localRecords.filter(r => r.companyId === currentUser.companyId);
             }
         }
 
-        function filterData() {
-            const records = getAccessibleRecords();
-            updateDashboard(records);
-        }
+        // ==================== DASHBOARD & CHARTS ==================== //
+        function refreshDashboard() {
+            const records = getFilteredRecords();
 
-        function updateDashboard(records) {
-            const wasteRecords = records.filter(i => i.type === 'waste');
-            const bioRecords = records.filter(i => i.type === 'bio');
-
-            const totalWaste = wasteRecords.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            // Calculate KPIs
+            const totalWaste = records.filter(r => r.type === 'waste').reduce((sum, r) => sum + (parseFloat(r.amount) || 0), 0);
             const carbonReduced = totalWaste * 2.1;
             const vermicompost = totalWaste * 0.3;
+            const bioLogsCount = records.filter(r => r.type === 'bio').length;
 
-            document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
-            document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg CO₂e</span>`;
-            document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
-            document.getElementById('kpi-bio-logs').innerHTML = `${records.length} <span class="text-sm font-normal text-slate-500">筆筆存證</span>`;
+            document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg CO₂e</span>`;
+            document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-bio-logs').innerHTML = `${bioLogsCount} <span class="text-xs font-normal text-slate-500">筆觀測</span>`;
 
-            renderCharts(wasteRecords, bioRecords);
+            renderCharts(records);
             renderTable(records);
         }
 
-        function renderCharts(wasteRecords, bioRecords) {
-            if (cWasteTrend) cWasteTrend.destroy();
-            if (cWasteCat) cWasteCat.destroy();
-            if (cBioTrend) cBioTrend.destroy();
-            if (cBioCat) cBioCat.destroy();
+        function renderCharts(records) {
+            // Chart 1: Waste Conversion Trend
+            const wasteTrendData = {};
+            records.filter(r => r.type === 'waste').forEach(r => {
+                wasteTrendData[r.date] = (wasteTrendData[r.date] || 0) + r.amount;
+            });
+            const dates = Object.keys(wasteTrendData).sort();
+            const wasteValues = dates.map(d => wasteTrendData[d]);
 
-            // 1. 廢棄物趨勢
-            const wByDate = {};
-            wasteRecords.forEach(i => wByDate[i.date] = (wByDate[i.date] || 0) + i.amount);
+            if (cWasteTrend) cWasteTrend.destroy();
             cWasteTrend = new Chart(document.getElementById('chart-waste-trend'), {
                 type: 'bar',
-                data: { labels: Object.keys(wByDate), datasets: [{ data: Object.values(wByDate), backgroundColor: '#10b981' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                data: {
+                    labels: dates.length ? dates : ['無數據'],
+                    datasets: [{ label: '投放重量 (kg)', data: wasteValues.length ? wasteValues : [0], backgroundColor: '#10b981', borderRadius: 6 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
             });
 
-            // 2. 資材種類
-            const wCatMap = {};
-            wasteRecords.forEach(i => wCatMap[i.category] = (wCatMap[i.category] || 0) + i.amount);
-            cWasteCat = new Chart(document.getElementById('chart-waste-category'), {
+            // Chart 2: Waste Material Distribution
+            const catCounts = {};
+            records.filter(r => r.type === 'waste').forEach(r => {
+                catCounts[r.category] = (catCounts[r.category] || 0) + r.amount;
+            });
+            if (cWasteCat) cWasteCat.destroy();
+            cWasteCat = new Chart(document.getElementById('chart-waste-cat'), {
                 type: 'doughnut',
-                data: { labels: Object.keys(wCatMap), datasets: [{ data: Object.values(wCatMap), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+                data: {
+                    labels: Object.keys(catCounts).length ? Object.keys(catCounts) : ['無數據'],
+                    datasets: [{
+                        data: Object.values(catCounts).length ? Object.values(catCounts) : [1],
+                        backgroundColor: ['#10b981', '#14b8a6', '#f59e0b', '#6366f1', '#ec4899']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
 
-            // 3. 生態活躍度
-            const bByDate = {};
-            bioRecords.forEach(i => bByDate[i.date] = (bByDate[i.date] || 0) + i.rating);
+            // Chart 3: Biodiversity Rating Trend
+            const bioTrendData = {};
+            records.filter(r => r.type === 'bio').forEach(r => {
+                bioTrendData[r.date] = r.rating || 3;
+            });
+            const bioDates = Object.keys(bioTrendData).sort();
+            const bioRatings = bioDates.map(d => bioTrendData[d]);
+
+            if (cBioTrend) cBioTrend.destroy();
             cBioTrend = new Chart(document.getElementById('chart-bio-trend'), {
                 type: 'line',
-                data: { labels: Object.keys(bByDate), datasets: [{ data: Object.values(bByDate), borderColor: '#6366f1', fill: true, backgroundColor: 'rgba(99,102,241,0.1)' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+                data: {
+                    labels: bioDates.length ? bioDates : ['無數據'],
+                    datasets: [{ label: '活躍度評分', data: bioRatings.length ? bioRatings : [0], borderColor: '#6366f1', backgroundColor: 'rgba(99,102,241,0.1)', fill: true, tension: 0.3 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { min: 1, max: 5 } } }
             });
 
-            // 4. 生態主題
-            const bCatMap = {};
-            bioRecords.forEach(i => bCatMap[i.category] = (bCatMap[i.category] || 0) + 1);
-            cBioCat = new Chart(document.getElementById('chart-bio-category'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(bCatMap), datasets: [{ data: Object.values(bCatMap), backgroundColor: ['#6366f1', '#10b981', '#f59e0b'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            // Chart 4: Biodiversity Observations Distribution
+            const bioTopics = {};
+            records.filter(r => r.type === 'bio').forEach(r => {
+                const title = r.title || '一般觀察';
+                bioTopics[title] = (bioTopics[title] || 0) + 1;
+            });
+            if (cBioCat) cBioCat.destroy();
+            cBioCat = new Chart(document.getElementById('chart-bio-cat'), {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(bioTopics).length ? Object.keys(bioTopics) : ['無數據'],
+                    datasets: [{
+                        data: Object.values(bioTopics).length ? Object.values(bioTopics) : [1],
+                        backgroundColor: ['#6366f1', '#f59e0b', '#10b981', '#ef4444']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
             });
         }
 
+        // Render Table with Filtering
         function renderTable(records) {
-            const search = document.getElementById('table-search').value.toLowerCase();
+            if (!records) records = getFilteredRecords();
+
+            const deptFilter = document.getElementById('table-dept-filter').value;
+            const searchKeyword = document.getElementById('table-search').value.toLowerCase();
             const tbody = document.getElementById('data-table-body');
             tbody.innerHTML = '';
 
-            const filtered = records.filter(i => 
-                (i.category && i.category.toLowerCase().includes(search)) ||
-                (i.dept && i.dept.toLowerCase().includes(search)) ||
-                (i.author && i.author.toLowerCase().includes(search))
-            );
+            const filtered = records.filter(r => {
+                const matchDept = (deptFilter === 'ALL' || r.dept === deptFilter);
+                const matchSearch = (
+                    (r.category && r.category.toLowerCase().includes(searchKeyword)) ||
+                    (r.author && r.author.toLowerCase().includes(searchKeyword)) ||
+                    (r.notes && r.notes.toLowerCase().includes(searchKeyword)) ||
+                    (r.companyName && r.companyName.toLowerCase().includes(searchKeyword))
+                );
+                return matchDept && matchSearch;
+            });
 
-            filtered.forEach(item => {
+            filtered.slice().reverse().forEach(item => {
                 const tr = document.createElement('tr');
                 tr.className = "hover:bg-slate-50 transition";
+
                 const isWaste = item.type === 'waste';
+                const amountDisplay = isWaste ? `<span class="font-bold text-slate-800">${item.amount} kg</span>` : `<span class="text-amber-600 font-bold">⭐ ${item.rating} 星</span>`;
+                const categoryDisplay = isWaste ? item.category : (item.title || '生態觀察');
+                
+                const photoHtml = item.photo ? 
+                    `<a href="${item.photo}" target="_blank" class="inline-flex items-center text-[11px] font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-100 hover:bg-indigo-100">檢視圖片</a>` : 
+                    `<span class="text-slate-300">無照片</span>`;
+
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-xs text-slate-500">${item.companyName}</td>
-                    <td class="p-4"><span class="text-xs text-indigo-600 bg-indigo-50 px-2 py-1 rounded">憑證已加密</span></td>
-                    <td class="p-4 text-xs">${item.date}</td>
-                    <td class="p-4"><span class="px-2 py-1 text-xs rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '減碳' : '生態'}</span></td>
-                    <td class="p-4 font-medium">${item.category}</td>
-                    <td class="p-4 font-bold">${isWaste ? item.amount + ' kg' : '⭐ ' + item.rating + ' 星'}</td>
-                    <td class="p-4 text-teal-600 font-semibold">${isWaste ? item.carbon + ' kg' : '-'}</td>
-                    <td class="p-4 text-xs">${item.dept}</td>
-                    <td class="p-4 text-xs font-medium">${item.author}</td>
-                    <td class="p-4 text-xs text-slate-400">${item.notes || '-'}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.companyId==='CompanyA'?'bg-emerald-100 text-emerald-800':'bg-blue-100 text-blue-800'}">${item.companyName}</span></td>
+                    <td class="p-3.5 font-mono text-slate-500">${item.date}</td>
+                    <td class="p-3.5"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '廢棄物' : '生物觀察'}</span></td>
+                    <td class="p-3.5 font-semibold text-slate-800">${categoryDisplay}</td>
+                    <td class="p-3.5">${amountDisplay}</td>
+                    <td class="p-3.5 text-teal-600 font-semibold">${isWaste ? item.carbon + ' kg' : '-'}</td>
+                    <td class="p-3.5 text-slate-600">${item.dept} (${item.author})</td>
+                    <td class="p-3.5">${photoHtml}</td>
+                    <td class="p-3.5 text-slate-400 max-w-xs truncate">${item.notes || '-'}</td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            lucide.createIcons();
         }
 
+        // ==================== MODAL FORM LOGIC ==================== //
         function openModal(type) {
             document.getElementById('form-type').value = type;
-            document.getElementById('modal').classList.remove('hidden');
+            document.getElementById('record-modal').classList.remove('hidden');
+
             if (type === 'waste') {
+                document.getElementById('modal-title').innerHTML = `<i data-lucide="plus-circle" class="w-5 h-5 mr-2"></i> 填報廢棄物 / 減碳行動`;
                 document.getElementById('field-category-waste').classList.remove('hidden');
-                document.getElementById('field-amount-waste').classList.remove('hidden');
                 document.getElementById('field-bio-details').classList.add('hidden');
             } else {
+                document.getElementById('modal-title').innerHTML = `<i data-lucide="bug" class="w-5 h-5 mr-2"></i> 填報生物多樣性觀測`;
                 document.getElementById('field-category-waste').classList.add('hidden');
-                document.getElementById('field-amount-waste').classList.add('hidden');
                 document.getElementById('field-bio-details').classList.remove('hidden');
             }
+            lucide.createIcons();
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
+        function closeModal() {
+            document.getElementById('record-modal').classList.add('hidden');
+            document.getElementById('record-form').reset();
+            document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
+        }
 
-        function handleCloudSubmit(e) {
+        function handleFormSubmit(e) {
             e.preventDefault();
+
             const type = document.getElementById('form-type').value;
             const isWaste = type === 'waste';
             const amount = parseFloat(document.getElementById('form-amount').value) || 0;
 
+            // Determine Target Company ID
+            let targetCompanyId = currentUser.companyId;
+            let targetCompanyName = currentUser.companyName;
+
+            if (currentUser.role === 'ADMIN') {
+                targetCompanyId = document.getElementById('form-company-id').value;
+                targetCompanyName = targetCompanyId === 'CompanyA' ? 'Company A 綠色科技' : 'Company B 環保製造';
+            }
+
             const newRecord = {
                 id: Date.now(),
-                companyId: currentUser.role === 'ADMIN' ? 'CompanyA' : currentUser.companyId,
-                companyName: currentUser.role === 'ADMIN' ? 'Company A 綠色科技' : currentUser.companyName,
+                companyId: targetCompanyId,
+                companyName: targetCompanyName,
                 date: document.getElementById('form-date').value,
                 type: type,
-                category: isWaste ? document.getElementById('form-category-waste').value : (document.getElementById('form-bio-title').value || '生態觀察'),
+                category: isWaste ? document.getElementById('form-category-waste').value : '生物多樣性',
+                title: isWaste ? '' : (document.getElementById('form-bio-title').value || '生態觀察'),
                 amount: isWaste ? amount : 0,
                 rating: isWaste ? 0 : parseInt(document.getElementById('form-worm-rating').value),
-                carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
+                carbon: isWaste ? parseFloat((amount * 2.1).toFixed(1)) : 0,
                 dept: document.getElementById('form-dept').value,
                 author: document.getElementById('form-author').value,
+                photo: document.getElementById('form-photo-sim').value,
                 notes: document.getElementById('form-notes').value
             };
 
-            mockDatabase.push(newRecord);
-            alert('🎉 資料已安全上傳至該企業專屬雲端資料庫！');
+            localRecords.push(newRecord);
+            saveDataToStorage();
+
             closeModal();
-            filterData();
+            refreshDashboard();
+            alert('🎉 數據新增成功！已即時寫入多租戶隔離資料庫。');
         }
 
+        // CSV Export
         function exportCSV() {
-            let csv = '\uFEFF公司代碼,公司名稱,日期,類型,細項類別,數量/評分,估算減碳,記錄部門,填寫人,備註\n';
-            getAccessibleRecords().forEach(item => {
-                csv += `"${item.companyId}","${item.companyName}","${item.date}","${item.type}","${item.category}","${item.amount || item.rating}","${item.carbon}","${item.dept}","${item.author}","${item.notes||''}"\n`;
+            const records = getFilteredRecords();
+            let csv = '\uFEFFID,歸屬企業,日期,類型,細項主題,數量/評分,減碳估算(kgCO2e),部門,填寫人,備註\n';
+
+            records.forEach(item => {
+                const isWaste = item.type === 'waste';
+                const topic = isWaste ? item.category : item.title;
+                const qty = isWaste ? item.amount : item.rating;
+                csv += `"${item.id}","${item.companyName}","${item.date}","${isWaste ? '廢棄物' : '生物觀察'}","${topic}","${qty}","${item.carbon}","${item.dept}","${item.author}","${(item.notes||'').replace(/"/g, '""')}"\n`;
             });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;' }));
-            link.download = `ESG_Isolated_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            link.href = URL.createObjectURL(blob);
+            link.download = `ESG_Audit_Report_${currentUser.companyId}_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
         }
     </script>
