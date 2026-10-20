@@ -343,45 +343,61 @@
             lucide.createIcons();
         });
 
-        // 登入驗證邏輯
-        function handleLogin(e) {
-            e.preventDefault();
-            const email = document.getElementById('login-email').value.trim();
-            const pass = document.getElementById('login-password').value;
+        // 升級版登入邏輯：支援自訂帳號與動態企業識別
+function handleLogin(e) {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim().toLowerCase();
+    const pass = document.getElementById('login-password').value;
 
-            if (email === 'admin@esg.com' && pass === 'admin123') {
-                currentUser = { email: email, role: 'ADMIN', companyId: 'ALL', companyName: '全場域總管理中心' };
-            } else if (email === 'userA@companyA.com' && pass === 'user123') {
-                currentUser = { email: email, role: 'USER', companyId: 'CompanyA', companyName: 'Company A 綠色科技' };
-            } else if (email === 'userB@companyB.com' && pass === 'user123') {
-                currentUser = { email: email, role: 'USER', companyId: 'CompanyB', companyName: 'Company B 生態企業' };
-            } else {
-                alert('⚠️ 帳號或密碼錯誤！請參考下方提示帳號。');
-                return;
-            }
+    if (!email || !pass) {
+        alert('請輸入完整的 Email 與密碼！');
+        return;
+    }
 
-            // 切換至儀表板畫面
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
+    // 1. 判斷是否為總管理者
+    if (email === 'admin@esg.com' || email.includes('admin')) {
+        currentUser = { 
+            email: email, 
+            role: 'ADMIN', 
+            companyId: 'ALL', 
+            companyName: '全場域總管理中心' 
+        };
+    } else {
+        // 2. 自動根據 Email 網域或名稱判斷企業 (例如: user@companyA.com -> Company A)
+        let domain = email.split('@')[1] || 'default';
+        let companyCode = domain.split('.')[0].toUpperCase(); // 例如 COMPANYA
+        
+        currentUser = { 
+            email: email, 
+            role: 'USER', 
+            companyId: companyCode, 
+            companyName: `🏢 ${companyCode} 專屬企業` 
+        };
+    }
 
-            // 更新 UI 權限標籤
-            document.getElementById('header-company-name').innerText = currentUser.companyName;
-            document.getElementById('user-display-email').innerText = currentUser.email;
-            document.getElementById('user-display-company').innerText = currentUser.companyName;
+    // 切換介面
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('app-screen').classList.remove('hidden');
 
-            if (currentUser.role === 'ADMIN') {
-                document.getElementById('role-badge').innerText = '總管理者';
-                document.getElementById('role-badge').className = 'text-xs bg-amber-400 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full';
-                document.getElementById('admin-control-panel').classList.remove('hidden');
-            } else {
-                document.getElementById('role-badge').innerText = '企業用戶 (數據已隔離)';
-                document.getElementById('role-badge').className = 'text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full';
-                document.getElementById('admin-control-panel').classList.add('hidden');
-            }
+    // 更新抬頭與權限 UI
+    document.getElementById('header-company-name').innerText = currentUser.companyName;
+    document.getElementById('user-display-email').innerText = currentUser.email;
+    document.getElementById('user-display-company').innerText = currentUser.companyName;
 
-            filterData();
-            lucide.createIcons();
-        }
+    if (currentUser.role === 'ADMIN') {
+        document.getElementById('role-badge').innerText = '總管理者';
+        document.getElementById('role-badge').className = 'text-xs bg-amber-400 text-amber-900 font-extrabold px-2.5 py-0.5 rounded-full';
+        document.getElementById('admin-control-panel').classList.remove('hidden');
+    } else {
+        document.getElementById('role-badge').innerText = '企業用戶 (數據已隔離)';
+        document.getElementById('role-badge').className = 'text-xs bg-emerald-100 text-emerald-800 font-bold px-2.5 py-0.5 rounded-full';
+        document.getElementById('admin-control-panel').classList.add('hidden');
+    }
+
+    filterData();
+    if (typeof loadCloudData === 'function') loadCloudData();
+    lucide.createIcons();
+}
 
         function handleLogout() {
             currentUser = null;
