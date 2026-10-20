@@ -93,8 +93,8 @@
                         <p id="user-display-company" class="text-[10px] text-emerald-400"></p>
                     </div>
 
-                    <button onclick="loadCloudData()" class="bg-forest-500 hover:bg-forest-700 text-white border border-emerald-400 px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-1.5" id="sync-spinner"></i> 同步雲端
+                    <button onclick="loadCloudData()" id="sync-btn" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition gap-1.5">
+                        <span id="sync-icon">🔄</span> 同步雲端
                     </button>
 
                     <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition">
@@ -240,7 +240,7 @@
                                 <th class="p-4">細項類別 / 主題</th>
                                 <th class="p-4">數量 / 評分</th>
                                 <th class="p-4">估算減碳量</th>
-                                <th class="p-4">記錄部門</th>
+                                <th class="p-4">記錄單位</th>
                                 <th class="p-4">填寫人</th>
                                 <th class="p-4">備註</th>
                             </tr>
@@ -321,7 +321,7 @@
 
                 <div class="pt-4 flex justify-end space-x-3">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl font-bold hover:bg-slate-50">取消</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm">確認填報</button>
+                    <button type="submit" id="submit-btn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm">確認填報並同步雲端</button>
                 </div>
             </form>
         </div>
@@ -329,31 +329,10 @@
 
     <!-- Application Script -->
     <script>
-    // 1. 宣告您的 Google Apps Script 部署網址（請替換為您自己的網址）
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy3lFrh1D5ciyORrQGOnm4EFZSD9RCTSnD1J1qYh12ftEBlDpJWkrgsd8M52k2YMy5uQ/exec";
+        // 1. Google Apps Script 部署網址 (Web App URL)
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwy3lFrh1D5ciyORrQGOnm4EFZSD9RCTSnD1J1qYh12ftEBlDpJWkrgsd8M52k2YMy5uQ/exec";
 
-    // 2. 當使用者點擊提交按鈕時，透過 fetch() 發送資料至雲端
-    function sendDataToCloud(formData) {
-        // 顯示上傳中提示
-        console.log("正在同步至雲端：", GOOGLE_SCRIPT_URL);
-
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            // 由於 Apps Script 跨網域限制，通常建議採用 no-cors 或帶入 JSON 字串
-            body: JSON.stringify(formData)
-        })
-        .then(response => {
-            alert("🎉 資料已成功寫入 Google 試算表雲端資料庫！");
-        })
-        .catch(error => {
-            console.error("連線錯誤：", error);
-            alert("⚠️ 上傳失敗，請檢查網路連線或 Apps Script 部署網址。");
-        });
-    }
-  
-        
-
-        // 初始化測試資料庫
+        // 初始化示範資料庫 (當雲端無法連線時的保險離線備份)
         const INITIAL_DATA = [
             { id: 101, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-15", type: "waste", category: "咖啡渣", amount: 25.5, carbon: 53.6, dept: "總務部", author: "陳大明", notes: "員工餐廳咖啡渣回收" },
             { id: 102, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-18", type: "bio", category: "蚯蚓活躍度", rating: 5, carbon: 0, dept: "永續小組", author: "林小華", notes: "1號箱分解快速" },
@@ -365,7 +344,7 @@
         let currentUser = null;
         let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
 
-        // 頁面載入時綁定登入事件
+        // 頁面載入綁定
         window.onload = function() {
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
             
@@ -415,13 +394,98 @@
                 document.getElementById('admin-control-panel').classList.add('hidden');
             }
 
-            filterData();
+            // 登入後自動從雲端拉取最新資料
+            loadCloudData();
         }
 
         function handleLogout() {
             currentUser = null;
             document.getElementById('app-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        // -----------------------------------------------------------------
+        // ☁️ 雲端同步核心 1：從 Google 試算表 (GAS) 載入最新資料 (GET)
+        // -----------------------------------------------------------------
+        function loadCloudData() {
+            const syncIcon = document.getElementById('sync-icon');
+            if (syncIcon) syncIcon.classList.add('animate-spin');
+
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                        database = data;
+                        localStorage.setItem('esg_database', JSON.stringify(database));
+                    }
+                    filterData();
+                })
+                .catch(err => {
+                    console.error("雲端讀取失敗，使用本機快取:", err);
+                    filterData();
+                })
+                .finally(() => {
+                    if (syncIcon) syncIcon.classList.remove('animate-spin');
+                });
+        }
+
+        // -----------------------------------------------------------------
+        // ☁️ 雲端同步核心 2：將表單資料寫入 Google 試算表 (POST)
+        // -----------------------------------------------------------------
+        function handleModalSubmit(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `⏳ 正在寫入雲端...`;
+
+            const type = document.getElementById('form-type').value;
+            const isWaste = type === 'waste';
+            const amount = parseFloat(document.getElementById('form-amount').value) || 0;
+
+            const targetCompanyId = currentUser.role === 'ADMIN' ? 'CompanyA' : currentUser.companyId;
+            const targetCompanyName = currentUser.role === 'ADMIN' ? 'Company A 綠色科技' : currentUser.companyName;
+
+            const payload = {
+                id: Date.now(),
+                companyId: targetCompanyId,
+                companyName: targetCompanyName,
+                date: document.getElementById('form-date').value,
+                type: type,
+                category: isWaste ? document.getElementById('form-category-waste').value : (document.getElementById('form-bio-title').value || '生態觀察'),
+                amount: isWaste ? amount : 0,
+                rating: isWaste ? 0 : parseInt(document.getElementById('form-worm-rating').value),
+                carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
+                dept: document.getElementById('form-dept').value,
+                author: document.getElementById('form-author').value,
+                notes: document.getElementById('form-notes').value
+            };
+
+            // 1. 本地預先寫入 (即時顯示)
+            database.push(payload);
+            localStorage.setItem('esg_database', JSON.stringify(database));
+            filterData();
+
+            // 2. 背景同步至 Google Apps Script 雲端試算表
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                alert('🎉 資料已成功寫入 Google 雲端試算表！');
+                closeModal();
+                loadCloudData(); // 重新拉取同步
+            })
+            .catch(err => {
+                console.error("雲端寫入失敗:", err);
+                alert('⚠️ 已存在本機快取，但網路同步異常，請確認 Apps Script 部署設定');
+                closeModal();
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `確認填報並同步雲端`;
+            });
         }
 
         // 根據權限邊界過濾數據
@@ -466,7 +530,7 @@
 
             // 1. 廢棄物趨勢
             const wByDate = {};
-            wasteRecords.forEach(i => wByDate[i.date] = (wByDate[i.date] || 0) + i.amount);
+            wasteRecords.forEach(i => wByDate[i.date] = (wByDate[i.date] || 0) + (parseFloat(i.amount) || 0));
             cWasteTrend = new Chart(document.getElementById('chart-waste-trend'), {
                 type: 'bar',
                 data: { labels: Object.keys(wByDate), datasets: [{ data: Object.values(wByDate), backgroundColor: '#10b981', borderRadius: 4 }] },
@@ -475,7 +539,7 @@
 
             // 2. 資材種類
             const wCatMap = {};
-            wasteRecords.forEach(i => wCatMap[i.category] = (wCatMap[i.category] || 0) + i.amount);
+            wasteRecords.forEach(i => wCatMap[i.category] = (wCatMap[i.category] || 0) + (parseFloat(i.amount) || 0));
             cWasteCat = new Chart(document.getElementById('chart-waste-category'), {
                 type: 'doughnut',
                 data: { labels: Object.keys(wCatMap), datasets: [{ data: Object.values(wCatMap), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'] }] },
@@ -484,7 +548,7 @@
 
             // 3. 生態活躍度
             const bByDate = {};
-            bioRecords.forEach(i => bByDate[i.date] = (bByDate[i.date] || 0) + i.rating);
+            bioRecords.forEach(i => bByDate[i.date] = (bByDate[i.date] || 0) + (parseInt(i.rating) || 0));
             cBioTrend = new Chart(document.getElementById('chart-bio-trend'), {
                 type: 'line',
                 data: { labels: Object.keys(bByDate), datasets: [{ data: Object.values(bByDate), borderColor: '#6366f1', fill: true, backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.3 }] },
@@ -517,15 +581,15 @@
                 tr.className = "hover:bg-slate-50 transition";
                 const isWaste = item.type === 'waste';
                 tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-800">${item.companyName}</td>
+                    <td class="p-4 font-bold text-slate-800">${item.companyName || '-'}</td>
                     <td class="p-4"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">🔒 憑證加密</span></td>
-                    <td class="p-4 text-slate-500">${item.date}</td>
+                    <td class="p-4 text-slate-500">${item.date || '-'}</td>
                     <td class="p-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '減碳' : '生態'}</span></td>
-                    <td class="p-4 font-semibold">${item.category}</td>
-                    <td class="p-4 font-bold text-slate-900">${isWaste ? item.amount + ' kg' : '⭐ ' + item.rating + ' 星'}</td>
-                    <td class="p-4 text-teal-600 font-bold">${isWaste ? item.carbon + ' kg' : '-'}</td>
-                    <td class="p-4 text-slate-500">${item.dept}</td>
-                    <td class="p-4 font-medium">${item.author}</td>
+                    <td class="p-4 font-semibold">${item.category || '-'}</td>
+                    <td class="p-4 font-bold text-slate-900">${isWaste ? (item.amount || 0) + ' kg' : '⭐ ' + (item.rating || 0) + ' 星'}</td>
+                    <td class="p-4 text-teal-600 font-bold">${isWaste ? (item.carbon || 0) + ' kg' : '-'}</td>
+                    <td class="p-4 text-slate-500">${item.dept || '-'}</td>
+                    <td class="p-4 font-medium">${item.author || '-'}</td>
                     <td class="p-4 text-slate-400 max-w-xs truncate">${item.notes || '-'}</td>
                 `;
                 tbody.appendChild(tr);
@@ -546,76 +610,20 @@
             }
         }
 
-        function closeModal() { document.getElementById('modal').classList.add('hidden'); }
-
-        function handleModalSubmit(e) {
-            e.preventDefault();
-            const type = document.getElementById('form-type').value;
-            const isWaste = type === 'waste';
-            const amount = parseFloat(document.getElementById('form-amount').value) || 0;
-
-            const targetCompanyId = currentUser.role === 'ADMIN' ? 'CompanyA' : currentUser.companyId;
-            const targetCompanyName = currentUser.role === 'ADMIN' ? 'Company A 綠色科技' : currentUser.companyName;
-
-            const newRecord = {
-                id: Date.now(),
-                companyId: targetCompanyId,
-                companyName: targetCompanyName,
-                date: document.getElementById('form-date').value,
-                type: type,
-                category: isWaste ? document.getElementById('form-category-waste').value : (document.getElementById('form-bio-title').value || '生態觀察'),
-                amount: isWaste ? amount : 0,
-                rating: isWaste ? 0 : parseInt(document.getElementById('form-worm-rating').value),
-                carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
-                dept: document.getElementById('form-dept').value,
-                author: document.getElementById('form-author').value,
-                notes: document.getElementById('form-notes').value
-            };
-
-            database.push(newRecord);
-            localStorage.setItem('esg_database', JSON.stringify(database));
-
-            alert('🎉 資料已成功寫入該企業專屬資料庫！');
-            closeModal();
-            filterData();
+        function closeModal() { 
+            document.getElementById('modal').classList.add('hidden'); 
         }
 
         function exportCSV() {
-            let csv = '\uFEFF公司代碼,公司名稱,日期,類型,細項類別,數量/評分,估算減碳,記錄部門,填寫人,備註\n';
+            let csv = '\uFEFF公司代碼,公司名稱,日期,類型,細項類別,數量/評分,估算減碳,記錄單位,填寫人,備註\n';
             getAccessibleRecords().forEach(item => {
-                csv += `"${item.companyId}","${item.companyName}","${item.date}","${item.type}","${item.category}","${item.amount || item.rating}","${item.carbon}","${item.dept}","${item.author}","${item.notes||''}"\n`;
+                csv += `"${item.companyId||''}","${item.companyName||''}","${item.date||''}","${item.type||''}","${item.category||''}","${item.amount || item.rating || 0}","${item.carbon||0}","${item.dept||''}","${item.author||''}","${(item.notes||'').replace(/"/g, '""')}"\n`;
             });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;' }));
+            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
             link.download = `ESG_Isolated_Report_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
         }
-        function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents); // 解析 HTML 傳來的 JSON
-    
-    // 將資料寫入試算表下一列
-    sheet.appendRow([
-      new Date(),
-      data.companyId || '',
-      data.companyName || '',
-      data.date || '',
-      data.type || '',
-      data.category || '',
-      data.amount || data.rating || 0,
-      data.dept || '',
-      data.author || '',
-      data.notes || ''
-    ]);
-    
-    return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
-  }
-}
     </script>
 </body>
 </html>
