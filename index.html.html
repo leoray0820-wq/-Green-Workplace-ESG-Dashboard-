@@ -43,7 +43,7 @@
                     <i data-lucide="refresh-cw" class="w-4 h-4 mr-1.5" id="sync-spinner"></i> 同步雲端
                 </button>
                 <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
-                    <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 填報廢棄物
+                    <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 減碳行動
                 </button>
                 <button onclick="openModal('bio')" class="bg-forest-700 hover:bg-black text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
                     <i data-lucide="bug" class="w-4 h-4 mr-1.5"></i> 生態觀察
@@ -69,7 +69,7 @@
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
                         <i data-lucide="globe" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 1. 國際公認框架 (Baseline)
                     </p>
-                    <p class="leading-relaxed text-slate-500">本系統遵循 <strong class="text-slate-700">IPCC 2006 Guidelines Vol.5 (Biological Treatment)</strong> 指導方針，以「傳統掩埋厭氧分解產生高 GWP 甲烷 ($CH_4$)」作為替代對照基準。</p>
+                    <p class="leading-relaxed text-slate-500">本系統遵循 <strong class="text-slate-700">IPCC 2006 Guidelines Vol.5 (Biological Treatment)</strong> 指導方針，以「傳統掩埋厭氧分解產生高 GWP 甲烷 (CH_4)」作為替代對照基準。</p>
                 </div>
                 <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
@@ -81,7 +81,7 @@
                     <p class="font-bold text-slate-700 mb-1 flex items-center">
                         <i data-lucide="box" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 3. 清楚界定系統邊界 (System Boundary)
                     </p>
-                    <p class="leading-relaxed text-slate-500">邊界僅涵蓋「場域有機質收集 $\rightarrow$ 模組化生物轉化 $\rightarrow$ 蚓糞肥產出」。無範疇一直接排放，範疇三外判運輸碳排不列入本計算法。</p>
+                    <p class="leading-relaxed text-slate-500">邊界僅涵蓋「場域有機質收集 \模組化生物轉化 \蚓糞肥產出」。無範疇一直接排放，範疇三外判運輸碳排不列入本計算法。</p>
                 </div>
             </div>
         </div>
@@ -129,7 +129,7 @@
         <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100">
             <h2 class="text-base font-bold text-slate-800 mb-4 flex items-center">
                 <i data-lucide="trending-up" class="w-5 h-5 mr-2 text-forest-500"></i>
-                全公司廢棄物轉化趨勢分析
+                總體廢棄物轉化趨勢分析
             </h2>
             <div class="h-72">
                 <canvas id="trendChart"></canvas>
@@ -161,7 +161,8 @@
                             <th class="p-4">細項類別 / 主題</th>
                             <th class="p-4">數量 / 評分</th>
                             <th class="p-4">估算減碳量</th>
-                            <th class="p-4">記錄部門 / 填寫人</th>
+                            <th class="p-4">記錄部門</th>
+                            <th class="p-4">填寫人</th>
                             <th class="p-4">現場備註</th>
                         </tr>
                     </thead>
@@ -210,7 +211,7 @@
                 <div id="field-bio-details" class="hidden space-y-4">
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">觀察主題</label>
-                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓翻耕活躍度 / 土壤蕈類觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
+                        <input type="text" id="form-bio-title" placeholder="例如：蚯蚓活躍度 / 土壤生物觀察" class="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
                     <div>
                         <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">蚯蚓活躍度評分 (1-5 星)</label>
