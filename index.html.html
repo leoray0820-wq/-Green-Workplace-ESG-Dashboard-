@@ -321,6 +321,12 @@
 
     <!-- Frontend Script Logic -->
     <script>
+        // 👈 請將您部署 Apps Script 所獲得的「網頁應用程式網址」貼在這裡
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
+
+    let currentUser = null;
+    let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
+    // ... 後續程式碼
         // 預設示範數據庫 (含 CompanyA 與 CompanyB 隔離數據)
         let mockDatabase = [
             { id: 101, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-15", type: "waste", category: "咖啡渣", amount: 25.5, carbon: 53.6, dept: "總務部", author: "陳大明", notes: "員工餐廳咖啡渣回收" },
