@@ -161,7 +161,8 @@
                             <th class="p-4">細項類別 / 主題</th>
                             <th class="p-4">數量 / 評分</th>
                             <th class="p-4">估算減碳量</th>
-                            <th class="p-4">記錄部門 / 填寫人</th>
+                            <th class="p-4">記錄部門</th>
+                            <th class="p-4">填寫人</th>
                             <th class="p-4">現場備註</th>
                         </tr>
                     </thead>
@@ -326,7 +327,7 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: '每日投放廢棄物 (kg)',
+                        label: '每日處理廢棄物 (kg)',
                         data: data,
                         backgroundColor: '#10b981',
                         borderRadius: 6
@@ -378,7 +379,8 @@
                     <td class="p-4 font-medium">${item.category || '-'}</td>
                     <td class="p-4 font-bold text-slate-800">${amountText}</td>
                     <td class="p-4 text-teal-600 font-semibold text-xs">${carbonText}</td>
-                    <td class="p-4 text-xs text-slate-500">${deptAuthorText}</td>
+                    <td class="p-4 text-xs text-slate-500">${item.dept || '-'}</td>
+                    <td class="p-4 text-xs font-medium text-slate-700">${item.author || '-'}</td>
                     <td class="p-4 text-xs text-slate-400 max-w-xs truncate">${item.notes || '-'}</td>
                 `;
                 tbody.appendChild(tr);
