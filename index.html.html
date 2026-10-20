@@ -109,7 +109,7 @@
         <!-- Main Content Body -->
         <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <!-- 總管理者專屬切換面板 (一般企業用戶不可見) -->
+            <!-- 總管理者專屬切換面板 -->
             <div id="admin-control-panel" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">👑</span>
@@ -160,7 +160,7 @@
                     <div class="p-3.5 bg-indigo-100 text-indigo-600 rounded-2xl text-2xl">📸</div>
                     <div>
                         <p class="text-xs font-semibold text-slate-400 uppercase">雲端存證筆數</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-bio-logs">0 <span class="text-xs font-normal text-slate-500">筆筆存證</span></p>
+                        <p class="text-2xl font-bold text-slate-800" id="kpi-bio-logs">0 <span class="text-xs font-normal text-slate-500">筆存證</span></p>
                         <p class="text-xs text-indigo-600 mt-1">TNFD 資訊透明度</p>
                     </div>
                 </div>
@@ -369,21 +369,19 @@
         let currentUser = null;
         let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
 
-        // 頁面初始化綁定
+        // 頁面載入時綁定登入事件
         window.onload = function() {
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
             
-            // 綁定登入表單事件
             const loginForm = document.getElementById('login-form');
             if (loginForm) {
                 loginForm.addEventListener('submit', function(e) {
                     e.preventDefault();
                     const email = document.getElementById('login-email').value.trim();
-                    const pass = document.getElementById('login-password').value;
 
                     if (email === 'admin@esg.com') {
                         quickLogin('ADMIN');
-                    } else if (email.includes('userB')) {
+                    } else if (email.includes('userB') || email.includes('companyB')) {
                         quickLogin('CompanyB');
                     } else {
                         quickLogin('CompanyA');
@@ -391,12 +389,8 @@
                 });
             }
         };
-        function handleLogin(event) {
-    event.preventDefault(); // 這一行極為重要！用來阻止網頁自動重新整理
-    // 您的登入邏輯...
-}
 
-        // 1鍵快速登入邏輯 (免打字)
+        // 1鍵快速免打字登入
         function quickLogin(roleType) {
             if (roleType === 'ADMIN') {
                 currentUser = { email: 'admin@esg.com', role: 'ADMIN', companyId: 'ALL', companyName: '全場域總管理中心' };
@@ -434,7 +428,7 @@
             document.getElementById('login-screen').classList.remove('hidden');
         }
 
-        // 根據角色獲得授權範圍內數據
+        // 根據權限邊界過濾數據
         function getAccessibleRecords() {
             if (!currentUser) return [];
             if (currentUser.role === 'ADMIN') {
@@ -462,7 +456,7 @@
             document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
             document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg CO₂e</span>`;
             document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
-            document.getElementById('kpi-bio-logs').innerHTML = `${records.length} <span class="text-xs font-normal text-slate-500">筆筆存證</span>`;
+            document.getElementById('kpi-bio-logs').innerHTML = `${records.length} <span class="text-xs font-normal text-slate-500">筆存證</span>`;
 
             renderCharts(wasteRecords, bioRecords);
             renderTable(records);
@@ -528,7 +522,7 @@
                 const isWaste = item.type === 'waste';
                 tr.innerHTML = `
                     <td class="p-4 font-bold text-slate-800">${item.companyName}</td>
-                    <td class="p-4"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">🔒 憑證已加密存證</span></td>
+                    <td class="p-4"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">🔒 憑證加密</span></td>
                     <td class="p-4 text-slate-500">${item.date}</td>
                     <td class="p-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '減碳' : '生態'}</span></td>
                     <td class="p-4 font-semibold">${item.category}</td>
