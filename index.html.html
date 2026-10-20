@@ -586,6 +586,32 @@
             link.download = `ESG_Isolated_Report_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
         }
+        function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents); // 解析 HTML 傳來的 JSON
+    
+    // 將資料寫入試算表下一列
+    sheet.appendRow([
+      new Date(),
+      data.companyId || '',
+      data.companyName || '',
+      data.date || '',
+      data.type || '',
+      data.category || '',
+      data.amount || data.rating || 0,
+      data.dept || '',
+      data.author || '',
+      data.notes || ''
+    ]);
+    
+    return ContentService.createTextOutput(JSON.stringify({"status": "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({"status": "error", "message": err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
     </script>
 </body>
 </html>
