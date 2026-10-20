@@ -148,7 +148,7 @@
                 <div class="flex items-center space-x-3">
                     <span class="text-2xl">👑</span>
                     <div>
-                        <h3 class="text-sm font-bold text-amber-900">總管理者最高監控面板 (Super Admin Overview)</h3>
+                        <h3 class="text-sm font-bold text-amber-900">總管理者監控面板 (Super Admin Overview)</h3>
                         <p class="text-xs text-amber-700">您正處於總管理員視角，可切換單一加盟企業或檢視全場域彙總數據</p>
                     </div>
                 </div>
@@ -411,7 +411,7 @@
         // 1鍵快速免打字登入
         function quickLogin(roleType) {
             if (roleType === 'ADMIN') {
-                currentUser = { email: 'admin@esg.com', role: 'ADMIN', companyId: 'ALL', companyName: '全場域總管理中心' };
+                currentUser = { email: 'admin@esg.com', role: 'ADMIN', companyId: 'ALL', companyName: '總管理中心' };
             } else if (roleType === 'CompanyA') {
                 currentUser = { email: 'userA@companyA.com', role: 'USER', companyId: 'CompanyA', companyName: 'Company A 綠色科技' };
             } else if (roleType === 'CompanyB') {
@@ -428,11 +428,11 @@
             document.getElementById('user-display-company').innerText = currentUser.companyName;
 
             if (currentUser.role === 'ADMIN') {
-                document.getElementById('role-badge').innerText = '總管理者 (可看全場域)';
+                document.getElementById('role-badge').innerText = '總管理者';
                 document.getElementById('role-badge').className = 'text-xs bg-amber-400 text-slate-900 font-extrabold px-2.5 py-0.5 rounded-full';
                 document.getElementById('admin-control-panel').classList.remove('hidden');
             } else {
-                document.getElementById('role-badge').innerText = '企業用戶 (數據已隔離)';
+                document.getElementById('role-badge').innerText = '企業用戶';
                 document.getElementById('role-badge').className = 'text-xs bg-emerald-400 text-slate-900 font-bold px-2.5 py-0.5 rounded-full';
                 document.getElementById('admin-control-panel').classList.add('hidden');
             }
