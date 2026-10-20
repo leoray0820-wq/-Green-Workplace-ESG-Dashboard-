@@ -96,7 +96,6 @@
                     <button onclick="loadCloudData()" id="sync-btn" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition gap-1.5">
                         <span id="sync-icon">🔄</span> 同步雲端
                     </button>
-
                     <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition">
                         ➕ 減碳行動
                     </button>
@@ -130,6 +129,36 @@
                     </select>
                 </div>
             </div>
+             <!-- Methodology & Audit Notice Card -->
+        <div class="bg-emerald-900/5 border border-emerald-500/20 rounded-2xl p-6">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="file-check-2" class="w-5 h-5 text-emerald-600"></i>
+                    <h3 class="font-bold text-slate-800 text-sm tracking-wide">第三方稽核與方法學合規聲明 (GRI & TNFD Framework)</h3>
+                </div>
+                <span class="text-[10px] bg-emerald-100 text-emerald-800 font-semibold px-2 py-0.5 rounded-full">符合 GRI 306 & TNFD 規範</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+                <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
+                    <p class="font-bold text-slate-700 mb-1 flex items-center">
+                        <i data-lucide="globe" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 1. 國際公認框架 (Baseline)
+                    </p>
+                    <p class="leading-relaxed text-slate-500">減碳遵循 <strong class="text-slate-700">IPCC 2006</strong> 掩埋替代法；生態觀察依循 <strong class="text-slate-700">TNFD</strong> 自然相關財務揭露之生物多樣性指標。</p>
+                </div>
+                <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
+                    <p class="font-bold text-slate-700 mb-1 flex items-center">
+                        <i data-lucide="shield-alert" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 2. 保守估計原則 (Conservativeness)
+                    </p>
+                    <p class="leading-relaxed text-slate-500">減碳效益採用保守估計之 <strong class="text-slate-700">2.1 kg CO₂e / kg</strong> 替代係數，生態活躍度透過五星量化評分進行客觀追蹤。</p>
+                </div>
+                <div class="bg-white/80 p-3.5 rounded-xl border border-emerald-100">
+                    <p class="font-bold text-slate-700 mb-1 flex items-center">
+                        <i data-lucide="box" class="w-3.5 h-3.5 mr-1 text-emerald-600"></i> 3. 清楚界定系統邊界 (System Boundary)
+                    </p>
+                    <p class="leading-relaxed text-slate-500">涵蓋場域有機質轉化減碳量、土壤有機碳增匯效益，以及模組化設備周邊之生物多樣性動態存證。</p>
+                </div>
+            </div>
+        </div>
 
             <!-- KPI Summary Cards -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
