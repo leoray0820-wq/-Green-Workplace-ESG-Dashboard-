@@ -325,6 +325,28 @@
 
     <!-- Application Script -->
     <script>
+    // 1. 宣告您的 Google Apps Script 部署網址（請替換為您自己的網址）
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNgQKtIyiBuS01L4LtT6uFyyXDh1yxkTX45ef4s0f2TJrvu50JBnQqY-hC2t1CPeWCeg/exec";
+
+    // 2. 當使用者點擊提交按鈕時，透過 fetch() 發送資料至雲端
+    function sendDataToCloud(formData) {
+        // 顯示上傳中提示
+        console.log("正在同步至雲端：", GOOGLE_SCRIPT_URL);
+
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            // 由於 Apps Script 跨網域限制，通常建議採用 no-cors 或帶入 JSON 字串
+            body: JSON.stringify(formData)
+        })
+        .then(response => {
+            alert("🎉 資料已成功寫入 Google 試算表雲端資料庫！");
+        })
+        .catch(error => {
+            console.error("連線錯誤：", error);
+            alert("⚠️ 上傳失敗，請檢查網路連線或 Apps Script 部署網址。");
+        });
+    }
+    <script>
         
 
         // 初始化測試資料庫
