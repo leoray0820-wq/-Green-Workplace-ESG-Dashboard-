@@ -481,53 +481,51 @@
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
-            submitBtn.innerHTML = `⏳ 正在上傳照片並寫入雲端...`;
+            submitBtn.innerHTML = `⏳ 正在上傳並寫入雲端...`;
 
             const type = document.getElementById('form-type').value;
             const isWaste = type === 'waste';
             const amount = parseFloat(document.getElementById('form-amount').value) || 0;
 
-            const targetCompanyId = currentUser.role === 'ADMIN' ? 'CompanyA' : currentUser.companyId;
-            const targetCompanyName = currentUser.role === 'ADMIN' ? 'Company A 綠色科技' : currentUser.companyName;
-
             const payload = {
                 id: Date.now(),
-                companyId: targetCompanyId,
-                companyName: targetCompanyName,
                 date: document.getElementById('form-date').value,
                 type: type,
                 category: isWaste ? document.getElementById('form-category-waste').value : (document.getElementById('form-bio-title').value || '生態觀察'),
                 amount: isWaste ? amount : 0,
                 rating: isWaste ? 0 : parseInt(document.getElementById('form-worm-rating').value),
-                carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
                 dept: document.getElementById('form-dept').value,
                 author: document.getElementById('form-author').value,
                 notes: document.getElementById('form-notes').value,
-                photoBase64: window.compressedPhotoBase64 || '' // 對應圖片壓縮變數
+                photoBase64: window.compressedPhotoBase64 || ''
             };
 
-            // 背景同步至 Google Apps Script 雲端試算表
+            // 背景同步至 Google Apps Script 雲端試算表 (使用 no-cors 避免瀏覽器攔截)
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // 👈 加上這行可以避開瀏覽器 CORS 阻擋
+                mode: 'no-cors',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(payload)
             })
             .then(() => {
-                alert('🎉 資料已成功發送至雲端試算表！');
+                alert('🎉 資料已成功送出至 Google 雲端！');
                 closeModal();
-                loadCloudData(); // 重新拉取同步
+                // 延遲 1 秒後重新向雲端拉取最新資料更新表格
+                setTimeout(loadCloudData, 1000);
             })
             .catch(err => {
                 console.error("雲端寫入失敗:", err);
-                alert('⚠️ 網路同步異常，請檢查 Apps Script 設定');
-                closeModal();
+                alert('⚠️ 網路同步異常，請檢查 Apps Script 部署設定');
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `確認並上傳雲端`;
             });
         }
 
-        // 確保照片壓縮全域變數存在
+        // 現場照片壓縮與預覽變數
         window.compressedPhotoBase64 = '';
         function compressImage(event) {
             const file = event.target.files[0];
