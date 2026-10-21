@@ -3,114 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ESG 永續行動影響力 | 雲端稽核版</title>
-    <!-- Tailwind CSS CDN -->
+    <title>永續行動影響力 | 雲端稽核版</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js CDN -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .modal-blur { backdrop-filter: blur(4px); }
-    </style>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        forest: { 50: '#f0f7f4', 100: '#e0efe9', 500: '#2d6a4f', 600: '#1b4332', 700: '#081c15' },
+                        emerald: { 500: '#10b981' }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body class="bg-slate-100 text-slate-800 font-sans min-h-screen">
+<body class="bg-slate-50 text-slate-800 font-sans min-h-screen">
 
-    <!-- =================================================================== -->
-    <!-- 1. 登入介面 (Login View) -->
-    <!-- =================================================================== -->
-    <div id="login-screen" class="fixed inset-0 z-50 bg-slate-900 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 space-y-6 border border-slate-200">
-            <div class="text-center space-y-2">
-                <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl font-bold">
-                    🛡️
+    <!-- Header -->
+    <header class="bg-forest-600 text-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-emerald-500 rounded-lg text-forest-700">
+                    <i data-lucide="shield-check" class="w-6 h-6"></i>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800">ESG 永續雲端管理系統</h2>
-                <p class="text-xs text-slate-400">永續行動數據紀錄與權限驗證</p>
-            </div>
-
-            <!-- 登入表單 -->
-            <form id="login-form" class="space-y-4">
                 <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">企業帳號 (Email)</label>
-                    <input type="text" id="login-email" value="admin@esg.com" placeholder="輸入 Email" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
+                    <h1 class="text-xl font-bold tracking-wide">永續行動影響力</h1>
+                    <p class="text-xs text-emerald-200">GRI 306 & TNFD 雲端稽核與資訊透明追溯系統</p>
                 </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1">密碼</label>
-                    <input type="password" id="login-password" value="admin123" placeholder="••••••••" class="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
-                </div>
-
-                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl shadow-lg transition duration-200">
-                    🔑 驗證登入
-                </button>
-            </form>
-
-            <div class="relative flex py-2 items-center">
-                <div class="flex-grow border-t border-slate-200"></div>
-                <span class="flex-shrink mx-4 text-xs text-slate-400">或點選下方快速測試帳號</span>
-                <div class="flex-grow border-t border-slate-200"></div>
             </div>
-
-            <!-- 1 鍵快速免打字登入按鈕 -->
-            <div class="space-y-2">
-                <button type="button" onclick="quickLogin('ADMIN')" class="w-full bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-                    👑 1鍵以【總管理者】身分進入 (可看全場域)
+            
+            <div class="flex items-center space-x-2 flex-wrap">
+                <button onclick="loadCloudData()" class="bg-forest-500 hover:bg-forest-700 text-white border border-emerald-400 px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="refresh-cw" class="w-4 h-4 mr-1.5" id="sync-spinner"></i> 同步雲端
                 </button>
-                <button type="button" onclick="quickLogin('CompanyA')" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-                    🏢 1鍵以【企業 A】身分進入 (數據已隔離)
+                <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="plus-circle" class="w-4 h-4 mr-1.5"></i> 減碳行動
                 </button>
-                <button type="button" onclick="quickLogin('CompanyB')" class="w-full bg-slate-600 hover:bg-slate-700 text-white text-xs font-bold py-2.5 rounded-xl transition flex items-center justify-center gap-2">
-                    🏢 1鍵以【企業 B】身分進入 (數據已隔離)
+                <button onclick="openModal('bio')" class="bg-forest-700 hover:bg-black text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center shadow-sm transition">
+                    <i data-lucide="bug" class="w-4 h-4 mr-1.5"></i> 生態觀察
                 </button>
             </div>
         </div>
-    </div>
+    </header>
 
+    <!-- Main Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-    <!-- =================================================================== -->
-    <!-- 2. 主儀表板介面 (Dashboard View) -->
-    <!-- =================================================================== -->
-    <div id="app-screen" class="hidden min-h-screen pb-12">
-        
-        <!-- Top Navigation Header -->
-        <header class="bg-slate-900 text-white shadow-md sticky top-0 z-40">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-wrap justify-between items-center gap-4">
-                <div class="flex items-center space-x-3">
-                    <div class="p-2.5 bg-emerald-500 rounded-xl text-slate-900 text-xl font-bold">
-                        🏢
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold tracking-wide flex items-center gap-2">
-                            <span id="header-company-name">企業內部儀表板</span>
-                            <span id="role-badge" class="text-xs bg-emerald-400 text-slate-900 font-extrabold px-2.5 py-0.5 rounded-full">驗證成功</span>
-                        </h1>
-                        <p class="text-xs text-slate-400">GRI 306 & TNFD 雲端隔離與多租戶數據稽核系統</p>
-                    </div>
+        <!-- Global Filter Bar -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-wrap items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="p-2 bg-slate-100 text-slate-600 rounded-lg">
+                    <i data-lucide="filter" class="w-5 h-5"></i>
                 </div>
-                
-                <div class="flex items-center space-x-3">
-                    <div class="text-right hidden sm:block">
-                        <p id="user-display-email" class="text-xs font-semibold text-white"></p>
-                        <p id="user-display-company" class="text-[10px] text-emerald-400"></p>
-                    </div>
-
-                    <button onclick="loadCloudData()" id="sync-btn" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition gap-1.5">
-                        <span id="sync-icon">🔄</span> 同步雲端
-                    </button>
-                    <button onclick="openModal('waste')" class="bg-emerald-500 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition">
-                        ➕ 減碳行動
-                    </button>
-                    <button onclick="openModal('bio')" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold flex items-center shadow-sm transition">
-                        🐞 生態觀察
-                    </button>
-                    <button onclick="handleLogout()" class="bg-rose-600 hover:bg-rose-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition">
-                        🚪 登出
-                    </button>
+                <div>
+                    <h3 class="text-sm font-bold text-slate-800">組織單位篩選面板</h3>
+                    <p class="text-xs text-slate-400">切換單位時，下方 4 大趨勢與分佈圖表將同步連動</p>
                 </div>
             </div>
-        </header>
+            <div class="flex items-center space-x-3 flex-wrap">
+                <div>
+                    <label class="block text-[10px] font-semibold text-slate-400 uppercase mb-1">記錄單位</label>
+                    <select id="filter-dept" onchange="filterData()" class="border border-slate-200 rounded-lg px-3 py-1.5 text-sm focus:ring-2 focus:ring-emerald-500 outline-none bg-slate-50">
+                        <option value="">總覽</option>
+                    </select>
+                </div>
+            </div>
+        </div>
 
-       
-                <!-- Methodology & Audit Notice Card -->
+        <!-- Methodology & Audit Notice Card -->
         <div class="bg-emerald-900/5 border border-emerald-500/20 rounded-2xl p-6">
             <div class="flex items-center justify-between mb-4">
                 <div class="flex items-center space-x-2">
@@ -140,111 +106,115 @@
                 </div>
             </div>
         </div>
-         <!-- Main Content Body -->
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-            <!-- 總管理者專屬切換面板 -->
-            <div id="admin-control-panel" class="hidden bg-amber-500/10 border border-amber-500/30 rounded-2xl p-4 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <span class="text-2xl">👑</span>
-                    <div>
-                        <h3 class="text-sm font-bold text-amber-900">總管理者監控面板 (Super Admin Overview)</h3>
-                        <p class="text-xs text-amber-700">您正處於總管理員視角，可切換單一加盟企業或檢視全場域彙總數據</p>
-                    </div>
-                </div>
+        <!-- KPI Impact Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                <div class="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><i data-lucide="scale" class="w-8 h-8"></i></div>
                 <div>
-                    <select id="admin-company-select" onchange="filterData()" class="border border-amber-400 rounded-xl px-3 py-2 text-xs font-bold text-amber-900 focus:ring-2 focus:ring-amber-500 outline-none bg-white">
-                        <option value="ALL">🌐 全場域所有企業彙總 (Total Overview)</option>
-                        <option value="CompanyA">🏢 僅看 Company A (綠色科技)</option>
-                        <option value="CompanyB">🏢 僅看 Company B (生態企業)</option>
-                    </select>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">累計廢棄物轉化</p>
+                    <p class="text-2xl font-bold text-slate-800" id="kpi-total-waste">0.0 <span class="text-sm font-normal text-slate-500">kg</span></p>
+                    <p class="text-xs text-emerald-600 mt-1">GRI 306-4 規範追溯</p>
                 </div>
             </div>
 
-            <!-- KPI Summary Cards -->
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                <div class="p-3 bg-teal-100 text-teal-600 rounded-xl"><i data-lucide="cloud-off" class="w-8 h-8"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">範疇三減碳效益</p>
+                    <p class="text-2xl font-bold text-slate-800" id="kpi-carbon-reduced">0.0 <span class="text-sm font-normal text-slate-500">kg CO₂e</span></p>
+                    <p class="text-xs text-teal-600 mt-1">IPCC 保守替代係數 2.1 kgCO₂e/kg</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                <div class="p-3 bg-amber-100 text-amber-600 rounded-xl"><i data-lucide="sparkles" class="w-8 h-8"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">產出有機蚓糞肥</p>
+                    <p class="text-2xl font-bold text-slate-800" id="kpi-vermicompost">0.0 <span class="text-sm font-normal text-slate-500">kg</span></p>
+                    <p class="text-xs text-amber-600 mt-1">土壤有機碳 SOC 增匯</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
+                <div class="p-3 bg-indigo-100 text-indigo-600 rounded-xl"><i data-lucide="camera" class="w-8 h-8"></i></div>
+                <div>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">雲端憑證照片</p>
+                    <p class="text-2xl font-bold text-slate-800" id="kpi-bio-logs">0 <span class="text-sm font-normal text-slate-500">張存證</span></p>
+                    <p class="text-xs text-indigo-600 mt-1">TNFD 資訊透明度</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4大圖表全景區塊 (同時顯示 4 大圖表) -->
+        <div class="space-y-6">
+            <h2 class="text-lg font-bold text-slate-800 flex items-center">
+                <i data-lucide="layout-grid" class="w-5 h-5 mr-2 text-forest-500"></i>
+                永續與生態 4 大核心圖表總覽
+            </h2>
+
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3.5 bg-emerald-100 text-emerald-600 rounded-2xl text-2xl">⚖️</div>
+                
+                <!-- 圖 1: 廢棄物轉化趨勢分析 (長條圖) -->
+                <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase">累計廢棄物轉化</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-total-waste">0.0 <span class="text-xs font-normal text-slate-500">kg</span></p>
-                        <p class="text-xs text-emerald-600 mt-1">GRI 306-4 規範追溯</p>
+                        <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                            <i data-lucide="trending-up" class="w-4 h-4 mr-1.5 text-emerald-600"></i>
+                            廢棄物轉化趨勢分析
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mb-3">每日資材處理重量 (kg)</p>
+                    </div>
+                    <div class="h-56">
+                        <canvas id="chart-waste-trend"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3.5 bg-teal-100 text-teal-600 rounded-2xl text-2xl">☁️</div>
+                <!-- 圖 2: 資材種類佔比分析 (圓餅圖) -->
+                <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase">範疇三減碳效益</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-carbon-reduced">0.0 <span class="text-xs font-normal text-slate-500">kg CO₂e</span></p>
-                        <p class="text-xs text-teal-600 mt-1">IPCC 保守替代係數 2.1</p>
+                        <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                            <i data-lucide="pie-chart" class="w-4 h-4 mr-1.5 text-emerald-600"></i>
+                            資材種類佔比分析
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mb-3">廢棄物與有機資材分佈</p>
+                    </div>
+                    <div class="h-56 relative flex items-center justify-center">
+                        <canvas id="chart-waste-category"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3.5 bg-amber-100 text-amber-600 rounded-2xl text-2xl">🌱</div>
+                <!-- 圖 3: 生物多樣性活躍度評分趨勢 (折線圖) -->
+                <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase">產出有機蚓糞肥</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-vermicompost">0.0 <span class="text-xs font-normal text-slate-500">kg</span></p>
-                        <p class="text-xs text-amber-600 mt-1">土壤有機碳 SOC 增匯</p>
+                        <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                            <i data-lucide="activity" class="w-4 h-4 mr-1.5 text-indigo-600"></i>
+                            生物多樣性活躍度評分趨勢
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mb-3">生態活躍度評估 (1-5 星星累計)</p>
+                    </div>
+                    <div class="h-56">
+                        <canvas id="chart-bio-trend"></canvas>
                     </div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-sm p-6 border border-slate-100 flex items-center space-x-4">
-                    <div class="p-3.5 bg-indigo-100 text-indigo-600 rounded-2xl text-2xl">📸</div>
+                <!-- 圖 4: 生態觀察主題與物種佔比 (圓餅圖) -->
+                <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
                     <div>
-                        <p class="text-xs font-semibold text-slate-400 uppercase">雲端存證筆數</p>
-                        <p class="text-2xl font-bold text-slate-800" id="kpi-bio-logs">0 <span class="text-xs font-normal text-slate-500">筆存證</span></p>
-                        <p class="text-xs text-indigo-600 mt-1">TNFD 資訊透明度</p>
+                        <h3 class="text-sm font-bold text-slate-800 mb-1 flex items-center">
+                            <i data-lucide="bug" class="w-4 h-4 mr-1.5 text-indigo-600"></i>
+                            生態觀察主題與物種佔比
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mb-3">觀察物種與生態現象佔比</p>
+                    </div>
+                    <div class="h-56 relative flex items-center justify-center">
+                        <canvas id="chart-bio-category"></canvas>
                     </div>
                 </div>
+
             </div>
+        </div>
 
-            <!-- 4大全景圖表區塊 -->
-            <div class="space-y-4">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-base font-bold text-slate-800 flex items-center gap-2">
-                        <span>📊</span> 數據統計 4 大核心圖表全景
-                    </h2>
-                    <span class="text-xs text-slate-400">數據依據角色權限即時運算</span>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5"><span class="text-emerald-500">📈</span> 廢棄物轉化趨勢</h3>
-                            <p class="text-[10px] text-slate-400 mb-3">每日處理重量 (kg)</p>
-                        </div>
-                        <div class="h-48"><canvas id="chart-waste-trend"></canvas></div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5"><span class="text-emerald-500">🥧</span> 資材種類佔比</h3>
-                            <p class="text-[10px] text-slate-400 mb-3">有機廢棄物分佈</p>
-                        </div>
-                        <div class="h-48 relative flex items-center justify-center"><canvas id="chart-waste-category"></canvas></div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5"><span class="text-indigo-500">📉</span> 生物多樣性趨勢</h3>
-                            <p class="text-[10px] text-slate-400 mb-3">生態活躍度評分 (1-5 星)</p>
-                        </div>
-                        <div class="h-48"><canvas id="chart-bio-trend"></canvas></div>
-                    </div>
-
-                    <div class="bg-white rounded-2xl shadow-sm p-5 border border-slate-100 flex flex-col justify-between">
-                        <div>
-                            <h3 class="text-xs font-bold text-slate-800 mb-1 flex items-center gap-1.5"><span class="text-indigo-500">🐞</span> 生態主題佔比</h3>
-                            <p class="text-[10px] text-slate-400 mb-3">觀察物種與生態現象</p>
-                        </div>
-                        <div class="h-48 relative flex items-center justify-center"><canvas id="chart-bio-category"></canvas></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Data Table Section -->
+        <!-- Data Table Section -->
         <div class="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="p-6 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4">
                 <div>
@@ -263,7 +233,6 @@
                 <table class="w-full text-left border-collapse text-sm">
                     <thead>
                         <tr class="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider border-b border-slate-100">
-                            <th class="p-4">企業名稱</th>
                             <th class="p-4">雲端憑證照片</th>
                             <th class="p-4">日期</th>
                             <th class="p-4">記錄類型</th>
@@ -283,7 +252,7 @@
         </div>
     </main>
 
-   <!-- Modal Form -->
+    <!-- Modal Form -->
     <div id="modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
         <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
             <div class="bg-forest-600 text-white p-4 px-6 flex justify-between items-center">
@@ -334,7 +303,7 @@
                     </div>
                 </div>
 
-                 <!-- 現場照片欄位 (強迫必填照片) -->
+                <!-- 現場照片欄位 (強迫必填照片) -->
                 <div>
                     <label class="block text-xs font-semibold text-slate-600 uppercase mb-1 flex items-center justify-between">
                         <span>現場照片存證 (自動上傳雲端硬碟)</span>
@@ -370,169 +339,242 @@
         </div>
     </div>
 
-    <!-- Application Script -->
+    <!-- Frontend Script -->
     <script>
-        // 1. Google Apps Script 部署網址 (Web App URL)
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxnf2qiMUlmH-yFW6Ic_9jhIoK3VCsOWDjgV2VhT9q__XRt2-LXTEg5k_PR5NwuJNwhyQ/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlHKxhZqk3HZL_t8oDjFuMdtHBPEe22MCTQnSOPSN0PRdQG0jUi9qWHz-800zHqmc_/exec";
 
-        // 初始化示範資料庫 (當雲端無法連線時的保險離線備份)
-        const INITIAL_DATA = [
-            { id: 101, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-15", type: "waste", category: "咖啡渣", amount: 25.5, carbon: 53.6, dept: "總務部", author: "陳大明", notes: "員工餐廳咖啡渣回收" },
-            { id: 102, companyId: "CompanyA", companyName: "Company A 綠色科技", date: "2026-10-18", type: "bio", category: "蚯蚓活躍度", rating: 5, carbon: 0, dept: "永續小組", author: "林小華", notes: "1號箱分解快速" },
-            { id: 201, companyId: "CompanyB", companyName: "Company B 生態企業", date: "2026-10-16", type: "waste", category: "生廚餘", amount: 42.0, carbon: 88.2, dept: "團膳部", author: "張阿姨", notes: "廚房葉菜類廚餘" },
-            { id: 202, companyId: "CompanyB", companyName: "Company B 生態企業", date: "2026-10-19", type: "bio", category: "土壤蕈類", rating: 4, carbon: 0, dept: "廠務部", author: "李工程師", notes: "發現微生菌絲生長" }
-        ];
-
-        let database = JSON.parse(localStorage.getItem('esg_database')) || INITIAL_DATA;
-        let currentUser = null;
+        let cloudRecords = [];
+        let compressedPhotoBase64 = '';
         let cWasteTrend = null, cWasteCat = null, cBioTrend = null, cBioCat = null;
 
-        // 頁面載入綁定
-        window.onload = function() {
+        document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('form-date').value = new Date().toISOString().split('T')[0];
-            
-            const loginForm = document.getElementById('login-form');
-            if (loginForm) {
-                loginForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const email = document.getElementById('login-email').value.trim();
-
-                    if (email === 'admin@esg.com') {
-                        quickLogin('ADMIN');
-                    } else if (email.includes('userB') || email.includes('companyB')) {
-                        quickLogin('CompanyB');
-                    } else {
-                        quickLogin('CompanyA');
-                    }
-                });
-            }
-        };
-
-        // 1鍵快速免打字登入
-        function quickLogin(roleType) {
-            if (roleType === 'ADMIN') {
-                currentUser = { email: 'admin@esg.com', role: 'ADMIN', companyId: 'ALL', companyName: '總管理中心' };
-            } else if (roleType === 'CompanyA') {
-                currentUser = { email: 'userA@companyA.com', role: 'USER', companyId: 'CompanyA', companyName: 'Company A 綠色科技' };
-            } else if (roleType === 'CompanyB') {
-                currentUser = { email: 'userB@companyB.com', role: 'USER', companyId: 'CompanyB', companyName: 'Company B 生態企業' };
-            }
-
-            // 切換畫面
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app-screen').classList.remove('hidden');
-
-            // 更新抬頭 UI
-            document.getElementById('header-company-name').innerText = currentUser.companyName;
-            document.getElementById('user-display-email').innerText = currentUser.email;
-            document.getElementById('user-display-company').innerText = currentUser.companyName;
-
-            if (currentUser.role === 'ADMIN') {
-                document.getElementById('role-badge').innerText = '總管理者';
-                document.getElementById('role-badge').className = 'text-xs bg-amber-400 text-slate-900 font-extrabold px-2.5 py-0.5 rounded-full';
-                document.getElementById('admin-control-panel').classList.remove('hidden');
-            } else {
-                document.getElementById('role-badge').innerText = '企業用戶';
-                document.getElementById('role-badge').className = 'text-xs bg-emerald-400 text-slate-900 font-bold px-2.5 py-0.5 rounded-full';
-                document.getElementById('admin-control-panel').classList.add('hidden');
-            }
-
-            // 登入後自動從雲端拉取最新資料
             loadCloudData();
-        }
+            lucide.createIcons();
+        });
 
-        function handleLogout() {
-            currentUser = null;
-            document.getElementById('app-screen').classList.add('hidden');
-            document.getElementById('login-screen').classList.remove('hidden');
-        }
-
-        // -----------------------------------------------------------------
-        // ☁️ 雲端同步核心 1：從 Google 試算表 (GAS) 載入最新資料 (GET)
-        // -----------------------------------------------------------------
         function loadCloudData() {
-            const syncIcon = document.getElementById('sync-icon');
-            if (syncIcon) syncIcon.classList.add('animate-spin');
+            const spinner = document.getElementById('sync-spinner');
+            if (spinner) spinner.classList.add('animate-spin');
 
             fetch(GOOGLE_SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
-                    if (Array.isArray(data) && data.length > 0) {
-                        database = data;
-                        localStorage.setItem('esg_database', JSON.stringify(database));
-                    }
+                    cloudRecords = Array.isArray(data) ? data : [];
+                    updateDeptDropdown();
                     filterData();
                 })
                 .catch(err => {
-                    console.error("雲端讀取失敗，使用本機快取:", err);
-                    filterData();
+                    console.error("Cloud fetch failed:", err);
+                    alert("無法連線至雲端資料庫，請檢查 Apps Script 網址是否正確。");
                 })
                 .finally(() => {
-                    if (syncIcon) syncIcon.classList.remove('animate-spin');
+                    if (spinner) spinner.classList.remove('animate-spin');
                 });
         }
 
-        // -----------------------------------------------------------------
-       // -----------------------------------------------------------------
-        // ☁️ 雲端同步核心：將表單與壓縮照片寫入 Google 試算表與雲端硬碟 (POST)
-        // -----------------------------------------------------------------
-        function handleModalSubmit(e) {
-            e.preventDefault();
+        function updateDeptDropdown() {
+            const deptSelect = document.getElementById('filter-dept');
+            const currentSelected = deptSelect.value;
+            const departments = [...new Set(cloudRecords.map(item => item.dept).filter(Boolean))];
+            
+            deptSelect.innerHTML = `<option value="">總覽</option>`;
+            departments.forEach(dept => {
+                const opt = document.createElement('option');
+                opt.value = dept;
+                opt.textContent = dept;
+                deptSelect.appendChild(opt);
+            });
+            deptSelect.value = currentSelected;
+        }
 
-            const submitBtn = document.getElementById('submit-btn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `⏳ 正在上傳照片並寫入雲端...`;
+        function getFilteredRecords() {
+            const selectedDept = document.getElementById('filter-dept').value;
+            return cloudRecords.filter(item => !selectedDept || item.dept === selectedDept);
+        }
 
-            const type = document.getElementById('form-type').value;
-            const isWaste = type === 'waste';
-            const amount = parseFloat(document.getElementById('form-amount').value) || 0;
+        function filterData() {
+            const records = getFilteredRecords();
+            updateDashboard(records);
+        }
 
-            const targetCompanyId = currentUser.role === 'ADMIN' ? 'CompanyA' : currentUser.companyId;
-            const targetCompanyName = currentUser.role === 'ADMIN' ? 'Company A 綠色科技' : currentUser.companyName;
+        function updateDashboard(records) {
+            const wasteRecords = records.filter(i => i.type === 'waste');
+            const bioRecords = records.filter(i => i.type === 'bio');
 
-            const payload = {
-                id: Date.now(),
-                companyId: targetCompanyId,
-                companyName: targetCompanyName,
-                date: document.getElementById('form-date').value,
-                type: type,
-                category: isWaste ? document.getElementById('form-category-waste').value : (document.getElementById('form-bio-title').value || '生態觀察'),
-                amount: isWaste ? amount : 0,
-                rating: isWaste ? 0 : parseInt(document.getElementById('form-worm-rating').value),
-                carbon: isWaste ? (amount * 2.1).toFixed(1) : 0,
-                dept: document.getElementById('form-dept').value,
-                author: document.getElementById('form-author').value,
-                notes: document.getElementById('form-notes').value,
-                photoBase64: window.compressedPhotoBase64 || '' // 對應圖片壓縮變數
-            };
+            const totalWaste = wasteRecords.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
+            const carbonReduced = totalWaste * 2.1;
+            const vermicompost = totalWaste * 0.3;
+            const photoCount = records.filter(i => i.photo && i.photo.startsWith('http')).length;
 
-            // 背景同步至 Google Apps Script 雲端試算表
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', // 👈 加上這行可以避開瀏覽器 CORS 阻擋
-                headers: {
-                    'Content-Type': 'application/json'
+            document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg CO₂e</span>`;
+            document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-sm font-normal text-slate-500">kg</span>`;
+            document.getElementById('kpi-bio-logs').innerHTML = `${photoCount} <span class="text-sm font-normal text-slate-500">張存證</span>`;
+
+            renderAllFourCharts(wasteRecords, bioRecords);
+            renderTable(records);
+        }
+
+        // 同時渲染 4 大圖表的核心函數
+        function renderAllFourCharts(wasteRecords, bioRecords) {
+            // 銷毀舊實例避免懸浮殘影
+            if (cWasteTrend) cWasteTrend.destroy();
+            if (cWasteCat) cWasteCat.destroy();
+            if (cBioTrend) cBioTrend.destroy();
+            if (cBioCat) cBioCat.destroy();
+
+            // -------------------------------------------------------------
+            // 圖 1: 廢棄物轉化趨勢分析 (長條圖)
+            // -------------------------------------------------------------
+            const wasteByDate = {};
+            wasteRecords.forEach(item => {
+                wasteByDate[item.date] = (wasteByDate[item.date] || 0) + (parseFloat(item.amount) || 0);
+            });
+            const wasteDates = Object.keys(wasteByDate).sort();
+            const wasteAmts = wasteDates.map(d => wasteByDate[d]);
+
+            cWasteTrend = new Chart(document.getElementById('chart-waste-trend').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: wasteDates,
+                    datasets: [{ label: '廢棄物 (kg)', data: wasteAmts, backgroundColor: '#10b981', borderRadius: 4 }]
                 },
-                body: JSON.stringify(payload)
-            })
-            .then(() => {
-                alert('🎉 資料已成功發送至雲端試算表！');
-                closeModal();
-                loadCloudData(); // 重新拉取同步
-            })
-            .catch(err => {
-                console.error("雲端寫入失敗:", err);
-                alert('⚠️ 網路同步異常，請檢查 Apps Script 設定');
-                closeModal();
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f8fafc' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // -------------------------------------------------------------
+            // 圖 2: 資材種類佔比分析 (圓餅圖)
+            // -------------------------------------------------------------
+            const wasteCatMap = {};
+            wasteRecords.forEach(item => {
+                const cat = item.category || '未分類';
+                wasteCatMap[cat] = (wasteCatMap[cat] || 0) + (parseFloat(item.amount) || 0);
+            });
+            const wasteCatLabels = Object.keys(wasteCatMap);
+            const wasteCatData = Object.values(wasteCatMap);
+
+            cWasteCat = new Chart(document.getElementById('chart-waste-category').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: wasteCatLabels.length ? wasteCatLabels : ['尚無資料'],
+                    datasets: [{
+                        data: wasteCatData.length ? wasteCatData : [1],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899', '#8b5cf6'],
+                        borderWidth: 2, borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                    cutout: '60%'
+                }
+            });
+
+            // -------------------------------------------------------------
+            // 圖 3: 生物多樣性活躍度評分趨勢 (折線圖)
+            // -------------------------------------------------------------
+            const bioByDate = {};
+            bioRecords.forEach(item => {
+                bioByDate[item.date] = (bioByDate[item.date] || 0) + (parseInt(item.rating) || 0);
+            });
+            const bioDates = Object.keys(bioByDate).sort();
+            const bioRatings = bioDates.map(d => bioByDate[d]);
+
+            cBioTrend = new Chart(document.getElementById('chart-bio-trend').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: bioDates,
+                    datasets: [{
+                        label: '活躍度評分', data: bioRatings,
+                        borderColor: '#6366f1', backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true, tension: 0.3, borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, grid: { color: '#f8fafc' } }, x: { grid: { display: false } } }
+                }
+            });
+
+            // -------------------------------------------------------------
+            // 圖 4: 生態觀察主題與物種佔比 (圓餅圖)
+            // -------------------------------------------------------------
+            const bioCatMap = {};
+            bioRecords.forEach(item => {
+                const topic = item.category || '一般觀察';
+                bioCatMap[topic] = (bioCatMap[topic] || 0) + 1;
+            });
+            const bioCatLabels = Object.keys(bioCatMap);
+            const bioCatData = Object.values(bioCatMap);
+
+            cBioCat = new Chart(document.getElementById('chart-bio-category').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: bioCatLabels.length ? bioCatLabels : ['尚無資料'],
+                    datasets: [{
+                        data: bioCatData.length ? bioCatData : [1],
+                        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'],
+                        borderWidth: 2, borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
+                    cutout: '60%'
+                }
             });
         }
 
-        // 確保照片壓縮全域變數存在
-        window.compressedPhotoBase64 = '';
+        function renderTable(records) {
+            const search = document.getElementById('table-search').value.toLowerCase();
+            const tbody = document.getElementById('data-table-body');
+            tbody.innerHTML = '';
+
+            const filtered = records.filter(item => 
+                (item.category && item.category.toLowerCase().includes(search)) ||
+                (item.dept && item.dept.toLowerCase().includes(search)) ||
+                (item.author && item.author.toLowerCase().includes(search)) ||
+                (item.notes && item.notes.toLowerCase().includes(search))
+            );
+
+            filtered.slice().reverse().forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition";
+                
+                const isWaste = item.type === 'waste';
+                const amountText = isWaste ? `${item.amount} kg` : `⭐ ${item.rating || '-'} 星`;
+                const carbonText = isWaste ? `${item.carbon} kg` : '-';
+                
+                const photoLink = item.photo ? 
+                    `<a href="${item.photo}" target="_blank" class="inline-flex items-center text-xs font-semibold text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md hover:bg-indigo-100 transition"><i data-lucide="external-link" class="w-3 h-3 mr-1"></i>檢視憑證</a>` : 
+                    `<span class="text-xs text-slate-300">無照片</span>`;
+
+                tr.innerHTML = `
+                    <td class="p-4">${photoLink}</td>
+                    <td class="p-4 text-xs font-semibold text-slate-500">${item.date}</td>
+                    <td class="p-4"><span class="px-2.5 py-1 text-xs font-semibold rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '減碳行動' : '生物觀察'}</span></td>
+                    <td class="p-4 font-medium">${item.category || '-'}</td>
+                    <td class="p-4 font-bold text-slate-800">${amountText}</td>
+                    <td class="p-4 text-teal-600 font-semibold text-xs">${carbonText}</td>
+                    <td class="p-4 text-xs text-slate-500">${item.dept || '-'}</td>
+                    <td class="p-4 text-xs font-medium text-slate-700">${item.author || '-'}</td>
+                    <td class="p-4 text-xs text-slate-400 max-w-xs truncate">${item.notes || '-'}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
         function compressImage(event) {
             const file = event.target.files[0];
             if (!file) {
-                window.compressedPhotoBase64 = '';
+                compressedPhotoBase64 = '';
                 document.getElementById('photo-preview-container').classList.add('hidden');
                 return;
             }
@@ -558,8 +600,8 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    window.compressedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.65);
-                    document.getElementById('photo-preview').src = window.compressedPhotoBase64;
+                    compressedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.65);
+                    document.getElementById('photo-preview').src = compressedPhotoBase64;
                     document.getElementById('photo-preview-container').classList.remove('hidden');
                 };
                 img.src = e.target.result;
@@ -567,142 +609,100 @@
             reader.readAsDataURL(file);
         }
 
-     
-
-        // 根據權限邊界過濾數據
-        function getAccessibleRecords() {
-            if (!currentUser) return [];
-            if (currentUser.role === 'ADMIN') {
-                const selected = document.getElementById('admin-company-select').value;
-                if (selected === 'ALL') return database;
-                return database.filter(i => i.companyId === selected);
-            } else {
-                return database.filter(i => i.companyId === currentUser.companyId);
-            }
-        }
-
-        function filterData() {
-            const records = getAccessibleRecords();
-            updateDashboard(records);
-        }
-
-        function updateDashboard(records) {
-            const wasteRecords = records.filter(i => i.type === 'waste');
-            const bioRecords = records.filter(i => i.type === 'bio');
-
-            const totalWaste = wasteRecords.reduce((acc, curr) => acc + (parseFloat(curr.amount) || 0), 0);
-            const carbonReduced = totalWaste * 2.1;
-            const vermicompost = totalWaste * 0.3;
-
-            document.getElementById('kpi-total-waste').innerHTML = `${totalWaste.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
-            document.getElementById('kpi-carbon-reduced').innerHTML = `${carbonReduced.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg CO₂e</span>`;
-            document.getElementById('kpi-vermicompost').innerHTML = `${vermicompost.toFixed(1)} <span class="text-xs font-normal text-slate-500">kg</span>`;
-            document.getElementById('kpi-bio-logs').innerHTML = `${records.length} <span class="text-xs font-normal text-slate-500">筆存證</span>`;
-
-            renderCharts(wasteRecords, bioRecords);
-            renderTable(records);
-        }
-
-        function renderCharts(wasteRecords, bioRecords) {
-            if (cWasteTrend) cWasteTrend.destroy();
-            if (cWasteCat) cWasteCat.destroy();
-            if (cBioTrend) cBioTrend.destroy();
-            if (cBioCat) cBioCat.destroy();
-
-            // 1. 廢棄物趨勢
-            const wByDate = {};
-            wasteRecords.forEach(i => wByDate[i.date] = (wByDate[i.date] || 0) + (parseFloat(i.amount) || 0));
-            cWasteTrend = new Chart(document.getElementById('chart-waste-trend'), {
-                type: 'bar',
-                data: { labels: Object.keys(wByDate), datasets: [{ data: Object.values(wByDate), backgroundColor: '#10b981', borderRadius: 4 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            // 2. 資材種類
-            const wCatMap = {};
-            wasteRecords.forEach(i => wCatMap[i.category] = (wCatMap[i.category] || 0) + (parseFloat(i.amount) || 0));
-            cWasteCat = new Chart(document.getElementById('chart-waste-category'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(wCatMap), datasets: [{ data: Object.values(wCatMap), backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ec4899'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } }, cutout: '65%' }
-            });
-
-            // 3. 生態活躍度
-            const bByDate = {};
-            bioRecords.forEach(i => bByDate[i.date] = (bByDate[i.date] || 0) + (parseInt(i.rating) || 0));
-            cBioTrend = new Chart(document.getElementById('chart-bio-trend'), {
-                type: 'line',
-                data: { labels: Object.keys(bByDate), datasets: [{ data: Object.values(bByDate), borderColor: '#6366f1', fill: true, backgroundColor: 'rgba(99,102,241,0.1)', tension: 0.3 }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            // 4. 生態主題
-            const bCatMap = {};
-            bioRecords.forEach(i => bCatMap[i.category] = (bCatMap[i.category] || 0) + 1);
-            cBioCat = new Chart(document.getElementById('chart-bio-category'), {
-                type: 'doughnut',
-                data: { labels: Object.keys(bCatMap), datasets: [{ data: Object.values(bCatMap), backgroundColor: ['#6366f1', '#10b981', '#f59e0b'] }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 8, font: { size: 9 } } } }, cutout: '65%' }
-            });
-        }
-
-        function renderTable(records) {
-            const search = document.getElementById('table-search').value.toLowerCase();
-            const tbody = document.getElementById('data-table-body');
-            tbody.innerHTML = '';
-
-            const filtered = records.filter(i => 
-                (i.category && i.category.toLowerCase().includes(search)) ||
-                (i.dept && i.dept.toLowerCase().includes(search)) ||
-                (i.author && i.author.toLowerCase().includes(search))
-            );
-
-            filtered.slice().reverse().forEach(item => {
-                const tr = document.createElement('tr');
-                tr.className = "hover:bg-slate-50 transition";
-                const isWaste = item.type === 'waste';
-                tr.innerHTML = `
-                    <td class="p-4 font-bold text-slate-800">${item.companyName || '-'}</td>
-                    <td class="p-4"><span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">🔒 憑證加密</span></td>
-                    <td class="p-4 text-slate-500">${item.date || '-'}</td>
-                    <td class="p-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${isWaste ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-100 text-indigo-700'}">${isWaste ? '減碳行動' : '生態觀察'}</span></td>
-                    <td class="p-4 font-semibold">${item.category || '-'}</td>
-                    <td class="p-4 font-bold text-slate-900">${isWaste ? (item.amount || 0) + ' kg' : '⭐ ' + (item.rating || 0) + ' 星'}</td>
-                    <td class="p-4 text-teal-600 font-bold">${isWaste ? (item.carbon || 0) + ' kg' : '-'}</td>
-                    <td class="p-4 text-slate-500">${item.dept || '-'}</td>
-                    <td class="p-4 font-medium">${item.author || '-'}</td>
-                    <td class="p-4 text-slate-400 max-w-xs truncate">${item.notes || '-'}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-        }
-
         function openModal(type) {
             document.getElementById('form-type').value = type;
             document.getElementById('modal').classList.remove('hidden');
+            
             if (type === 'waste') {
+                document.getElementById('modal-title').innerHTML = `<i data-lucide="cloud-upload" class="w-5 h-5 mr-2"></i> 填報廢棄物 / 資源循環`;
                 document.getElementById('field-category-waste').classList.remove('hidden');
                 document.getElementById('field-amount-waste').classList.remove('hidden');
                 document.getElementById('field-bio-details').classList.add('hidden');
             } else {
+                document.getElementById('modal-title').innerHTML = `<i data-lucide="bug" class="w-5 h-5 mr-2"></i> 填報生物多樣性觀察`;
                 document.getElementById('field-category-waste').classList.add('hidden');
                 document.getElementById('field-amount-waste').classList.add('hidden');
                 document.getElementById('field-bio-details').classList.remove('hidden');
             }
+            lucide.createIcons();
         }
 
-        function closeModal() { 
-            document.getElementById('modal').classList.add('hidden'); 
+        function closeModal() {
+            document.getElementById('modal').classList.add('hidden');
+            document.getElementById('record-form').reset();
+            compressedPhotoBase64 = '';
+            document.getElementById('photo-preview-container').classList.add('hidden');
+        }
+
+        function handleCloudSubmit(event) {
+            event.preventDefault();
+
+            if (!compressedPhotoBase64) {
+                alert("⚠️ 為了確保數據符合 GRI/TNFD 第三方稽核合規性，必須選擇並上傳現場照片憑證後才可提交！");
+                return;
+            }
+
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin inline"></i> 正在安全上傳至雲端...`;
+            lucide.createIcons();
+
+            const type = document.getElementById('form-type').value;
+            const payload = {
+                id: Date.now(),
+                date: document.getElementById('form-date').value,
+                type: type,
+                dept: document.getElementById('form-dept').value,
+                author: document.getElementById('form-author').value,
+                notes: document.getElementById('form-notes').value,
+                photoBase64: compressedPhotoBase64
+            };
+
+            if (type === 'waste') {
+                payload.category = document.getElementById('form-category-waste').value;
+                payload.amount = parseFloat(document.getElementById('form-amount').value) || 0;
+            } else {
+                payload.category = document.getElementById('form-bio-title').value || '生態觀察';
+                payload.rating = parseInt(document.getElementById('form-worm-rating').value);
+            }
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            .then(res => res.json())
+            .then(res => {
+                if(res.status === "success") {
+                    alert('🎉 資料與現場憑證照片已成功寫入雲端！');
+                    closeModal();
+                    loadCloudData();
+                } else {
+                    alert('上傳失敗: ' + (res.message || '未知錯誤'));
+                }
+            })
+            .catch(err => {
+                console.error("Submission error:", err);
+                alert('網路連線異常，請確認 Apps Script 部署設定是否為「任何人」');
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = `確認並上傳雲端`;
+            });
         }
 
         function exportCSV() {
-            let csv = '\uFEFF公司代碼,公司名稱,日期,類型,細項類別,數量/評分,估算減碳,記錄單位,填寫人,備註\n';
-            getAccessibleRecords().forEach(item => {
-                csv += `"${item.companyId||''}","${item.companyName||''}","${item.date||''}","${item.type||''}","${item.category||''}","${item.amount || item.rating || 0}","${item.carbon||0}","${item.dept||''}","${item.author||''}","${(item.notes||'').replace(/"/g, '""')}"\n`;
+            let csv = '\uFEFFID,日期,類型,細項類別,數量或評分,估算減碳(kgCO2e),記錄部門,填寫人,備註,Google Drive 憑證網址\n';
+
+            const records = getFilteredRecords();
+            records.forEach(item => {
+                const isWaste = item.type === 'waste';
+                csv += `"${item.id}","${item.date}","${isWaste ? '減碳行動' : '生物觀察'}","${item.category}","${isWaste ? item.amount : item.rating}","${item.carbon}","${item.dept||''}","${item.author||''}","${(item.notes||'').replace(/"/g, '""')}","${item.photo||''}"\n`;
             });
+
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
-            link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
-            link.download = `ESG_Isolated_Report_${new Date().toISOString().split('T')[0]}.csv`;
+            link.href = URL.createObjectURL(blob);
+            link.download = `ESG_FullOverview_Report_${new Date().toISOString().split('T')[0]}.csv`;
             link.click();
         }
     </script>
