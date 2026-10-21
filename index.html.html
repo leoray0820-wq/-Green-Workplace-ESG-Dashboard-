@@ -476,7 +476,7 @@
        // -----------------------------------------------------------------
         // ☁️ 雲端同步核心：將表單與壓縮照片寫入 Google 試算表與雲端硬碟 (POST)
         // -----------------------------------------------------------------
-        function handleModalSubmit(e) {
+       function handleModalSubmit(e) {
             e.preventDefault();
 
             const submitBtn = document.getElementById('submit-btn');
@@ -500,24 +500,24 @@
                 photoBase64: window.compressedPhotoBase64 || ''
             };
 
-            // 背景同步至 Google Apps Script 雲端試算表 (使用 no-cors 避免瀏覽器攔截)
+            // 💡 關鍵修正：使用 text/plain 與 no-cors 避開瀏覽器阻擋
             fetch(GOOGLE_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
                 headers: {
-                    'Content-Type': 'application/json'
+                    'Content-Type': 'text/plain;charset=utf-8'
                 },
                 body: JSON.stringify(payload)
             })
             .then(() => {
-                alert('🎉 資料已成功送出至 Google 雲端！');
+                alert('🎉 資料已成功發送至雲端試算表！');
                 closeModal();
-                // 延遲 1 秒後重新向雲端拉取最新資料更新表格
-                setTimeout(loadCloudData, 1000);
+                // 延遲 1.5 秒後重新向雲端拉取最新資料更新表格與圖表
+                setTimeout(loadCloudData, 1500);
             })
             .catch(err => {
                 console.error("雲端寫入失敗:", err);
-                alert('⚠️ 網路同步異常，請檢查 Apps Script 部署設定');
+                alert('⚠️ 網路同步異常，請檢查網路連線');
             })
             .finally(() => {
                 submitBtn.disabled = false;
