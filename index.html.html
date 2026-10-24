@@ -17,10 +17,6 @@
         .text-glow {
             text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
         }
-        .pixel-card {
-            border: 2px solid #334155;
-            box-shadow: 0 4px 0 #1e293b;
-        }
         /* Custom scrollbar for game log */
         .log-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -40,7 +36,7 @@
 <body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
 
     <!-- Top Navigation / Header Bar -->
-    <header class="bg-slate-900/90 backdrop-blur border-b border-emerald-900/50 sticky top-0 z-40">
+    <header class="bg-slate-900/95 backdrop-blur border-b border-emerald-900/50 sticky top-0 z-40">
         <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <span class="text-3xl animate-bounce">🪱</span>
@@ -144,9 +140,7 @@
                     <span class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-packing text-amber-400"></i> 今日待處理有機資材</span>
                     <span class="text-[10px] text-slate-500">每日更新</span>
                 </h3>
-                <div id="materials-list" class="grid grid-cols-2 gap-2">
-                    <!-- Dynamic material cards -->
-                </div>
+                <div id="materials-list" class="grid grid-cols-2 gap-2"></div>
             </div>
 
             <!-- Badges & Achievements -->
@@ -154,9 +148,7 @@
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="fa-solid fa-award text-yellow-400"></i> 永續成就稱號 (Badges)
                 </h3>
-                <div id="badges-container" class="flex flex-wrap gap-2 pt-1">
-                    <!-- Dynamic Badges -->
-                </div>
+                <div id="badges-container" class="flex flex-wrap gap-2 pt-1"></div>
             </div>
 
         </div>
@@ -166,8 +158,6 @@
 
             <!-- Dialogue & Event Scene Card -->
             <div class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[360px] relative overflow-hidden">
-                
-                <!-- Background Subtle Graphic -->
                 <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 <!-- Scenario Header / NPC Profile -->
@@ -194,9 +184,7 @@
                 </div>
 
                 <!-- Interactive Choices Panel -->
-                <div id="choices-container" class="space-y-2 pt-2 border-t border-slate-700/60">
-                    <!-- Dynamic Choice Buttons generated via JS -->
-                </div>
+                <div id="choices-container" class="space-y-2 pt-2 border-t border-slate-700/60"></div>
 
             </div>
 
@@ -206,9 +194,7 @@
                     <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-slate-500"></i> 大地紀錄 Log</span>
                     <button onclick="clearGameLog()" class="text-[10px] text-slate-500 hover:text-slate-300">清除紀錄</button>
                 </h4>
-                <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-32 overflow-y-auto log-scrollbar font-mono">
-                    <!-- Log entries -->
-                </div>
+                <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-32 overflow-y-auto log-scrollbar font-mono"></div>
             </div>
 
         </div>
@@ -222,24 +208,21 @@
 
     <!-- Game Logic Script -->
     <script>
-        // ===================================================================
-        // GAME STATE DATA & INITIALIZATION
-        // ===================================================================
         const DEFAULT_STATE = {
             day: 1,
             chapter: 0,
             farmName: "峨眉低碳示範農場",
-            wormVitality: 80,  // 0 - 100 %
-            moisture: 70,      // 0 - 100 %
-            carbonOffset: 0.0, // kg CO2e
-            socScore: 10,       // Points
-            esgImpact: 0,      // Points
-            vermicompost: 0.0, // kg
+            wormVitality: 80,
+            moisture: 70,
+            carbonOffset: 0.0,
+            socScore: 10,
+            esgImpact: 0,
+            vermicompost: 0.0,
             unprocessedWaste: {
-                coffee: 5.0,   // kg
-                tea: 3.0,      // kg
-                foodScraps: 4.0,// kg
-                dryLeaves: 6.0 // kg
+                coffee: 5.0,
+                tea: 3.0,
+                foodScraps: 4.0,
+                dryLeaves: 6.0
             },
             badges: [],
             logHistory: [],
@@ -248,18 +231,15 @@
 
         let gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
 
-        // BADGES DEFINITIONS
         const ALL_BADGES = {
             "WORM_MASTER": { name: "蚓酷客大師", icon: "🪱", desc: "蚯蚓活力保持在 90% 以上" },
             "CARBON_HERO": { name: "減碳英雄", icon: "🌿", desc: "累計減碳量突破 50 kg CO₂e" },
             "BIOCHAR_PIONEER": { name: "生物炭先驅", icon: "🔥", desc: "成功熱裂解製作高品質生物炭" },
             "NATURAL_BUILDER": { name: "低碳建築師", icon: "🏛️", desc: "完成自然建築土漿固碳試驗" },
-            "GRI_COMPLIANT": { name: "GRI & TNFD 合規認證", icon: "📜", desc: "通第三方永續稽核驗證" }
+            "GRI_COMPLIANT": { name: "GRI & TNFD 合規認證", icon: "📜", desc: "通過第三方永續稽核驗證" }
         };
 
-        // SCENARIOS & STORYLINES DATABASE
         const SCENARIOS = {
-            // ==================== CHAPTER 0: 起源 ====================
             "CH0_START": {
                 chapter: 0,
                 chapterTitle: "第 0 章：起源 - 新竹峨眉的呼喚",
@@ -333,8 +313,6 @@
                     }
                 ]
             },
-
-            // ==================== DAILY ROUTINE & GENERAL LOOP ====================
             "DAILY_ROUTINE": {
                 chapter: 1,
                 chapterTitle: "第 1 章：日常運育 - 資材轉化與養護",
@@ -389,7 +367,6 @@
                     }
                 ]
             },
-
             "AFTER_ACTION": {
                 chapter: 1,
                 chapterTitle: "第 1 章：日常運育 - 日落結算",
@@ -407,15 +384,13 @@
                     }
                 ]
             },
-
-            // ==================== RANDOM ECO-EVENTS ====================
             "EVENT_RAIN": {
                 chapter: 1,
                 chapterTitle: "⚠️ 突發事件：峨眉山區強降雨狂風！",
                 npcName: "氣象警報",
                 npcRole: "極端氣候防範",
                 avatar: "🌧️",
-                text: "突如其來的午後大雨襲來！雨水開始積聚在蚯蚓箱上方，若濕度飆升至 90% 以上，蚯蚓可能因為缺氧而出逃逃命！你該怎麼做？",
+                text: "突如其來的午後大雨襲來！雨水開始積聚在蚯蚓箱上方，若濕度飆升至 90% 以上，蚯蚓可能因為缺氧而出逃！你該怎麼做？",
                 choices: [
                     {
                         text: "🍂 緊急鋪上一層乾枯枝落葉與生物炭吸收多餘水分",
@@ -436,7 +411,6 @@
                     }
                 ]
             },
-
             "EVENT_HEAT": {
                 chapter: 1,
                 chapterTitle: "⚠️ 突發事件：酷暑高溫熱浪襲來！",
@@ -464,7 +438,6 @@
                     }
                 ]
             },
-
             "EVENT_ANTS": {
                 chapter: 1,
                 chapterTitle: "⚠️ 突發事件：紅螞蟻大軍入侵！",
@@ -492,8 +465,6 @@
                     }
                 ]
             },
-
-            // ==================== CHAPTER 2 & 3: ESG & MILESTONES ====================
             "CHAPTER_2_ENTER": {
                 chapter: 2,
                 chapterTitle: "第 2 章：影響力擴張 - 企業 ESG 參訪",
@@ -522,7 +493,6 @@
                     }
                 ]
             },
-
             "CHAPTER_3_ENTER": {
                 chapter: 3,
                 chapterTitle: "第 3 章：圓滿輝煌 - 永續大地示範基地",
@@ -542,7 +512,6 @@
                     }
                 ]
             },
-
             "GAME_COMPLETE": {
                 chapter: 3,
                 chapterTitle: "終章：永續不息",
@@ -562,10 +531,6 @@
             }
         };
 
-        // ===================================================================
-        // GAME ENGINE FUNCTIONS
-        // ===================================================================
-
         function initGame() {
             loadGame();
             updateUI();
@@ -573,7 +538,6 @@
         }
 
         function updateUI() {
-            // Stats Text Update
             document.getElementById('stat-day').innerText = `Day ${gameState.day}`;
             document.getElementById('chapter-badge').innerText = `第 ${gameState.chapter} 章`;
             document.getElementById('farm-name').innerText = gameState.farmName;
@@ -584,7 +548,6 @@
             document.getElementById('stat-esg').innerHTML = `${gameState.esgImpact} <span class="text-[10px] font-normal text-slate-400">pts</span>`;
             document.getElementById('stat-compost').innerHTML = `${gameState.vermicompost.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
 
-            // Progress Bar Color & Width
             const wormBar = document.getElementById('stat-worm-bar');
             wormBar.style.width = `${gameState.wormVitality}%`;
             if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-500";
@@ -596,13 +559,8 @@
             if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-500";
             else moistureBar.className = "bg-sky-500 h-2.5 rounded-full transition-all duration-500";
 
-            // Render Unprocessed Materials List
             renderMaterials();
-
-            // Render Badges
             renderBadges();
-
-            // Auto Check Badges Criteria
             checkBadgeCriteria();
         }
 
@@ -652,218 +610,153 @@
             const sc = SCENARIOS[scenarioId] || SCENARIOS["DAILY_ROUTINE"];
             gameState.currentScenarioId = scenarioId;
 
-            // Chapter Title Update
             document.getElementById('chapter-title').innerText = sc.chapterTitle;
             gameState.chapter = sc.chapter;
 
-            // NPC Profile Update
             document.getElementById('npc-name').innerText = sc.npcName;
             document.getElementById('npc-role').innerText = sc.npcRole;
             document.getElementById('npc-avatar').innerText = sc.avatar || "🧑‍🌾";
-
-            // Dialogue Body Text
             document.getElementById('story-text').innerText = sc.text;
 
-            // Choices Buttons
             const choicesBox = document.getElementById('choices-container');
             choicesBox.innerHTML = '';
 
             sc.choices.forEach(choice => {
                 const btn = document.createElement('button');
                 btn.className = "w-full text-left bg-slate-700/60 hover:bg-emerald-800/80 hover:border-emerald-500 border border-slate-600/80 p-3 rounded-xl text-xs sm:text-sm font-semibold transition duration-200 flex items-center justify-between group shadow-sm";
-                btn.innerHTML = `
-                    <span class="group-hover:text-emerald-200 transition">${choice.text}</span>
-                    <i class="fa-solid fa-chevron-right text-xs text-slate-500 group-hover:text-emerald-300 group-hover:translate-x-1 transition-transform"></i>
-                `;
+                btn.innerHTML = `<span>${choice.text}</span> <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-emerald-300 group-hover:translate-x-1 transition"></i>`;
                 btn.onclick = () => {
                     if (choice.action) choice.action();
-                    saveGame();
                     updateUI();
-                    if (choice.nextScenario) {
-                        renderScenario(choice.nextScenario);
-                    }
+                    saveGame(false);
+                    renderScenario(choice.nextScenario);
                 };
                 choicesBox.appendChild(btn);
             });
-
-            updateUI();
         }
 
-        // ===================================================================
-        // GAME ACTIONS & MATHS
-        // ===================================================================
-
-        function processMaterial(type, amount, method) {
+        function processMaterial(type, amount, target) {
             if (gameState.unprocessedWaste[type] >= amount) {
                 gameState.unprocessedWaste[type] -= amount;
-            } else {
-                amount = gameState.unprocessedWaste[type];
-                gameState.unprocessedWaste[type] = 0;
-            }
-
-            if (amount <= 0) return;
-
-            if (method === 'worm') {
-                addCarbon(amount * 2.1);
-                addCompost(amount * 0.35);
-                addWormVitality(5);
-                adjustMoisture(5);
-            } else if (method === 'biochar') {
-                addCarbon(amount * 3.2);
-                addSOC(amount * 1.5);
+                if (target === 'worm') {
+                    gameState.vermicompost += amount * 0.6;
+                    addCarbon(amount * 0.4);
+                    addWormVitality(5);
+                }
             }
         }
 
-        function addCarbon(val) {
-            gameState.carbonOffset += val;
-            showToast(`+${val.toFixed(1)} kg CO₂e 減碳效益！`);
+        function adjustMoisture(amount) {
+            gameState.moisture = Math.max(20, Math.min(100, gameState.moisture + amount));
         }
 
-        function addSOC(val) {
-            gameState.socScore += Math.round(val);
+        function addWormVitality(amt) {
+            gameState.wormVitality = Math.max(0, Math.min(100, gameState.wormVitality + amt));
         }
 
-        function addESG(val) {
-            gameState.esgImpact += Math.round(val);
-            showToast(`+${val} ESG 影響力積分！`);
+        function addCarbon(amt) {
+            gameState.carbonOffset += amt;
+            if (gameState.carbonOffset >= 50) unlockBadge("CARBON_HERO");
         }
 
-        function addCompost(val) {
-            gameState.vermicompost += val;
+        function addSOC(amt) {
+            gameState.socScore += amt;
         }
 
-        function addWormVitality(val) {
-            gameState.wormVitality = Math.min(100, Math.max(0, gameState.wormVitality + val));
-        }
-
-        function adjustMoisture(val) {
-            gameState.moisture = Math.min(100, Math.max(0, gameState.moisture + val));
+        function addESG(amt) {
+            gameState.esgImpact += amt;
         }
 
         function unlockBadge(bKey) {
             if (!gameState.badges.includes(bKey)) {
                 gameState.badges.push(bKey);
-                const badge = ALL_BADGES[bKey];
-                showToast(`🏆 恭喜解鎖稱號：${badge.name}！`);
-                addLog(`🏆 榮獲稱號成就【${badge.name}】！`);
+                showToast(`解鎖成就：${ALL_BADGES[bKey].name} ${ALL_BADGES[bKey].icon}`);
+                addLog(`獲得成就：${ALL_BADGES[bKey].name}`);
             }
         }
 
         function checkBadgeCriteria() {
-            if (gameState.wormVitality >= 90) unlockBadge("WORM_MASTER");
-            if (gameState.carbonOffset >= 50.0) unlockBadge("CARBON_HERO");
+            if (gameState.wormVitality >= 90 && !gameState.badges.includes("WORM_MASTER")) {
+                unlockBadge("WORM_MASTER");
+            }
         }
 
         function nextDay() {
             gameState.day += 1;
+            gameState.unprocessedWaste.coffee += 2.0;
+            gameState.unprocessedWaste.tea += 1.5;
+            gameState.unprocessedWaste.foodScraps += 2.0;
+            gameState.unprocessedWaste.dryLeaves += 3.0;
 
-            // Generate daily organic waste supply
-            gameState.unprocessedWaste.coffee += parseFloat((Math.random() * 3 + 2).toFixed(1));
-            gameState.unprocessedWaste.tea += parseFloat((Math.random() * 2 + 1).toFixed(1));
-            gameState.unprocessedWaste.foodScraps += parseFloat((Math.random() * 3 + 1.5).toFixed(1));
-            gameState.unprocessedWaste.dryLeaves += parseFloat((Math.random() * 4 + 2).toFixed(1));
-
-            // Passive daily environmental moisture drop
-            adjustMoisture(-5);
-
-            addLog(`🌅 第 ${gameState.day} 天誕生！農場收到了新一批社區有機資材。`);
-
-            // Chapter Progression Check
-            if (gameState.day === 4 && gameState.chapter === 1) {
+            // Trigger Random Events or Story Milestones
+            if (gameState.day === 3 && gameState.chapter < 2) {
                 renderScenario("CHAPTER_2_ENTER");
                 return;
-            } else if (gameState.day === 8 && gameState.chapter === 2) {
+            }
+            if (gameState.day === 6 && gameState.chapter < 3) {
                 renderScenario("CHAPTER_3_ENTER");
                 return;
             }
 
-            // Check Random Event Chance (35% probability per day)
-            const rand = Math.random();
-            if (rand < 0.35) {
-                const events = ["EVENT_RAIN", "EVENT_HEAT", "EVENT_ANTS"];
-                const selectedEvent = events[Math.floor(Math.random() * events.length)];
-                renderScenario(selectedEvent);
-            } else {
-                renderScenario("DAILY_ROUTINE");
-            }
+            const events = ["EVENT_RAIN", "EVENT_HEAT", "EVENT_ANTS", "DAILY_ROUTINE", "DAILY_ROUTINE"];
+            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            
+            addLog(`-- 進入 Day ${gameState.day} --`);
+            renderScenario(randomEvent);
         }
 
-        // ===================================================================
-        // SYSTEM HELPERS: LOG, TOAST & LOCALSTORAGE
-        // ===================================================================
-
-        function addLog(msg) {
-            const timeStr = `Day ${gameState.day}`;
-            const entry = `[${timeStr}] ${msg}`;
-            gameState.logHistory.unshift(entry);
+        function addLog(text) {
+            const timeStr = `[Day ${gameState.day}]`;
+            gameState.logHistory.unshift(`${timeStr} ${text}`);
             if (gameState.logHistory.length > 30) gameState.logHistory.pop();
+            renderLog();
+        }
 
+        function renderLog() {
             const logBox = document.getElementById('game-log');
-            const p = document.createElement('p');
-            p.innerText = entry;
-            logBox.insertBefore(p, logBox.firstChild);
+            logBox.innerHTML = gameState.logHistory.join('<br>');
         }
 
         function clearGameLog() {
             gameState.logHistory = [];
-            document.getElementById('game-log').innerHTML = '';
+            renderLog();
         }
 
-        function showToast(text) {
+        function showToast(msg) {
             const toast = document.getElementById('feedback-toast');
-            const toastText = document.getElementById('feedback-text');
-            toastText.innerText = text;
+            document.getElementById('feedback-text').innerText = msg;
             toast.classList.remove('hidden');
             setTimeout(() => {
                 toast.classList.add('hidden');
-            }, 2500);
+            }, 3000);
         }
 
-        function saveGame(showNotice = false) {
-            try {
-                localStorage.setItem('terra_chef_save', JSON.stringify(gameState));
-                if (showNotice) showToast("💾 遊戲進度已成功儲存至本機！");
-            } catch (e) {
-                console.error("Save error:", e);
-            }
+        function saveGame(showNotif = false) {
+            localStorage.setItem('TERRA_CHEF_SAVE_2026', JSON.stringify(gameState));
+            if (showNotif) showToast("遊戲進度已成功儲存！");
         }
 
         function loadGame() {
-            try {
-                const saved = localStorage.getItem('terra_chef_save');
-                if (saved) {
+            const saved = localStorage.getItem('TERRA_CHEF_SAVE_2026');
+            if (saved) {
+                try {
                     gameState = JSON.parse(saved);
-                    // Re-populate historical log DOM
-                    const logBox = document.getElementById('game-log');
-                    logBox.innerHTML = '';
-                    if (gameState.logHistory) {
-                        gameState.logHistory.forEach(logText => {
-                            const p = document.createElement('p');
-                            p.innerText = logText;
-                            logBox.appendChild(p);
-                        });
-                    }
+                } catch(e) {
+                    console.error("Save load failed", e);
                 }
-            } catch (e) {
-                console.error("Load error:", e);
-                gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
             }
         }
 
         function confirmResetGame() {
-            if (confirm("確定要重置農場進度嗎？所有累積的減碳量與稱號將重新開始。")) {
-                localStorage.removeItem('terra_chef_save');
+            if (confirm("確定要重置所有農場進度與成就嗎？")) {
+                localStorage.removeItem('TERRA_CHEF_SAVE_2026');
                 gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                document.getElementById('game-log').innerHTML = '';
-                addLog("🌱 峨眉低碳示範農場已重新啟動！");
                 initGame();
+                showToast("農場已重置為初始狀態。");
             }
         }
 
-        // Window onload initialization
-        window.onload = function() {
-            initGame();
-        };
+        window.onload = initGame;
     </script>
 </body>
 </html>
