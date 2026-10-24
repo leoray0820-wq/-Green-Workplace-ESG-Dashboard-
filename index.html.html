@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v10.2 終極修復版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v10.3 自動配對版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.2 終極版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.3 自動配對版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -105,7 +105,7 @@
     </header>
 
     <!-- STEP 1: LOBBY & JOIN SCREEN -->
-    <main id="screen-lobby" class="max-w-2xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
+    <main id="screen-lobby" class="max-w-xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
         <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-10 border border-emerald-500/30 shadow-2xl w-full space-y-6 relative overflow-hidden backdrop-blur">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -114,32 +114,25 @@
                     🌐
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
-                <p class="text-sm text-slate-300">請先輸入玩家名稱，並輸入 2 位數房號 (01~99) 建立或加入房間！</p>
+                <p class="text-sm text-slate-300">輸入名稱後，即可直接創建房間或一鍵自動配對加入！</p>
             </div>
 
-            <!-- Player Setup -->
+            <!-- Player Setup & Controls -->
             <div class="space-y-5 bg-slate-950/80 p-6 rounded-2xl border border-slate-800 shadow-inner">
                 <div>
-                    <label class="block text-sm font-bold text-emerald-400 mb-2">1. 設定您的玩家名稱 *</label>
-                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                    <label class="block text-sm font-bold text-emerald-400 mb-2">玩家名稱 *</label>
+                    <input type="text" id="input-player-name" placeholder="請輸入您的遊戲名稱" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
                 </div>
 
-                <!-- Host Controls -->
-                <div id="host-controls-box" class="space-y-3 pt-4 border-t border-slate-800">
-                    <label class="block text-sm font-bold text-slate-200">2A. 房主開房 (請輸入 2 位數字房號，例如: 01 或 88)</label>
-                    <div class="flex gap-3">
-                        <input type="text" id="input-room-id" placeholder="2位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500 font-bold tracking-widest text-center" />
-                        <button id="btn-host-action" onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap shadow-lg transition">創建房間</button>
-                    </div>
-                </div>
-
-                <!-- Client Controls -->
-                <div id="client-controls-box" class="pt-4 border-t border-slate-800 space-y-3">
-                    <label class="block text-sm font-bold text-slate-200">2B. 訪客加入 (輸入好友的 2 位數房號)</label>
-                    <div class="flex gap-3">
-                        <input type="text" id="input-join-id" placeholder="輸入 2 位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono text-amber-400 w-full focus:outline-none focus:border-emerald-500 font-bold tracking-widest text-center" />
-                        <button id="btn-join-action" onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap shadow-lg transition">加入對戰</button>
-                    </div>
+                <div id="action-buttons-box" class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                    <button id="btn-host-action" onclick="autoHostRoom()" class="bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-xl text-sm font-black shadow-lg transition flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-house-chimney text-lg"></i>
+                        <span>創建房間 (自動配號)</span>
+                    </button>
+                    <button id="btn-join-action" onclick="autoMatchJoin()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 p-4 rounded-xl text-sm font-black shadow-lg transition flex flex-col items-center justify-center gap-1">
+                        <i class="fa-solid fa-users text-lg"></i>
+                        <span>自動配對 (加入對戰)</span>
+                    </button>
                 </div>
 
                 <!-- Room Status & Joined Players Section -->
@@ -162,7 +155,7 @@
             </div>
 
             <div id="lobby-msg" class="text-center text-xs sm:text-sm text-slate-400 italic">
-                提示：務必先輸入玩家名稱，並約定相同的 2 位數房號進行連線！
+                提示：系統將自動依序從 01~99 尋找可用房號進行配對！
             </div>
         </div>
     </main>
@@ -380,7 +373,6 @@
             { name: "SOC 固碳先鋒", desc: "基礎移動碳匯 +20%", bonusType: "move", value: 1.20 }
         ];
 
-        // 10 Chance Cards (Pure Data for P2P Serialization)
         const CHANCE_CARDS = [
             { id: "c1", name: "綠色金融補助", desc: "獲取永續金融基金，獲得 30 碳幣！", category: "chance", needTarget: false },
             { id: "c2", name: "生物炭技術突破", desc: "炭化效率提升，固碳量增加 5.0 kg！", category: "chance", needTarget: false },
@@ -394,7 +386,6 @@
             { id: "c10", name: "資材技術轉移", desc: "選定一名對手，轉移其 10 個資材至自己囊中！", category: "chance", needTarget: true }
         ];
 
-        // 10 Destiny Cards (Pure Data for P2P Serialization)
         const DESTINY_CARDS = [
             { id: "d1", name: "紅螞蟻侵蝕災情", desc: "遭紅螞蟻入侵堆肥箱，損失 15 碳幣！", category: "destiny", needTarget: false },
             { id: "d2", name: "極端暴雨沖刷", desc: "豪雨流失土壤有機碳，固碳量減少 4.0 kg！", category: "destiny", needTarget: false },
@@ -408,7 +399,6 @@
             { id: "d10", name: "生物安全隔離", desc: "強制暫停營運清消，支付 10 碳幣衛生費！", category: "destiny", needTarget: false }
         ];
 
-        // Host-side Centralized Execution Engine
         function executeCardEffectById(cardId, p, target) {
             switch(cardId) {
                 case "c1": p.coins += 30; break;
@@ -435,7 +425,6 @@
             }
         }
 
-        // 20 Ring Board Tiles with Verifiable Station Triggers
         const BOARD_TILES = [
             { id: 0, name: "起點站", icon: "🚩", type: "start", desc: "經過可領取永續補給：碳幣+20、資材+10" },
             { id: 1, name: "咖啡渣收集站", icon: "☕", type: "resource", resourceGain: 15, coinGain: 5, desc: "獲得資材+15，碳幣+5" },
@@ -483,133 +472,173 @@
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
         const COLORS = ["#10b981", "#38bdf8", "#f59e0b", "#a855f7"];
 
-        function validateInput(roomIdInput) {
+        function validateName() {
             const name = document.getElementById('input-player-name').value.trim();
             if (!name) {
                 alert("請先輸入您的玩家名稱！");
                 return null;
             }
-            const roomNum = roomIdInput.trim();
-            if (!/^\d{2}$/.test(roomNum)) {
-                alert("請輸入 2 位數字房號（例如 01 到 99）！");
-                return null;
-            }
-            return { name, roomNum };
+            return name;
         }
 
-        /* ================= PEERJS NETWORKING ================= */
+        /* ================= AUTO-ROOM NETWORKING ================= */
 
-        function hostRoom() {
-            const rawRoom = document.getElementById('input-room-id').value;
-            const validated = validateInput(rawRoom);
-            if (!validated) return;
+        // 依序嘗試從 01~99 開房，找到第一個未被佔用的房號
+        async function autoHostRoom() {
+            const name = validateName();
+            if (!name) return;
+            myPlayerName = name;
 
             const btnHost = document.getElementById('btn-host-action');
             btnHost.disabled = true;
-            btnHost.innerText = "準備中...";
+            btnHost.innerText = "自動尋找空房中...";
 
-            myPlayerName = validated.name;
-            const fullPeerId = `terra-room-${validated.roomNum}`;
-            isHost = true;
-
-            peer = new Peer(fullPeerId);
-
-            peer.on('open', (id) => {
-                myPeerId = id;
-                document.getElementById('conn-status').innerText = `房號 [${validated.roomNum}] 已開房`;
-                document.getElementById('invite-section').classList.remove('hidden');
-                document.getElementById('btn-start-game').classList.remove('hidden');
-                document.getElementById('client-waiting-tip').classList.add('hidden');
-                document.getElementById('host-controls-box').classList.add('hidden');
-                document.getElementById('client-controls-box').classList.add('hidden');
-                document.getElementById('display-room-id').innerText = validated.roomNum;
-
-                const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
-                gameState.players = [{
-                    peerId: id,
-                    name: myPlayerName,
-                    isAi: false,
-                    bankrupt: false,
-                    avatar: AVATARS[0],
-                    color: COLORS[0],
-                    pos: 0,
-                    coins: 100,
-                    carbon: 10.0,
-                    resources: 50,
-                    vermiCasting: 5.0,
-                    skill: skill,
-                    inventory: []
-                }];
-                updateLobbyPlayersList();
-            });
-
-            peer.on('connection', (conn) => {
-                if (gameState.players.length >= 4) {
-                    conn.send({ type: 'REJECT', reason: '房間已滿 4 人' });
-                    setTimeout(() => conn.close(), 500);
-                    return;
-                }
-
-                conn.on('open', () => {
-                    connections[conn.peer] = conn;
-                });
-
-                conn.on('data', (data) => handleHostReceiveData(conn, data));
+            for (let i = 1; i <= 99; i++) {
+                const roomStr = String(i).padStart(2, '0');
+                const fullPeerId = `terra-room-${roomStr}`;
                 
-                conn.on('close', () => {
-                    handlePlayerDisconnect(conn.peer);
-                });
-            });
+                const success = await tryOpenRoom(fullPeerId, roomStr);
+                if (success) return;
+            }
 
-            peer.on('error', (err) => {
-                alert("開房失敗（可能該房號已被佔用）：" + err.type);
-                btnHost.disabled = false;
-                btnHost.innerText = "創建房間";
+            alert("目前所有 01~99 房間皆已滿，請稍後再試！");
+            btnHost.disabled = false;
+            btnHost.innerText = "創建房間 (自動配號)";
+        }
+
+        function tryOpenRoom(fullPeerId, roomNum) {
+            return new Promise((resolve) => {
+                const testPeer = new Peer(fullPeerId);
+
+                testPeer.on('open', (id) => {
+                    // 成功取得該房號
+                    peer = testPeer;
+                    myPeerId = id;
+                    isHost = true;
+
+                    document.getElementById('conn-status').innerText = `房號 [${roomNum}] 已開房`;
+                    document.getElementById('invite-section').classList.remove('hidden');
+                    document.getElementById('btn-start-game').classList.remove('hidden');
+                    document.getElementById('client-waiting-tip').classList.add('hidden');
+                    document.getElementById('action-buttons-box').classList.add('hidden');
+                    document.getElementById('display-room-id').innerText = roomNum;
+
+                    const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
+                    gameState.players = [{
+                        peerId: id,
+                        name: myPlayerName,
+                        isAi: false,
+                        bankrupt: false,
+                        avatar: AVATARS[0],
+                        color: COLORS[0],
+                        pos: 0,
+                        coins: 100,
+                        carbon: 10.0,
+                        resources: 50,
+                        vermiCasting: 5.0,
+                        skill: skill,
+                        inventory: []
+                    }];
+                    updateLobbyPlayersList();
+
+                    peer.on('connection', (conn) => {
+                        if (gameState.players.length >= 4) {
+                            conn.send({ type: 'REJECT', reason: '房間已滿 4 人' });
+                            setTimeout(() => conn.close(), 500);
+                            return;
+                        }
+                        conn.on('open', () => { connections[conn.peer] = conn; });
+                        conn.on('data', (data) => handleHostReceiveData(conn, data));
+                        conn.on('close', () => { handlePlayerDisconnect(conn.peer); });
+                    });
+
+                    resolve(true);
+                });
+
+                testPeer.on('error', (err) => {
+                    // 房號已被佔用，關閉並繼續下一個
+                    testPeer.destroy();
+                    resolve(false);
+                });
             });
         }
 
-        function joinRoom() {
-            const rawRoom = document.getElementById('input-join-id').value;
-            const validated = validateInput(rawRoom);
-            if (!validated) return;
+        // 自動配對加入：依序從 01~99 掃描尋找開放中的房間並連線
+        async function autoMatchJoin() {
+            const name = validateName();
+            if (!name) return;
+            myPlayerName = name;
 
             const btnJoin = document.getElementById('btn-join-action');
             btnJoin.disabled = true;
-            btnJoin.innerText = "準備中...";
+            btnJoin.innerText = "自動配對中...";
 
-            myPlayerName = validated.name;
-            const fullPeerId = `terra-room-${validated.roomNum}`;
+            for (let i = 1; i <= 99; i++) {
+                const roomStr = String(i).padStart(2, '0');
+                const fullPeerId = `terra-room-${roomStr}`;
 
-            isHost = false;
-            peer = new Peer();
+                const connected = await tryConnectRoom(fullPeerId, roomStr);
+                if (connected) return;
+            }
 
-            peer.on('open', (id) => {
-                myPeerId = id;
-                document.getElementById('conn-status').innerText = "連線中...";
-                hostConn = peer.connect(fullPeerId);
+            alert("目前沒有找到可加入的對戰房間，請自行點擊「創建房間」建立新局！");
+            btnJoin.disabled = false;
+            btnJoin.innerText = "自動配對 (加入對戰)";
+        }
 
-                hostConn.on('open', () => {
-                    document.getElementById('conn-status').innerText = `已連線房號 [${validated.roomNum}]`;
-                    document.getElementById('display-room-id').innerText = validated.roomNum;
-                    
-                    hostConn.send({
-                        type: 'JOIN_REQ',
-                        playerName: myPlayerName
+        function tryConnectRoom(fullPeerId, roomNum) {
+            return new Promise((resolve) => {
+                const tempPeer = new Peer();
+
+                tempPeer.on('open', (id) => {
+                    myPeerId = id;
+                    const conn = tempPeer.connect(fullPeerId);
+
+                    let settled = false;
+
+                    conn.on('open', () => {
+                        settled = true;
+                        peer = tempPeer;
+                        hostConn = conn;
+                        isHost = false;
+
+                        document.getElementById('conn-status').innerText = `已自動配對房號 [${roomNum}]`;
+                        document.getElementById('display-room-id').innerText = roomNum;
+                        document.getElementById('action-buttons-box').classList.add('hidden');
+                        document.getElementById('invite-section').classList.remove('hidden');
+
+                        conn.send({
+                            type: 'JOIN_REQ',
+                            playerName: myPlayerName
+                        });
+
+                        conn.on('data', (data) => handleClientReceiveData(data));
+                        conn.on('close', () => {
+                            alert("與房主的連線已中斷");
+                            location.reload();
+                        });
+
+                        resolve(true);
                     });
+
+                    conn.on('error', () => {
+                        if (!settled) {
+                            tempPeer.destroy();
+                            resolve(false);
+                        }
+                    });
+
+                    setTimeout(() => {
+                        if (!settled) {
+                            tempPeer.destroy();
+                            resolve(false);
+                        }
+                    }, 800); // 快速超時掃描下一個房號
                 });
 
-                hostConn.on('data', (data) => handleClientReceiveData(data));
-
-                hostConn.on('close', () => {
-                    alert("與房主的連線已中斷");
-                    location.reload();
+                tempPeer.on('error', () => {
+                    resolve(false);
                 });
-            });
-
-            peer.on('error', (err) => {
-                alert("連線失敗（請確認房號是否正確）：" + err.type);
-                btnJoin.disabled = false;
-                btnJoin.innerText = "加入對戰";
             });
         }
 
@@ -641,8 +670,7 @@
                 });
                 
                 document.getElementById('invite-section').classList.remove('hidden');
-                document.getElementById('host-controls-box').classList.add('hidden');
-                document.getElementById('client-controls-box').classList.add('hidden');
+                document.getElementById('action-buttons-box').classList.add('hidden');
 
                 updateLobbyPlayersList();
                 broadcastState(`${data.playerName} 加入了對戰！`);
@@ -671,8 +699,7 @@
                     updateUI();
                 } else {
                     document.getElementById('invite-section').classList.remove('hidden');
-                    document.getElementById('host-controls-box').classList.add('hidden');
-                    document.getElementById('client-controls-box').classList.add('hidden');
+                    document.getElementById('action-buttons-box').classList.add('hidden');
                     updateLobbyPlayersList();
                 }
                 if (data.msg) addLog(data.msg);
@@ -1187,7 +1214,6 @@
                 document.getElementById('card-action-box').classList.add('hidden');
                 document.getElementById('facility-action-box').classList.add('hidden');
             } else {
-                // If it is my turn and I arrived at an unowned facility, show the prompt!
                 const tile = BOARD_TILES[currP.pos];
                 if (tile.type === 'facility' && !gameState.ownedFacilities[tile.id] && currP.coins >= tile.cost) {
                     showFacilityPrompt(tile);
