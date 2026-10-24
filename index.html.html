@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 v3.1 完整修正版</title>
+    <title>歸蚓酷客：永續大地冒險 v3.2 最終修復版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.1 Final</span>
+                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.2 Fixed</span>
                     </h1>
                     <p class="text-[10px] sm:text-xs text-slate-400">Terra Chef: Eco-Farm RPG & Tech Upgrades</p>
                 </div>
@@ -98,6 +98,8 @@
                             第 0 章
                         </span>
                         <h2 id="farm-name" class="font-bold text-slate-100 text-sm mt-1">峨眉低碳示範農場</h2>
+                        <!-- 修正：補回 chapter-title 元素 -->
+                        <p id="chapter-title" class="text-[11px] text-emerald-400 font-semibold mt-0.5">架設蚯蚓箱 V1.0</p>
                     </div>
                     <div class="text-right">
                         <span class="text-3xl font-black text-amber-400 font-pixel" id="stat-day">Day 1</span>
@@ -898,7 +900,10 @@
             const sc = SCENARIOS[scenarioId];
             gameState.currentScenarioId = scenarioId;
 
-            document.getElementById('chapter-title').innerText = sc.chapterTitle;
+            // 安全渲染章節標題
+            const titleEl = document.getElementById('chapter-title');
+            if (titleEl) titleEl.innerText = sc.chapterTitle;
+
             gameState.chapter = sc.chapter;
 
             document.getElementById('npc-name').innerText = sc.npcName;
@@ -1036,7 +1041,7 @@
         }
 
         function saveGame(showNotif = false) {
-            localStorage.setItem('TERRA_CHEF_SAVE_V31', JSON.stringify(gameState));
+            localStorage.setItem('TERRA_CHEF_SAVE_V32', JSON.stringify(gameState));
             if (showNotif) {
                 playSound('success');
                 showToast("遊戲進度已成功儲存！", "💾");
@@ -1044,7 +1049,7 @@
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V31');
+            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V32');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -1057,14 +1062,13 @@
 
         function confirmResetGame() {
             if (confirm("確定要重置所有農場進度、科技與成就嗎？")) {
-                localStorage.removeItem('TERRA_CHEF_SAVE_V31');
+                localStorage.removeItem('TERRA_CHEF_SAVE_V32');
                 gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
                 forceStartGame();
                 showToast("農場已重置為初始狀態。");
             }
         }
 
-        // Robust Self-Correcting Initialization Engine
         function forceStartGame() {
             loadGame();
             if (!SCENARIOS[gameState.currentScenarioId]) {
