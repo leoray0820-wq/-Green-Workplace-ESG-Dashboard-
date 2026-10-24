@@ -1,9 +1,10 @@
+<web_code_canvas id="index.html">
 <!DOCTYPE html>
 <html lang="zh-TW" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v9.1 P2P 修正版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v9.3 P2P 最終修復版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -82,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-lg text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40">v9.2 P2P 修正版</span>
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40">v9.3 P2P 最終修復版</span>
                     </h1>
                     <p class="text-[10px] sm:text-xs text-slate-400 hidden sm:block">峨眉低碳循環農業 × P2P 碳匯競賽桌遊</p>
                 </div>
@@ -110,34 +111,36 @@
                     🌐
                 </div>
                 <h2 class="text-2xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
-                <p class="text-xs text-slate-400">輸入暱稱，建立房間發送連結給朋友，最多 4 人對戰（不足將自動補滿 AI）！</p>
+                <p class="text-xs text-slate-400">請先輸入玩家名稱，並輸入 2 位數房號 (01~99) 建立或加入房間！</p>
             </div>
 
             <!-- Player Setup -->
             <div class="space-y-4 bg-slate-950/80 p-5 rounded-2xl border border-slate-800">
                 <div>
-                    <label class="block text-xs font-bold text-emerald-400 mb-1.5">1. 設定您的玩家名稱</label>
-                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" value="永續冒險家" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                    <label class="block text-xs font-bold text-emerald-400 mb-1.5">1. 設定您的玩家名稱 *</label>
+                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
                 </div>
 
                 <!-- Host Controls -->
                 <div id="host-controls-box" class="space-y-3 pt-3 border-t border-slate-800">
-                    <label class="block text-xs font-bold text-slate-300">2A. 房主開房 (Host)</label>
+                    <label class="block text-xs font-bold text-slate-300">2A. 房主開房 (請輸入 2 位數字房號，例如: 01 或 88)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-room-id" placeholder="自訂房號 (留空則隨機生成)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500" />
-                        <button onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">創建房間</button>
+                        <input type="text" id="input-room-id" placeholder="2位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                        <button id="btn-host-action" onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">創建房間</button>
                     </div>
                 </div>
 
-                <!-- Share Link Section -->
-                <div id="invite-section" class="hidden pt-3 border-t border-slate-800 space-y-2">
-                    <label class="block text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-link text-amber-400"></i> 專屬對戰邀請連結：
-                    </label>
+                <!-- Client Controls -->
+                <div id="client-controls-box" class="pt-3 border-t border-slate-800 space-y-2">
+                    <label class="block text-xs font-bold text-slate-300">2B. 訪客加入 (輸入好友的 2 位數房號)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-invite-url" readonly class="bg-slate-900 border border-emerald-500/50 rounded-xl px-3 py-2 text-xs font-mono text-emerald-300 w-full select-all" />
-                        <button onclick="copyInviteLink()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-md">📋 複製連結</button>
+                        <input type="text" id="input-join-id" placeholder="輸入 2 位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-400 w-full focus:outline-none focus:border-amber-500 font-bold" />
+                        <button id="btn-join-action" onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">加入對戰</button>
                     </div>
+                </div>
+
+                <!-- Share Link / Lobby Players Section -->
+                <div id="invite-section" class="hidden pt-3 border-t border-slate-800 space-y-2">
                     <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2">
                         <div class="flex justify-between items-center text-xs">
                             <span class="text-slate-400">已加入玩家 (<span id="room-player-count">1</span>/4):</span>
@@ -148,19 +151,10 @@
                         </ul>
                     </div>
                 </div>
-
-                <!-- Client Controls -->
-                <div id="client-controls-box" class="pt-3 border-t border-slate-800 space-y-2">
-                    <label class="block text-xs font-bold text-slate-300">2B. 訪客加入 (Join)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="input-join-id" placeholder="貼上房號或透過邀請連結自動載入" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-400 w-full focus:outline-none focus:border-amber-500" />
-                        <button onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">加入對戰</button>
-                    </div>
-                </div>
             </div>
 
             <div id="lobby-msg" class="text-center text-xs text-slate-400 italic">
-                提示：朋友開啟帶有房號的連結後，只需輸入名稱即可直接連線！
+                提示：務必先輸入玩家名稱，並約定相同的 2 位數房號進行連線！
             </div>
         </div>
     </main>
@@ -189,7 +183,6 @@
                     </span>
                 </div>
                 <div id="my-inventory-list" class="space-y-1.5 text-xs">
-                    <!-- Inventory items populate dynamically -->
                     <div class="text-[11px] text-slate-500 italic text-center py-2">目前沒有收藏的卡片</div>
                 </div>
             </div>
@@ -250,7 +243,7 @@
                     </div>
 
                     <div class="text-[9px] text-slate-500 z-10 font-mono">
-                        P2P WebRTC Synced • Room ID: <span id="display-room-id" class="text-emerald-400">---</span>
+                        P2P Room ID: <span id="display-room-id" class="text-emerald-400">---</span>
                     </div>
                 </div>
             </div>
@@ -258,7 +251,6 @@
 
         <!-- Right Sidebar: Expanded & Enhanced Chatroom & Live Game Log -->
         <div class="lg:col-span-3 space-y-3 flex flex-col justify-between">
-            <!-- Enhanced Chatroom Module -->
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
                     <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
@@ -267,19 +259,16 @@
                     <span class="text-[10px] text-slate-500 font-mono">P2P Live</span>
                 </div>
                 
-                <!-- Expanded Chat Messages Container with Auto-Scroll -->
                 <div id="chat-messages" class="text-xs space-y-2 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
                     <div class="text-[10px] text-slate-500 italic text-center">聊天室已啟動，傳送訊息給房間內的玩家吧！</div>
                 </div>
 
-                <!-- Chat Input Form -->
                 <form onsubmit="handleSendChat(event)" class="mt-2 flex gap-1.5 pt-2 border-t border-slate-800/80">
                     <input type="text" id="input-chat-msg" placeholder="輸入對話訊息..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500" />
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
             </div>
 
-            <!-- Game Log Panel -->
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1 h-32 flex flex-col">
                 <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">即時比賽日誌</h4>
                 <div id="game-log" class="text-[11px] text-slate-400 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
@@ -289,16 +278,14 @@
         </div>
     </main>
 
-    <!-- STEP 3: GAME OVER / CERTIFICATE MODAL -->
+    <!-- STEP 3: GAME OVER MODAL -->
     <div id="modal-gameover" class="hidden fixed inset-0 bg-slate-950/90 z-50 backdrop-blur-md flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 max-w-lg w-full text-center space-y-5 shadow-2xl">
             <div class="text-5xl">🏆</div>
             <h2 class="text-2xl font-black text-emerald-400 text-glow">永續大地競賽 圓滿結束！</h2>
             <p class="text-xs text-slate-300" id="winner-announcement">冠軍玩家誕生！</p>
             
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-left" id="final-stats-list">
-                <!-- Populated dynamically -->
-            </div>
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-left" id="final-stats-list"></div>
 
             <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs shadow-lg transition">
                 返回大廳 / 重啟新局
@@ -377,7 +364,7 @@
             { id: 5, name: "熱裂解生物炭", icon: "🔥", type: "facility", cost: 30, carbonPerTurn: 4.0 },
             { id: 6, name: "ESG 企業贊助", icon: "💼", type: "esg", bonus: 20 },
             { id: 7, name: "生廚餘收集站", icon: "🍎", type: "resource", resource: 15 },
-            { id: 8, name: "A型移動雞舍", icon: "🐔", type: "facility", cost: 25, carbonPerTurn: 3.0 },
+            { id: 8, name: "A型移動雞舍", icon: "🐔", type: "facility", cost: 10, carbonPerTurn: 3.0 },
             { id: 9, name: "竹醋液收集器", icon: "🧪", type: "facility", cost: 25, carbonPerTurn: 3.0 },
             { id: 10, name: "枯枝落葉場", icon: "🍂", type: "resource", resource: 20 },
             { id: 11, name: "機會命運卡", icon: "❓", type: "card" },
@@ -397,7 +384,7 @@
         let hostConn = null;
         let isHost = false;
         let myPeerId = '';
-        let myPlayerName = '永續冒險家';
+        let myPlayerName = '';
         let currentActiveDrawnCard = null;
 
         let gameState = {
@@ -412,33 +399,45 @@
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
         const COLORS = ["#10b981", "#38bdf8", "#f59e0b", "#a855f7"];
 
-        window.addEventListener('DOMContentLoaded', () => {
-            const urlParams = new URLSearchParams(window.location.search);
-            const autoRoom = urlParams.get('room');
-            if (autoRoom) {
-                document.getElementById('input-join-id').value = autoRoom;
-                document.getElementById('lobby-msg').innerHTML = `<span class="text-amber-400 font-bold">已載入對戰房號 [${autoRoom}]，輸入暱稱後請點擊「加入對戰」！</span>`;
+        /* Validate player name and room ID format */
+        function validateInput(roomIdInput) {
+            const name = document.getElementById('input-player-name').value.trim();
+            if (!name) {
+                alert("請先輸入您的玩家名稱！");
+                return null;
             }
-        });
+            const roomNum = roomIdInput.trim();
+            if (!/^\d{2}$/.test(roomNum)) {
+                alert("請輸入 2 位數字房號（例如 01 到 99）！");
+                return null;
+            }
+            return { name, roomNum };
+        }
 
         /* ================= PEERJS NETWORKING ================= */
 
         function hostRoom() {
-            myPlayerName = document.getElementById('input-player-name').value.trim() || '房主';
-            const customId = document.getElementById('input-room-id').value.trim() || `earth-${Math.floor(Math.random()*9000 + 1000)}`;
+            const rawRoom = document.getElementById('input-room-id').value;
+            const validated = validateInput(rawRoom);
+            if (!validated) return;
+
+            const btnHost = document.getElementById('btn-host-action');
+            btnHost.disabled = true;
+            btnHost.innerText = "準備中...";
+
+            myPlayerName = validated.name;
+            const fullPeerId = `terra-room-${validated.roomNum}`;
             isHost = true;
 
-            peer = new Peer(customId);
+            peer = new Peer(fullPeerId);
 
             peer.on('open', (id) => {
                 myPeerId = id;
-                document.getElementById('conn-status').innerText = `房主已開房 (${id})`;
-                const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${id}`;
-                document.getElementById('input-invite-url').value = inviteUrl;
+                document.getElementById('conn-status').innerText = `房號 [${validated.roomNum}] 已開房`;
                 document.getElementById('invite-section').classList.remove('hidden');
                 document.getElementById('btn-start-game').classList.remove('hidden');
                 document.getElementById('client-controls-box').classList.add('hidden');
-                document.getElementById('display-room-id').innerText = id;
+                document.getElementById('display-room-id').innerText = validated.roomNum;
 
                 const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
                 gameState.players = [{
@@ -478,17 +477,23 @@
             });
 
             peer.on('error', (err) => {
-                alert("開房失敗：" + err.type);
+                alert("開房失敗（可能該房號已被佔用）：" + err.type);
+                btnHost.disabled = false;
+                btnHost.innerText = "創建房間";
             });
         }
 
         function joinRoom() {
-            myPlayerName = document.getElementById('input-player-name').value.trim() || '訪客玩家';
-            const roomId = document.getElementById('input-join-id').value.trim();
-            if (!roomId) {
-                alert("請輸入房號 ID！");
-                return;
-            }
+            const rawRoom = document.getElementById('input-join-id').value;
+            const validated = validateInput(rawRoom);
+            if (!validated) return;
+
+            const btnJoin = document.getElementById('btn-join-action');
+            btnJoin.disabled = true;
+            btnJoin.innerText = "準備中...";
+
+            myPlayerName = validated.name;
+            const fullPeerId = `terra-room-${validated.roomNum}`;
 
             isHost = false;
             peer = new Peer();
@@ -496,11 +501,11 @@
             peer.on('open', (id) => {
                 myPeerId = id;
                 document.getElementById('conn-status').innerText = "連線中...";
-                hostConn = peer.connect(roomId);
+                hostConn = peer.connect(fullPeerId);
 
                 hostConn.on('open', () => {
                     document.getElementById('conn-status').innerText = "已連線至房主";
-                    document.getElementById('display-room-id').innerText = roomId;
+                    document.getElementById('display-room-id').innerText = validated.roomNum;
                     hostConn.send({
                         type: 'JOIN_REQ',
                         playerName: myPlayerName
@@ -516,7 +521,9 @@
             });
 
             peer.on('error', (err) => {
-                alert("連線失敗：" + err.type);
+                alert("連線失敗（請確認房號是否正確）：" + err.type);
+                btnJoin.disabled = false;
+                btnJoin.innerText = "加入對戰";
             });
         }
 
@@ -693,7 +700,7 @@
                     if (p.peerId === myPeerId) {
                         showCardDrawnPrompt(drawnCard);
                     }
-                    return; // Wait for player action choice
+                    return;
                 }
             } else if (tile.type === 'facility') {
                 if (!gameState.ownedFacilities[tile.id] && p.resources >= tile.cost) {
@@ -716,7 +723,7 @@
             finishTurn(logMsg);
         }
 
-        /* CARD ACTION FIX: Ensure save option syncs, hides modal for clients, and finishes turn properly */
+        /* CARD ACTION SYNC FIX */
         function applyCardAction(choice) {
             document.getElementById('card-action-box').classList.add('hidden');
             if (!currentActiveDrawnCard) return;
@@ -931,7 +938,6 @@
             const btnRoll = document.getElementById('btn-roll-dice');
             btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi;
 
-            // FIX: Hide action overlays automatically if it is no longer my turn
             if (!currP || currP.peerId !== myPeerId) {
                 document.getElementById('card-action-box').classList.add('hidden');
                 document.getElementById('facility-action-box').classList.add('hidden');
@@ -956,7 +962,6 @@
                 `;
             });
 
-            // Inventory Rendering
             const myPlayer = gameState.players.find(p => p.peerId === myPeerId);
             const invListEl = document.getElementById('my-inventory-list');
             if (myPlayer && myPlayer.inventory && myPlayer.inventory.length > 0) {
@@ -1003,20 +1008,12 @@
                     <div class="text-slate-200 text-xs leading-relaxed break-words">${msg}</div>
                 </div>
             `;
-            // Auto-scroll to bottom of chat
             box.scrollTop = box.scrollHeight;
         }
 
         function addLog(text) {
             const logBox = document.getElementById('game-log');
             logBox.innerHTML = `<div>[R${gameState.round}] ${text}</div>` + logBox.innerHTML;
-        }
-
-        function copyInviteLink() {
-            const input = document.getElementById('input-invite-url');
-            input.select();
-            document.execCommand('copy');
-            alert("已成功複製對戰邀請連結！貼給好友即可一鍵連線。");
         }
 
         function showGameOverModal() {
@@ -1039,3 +1036,4 @@
     </script>
 </body>
 </html>
+</web_code_canvas>
