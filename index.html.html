@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v10.0 旗艦版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v10.1 穩健連線版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.0 旗艦版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.1 穩健版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -506,10 +506,10 @@
                     avatar: AVATARS[0],
                     color: COLORS[0],
                     pos: 0,
-                    coins: 100,             // 初始碳幣
-                    carbon: 10.0,          // 初始固碳量 (kg)
-                    resources: 50,          // 初始資材
-                    vermiCasting: 5.0,      // 初始蚓糞 (kg)
+                    coins: 100,
+                    carbon: 10.0,
+                    resources: 50,
+                    vermiCasting: 5.0,
                     skill: skill,
                     inventory: []
                 }];
@@ -689,7 +689,6 @@
         function broadcastState(logMsg = "") {
             if (!isHost) return;
             
-            // Check for bankruptcy
             gameState.players.forEach(p => {
                 if (!p.bankrupt && (p.coins <= 0 || p.resources <= 0)) {
                     p.bankrupt = true;
@@ -801,7 +800,7 @@
 
         function requestRollDice() {
             const currP = gameState.players[gameState.turnIndex];
-            if (currP.peerId !== myPeerId || gameState.initialRollPhase || currP.bankrupt) return;
+            if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase || currP.bankrupt) return;
 
             if (isHost) {
                 processRollDice(myPeerId);
@@ -813,7 +812,7 @@
         function processRollDice(peerId) {
             if (!isHost || gameState.initialRollPhase) return;
             const p = gameState.players[gameState.turnIndex];
-            if (p.peerId !== peerId || p.bankrupt) return;
+            if (!p || p.peerId !== peerId || p.bankrupt) return;
 
             playSound('dice');
             const dice = Math.floor(Math.random() * 6) + 1;
@@ -835,7 +834,7 @@
 
             const tile = BOARD_TILES[p.pos];
 
-            // Verifiable station effect triggers
+            // Verifiable station effect triggers for all players (Host & Client)
             if (tile.type === 'start') {
                 p.coins += 20;
                 p.resources += 10;
@@ -891,7 +890,8 @@
                 if (drawnCard.needTarget) {
                     target = gameState.players.find(x => x.peerId !== p.peerId && !x.bankrupt);
                 }
-                drawnCard.effect(p, target);
+                const effectFn = new Function('p', 'target', '(' + drawnCard.effect.toString() + ')(p, target)');
+                effectFn(p, target);
                 finishTurn(`${logMsg} (AI 自動生效效果)`);
             } else {
                 broadcastState(logMsg);
@@ -976,13 +976,14 @@
 
         function processCardProcessed(peerId, card, choice, targetPeerId, updatedInventory) {
             if (!isHost) return;
-            const p = gameState.players[gameState.turnIndex];
+            const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
             p.inventory = updatedInventory;
 
             let logMsg = "";
             if (choice === 'use_now') {
                 const target = gameState.players.find(x => x.peerId === targetPeerId);
-                card.effect(p, target);
+                const effectFn = new Function('p', 'target', '(' + card.effect.toString() + ')(p, target)');
+                effectFn(p, target);
                 logMsg = `${p.name} 使用了 [${card.name}]${target ? ` (目標：${target.name})` : ''}！`;
             } else {
                 logMsg = `${p.name} 選擇將 [${card.name}] 收藏至背包！`;
@@ -993,7 +994,8 @@
 
         function useInventoryCard(idx) {
             const p = gameState.players.find(x => x.peerId === myPeerId);
-            if (gameState.players[gameState.turnIndex].peerId !== myPeerId || gameState.initialRollPhase) {
+            const currP = gameState.players[gameState.turnIndex];
+            if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
                 alert("只有在您的回合時才能發動背包卡片！");
                 return;
             }
@@ -1018,12 +1020,13 @@
 
         function processUseInventoryCard(peerId, cardIndex, targetPeerId) {
             if (!isHost) return;
-            const p = gameState.players[gameState.turnIndex];
+            const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
             if (!p.inventory || !p.inventory[cardIndex]) return;
 
             const card = p.inventory.splice(cardIndex, 1)[0];
             const target = gameState.players.find(x => x.peerId === targetPeerId);
-            card.effect(p, target);
+            const effectFn = new Function('p', 'target', '(' + card.effect.toString() + ')(p, target)');
+            effectFn(p, target);
             broadcastState(`${p.name} 從背包發動了 [${card.name}]${target ? ` (目標：${target.name})` : ''}！`);
         }
 
@@ -1038,7 +1041,7 @@
 
         function processBuyFacility(peerId, buy) {
             if (!isHost) return;
-            const p = gameState.players[gameState.turnIndex];
+            const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
             const tile = BOARD_TILES[p.pos];
             let logMsg = "";
 
@@ -1055,7 +1058,6 @@
         }
 
         function finishTurn(logMsg) {
-            // Per-turn yield from owned facilities
             gameState.players.forEach(p => {
                 if (p.bankrupt) return;
                 BOARD_TILES.forEach(t => {
@@ -1070,7 +1072,6 @@
                 });
             });
 
-            // Advance to next active player
             let attempts = 0;
             do {
                 gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
@@ -1095,7 +1096,7 @@
         function checkTurnExecution() {
             if (!isHost || gameState.initialRollPhase) return;
             const currP = gameState.players[gameState.turnIndex];
-            if (currP.isAi && !currP.bankrupt) {
+            if (currP && currP.isAi && !currP.bankrupt) {
                 setTimeout(() => {
                     processRollDice(currP.peerId);
                 }, 1000);
@@ -1168,7 +1169,6 @@
                 document.getElementById('facility-action-box').classList.add('hidden');
             }
 
-            // Render Roll Order Determination Box
             const orderBox = document.getElementById('order-determination-box');
             if (gameState.initialRollPhase) {
                 orderBox.classList.remove('hidden');
@@ -1187,7 +1187,6 @@
                 orderBox.classList.add('hidden');
             }
 
-            // Player Cards Displaying All Core Resources (Coins, Carbon, Resources, Vermi)
             gameState.players.forEach((p, idx) => {
                 const isMyTurn = gameState.turnIndex === idx && !gameState.initialRollPhase;
                 const totalScore = (p.coins * 1.0) + (p.carbon * 10.0) + (p.resources * 0.5) + (p.vermiCasting * 5.0);
@@ -1205,7 +1204,6 @@
                             </div>
                         </div>
 
-                        <!-- Full Resource Grid -->
                         <div class="grid grid-cols-2 gap-1.5 text-[11px] font-mono bg-slate-900/90 p-2 rounded-xl border border-slate-800">
                             <div class="text-amber-300">🪙 碳幣: <span class="font-bold">${p.coins}</span></div>
                             <div class="text-emerald-400">🌱 固碳: <span class="font-bold">${p.carbon.toFixed(1)}kg</span></div>
