@@ -3,21 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (Terra Chef: Eco Adventure)</title>
+    <title>歸蚓酷客：永續大地冒險 v3.0 科技樹版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #0f172a;
+            background-color: #090d16;
+        }
+        .font-pixel {
+            font-family: 'VT323', monospace;
         }
         .text-glow {
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
         }
-        /* Custom scrollbar for game log */
         .log-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
@@ -28,186 +31,314 @@
             background: #334155;
             border-radius: 3px;
         }
-        .log-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #10b981;
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s infinite ease-in-out;
         }
     </style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
 
-    <!-- Top Navigation / Header Bar -->
-    <header class="bg-slate-900/95 backdrop-blur border-b border-emerald-900/50 sticky top-0 z-40">
-        <div class="max-w-5xl mx-auto px-4 py-3 flex justify-between items-center">
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900/95 border-b border-emerald-900/50 sticky top-0 z-50 backdrop-blur">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <span class="text-3xl animate-bounce">🪱</span>
+                <div class="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-500/50 flex items-center justify-center text-2xl shadow-lg">
+                    🪱
+                </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險
+                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.0 TechTree</span>
                     </h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400">Terra Chef: Low-Carbon Eco Farm RPG</p>
+                    <p class="text-[10px] sm:text-xs text-slate-400">Terra Chef: Eco-Farm RPG & Tech Upgrades</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-2">
-                <button onclick="saveGame(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
-                    <i class="fa-solid fa-floppy-disk text-emerald-400"></i> <span class="hidden sm:inline">儲存進度</span>
+                <button onclick="toggleSound()" id="sound-btn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i> <span>音效: 開</span>
                 </button>
-                <button onclick="confirmResetGame()" class="bg-rose-900/40 hover:bg-rose-800/60 border border-rose-800/50 text-xs text-rose-300 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
-                    <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">重置農場</span>
+                <button onclick="saveGame(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-floppy-disk text-emerald-400"></i> <span class="hidden sm:inline">儲存</span>
+                </button>
+                <button onclick="confirmResetGame()" class="bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 text-xs text-rose-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">重置</span>
                 </button>
             </div>
         </div>
     </header>
 
     <!-- Main Game Canvas Container -->
-    <main class="max-w-5xl mx-auto px-4 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
         <!-- Left Column: Eco-Farm Dashboard & Stats (4 cols) -->
         <div class="lg:col-span-4 space-y-4">
             
-            <!-- Chapter & Day Status Card -->
-            <div class="bg-slate-800/90 rounded-2xl p-4 border border-emerald-500/30 shadow-xl relative overflow-hidden">
-                <div class="absolute -right-4 -bottom-4 text-7xl opacity-10">🌱</div>
-                <div class="flex justify-between items-start mb-2">
-                    <div>
-                        <span id="chapter-badge" class="bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">
-                            第 0 章：起源
-                        </span>
-                        <h2 id="farm-name" class="font-bold text-slate-100 text-base mt-2">峨眉低碳示範農場</h2>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-2xl font-black text-amber-400" id="stat-day">Day 1</span>
-                    </div>
+            <!-- Pixel Farm Canvas -->
+            <div class="bg-slate-900 rounded-2xl p-3 border border-emerald-500/30 shadow-2xl relative overflow-hidden flex flex-col items-center">
+                <div class="w-full flex justify-between items-center mb-2 px-1">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
+                        <i class="fa-solid fa-gamepad"></i> 農場即時像素視窗
+                    </span>
+                    <span id="weather-badge" class="text-[10px] bg-slate-800 text-sky-300 px-2 py-0.5 rounded-full border border-slate-700">
+                        ☀️ 晴朗微風
+                    </span>
                 </div>
-                <p id="chapter-title" class="text-xs text-slate-300 font-semibold mb-1">架設蚯蚓箱 V1.0</p>
+                <canvas id="farmCanvas" width="320" height="160" class="rounded-xl border border-slate-800 bg-slate-950 w-full shadow-inner"></canvas>
             </div>
 
             <!-- Core Eco Stats Monitor -->
-            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-3 shadow-lg">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-chart-line text-emerald-400"></i> 生態環境監控 (Real-time Stats)
-                </h3>
+            <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 space-y-3 shadow-xl">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-700/80">
+                    <div>
+                        <span id="chapter-badge" class="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
+                            第 0 章
+                        </span>
+                        <h2 id="farm-name" class="font-bold text-slate-100 text-sm mt-1">峨眉低碳示範農場</h2>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-3xl font-black text-amber-400 font-pixel" id="stat-day">Day 1</span>
+                    </div>
+                </div>
 
-                <!-- Stat 1: Worm Vitality -->
+                <!-- Worm Vitality Bar -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 flex items-center gap-1">🪱 蚯蚓活力 (Worm Vitality)</span>
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            <span id="worm-mood">🪱</span> 蚯蚓活力
+                        </span>
                         <span id="stat-worm-text" class="font-bold text-emerald-400">80%</span>
                     </div>
-                    <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
-                        <div id="stat-worm-bar" class="bg-emerald-500 h-2.5 rounded-full transition-all duration-500" style="width: 80%"></div>
+                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
+                        <div id="stat-worm-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 80%"></div>
                     </div>
                 </div>
 
-                <!-- Stat 2: Bin Moisture -->
+                <!-- Moisture Bar -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 flex items-center gap-1">💧 堆肥濕度 (Bin Moisture)</span>
+                        <span class="text-slate-300 font-medium flex items-center gap-1">💧 堆肥濕度</span>
                         <span id="stat-moisture-text" class="font-bold text-sky-400">70%</span>
                     </div>
-                    <div class="w-full bg-slate-900 rounded-full h-2.5 overflow-hidden">
-                        <div id="stat-moisture-bar" class="bg-sky-500 h-2.5 rounded-full transition-all duration-500" style="width: 70%"></div>
+                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
+                        <div id="stat-moisture-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 70%"></div>
                     </div>
                 </div>
 
-                <!-- Carbon Offset & Impact Grid -->
-                <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-700/50">
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
-                        <p class="text-[10px] text-slate-400">減碳效益 (IPCC)</p>
-                        <p class="text-base font-extrabold text-emerald-400" id="stat-carbon">0.0 <span class="text-[10px] font-normal text-slate-400">kg CO₂e</span></p>
+                <!-- Carbon & ESG Grid -->
+                <div class="grid grid-cols-2 gap-2 pt-1">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
+                        <p class="text-[10px] text-slate-400">減碳點數 (可消費)</p>
+                        <p class="text-base font-black text-emerald-400" id="stat-carbon">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
                     </div>
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
                         <p class="text-[10px] text-slate-400">土壤碳匯 (SOC)</p>
-                        <p class="text-base font-extrabold text-amber-400" id="stat-soc">10 <span class="text-[10px] font-normal text-slate-400">分</span></p>
+                        <p class="text-base font-black text-amber-400" id="stat-soc">10 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
                     </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2">
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
-                        <p class="text-[10px] text-slate-400">ESG 社群影響力</p>
-                        <p class="text-base font-extrabold text-indigo-400" id="stat-esg">0 <span class="text-[10px] font-normal text-slate-400">pts</span></p>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
+                        <p class="text-[10px] text-slate-400">ESG 影響力 (可消費)</p>
+                        <p class="text-base font-black text-indigo-400" id="stat-esg">0 <span class="text-[10px] font-normal text-slate-400">pts</span></p>
                     </div>
-                    <div class="bg-slate-900/60 p-2.5 rounded-xl border border-slate-700/50">
-                        <p class="text-[10px] text-slate-400">蚓糞肥儲備</p>
-                        <p class="text-base font-extrabold text-teal-400" id="stat-compost">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
+                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
+                        <p class="text-[10px] text-slate-400">蚓糞肥料庫存</p>
+                        <p class="text-base font-black text-teal-400" id="stat-compost">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
                     </div>
                 </div>
             </div>
 
-            <!-- Daily Waste Inventory Panel -->
-            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2 shadow-lg">
+            <!-- Material Inventory -->
+            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-packing text-amber-400"></i> 今日待處理有機資材</span>
-                    <span class="text-[10px] text-slate-500">每日更新</span>
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-packing text-amber-400"></i> 有機資材庫存</span>
                 </h3>
                 <div id="materials-list" class="grid grid-cols-2 gap-2"></div>
             </div>
 
-            <!-- Badges & Achievements -->
-            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2 shadow-lg">
+            <!-- Badges -->
+            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-award text-yellow-400"></i> 永續成就稱號 (Badges)
+                    <i class="fa-solid fa-award text-yellow-400"></i> 解鎖成就與稱號
                 </h3>
                 <div id="badges-container" class="flex flex-wrap gap-2 pt-1"></div>
             </div>
 
         </div>
 
-        <!-- Right Column: Interactive RPG Story & Action Panel (8 cols) -->
+        <!-- Right Column: Interactive RPG Story & Tech Tree Panel (8 cols) -->
         <div class="lg:col-span-8 flex flex-col space-y-4">
 
-            <!-- Dialogue & Event Scene Card -->
-            <div class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[360px] relative overflow-hidden">
-                <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+            <!-- Tab Navigation Header -->
+            <div class="flex space-x-2 border-b border-slate-800 pb-1">
+                <button onclick="switchTab('story')" id="tab-story-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition">
+                    <i class="fa-solid fa-book-open"></i> 冒險故事劇情
+                </button>
+                <button onclick="switchTab('tech')" id="tab-tech-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition">
+                    <i class="fa-solid fa-sitemap text-amber-400"></i> 永續科技樹 (Tech Tree)
+                </button>
+            </div>
 
-                <!-- Scenario Header / NPC Profile -->
+            <!-- View 1: RPG Story Panel -->
+            <div id="view-story" class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[380px] relative overflow-hidden">
+                
+                <!-- NPC Profile Header -->
                 <div id="npc-header" class="flex items-center space-x-3 pb-3 border-b border-slate-700/60">
-                    <div id="npc-avatar" class="w-12 h-12 rounded-2xl bg-emerald-900/60 border border-emerald-500/40 text-2xl flex items-center justify-center shadow-inner">
+                    <div id="npc-avatar" class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-2xl flex items-center justify-center shadow-inner animate-pulse-slow">
                         🧑‍🌾
                     </div>
                     <div>
                         <h4 id="npc-name" class="font-bold text-slate-100 text-sm">主角 (阿酷)</h4>
-                        <p id="npc-role" class="text-[11px] text-emerald-400 font-medium">歸蚓酷客農場創辦人</p>
+                        <p id="npc-role" class="text-[11px] text-emerald-400 font-medium">歸蚓酷客創辦人</p>
                     </div>
                 </div>
 
-                <!-- Dialogue Text Display Area -->
+                <!-- Story Text Box -->
                 <div class="space-y-3 flex-1 overflow-y-auto max-h-[220px] log-scrollbar pr-2" id="story-body">
-                    <p class="text-sm text-slate-200 leading-relaxed" id="story-text">
-                        初始化故事系統中...
+                    <p class="text-sm text-slate-200 leading-relaxed font-medium" id="story-text">
+                        初始化冒險章節中...
                     </p>
                 </div>
 
-                <!-- Visual Effect Popups / Action Feedback Notice -->
-                <div id="feedback-toast" class="hidden bg-emerald-900/90 border border-emerald-400 text-emerald-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 animate-fade-in">
-                    <span>✨</span> <span id="feedback-text">行動成功！</span>
-                </div>
-
-                <!-- Interactive Choices Panel -->
+                <!-- Choice Action Buttons -->
                 <div id="choices-container" class="space-y-2 pt-2 border-t border-slate-700/60"></div>
 
             </div>
 
-            <!-- Historical Log Console -->
+            <!-- View 2: Tech Tree Panel -->
+            <div id="view-tech" class="hidden bg-slate-800/90 rounded-2xl border border-amber-500/30 p-5 shadow-2xl flex-1 flex-col justify-between space-y-4 min-h-[380px]">
+                <div>
+                    <div class="flex justify-between items-center pb-3 border-b border-slate-700/80 mb-3">
+                        <div>
+                            <h3 class="font-extrabold text-sm text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-microchip"></i> 永續裝備與低碳科技樹
+                            </h3>
+                            <p class="text-[11px] text-slate-400">消費累積的減碳量與 ESG 影響力，解鎖自動化設施與加成技術</p>
+                        </div>
+                    </div>
+
+                    <!-- Tech Items Grid -->
+                    <div id="tech-tree-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto log-scrollbar pr-1">
+                        <!-- Dynamic Tech Cards -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feedback Toast Notification Popup -->
+            <div id="feedback-toast" class="hidden bg-emerald-900/95 border border-emerald-400 text-emerald-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg animate-bounce">
+                <span id="toast-icon">✨</span> <span id="feedback-text">行動成功！</span>
+            </div>
+
+            <!-- Log Console -->
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 shadow-inner space-y-2">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-slate-500"></i> 大地紀錄 Log</span>
-                    <button onclick="clearGameLog()" class="text-[10px] text-slate-500 hover:text-slate-300">清除紀錄</button>
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-emerald-500"></i> 大地日誌 Console Log</span>
+                    <button onclick="clearGameLog()" class="text-[10px] text-slate-500 hover:text-slate-300 transition">清除紀錄</button>
                 </h4>
-                <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-32 overflow-y-auto log-scrollbar font-mono"></div>
+                <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-28 overflow-y-auto log-scrollbar font-mono leading-relaxed"></div>
             </div>
 
         </div>
 
     </main>
 
-    <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-3 text-center text-xs text-slate-500">
-        <p>🌱 歸蚓酷客：永續大地冒險 | GRI 306 & TNFD 概念實踐微型網頁遊戲</p>
-    </footer>
-
-    <!-- Game Logic Script -->
+    <!-- Game Engine & Script -->
     <script>
+        // Audio Synthesizer Engine
+        let soundEnabled = true;
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                if (!audioCtx) audioCtx = new AudioCtx();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.08);
+                } else if (type === 'success') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
+                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.25);
+                } else if (type === 'alert') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-icon').className = soundEnabled ? "fa-solid fa-volume-high text-emerald-400" : "fa-solid fa-volume-xmark text-slate-500";
+            document.getElementById('sound-btn').querySelector('span').innerText = `音效: ${soundEnabled ? '開' : '關'}`;
+        }
+
+        // TECH TREE DATABASE DEFINITIONS
+        const TECH_TREE = {
+            "WORM_BIN_V2": {
+                id: "WORM_BIN_V2",
+                name: "歸蚓酷客蚯蚓箱 V2.0",
+                icon: "🪱",
+                costType: "carbon",
+                cost: 5.0,
+                desc: "採用 304 不鏽鋼結構與雙層透氣保濕蓋，提升 15% 蚯蚓分解效率。",
+                unlocked: false,
+                effect: () => { gameState.wormVitality = Math.min(100, gameState.wormVitality + 10); }
+            },
+            "BIOCHAR_COLLECTOR": {
+                id: "BIOCHAR_COLLECTOR",
+                name: "竹醋液冷凝收集器",
+                icon: "🧪",
+                costType: "carbon",
+                cost: 10.0,
+                desc: "在木枝熱裂解過程中收集竹醋液，有效驅離害蟲並提高土壤碳匯分數。",
+                unlocked: false,
+                effect: () => { gameState.socScore += 10; }
+            },
+            "CHICKEN_TRACTOR": {
+                id: "CHICKEN_TRACTOR",
+                name: "A 型移動雞舍 (Chicken Tractor)",
+                icon: "🐔",
+                costType: "esg",
+                cost: 30,
+                desc: "整合槓桿輪組與外部產蛋箱，讓蛋雞協助扒鬆堆肥，每日自動增加資材。",
+                unlocked: false,
+                effect: () => { addLog("解鎖 A 型移動雞舍！蛋雞群開始協助扒鬆土壤資材。"); }
+            },
+            "EARTH_BUILDING": {
+                id: "EARTH_BUILDING",
+                name: "生物炭自然建築壁體",
+                icon: "🏛️",
+                costType: "esg",
+                cost: 50,
+                desc: "將生物炭固化於土漿結構中，封存碳排並解鎖低碳建築師技術標章。",
+                unlocked: false,
+                effect: () => { unlockBadge("NATURAL_BUILDER"); }
+            }
+        };
+
+        // State Engine
         const DEFAULT_STATE = {
             day: 1,
             chapter: 0,
@@ -218,12 +349,14 @@
             socScore: 10,
             esgImpact: 0,
             vermicompost: 0.0,
+            weather: "晴朗微風",
             unprocessedWaste: {
                 coffee: 5.0,
                 tea: 3.0,
                 foodScraps: 4.0,
                 dryLeaves: 6.0
             },
+            unlockedTechs: [],
             badges: [],
             logHistory: [],
             currentScenarioId: "CH0_START"
@@ -236,32 +369,32 @@
             "CARBON_HERO": { name: "減碳英雄", icon: "🌿", desc: "累計減碳量突破 50 kg CO₂e" },
             "BIOCHAR_PIONEER": { name: "生物炭先驅", icon: "🔥", desc: "成功熱裂解製作高品質生物炭" },
             "NATURAL_BUILDER": { name: "低碳建築師", icon: "🏛️", desc: "完成自然建築土漿固碳試驗" },
-            "GRI_COMPLIANT": { name: "GRI & TNFD 合規認證", icon: "📜", desc: "通過第三方永續稽核驗證" }
+            "GRI_COMPLIANT": { name: "GRI & TNFD 雙認證", icon: "📜", desc: "通過第三方永續稽核驗證" }
         };
 
         const SCENARIOS = {
             "CH0_START": {
                 chapter: 0,
-                chapterTitle: "第 0 章：起源 - 新竹峨眉的呼喚",
-                npcName: "林業主 (峨眉在地農夫)",
+                chapterTitle: "第 0 章：起源 - 峨眉之約",
+                npcName: "林業主 (峨眉農夫)",
                 npcRole: "土地合作夥伴",
                 avatar: "👨‍🌾",
-                text: "「阿酷啊，這片在峨眉的荒廢果園土地就交給你實踐低碳夢想了！不過現在這裡滿地都是枯枝落葉，社區每天還有好多咖啡渣跟茶葉渣直接被扔掉，真可惜。你打算怎麼開始？」",
+                text: "「阿酷，這片在峨眉的土地就交給你打造低碳基地了！這裡有滿地的枯枝落葉，社區每天還有好多咖啡渣與茶葉渣，你打算怎麼發揮『歸蚓酷客』的魔力？」",
                 choices: [
                     {
-                        text: "🪱 架設「蚯蚓堆肥箱 V1.0」，開始引入太平二號蚯蚓",
+                        text: "🪱 架設「蚯蚓堆肥箱 V1.0」，引進太平二號軍團",
                         nextScenario: "CH0_BIN_SETUP",
                         action: () => {
-                            addLog("你建置了第一座『蚯蚓堆肥箱 V1.0』，引入太平二號紅蚯蚓！");
+                            addLog("你架設了『蚯蚓堆肥箱 V1.0』，太平二號正式入住！");
                             addCarbon(2.5);
                             addESG(10);
                         }
                     },
                     {
-                        text: "🍃 整理現場枯枝落葉，堆置預備作為高碳骨材",
+                        text: "🍃 收集整理現場枯枝落葉，作為高碳骨材資材",
                         nextScenario: "CH0_LEAVES_SETUP",
                         action: () => {
-                            addLog("你將現場的枯枝落葉分類歸堆，為乾碳源打下基礎。");
+                            addLog("你將現場枯枝落葉分類堆置，為乾碳源打下堅實基礎。");
                             gameState.unprocessedWaste.dryLeaves += 5.0;
                             addSOC(5);
                         }
@@ -270,44 +403,44 @@
             },
             "CH0_BIN_SETUP": {
                 chapter: 0,
-                chapterTitle: "第 0 章：蚯蚓箱啟動",
+                chapterTitle: "第 0 章：啟動蚯蚓分解引擎",
                 npcName: "阿酷",
-                npcRole: "歸蚓酷客農場創辦人",
+                npcRole: "歸蚓酷客創辦人",
                 avatar: "🧑‍🌾",
-                text: "蚯蚓箱 V1.0 搭建完成！箱體底部鋪上了滿滿的腐植質。今天收到社區咖啡館贊助的 5kg 咖啡渣與茶葉渣。請問你要如何處置？",
+                text: "蚯蚓箱 setup 完成！箱體底部鋪好了滿滿腐植質。今天收到了 5kg 的咖啡渣與茶葉渣，你要如何處理？",
                 choices: [
                     {
-                        text: "☕ 將咖啡渣與茶葉渣以 1:1 比例混入蚯蚓箱 (補充氮源)",
+                        text: "☕ 將咖啡渣與茶葉渣按比例投入蚯蚓箱 (補充氮源)",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             processMaterial('coffee', 3.0, 'worm');
                             processMaterial('tea', 2.0, 'worm');
-                            addLog("蚯蚓開心地開始分解咖啡渣與茶葉渣！");
+                            addLog("蚯蚓大軍開心地開始分解有機資材！");
                         }
                     },
                     {
-                        text: "💧 先調整蚯蚓箱濕度，灑水維持在 70%",
+                        text: "💧 灑水調節堆肥濕度，維持在 70% 黃金比例",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             adjustMoisture(15);
-                            addLog("補充水分，將蚯蚓箱濕度調整至最佳舒適區 (70%)。");
+                            addLog("將蚯蚓箱濕度調整至最佳舒適區 (70%)。");
                         }
                     }
                 ]
             },
             "CH0_LEAVES_SETUP": {
                 chapter: 0,
-                chapterTitle: "第 0 章：資材整備",
+                chapterTitle: "第 0 章：高碳資材整備",
                 npcName: "阿酷",
-                npcRole: "歸蚓酷客農場創辦人",
+                npcRole: "歸蚓酷客創辦人",
                 avatar: "🧑‍🌾",
-                text: "枯枝落葉收集完成了！有了高碳比的資材，現在我們也備齊了蚯蚓箱所需的鋪底材料，是時候引入蚯蚓軍團了！",
+                text: "枯枝落葉收集完成！有了高碳比資材，現在可以立刻建置舒適的蚯蚓環境了！",
                 choices: [
                     {
                         text: "🪱 立即建置「蚯蚓堆肥箱 V1.0」",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
-                            addLog("蚯蚓箱 setup 完成！蚯蚓軍團入住。");
+                            addLog("蚯蚓箱裝設完成！開啟大地循環體驗。");
                             addCarbon(3.0);
                         }
                     }
@@ -315,11 +448,11 @@
             },
             "DAILY_ROUTINE": {
                 chapter: 1,
-                chapterTitle: "第 1 章：日常運育 - 資材轉化與養護",
-                npcName: "技術夥伴 (小綠)",
+                chapterTitle: "第 1 章：日常運育 - 生物循環與資材轉化",
+                npcName: "小綠",
                 npcRole: "綠色循環工程師",
                 avatar: "👩‍🔬",
-                text: "「阿酷，早安！今天農場收到了周邊店家送來的有機廢棄物。記得觀察蚯蚓活力與堆肥濕度，進行適當的處置喔！」",
+                text: "「阿酷早安！今天農場又收到社區贊助的有機廢棄資材囉。請密切留意蚯蚓活力與堆肥濕度！」",
                 choices: [
                     {
                         text: "🪱 餵食蚯蚓箱：投入咖啡渣與生廚餘",
@@ -333,17 +466,17 @@
                         }
                     },
                     {
-                        text: "🍂 乾碳調配：加入枯枝落葉調整濕度與碳氮比 (C/N)",
+                        text: "🍂 乾碳調配：加入枯枝落葉優化碳氮比 (C/N)",
                         nextScenario: "AFTER_ACTION",
                         action: () => {
                             let leafAmt = Math.min(3.0, gameState.unprocessedWaste.dryLeaves);
                             processMaterial('dryLeaves', leafAmt, 'worm');
                             adjustMoisture(-10);
-                            addLog(`加入 ${leafAmt}kg 枯枝落葉，降低多餘濕度並優化 C/N 比。`);
+                            addLog(`加入 ${leafAmt}kg 枯枝落葉，調降過多濕度並平衡 C/N 比。`);
                         }
                     },
                     {
-                        text: "🔥 啟動熱裂解：將枯枝落葉製成『生物炭 (Biochar)』",
+                        text: "🔥 啟動熱裂解：將枯枝燒製為『生物炭 (Biochar)』",
                         nextScenario: "AFTER_ACTION",
                         action: () => {
                             let leafAmt = Math.min(4.0, gameState.unprocessedWaste.dryLeaves);
@@ -351,18 +484,7 @@
                             addSOC(8);
                             addCarbon(5.0);
                             unlockBadge("BIOCHAR_PIONEER");
-                            addLog(`進行低氧熱裂解，將 ${leafAmt}kg 枯枝轉化為固定碳（生物炭）！`);
-                        }
-                    },
-                    {
-                        text: "🏛️ 研發自然建築土漿：混合生物炭與粘土固碳",
-                        nextScenario: "AFTER_ACTION",
-                        action: () => {
-                            addSOC(10);
-                            addCarbon(8.0);
-                            addESG(15);
-                            unlockBadge("NATURAL_BUILDER");
-                            addLog("嘗試自然建築工法，將固碳生物炭融入土漿建築壁體！");
+                            addLog(`進行無煙熱裂解，將 ${leafAmt}kg 枯枝轉化為永久固定碳！`);
                         }
                     }
                 ]
@@ -373,7 +495,7 @@
                 npcName: "農場日誌",
                 npcRole: "系統報告",
                 avatar: "📊",
-                text: "一天忙碌的農場營運結束了！土壤生物正在默默為地球封存二氧化碳。要進入下一天，還是處理突發事件？",
+                text: "充實的一天過去了，土壤微生物正在為地球封存碳元素！準備進入下一天嗎？",
                 choices: [
                     {
                         text: "🌙 結束今日作業，迎接新的一天 (Next Day)",
@@ -386,54 +508,54 @@
             },
             "EVENT_RAIN": {
                 chapter: 1,
-                chapterTitle: "⚠️ 突發事件：峨眉山區強降雨狂風！",
+                chapterTitle: "⚠️ 突發事件：峨眉山區極端豪雨！",
                 npcName: "氣象警報",
-                npcRole: "極端氣候防範",
+                npcRole: "極端氣候監控",
                 avatar: "🌧️",
-                text: "突如其來的午後大雨襲來！雨水開始積聚在蚯蚓箱上方，若濕度飆升至 90% 以上，蚯蚓可能因為缺氧而出逃！你該怎麼做？",
+                text: "午後雷陣雨狂炸！蚯蚓箱積水風險急遽飆高，若濕度超過 90%，蚯蚓將會集體逃跑！",
                 choices: [
                     {
-                        text: "🍂 緊急鋪上一層乾枯枝落葉與生物炭吸收多餘水分",
+                        text: "🍂 緊急鋪入乾枯枝與生物炭吸附積水",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
-                            adjustMoisture(-15);
+                            adjustMoisture(-20);
                             addWormVitality(10);
-                            addLog("成功加入乾碳資材與生物炭，瞬間吸附過多水分，保住蚯蚓王國！");
+                            addLog("緊急加入乾碳資材與生物炭，完美吸水保住蚯蚓！");
                         }
                     },
                     {
-                        text: "🎪 架設帆布遮雨棚，並打通底部排水孔",
+                        text: "🎪 架設帆布遮雨棚並開啟箱底排水閥",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
-                            adjustMoisture(-25);
-                            addLog("搭建簡易防雨棚，排水順暢！");
+                            adjustMoisture(-30);
+                            addLog("搭建遮雨棚並疏通排水系統！");
                         }
                     }
                 ]
             },
             "EVENT_HEAT": {
                 chapter: 1,
-                chapterTitle: "⚠️ 突發事件：酷暑高溫熱浪襲來！",
+                chapterTitle: "⚠️ 突發事件：酷暑熱浪襲來！",
                 npcName: "環境感測器",
                 npcRole: "溫濕度監控",
                 avatar: "☀️",
-                text: "氣溫高達 36°C！蚯蚓箱內部溫度上升，水分蒸發極快，堆肥濕度降至 40% 以下，蚯蚓活動力顯著下降！",
+                text: "氣溫高達 36°C！蚯蚓箱內部溫度驟升、水分蒸散，濕度跌破 40%！",
                 choices: [
                     {
-                        text: "💧 立即灑水降溫，並移至遮蔭樹冠下方",
+                        text: "💧 立即灑水降溫並搬移至樹蔭下",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             adjustMoisture(25);
                             addWormVitality(15);
-                            addLog("即時灑水並搬移至樹蔭下，蚯蚓活力迅速恢復！");
+                            addLog("快速噴淋降溫並移至陰涼樹冠下！");
                         }
                     },
                     {
-                        text: "🌿 覆蓋厚厚一層濕潤茶葉渣保護表層",
+                        text: "🌿 表層覆蓋濕潤茶葉渣形成保護層",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             adjustMoisture(15);
-                            addLog("覆蓋濕茶葉渣有效阻止水分蒸散！");
+                            addLog("覆蓋濕茶葉渣有效預防水分蒸發！");
                         }
                     }
                 ]
@@ -444,23 +566,23 @@
                 npcName: "小綠",
                 npcRole: "生態觀察員",
                 avatar: "🐜",
-                text: "「不好了！因為箱體邊角稍微偏乾，一群紅螞蟻發現了蚯蚓箱，正在邊緣築巢，甚至威脅到幼蚓的安全！」",
+                text: "「不好了！箱體邊角偏乾，紅螞蟻入侵築巢威脅到幼蚓安全！」",
                 choices: [
                     {
-                        text: "💧 增加箱體邊緣濕度，並架設水盤防蟻護欄",
+                        text: "💧 提高箱體邊緣濕度並架設水盤防蟻護欄",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             adjustMoisture(10);
                             addWormVitality(5);
-                            addLog("利用物理水隔離層成功阻絕螞蟻入侵！");
+                            addLog("架設物理防蟻水盤護欄！");
                         }
                     },
                     {
-                        text: "☕ 撒上一層咖啡渣（咖啡因驅離作用）",
+                        text: "☕ 鋪撒咖啡渣（天然咖啡因驅離作用）",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             addWormVitality(10);
-                            addLog("咖啡渣天然氣味有效驅離螞蟻，同時為蚯蚓增添養分！");
+                            addLog("咖啡渣天然氣味成功驅離螞蟻大軍！");
                         }
                     }
                 ]
@@ -471,24 +593,24 @@
                 npcName: "張經理",
                 npcRole: "跨國企業 CSR 總監",
                 avatar: "💼",
-                text: "「聽說你們在峨眉打造了極具前瞻性的低碳示範農場！我們公司今年有範疇三（Scope 3）減碳的需求，希望能與你們合作專案，並導入 GRI 306 廢棄物揭露與 TNFD 生態指標。」",
+                text: "「聽說你們在峨眉打造了極具前瞻性的低碳示範農場！我們公司有範疇三減碳需求，希望能導入 GRI 306 廢棄物揭露與 TNFD 生態指標合作！」",
                 choices: [
                     {
-                        text: "📊 展示目前農場的減碳量與蚯蚓堆肥透明數據",
+                        text: "📊 展示農場完整減碳數據與蚯蚓堆肥履歷",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             addESG(30);
                             addCarbon(10.0);
-                            addLog("展示科學稽核數據，順利簽署 ESG 永續合作意向書！");
+                            addLog("展現專業科學數據，成功簽署 ESG 合作協議！");
                         }
                     },
                     {
-                        text: "🤝 邀請企業員工舉辦『歸蚓酷客低碳體驗工作坊』",
+                        text: "🤝 舉辦『歸蚓酷客低碳體驗工作坊』",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
                             addESG(50);
                             addSOC(15);
-                            addLog("工作坊大獲好評！企業員工親手體驗生物炭與蚯蚓堆肥的魅力。");
+                            addLog("體驗工作坊大受好評！促進企業員工永續意識。");
                         }
                     }
                 ]
@@ -499,15 +621,15 @@
                 npcName: "ESG 權威稽核員",
                 npcRole: "第三方認證機構",
                 avatar: "📜",
-                text: "「經過長期的實地勘查與土壤碳匯（SOC）檢測，歸蚓酷客農場完美詮釋了循環經濟與生物多樣性淨正向影響 (Net Positive Impact)！」",
+                text: "「經過長時間實地檢測，歸蚓酷客農場完美展現了循環經濟與生物多樣性淨正向影響 (Net Positive Impact)！」",
                 choices: [
                     {
-                        text: "🏆 接受『GRI & TNFD 雙認證永續基地』頒證",
+                        text: "🏆 榮獲『GRI & TNFD 雙認證永續基地』",
                         nextScenario: "GAME_COMPLETE",
                         action: () => {
                             unlockBadge("GRI_COMPLIANT");
                             addESG(100);
-                            addLog("🎉 恭喜！您成功達成了低碳永續大地的最高榮譽！");
+                            addLog("🎉 恭喜達成永續大地的最高榮譽稱號！");
                         }
                     }
                 ]
@@ -518,23 +640,187 @@
                 npcName: "阿酷與全體夥伴",
                 npcRole: "歸蚓酷客團隊",
                 avatar: "🌟",
-                text: "恭喜您！透過每日細心的蚯蚓照顧、生物炭製作與自然建築實踐，峨眉這片土地已經成為引領台灣低碳農業的璀璨明珠！您的減碳足跡將深植大地。",
+                text: "恭喜您！透過細心照顧蚯蚓、生物炭製作與自然建築，峨眉這片土地已成為台灣低碳農業的永續典範！",
                 choices: [
                     {
-                        text: "🔄 繼續在自由模式下營運農場",
+                        text: "🔄 繼續在自由營運模式下探索農場",
                         nextScenario: "DAILY_ROUTINE",
                         action: () => {
-                            addLog("進入自由經營模式，繼續挑戰更高的減碳紀錄！");
+                            addLog("開啟自由經營模式，挑戰更高減碳里程碑！");
                         }
                     }
                 ]
             }
         };
 
+        // UI View Switcher
+        function switchTab(tab) {
+            playSound('click');
+            const storyView = document.getElementById('view-story');
+            const techView = document.getElementById('view-tech');
+            const storyBtn = document.getElementById('tab-story-btn');
+            const techBtn = document.getElementById('tab-tech-btn');
+
+            if (tab === 'story') {
+                storyView.classList.remove('hidden');
+                techView.classList.add('hidden');
+                storyBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition";
+                techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
+            } else {
+                storyView.classList.add('hidden');
+                techView.classList.remove('hidden');
+                techView.classList.add('flex');
+                techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-amber-600 text-white shadow-lg transition";
+                storyBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
+                renderTechTree();
+            }
+        }
+
+        function renderTechTree() {
+            const grid = document.getElementById('tech-tree-grid');
+            grid.innerHTML = '';
+
+            Object.values(TECH_TREE).forEach(tech => {
+                const isUnlocked = gameState.unlockedTechs.includes(tech.id);
+                const canAfford = tech.costType === 'carbon' ? gameState.carbonOffset >= tech.cost : gameState.esgImpact >= tech.cost;
+                const costUnit = tech.costType === 'carbon' ? 'kg CO₂e' : 'pts ESG';
+
+                const card = document.createElement('div');
+                card.className = `p-3.5 rounded-xl border transition flex flex-col justify-between ${
+                    isUnlocked ? 'bg-emerald-950/40 border-emerald-500/50' : canAfford ? 'bg-slate-900 border-amber-500/50 hover:border-amber-400' : 'bg-slate-900/50 border-slate-800 opacity-60'
+                }`;
+
+                card.innerHTML = `
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+                                <span>${tech.icon}</span> <span>${tech.name}</span>
+                            </span>
+                            ${isUnlocked ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-500/40">已解鎖</span>' : `<span class="text-[10px] font-bold text-amber-400">${tech.cost} ${costUnit}</span>`}
+                        </div>
+                        <p class="text-[11px] text-slate-400 leading-snug mb-3">${tech.desc}</p>
+                    </div>
+                    ${!isUnlocked ? `
+                        <button onclick="unlockTech('${tech.id}')" ${!canAfford ? 'disabled' : ''} class="w-full py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
+                            canAfford ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md' : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                        }">
+                            <i class="fa-solid fa-lock-open"></i> 研發解鎖
+                        </button>
+                    ` : ''}
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function unlockTech(techId) {
+            const tech = TECH_TREE[techId];
+            if (!tech || gameState.unlockedTechs.includes(techId)) return;
+
+            if (tech.costType === 'carbon' && gameState.carbonOffset >= tech.cost) {
+                gameState.carbonOffset -= tech.cost;
+                executeUnlock(tech);
+            } else if (tech.costType === 'esg' && gameState.esgImpact >= tech.cost) {
+                gameState.esgImpact -= tech.cost;
+                executeUnlock(tech);
+            }
+        }
+
+        function executeUnlock(tech) {
+            gameState.unlockedTechs.push(tech.id);
+            if (tech.effect) tech.effect();
+            playSound('success');
+            showToast(`成功解鎖科技：${tech.name}`, "🔬");
+            addLog(`研發解鎖低碳技術：${tech.name}`);
+            updateUI();
+            renderTechTree();
+        }
+
+        // Canvas Pixel Visualizer Rendering Loop
+        function drawFarmCanvas() {
+            const cvs = document.getElementById('farmCanvas');
+            const ctx = cvs.getContext('2d');
+            const w = cvs.width;
+            const h = cvs.height;
+
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(0, 0, w, h);
+
+            if (gameState.weather.includes('雨')) {
+                ctx.fillStyle = '#1e293b';
+            } else if (gameState.weather.includes('熱浪')) {
+                ctx.fillStyle = '#451a03';
+            } else {
+                ctx.fillStyle = '#064e3b';
+            }
+            ctx.fillRect(0, 0, w, 80);
+
+            ctx.fillStyle = '#271c19';
+            ctx.fillRect(0, 80, w, 80);
+
+            // Worm Bin V1 / V2
+            const isV2 = gameState.unlockedTechs.includes("WORM_BIN_V2");
+            ctx.fillStyle = isV2 ? '#0284c7' : '#475569';
+            ctx.fillRect(120, 70, 80, 50);
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(125, 75, 70, 40);
+
+            const binLevel = Math.min(35, Math.floor(gameState.vermicompost * 2) + 10);
+            ctx.fillStyle = '#3f2e21';
+            ctx.fillRect(125, 115 - binLevel, 70, binLevel);
+
+            ctx.fillStyle = '#f43f5e';
+            const wormCount = Math.floor(gameState.wormVitality / 20);
+            for(let i = 0; i < wormCount; i++) {
+                let wx = 130 + (i * 12) % 60;
+                let wy = 110 - (i * 5) % 25;
+                ctx.fillRect(wx, wy, 8, 3);
+            }
+
+            // Tech Tree Unlocked Buildings
+            if (gameState.badges.includes("BIOCHAR_PIONEER") || gameState.unlockedTechs.includes("BIOCHAR_COLLECTOR")) {
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(30, 60, 40, 40);
+                ctx.fillStyle = '#f59e0b';
+                ctx.fillRect(45, 50, 10, 10);
+            }
+
+            if (gameState.unlockedTechs.includes("CHICKEN_TRACTOR")) {
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.moveTo(90, 110);
+                ctx.lineTo(105, 80);
+                ctx.lineTo(120, 110);
+                ctx.fill();
+            }
+
+            if (gameState.unlockedTechs.includes("EARTH_BUILDING") || gameState.badges.includes("NATURAL_BUILDER")) {
+                ctx.fillStyle = '#78350f';
+                ctx.fillRect(240, 55, 50, 45);
+                ctx.fillStyle = '#10b981';
+                ctx.fillRect(255, 75, 20, 25);
+            }
+
+            if (gameState.weather.includes('雨')) {
+                ctx.fillStyle = '#38bdf8';
+                for (let i = 0; i < 15; i++) {
+                    let rx = (Date.now() / 5 + i * 25) % w;
+                    let ry = (Date.now() / 3 + i * 15) % h;
+                    ctx.fillRect(rx, ry, 2, 6);
+                }
+            } else if (gameState.weather.includes('螞蟻')) {
+                ctx.fillStyle = '#ef4444';
+                for (let i = 0; i < 6; i++) {
+                    let ax = 100 + (i * 20);
+                    ctx.fillRect(ax, 122, 4, 2);
+                }
+            }
+        }
+
         function initGame() {
             loadGame();
             updateUI();
             renderScenario(gameState.currentScenarioId);
+            setInterval(drawFarmCanvas, 100);
         }
 
         function updateUI() {
@@ -543,21 +829,28 @@
             document.getElementById('farm-name').innerText = gameState.farmName;
             document.getElementById('stat-worm-text').innerText = `${gameState.wormVitality}%`;
             document.getElementById('stat-moisture-text').innerText = `${gameState.moisture}%`;
-            document.getElementById('stat-carbon').innerHTML = `${gameState.carbonOffset.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg CO₂e</span>`;
-            document.getElementById('stat-soc').innerHTML = `${gameState.socScore} <span class="text-[10px] font-normal text-slate-400">分</span>`;
+            document.getElementById('stat-carbon').innerHTML = `${gameState.carbonOffset.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
+            document.getElementById('stat-soc').innerHTML = `${gameState.socScore} <span class="text-[10px] font-normal text-slate-400">pt</span>`;
             document.getElementById('stat-esg').innerHTML = `${gameState.esgImpact} <span class="text-[10px] font-normal text-slate-400">pts</span>`;
             document.getElementById('stat-compost').innerHTML = `${gameState.vermicompost.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
 
+            const moodEl = document.getElementById('worm-mood');
+            if (gameState.wormVitality > 80) moodEl.innerText = "🪱 (超開心)";
+            else if (gameState.wormVitality > 50) moodEl.innerText = "🪱 (普通)";
+            else moodEl.innerText = "🪱 (奄奄一息)";
+
             const wormBar = document.getElementById('stat-worm-bar');
             wormBar.style.width = `${gameState.wormVitality}%`;
-            if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-500";
-            else if (gameState.wormVitality < 70) wormBar.className = "bg-amber-500 h-2.5 rounded-full transition-all duration-500";
-            else wormBar.className = "bg-emerald-500 h-2.5 rounded-full transition-all duration-500";
+            if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
+            else if (gameState.wormVitality < 70) wormBar.className = "bg-amber-500 h-full rounded-full transition-all duration-500";
+            else wormBar.className = "bg-emerald-500 h-full rounded-full transition-all duration-500";
 
             const moistureBar = document.getElementById('stat-moisture-bar');
             moistureBar.style.width = `${gameState.moisture}%`;
-            if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-2.5 rounded-full transition-all duration-500";
-            else moistureBar.className = "bg-sky-500 h-2.5 rounded-full transition-all duration-500";
+            if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
+            else moistureBar.className = "bg-sky-500 h-full rounded-full transition-all duration-500";
+
+            document.getElementById('weather-badge').innerText = gameState.weather;
 
             renderMaterials();
             renderBadges();
@@ -567,21 +860,21 @@
         function renderMaterials() {
             const list = document.getElementById('materials-list');
             list.innerHTML = `
-                <div class="bg-slate-900/60 p-2 rounded-xl border border-slate-700/50 flex justify-between items-center text-xs">
+                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
                     <span>☕ 咖啡渣</span>
-                    <span class="font-bold text-amber-400">${gameState.unprocessedWaste.coffee.toFixed(1)} kg</span>
+                    <span class="font-bold text-amber-400 font-pixel text-sm">${gameState.unprocessedWaste.coffee.toFixed(1)} kg</span>
                 </div>
-                <div class="bg-slate-900/60 p-2 rounded-xl border border-slate-700/50 flex justify-between items-center text-xs">
+                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
                     <span>🍵 茶葉渣</span>
-                    <span class="font-bold text-emerald-400">${gameState.unprocessedWaste.tea.toFixed(1)} kg</span>
+                    <span class="font-bold text-emerald-400 font-pixel text-sm">${gameState.unprocessedWaste.tea.toFixed(1)} kg</span>
                 </div>
-                <div class="bg-slate-900/60 p-2 rounded-xl border border-slate-700/50 flex justify-between items-center text-xs">
+                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
                     <span>🍎 生廚餘</span>
-                    <span class="font-bold text-rose-400">${gameState.unprocessedWaste.foodScraps.toFixed(1)} kg</span>
+                    <span class="font-bold text-rose-400 font-pixel text-sm">${gameState.unprocessedWaste.foodScraps.toFixed(1)} kg</span>
                 </div>
-                <div class="bg-slate-900/60 p-2 rounded-xl border border-slate-700/50 flex justify-between items-center text-xs">
+                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
                     <span>🍂 枯枝落葉</span>
-                    <span class="font-bold text-amber-600">${gameState.unprocessedWaste.dryLeaves.toFixed(1)} kg</span>
+                    <span class="font-bold text-amber-600 font-pixel text-sm">${gameState.unprocessedWaste.dryLeaves.toFixed(1)} kg</span>
                 </div>
             `;
         }
@@ -598,7 +891,7 @@
                 const badge = ALL_BADGES[bKey];
                 if (badge) {
                     const badgeEl = document.createElement('div');
-                    badgeEl.className = "bg-amber-500/10 border border-amber-500/40 text-amber-300 px-2 py-1 rounded-lg text-xs font-bold flex items-center gap-1 shadow-sm";
+                    badgeEl.className = "bg-amber-500/10 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm";
                     badgeEl.title = badge.desc;
                     badgeEl.innerHTML = `<span>${badge.icon}</span> <span>${badge.name}</span>`;
                     container.appendChild(badgeEl);
@@ -623,9 +916,10 @@
 
             sc.choices.forEach(choice => {
                 const btn = document.createElement('button');
-                btn.className = "w-full text-left bg-slate-700/60 hover:bg-emerald-800/80 hover:border-emerald-500 border border-slate-600/80 p-3 rounded-xl text-xs sm:text-sm font-semibold transition duration-200 flex items-center justify-between group shadow-sm";
-                btn.innerHTML = `<span>${choice.text}</span> <i class="fa-solid fa-chevron-right text-slate-400 group-hover:text-emerald-300 group-hover:translate-x-1 transition"></i>`;
+                btn.className = "w-full text-left bg-slate-800/80 hover:bg-emerald-800/80 hover:border-emerald-500 border border-slate-700 p-3.5 rounded-xl text-xs sm:text-sm font-semibold transition duration-200 flex items-center justify-between group shadow-md";
+                btn.innerHTML = `<span>${choice.text}</span> <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-emerald-300 group-hover:translate-x-1 transition"></i>`;
                 btn.onclick = () => {
+                    playSound('click');
                     if (choice.action) choice.action();
                     updateUI();
                     saveGame(false);
@@ -639,9 +933,11 @@
             if (gameState.unprocessedWaste[type] >= amount) {
                 gameState.unprocessedWaste[type] -= amount;
                 if (target === 'worm') {
-                    gameState.vermicompost += amount * 0.6;
-                    addCarbon(amount * 0.4);
+                    let boost = gameState.unlockedTechs.includes("WORM_BIN_V2") ? 1.15 : 1.0;
+                    gameState.vermicompost += amount * 0.6 * boost;
+                    addCarbon(amount * 0.4 * boost);
                     addWormVitality(5);
+                    playSound('success');
                 }
             }
         }
@@ -670,7 +966,8 @@
         function unlockBadge(bKey) {
             if (!gameState.badges.includes(bKey)) {
                 gameState.badges.push(bKey);
-                showToast(`解鎖成就：${ALL_BADGES[bKey].name} ${ALL_BADGES[bKey].icon}`);
+                playSound('success');
+                showToast(`解鎖成就：${ALL_BADGES[bKey].name} ${ALL_BADGES[bKey].icon}`, "🏆");
                 addLog(`獲得成就：${ALL_BADGES[bKey].name}`);
             }
         }
@@ -683,12 +980,15 @@
 
         function nextDay() {
             gameState.day += 1;
-            gameState.unprocessedWaste.coffee += 2.0;
+            
+            // Chicken Tractor Tech Bonus
+            let chickenBonus = gameState.unlockedTechs.includes("CHICKEN_TRACTOR") ? 1.5 : 0;
+
+            gameState.unprocessedWaste.coffee += 2.0 + chickenBonus;
             gameState.unprocessedWaste.tea += 1.5;
             gameState.unprocessedWaste.foodScraps += 2.0;
-            gameState.unprocessedWaste.dryLeaves += 3.0;
+            gameState.unprocessedWaste.dryLeaves += 3.0 + chickenBonus;
 
-            // Trigger Random Events or Story Milestones
             if (gameState.day === 3 && gameState.chapter < 2) {
                 renderScenario("CHAPTER_2_ENTER");
                 return;
@@ -698,11 +998,21 @@
                 return;
             }
 
-            const events = ["EVENT_RAIN", "EVENT_HEAT", "EVENT_ANTS", "DAILY_ROUTINE", "DAILY_ROUTINE"];
-            const randomEvent = events[Math.floor(Math.random() * events.length)];
+            const eventPool = [
+                { id: "EVENT_RAIN", weather: "🌧️ 豪雨降臨" },
+                { id: "EVENT_HEAT", weather: "☀️ 酷暑熱浪" },
+                { id: "EVENT_ANTS", weather: "🐜 蟻群襲擊" },
+                { id: "DAILY_ROUTINE", weather: "☀️ 晴朗微風" },
+                { id: "DAILY_ROUTINE", weather: "☁️ 多雲舒適" }
+            ];
             
-            addLog(`-- 進入 Day ${gameState.day} --`);
-            renderScenario(randomEvent);
+            const selected = eventPool[Math.floor(Math.random() * eventPool.length)];
+            gameState.weather = selected.weather;
+            
+            if (selected.id !== "DAILY_ROUTINE") playSound('alert');
+            
+            addLog(`-- 進入 Day ${gameState.day} (${gameState.weather}) --`);
+            renderScenario(selected.id);
         }
 
         function addLog(text) {
@@ -722,8 +1032,9 @@
             renderLog();
         }
 
-        function showToast(msg) {
+        function showToast(msg, icon = "✨") {
             const toast = document.getElementById('feedback-toast');
+            document.getElementById('toast-icon').innerText = icon;
             document.getElementById('feedback-text').innerText = msg;
             toast.classList.remove('hidden');
             setTimeout(() => {
@@ -732,24 +1043,25 @@
         }
 
         function saveGame(showNotif = false) {
-            localStorage.setItem('TERRA_CHEF_SAVE_2026', JSON.stringify(gameState));
-            if (showNotif) showToast("遊戲進度已成功儲存！");
+            localStorage.setItem('TERRA_CHEF_SAVE_V3', JSON.stringify(gameState));
+            if (showNotif) {
+                playSound('success');
+                showToast("遊戲進度已成功儲存！", "💾");
+            }
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('TERRA_CHEF_SAVE_2026');
+            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V3');
             if (saved) {
                 try {
                     gameState = JSON.parse(saved);
-                } catch(e) {
-                    console.error("Save load failed", e);
-                }
+                } catch(e) {}
             }
         }
 
         function confirmResetGame() {
-            if (confirm("確定要重置所有農場進度與成就嗎？")) {
-                localStorage.removeItem('TERRA_CHEF_SAVE_2026');
+            if (confirm("確定要重置所有農場進度、科技與成就嗎？")) {
+                localStorage.removeItem('TERRA_CHEF_SAVE_V3');
                 gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
                 initGame();
                 showToast("農場已重置為初始狀態。");
