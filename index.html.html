@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v9.3 P2P 最終修復版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v9.4 最終完美版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -49,10 +49,10 @@
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
             grid-template-rows: repeat(6, minmax(0, 1fr));
-            gap: 6px;
+            gap: 8px;
         }
         .custom-scroll::-webkit-scrollbar {
-            width: 5px;
+            width: 6px;
         }
         .custom-scroll::-webkit-scrollbar-track {
             background: #0f172a;
@@ -74,28 +74,32 @@
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
 
     <!-- Top Navigation Header -->
-    <header class="bg-slate-900/90 border-b border-emerald-900/40 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5">
+    <header class="bg-slate-900/90 border-b border-emerald-900/40 sticky top-0 z-50 backdrop-blur-md px-4 py-3">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-900 border border-emerald-400/40 flex items-center justify-center text-2xl shadow-lg">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-900 border border-emerald-400/40 flex items-center justify-center text-3xl shadow-lg">
                     🪱
                 </div>
                 <div>
-                    <h1 class="font-black text-base sm:text-lg text-emerald-400 text-glow flex items-center gap-2">
+                    <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40">v9.3 P2P 最終修復版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v9.4 放大版</span>
                     </h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400 hidden sm:block">峨眉低碳循環農業 × P2P 碳匯競賽桌遊</p>
+                    <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳匯競賽桌遊</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3">
-                <button id="btn-sound-toggle" onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300 hover:text-emerald-400 transition">
-                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i>
+                <!-- Quit Game Button (Active during gameplay) -->
+                <button id="btn-quit-game" onclick="quitGame()" class="hidden px-3.5 py-2 rounded-xl bg-rose-950/80 border border-rose-800 text-xs font-bold text-rose-300 hover:bg-rose-900 transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-right-from-bracket"></i> 退出遊戲
                 </button>
-                <div id="connection-badge" class="bg-slate-950 border border-slate-800 text-xs text-amber-400 px-3 py-1.5 rounded-xl font-mono flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span id="conn-status">準備連線</span>
+                <button id="btn-sound-toggle" onclick="toggleSound()" class="px-3.5 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300 hover:text-emerald-400 transition">
+                    <i class="fa-solid fa-volume-high text-emerald-400 text-sm" id="sound-icon"></i>
+                </button>
+                <div id="connection-badge" class="bg-slate-950 border border-slate-800 text-xs text-amber-400 px-3.5 py-2 rounded-xl font-mono flex items-center gap-2 shadow-inner">
+                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="conn-status" class="font-bold">準備連線</span>
                 </div>
             </div>
         </div>
@@ -103,102 +107,107 @@
 
     <!-- STEP 1: LOBBY & JOIN SCREEN -->
     <main id="screen-lobby" class="max-w-2xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
-        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-emerald-500/30 shadow-2xl w-full space-y-6 relative overflow-hidden backdrop-blur">
+        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-10 border border-emerald-500/30 shadow-2xl w-full space-y-6 relative overflow-hidden backdrop-blur">
             <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
 
             <div class="text-center space-y-2">
-                <div class="inline-flex p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-4xl mb-1 shadow-inner">
+                <div class="inline-flex p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-5xl mb-1 shadow-inner">
                     🌐
                 </div>
-                <h2 class="text-2xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
-                <p class="text-xs text-slate-400">請先輸入玩家名稱，並輸入 2 位數房號 (01~99) 建立或加入房間！</p>
+                <h2 class="text-2xl sm:text-3xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
+                <p class="text-sm text-slate-300">請先輸入玩家名稱，並輸入 2 位數房號 (01~99) 建立或加入房間！</p>
             </div>
 
             <!-- Player Setup -->
-            <div class="space-y-4 bg-slate-950/80 p-5 rounded-2xl border border-slate-800">
+            <div class="space-y-5 bg-slate-950/80 p-6 rounded-2xl border border-slate-800 shadow-inner">
                 <div>
-                    <label class="block text-xs font-bold text-emerald-400 mb-1.5">1. 設定您的玩家名稱 *</label>
-                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                    <label class="block text-sm font-bold text-emerald-400 mb-2">1. 設定您的玩家名稱 *</label>
+                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
                 </div>
 
                 <!-- Host Controls -->
-                <div id="host-controls-box" class="space-y-3 pt-3 border-t border-slate-800">
-                    <label class="block text-xs font-bold text-slate-300">2A. 房主開房 (請輸入 2 位數字房號，例如: 01 或 88)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="input-room-id" placeholder="2位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500 font-bold" />
-                        <button id="btn-host-action" onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">創建房間</button>
+                <div id="host-controls-box" class="space-y-3 pt-4 border-t border-slate-800">
+                    <label class="block text-sm font-bold text-slate-200">2A. 房主開房 (請輸入 2 位數字房號，例如: 01 或 88)</label>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-room-id" placeholder="2位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500 font-bold tracking-widest text-center" />
+                        <button id="btn-host-action" onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 text-white px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap shadow-lg transition">創建房間</button>
                     </div>
                 </div>
 
                 <!-- Client Controls -->
-                <div id="client-controls-box" class="pt-3 border-t border-slate-800 space-y-2">
-                    <label class="block text-xs font-bold text-slate-300">2B. 訪客加入 (輸入好友的 2 位數房號)</label>
-                    <div class="flex gap-2">
-                        <input type="text" id="input-join-id" placeholder="輸入 2 位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-400 w-full focus:outline-none focus:border-amber-500 font-bold" />
-                        <button id="btn-join-action" onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">加入對戰</button>
+                <div id="client-controls-box" class="pt-4 border-t border-slate-800 space-y-3">
+                    <label class="block text-sm font-bold text-slate-200">2B. 訪客加入 (輸入好友的 2 位數房號)</label>
+                    <div class="flex gap-3">
+                        <input type="text" id="input-join-id" placeholder="輸入 2 位數房號 (01~99)" maxlength="2" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm font-mono text-amber-400 w-full focus:outline-none focus:border-emerald-500 font-bold tracking-widest text-center" />
+                        <button id="btn-join-action" onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 disabled:bg-slate-800 disabled:text-slate-500 text-slate-950 px-6 py-3 rounded-xl text-sm font-black whitespace-nowrap shadow-lg transition">加入對戰</button>
                     </div>
                 </div>
 
-                <!-- Share Link / Lobby Players Section -->
-                <div id="invite-section" class="hidden pt-3 border-t border-slate-800 space-y-2">
-                    <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2">
-                        <div class="flex justify-between items-center text-xs">
-                            <span class="text-slate-400">已加入玩家 (<span id="room-player-count">1</span>/4):</span>
-                            <button id="btn-start-game" onclick="startGameAsHost()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3 py-1 rounded-lg font-black text-xs">立即開始 (AI補滿)</button>
+                <!-- Room Status & Joined Players Section (Visible for both Host and Clients) -->
+                <div id="invite-section" class="hidden pt-4 border-t border-slate-800 space-y-3">
+                    <div class="p-4 bg-slate-900/90 rounded-2xl border border-emerald-500/30 space-y-3 shadow">
+                        <div class="flex justify-between items-center text-sm">
+                            <span class="text-emerald-300 font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-users"></i> 房間連線狀態 (<span id="room-player-count">1</span>/4 人已就位)
+                            </span>
+                            <button id="btn-start-game" onclick="startGameAsHost()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-4 py-2 rounded-xl font-black text-xs shadow-md">立即開始 (AI補滿)</button>
                         </div>
-                        <ul id="room-players-list" class="text-xs space-y-1 font-mono text-emerald-300">
+                        <ul id="room-players-list" class="text-xs sm:text-sm space-y-1.5 font-mono text-emerald-300 bg-slate-950 p-3 rounded-xl border border-slate-800">
                             <!-- Populated dynamically -->
                         </ul>
+                        <div id="client-waiting-tip" class="text-xs text-amber-400 italic text-center">
+                            已成功加入房間！正在等待房主點擊開始遊戲...
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div id="lobby-msg" class="text-center text-xs text-slate-400 italic">
+            <div id="lobby-msg" class="text-center text-xs sm:text-sm text-slate-400 italic">
                 提示：務必先輸入玩家名稱，並約定相同的 2 位數房號進行連線！
             </div>
         </div>
     </main>
 
     <!-- STEP 2: MAIN GAME BOARD SCREEN -->
-    <main id="screen-game" class="hidden max-w-7xl mx-auto px-2 sm:px-4 py-3 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3">
+    <main id="screen-game" class="hidden max-w-7xl mx-auto px-2 sm:px-4 py-4 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
         <!-- Left Sidebar: Scoreboard, Player Skills & Inventory -->
-        <div class="lg:col-span-3 space-y-3 flex flex-col">
-            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2.5 shadow-xl">
+        <div class="lg:col-span-3 space-y-4 flex flex-col">
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-3 shadow-xl">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-                    <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
+                    <span class="text-sm font-black text-emerald-400 flex items-center gap-2">
                         <i class="fa-solid fa-trophy text-amber-400"></i> 即時碳匯與能力
                     </span>
-                    <span class="text-xs font-pixel font-black text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-amber-500/30" id="game-round-tag">Round 1/20</span>
+                    <span class="text-xs font-pixel font-black text-amber-400 bg-slate-950 px-2.5 py-1 rounded-lg border border-amber-500/30" id="game-round-tag">Round 1/20</span>
                 </div>
-                <div class="space-y-2" id="scoreboard-list">
+                <div class="space-y-2.5" id="scoreboard-list">
                     <!-- Dynamic Player Cards -->
                 </div>
             </div>
 
             <!-- Player Inventory Section -->
-            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2 shadow-xl">
-                <div class="flex justify-between items-center pb-1.5 border-b border-slate-800">
-                    <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-briefcase text-amber-400"></i> 我的卡片背包 (上限3張)
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-2.5 shadow-xl">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                    <span class="text-sm font-black text-emerald-400 flex items-center gap-2">
+                        <i class="fa-solid fa-briefcase text-amber-400"></i> 我的背包 (<span id="inv-count">0</span>/3張)
                     </span>
                 </div>
-                <div id="my-inventory-list" class="space-y-1.5 text-xs">
-                    <div class="text-[11px] text-slate-500 italic text-center py-2">目前沒有收藏的卡片</div>
+                <div id="my-inventory-list" class="space-y-2 text-xs sm:text-sm">
+                    <div class="text-xs text-slate-500 italic text-center py-2">目前沒有收藏的卡片</div>
                 </div>
             </div>
 
             <!-- Dice Controls -->
-            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-emerald-500/30 space-y-3 shadow-xl text-center">
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-emerald-500/30 space-y-3.5 shadow-xl text-center">
                 <div class="flex items-center justify-around">
-                    <div id="dice-display" class="w-14 h-14 rounded-2xl bg-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-3xl font-black text-amber-400 font-pixel shadow-inner">
+                    <div id="dice-display" class="w-16 h-16 rounded-2xl bg-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-4xl font-black text-amber-400 font-pixel shadow-inner">
                         🎲
                     </div>
-                    <div class="text-left space-y-0.5">
-                        <div class="text-[10px] text-slate-400">目前回合玩家</div>
-                        <div id="current-turn-player-name" class="text-xs font-extrabold text-emerald-300">等待開始...</div>
+                    <div class="text-left space-y-1">
+                        <div class="text-xs text-slate-400">目前回合玩家</div>
+                        <div id="current-turn-player-name" class="text-sm font-extrabold text-emerald-300">等待開始...</div>
                     </div>
                 </div>
-                <button id="btn-roll-dice" onclick="requestRollDice()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="btn-roll-dice" onclick="requestRollDice()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black py-3 rounded-xl text-sm shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                     🎲 擲骰前進 (Roll Dice)
                 </button>
             </div>
@@ -206,92 +215,96 @@
 
         <!-- Middle Column: 20-Tile Ring Board -->
         <div class="lg:col-span-6 flex flex-col justify-between">
-            <div class="board-grid bg-slate-900/90 p-2 sm:p-3 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[440px] sm:min-h-[500px] relative">
+            <div class="board-grid bg-slate-900/90 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[480px] sm:min-h-[560px] relative">
                 <div id="board-container" class="contents">
                     <!-- Dynamic Board Tiles -->
                 </div>
                 
                 <!-- Inner Board Plaza -->
-                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/90 rounded-xl border border-slate-800/80 p-3 sm:p-5 flex flex-col justify-between items-center text-center relative overflow-hidden">
+                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/90 rounded-2xl border border-slate-800/80 p-4 sm:p-6 flex flex-col justify-between items-center text-center relative overflow-hidden shadow-2xl">
                     <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                    <div class="space-y-1.5 z-10">
-                        <span class="text-3xl sm:text-4xl inline-block animate-bounce">🌱</span>
-                        <h3 class="font-black text-xs sm:text-sm text-emerald-400">峨眉低碳循環農業試驗地圖</h3>
-                        <p class="text-[10px] sm:text-xs text-slate-400" id="center-event-text">歡迎來到峨眉鄉！骰子移動以積累碳匯與建置永續設施。</p>
+                    <div class="space-y-2 z-10">
+                        <span class="text-4xl sm:text-5xl inline-block animate-bounce">🌱</span>
+                        <h3 class="font-black text-sm sm:text-base text-emerald-400">峨眉低碳循環農業試驗地圖</h3>
+                        <p class="text-xs sm:text-sm text-slate-300" id="center-event-text">歡迎來到峨眉鄉！骰子移動以積累碳匯與建置永續設施。</p>
                     </div>
 
                     <!-- Facility Purchase Banner -->
-                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-2.5 rounded-xl border border-emerald-500/50 space-y-2">
-                        <div class="text-xs font-bold text-amber-300" id="facility-title">可建造設施！</div>
-                        <div class="text-[10px] text-slate-300" id="facility-desc">消耗資源獲取每回合固碳產值</div>
-                        <div class="flex gap-2 justify-center">
-                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs">投資建設</button>
-                            <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-3 py-1 rounded-lg text-xs">略過</button>
+                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-3.5 rounded-xl border border-emerald-500/50 space-y-2.5 shadow-xl">
+                        <div class="text-xs sm:text-sm font-bold text-amber-300" id="facility-title">可建造設施！</div>
+                        <div class="text-xs text-slate-300" id="facility-desc">消耗資源獲取每回合固碳產值</div>
+                        <div class="flex gap-3 justify-center pt-1">
+                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm">投資建設</button>
+                            <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm">略過</button>
                         </div>
                     </div>
 
                     <!-- Chance / Destiny Card Drawn Banner -->
-                    <div id="card-action-box" class="hidden z-10 w-full bg-slate-900 p-3 rounded-xl border border-amber-500/50 space-y-2 text-center">
-                        <div class="text-xs font-bold text-amber-300 flex items-center justify-center gap-1" id="card-drawn-title">
+                    <div id="card-action-box" class="hidden z-10 w-full bg-slate-900 p-4 rounded-xl border border-amber-500/50 space-y-3 text-center shadow-xl">
+                        <div class="text-xs sm:text-sm font-bold text-amber-300 flex items-center justify-center gap-1.5" id="card-drawn-title">
                             🎴 抽到卡片！
                         </div>
-                        <div class="text-[11px] text-slate-200" id="card-drawn-desc">卡片效果描述...</div>
-                        <div class="flex gap-2 justify-center pt-1" id="card-drawn-buttons">
-                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">⚡ 立即使用</button>
-                            <button onclick="applyCardAction('save')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs shadow">🎒 放入背包收藏</button>
+                        <div class="text-xs sm:text-sm text-slate-200 leading-relaxed" id="card-drawn-desc">卡片效果描述...</div>
+                        <div class="flex gap-3 justify-center pt-1" id="card-drawn-buttons">
+                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow">⚡ 立即使用</button>
+                            <button onclick="applyCardAction('save')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow">🎒 放入背包收藏</button>
                         </div>
                     </div>
 
-                    <div class="text-[9px] text-slate-500 z-10 font-mono">
-                        P2P Room ID: <span id="display-room-id" class="text-emerald-400">---</span>
+                    <div class="text-xs text-slate-400 z-10 font-mono">
+                        P2P 房號: <span id="display-room-id" class="text-emerald-400 font-bold">---</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Sidebar: Expanded & Enhanced Chatroom & Live Game Log -->
-        <div class="lg:col-span-3 space-y-3 flex flex-col justify-between">
-            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96">
+        <!-- Right Sidebar: Chatroom & Live Game Log -->
+        <div class="lg:col-span-3 space-y-4 flex flex-col justify-between">
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3.5 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
-                    <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                    <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center gap-2">
                         <i class="fa-solid fa-comments"></i> 雲端即時聊天室
                     </h4>
-                    <span class="text-[10px] text-slate-500 font-mono">P2P Live</span>
+                    <span class="text-xs text-slate-400 font-mono">P2P Live</span>
                 </div>
                 
-                <div id="chat-messages" class="text-xs space-y-2 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
-                    <div class="text-[10px] text-slate-500 italic text-center">聊天室已啟動，傳送訊息給房間內的玩家吧！</div>
+                <div id="chat-messages" class="text-xs sm:text-sm space-y-2.5 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
+                    <div class="text-xs text-slate-400 italic text-center">聊天室已啟動，傳送訊息給房間內的玩家吧！</div>
                 </div>
 
-                <form onsubmit="handleSendChat(event)" class="mt-2 flex gap-1.5 pt-2 border-t border-slate-800/80">
-                    <input type="text" id="input-chat-msg" placeholder="輸入對話訊息..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500" />
-                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow transition"><i class="fa-solid fa-paper-plane"></i></button>
+                <form onsubmit="handleSendChat(event)" class="mt-2 flex gap-2 pt-2 border-t border-slate-800/80">
+                    <input type="text" id="input-chat-msg" placeholder="輸入對話訊息..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow transition"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
             </div>
 
-            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1 h-32 flex flex-col">
-                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">即時比賽日誌</h4>
-                <div id="game-log" class="text-[11px] text-slate-400 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3.5 shadow-inner space-y-1.5 h-36 flex flex-col">
+                <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">即時比賽日誌</h4>
+                <div id="game-log" class="text-xs text-slate-300 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
                     <div>[系統] 遊戲準備完畢。</div>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- STEP 3: GAME OVER MODAL -->
-    <div id="modal-gameover" class="hidden fixed inset-0 bg-slate-950/90 z-50 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 max-w-lg w-full text-center space-y-5 shadow-2xl">
-            <div class="text-5xl">🏆</div>
-            <h2 class="text-2xl font-black text-emerald-400 text-glow">永續大地競賽 圓滿結束！</h2>
-            <p class="text-xs text-slate-300" id="winner-announcement">冠軍玩家誕生！</p>
+    <!-- STEP 3: GAME OVER / LEADERBOARD FULL-SCREEN MODAL -->
+    <main id="screen-gameover" class="hidden max-w-3xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
+        <div class="bg-slate-900/95 border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-10 shadow-2xl w-full space-y-6 text-center backdrop-blur-md">
+            <div class="text-6xl sm:text-7xl animate-bounce">🏆</div>
+            <div class="space-y-2">
+                <h2 class="text-3xl font-black text-emerald-400 text-glow">永續大地競賽 圓滿結束！</h2>
+                <p class="text-sm sm:text-base text-slate-300" id="winner-announcement">冠軍玩家誕生！</p>
+            </div>
             
-            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-left" id="final-stats-list"></div>
+            <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3 text-left shadow-inner" id="final-stats-list">
+                <!-- Populated dynamically -->
+            </div>
 
-            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs shadow-lg transition">
+            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-base shadow-xl transition">
                 返回大廳 / 重啟新局
             </button>
         </div>
-    </div>
+    </main>
 
     <!-- SCRIPT LOGIC -->
     <script>
@@ -337,7 +350,7 @@
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-emerald-400' : 'fa-solid fa-volume-xmark text-slate-500';
+            document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-emerald-400 text-sm' : 'fa-solid fa-volume-xmark text-slate-500 text-sm';
         }
 
         /* ================= GAME DATA ================= */
@@ -389,6 +402,7 @@
 
         let gameState = {
             started: false,
+            ended: false,
             round: 1,
             maxRounds: 20,
             turnIndex: 0,
@@ -399,7 +413,6 @@
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
         const COLORS = ["#10b981", "#38bdf8", "#f59e0b", "#a855f7"];
 
-        /* Validate player name and room ID format */
         function validateInput(roomIdInput) {
             const name = document.getElementById('input-player-name').value.trim();
             if (!name) {
@@ -436,6 +449,8 @@
                 document.getElementById('conn-status').innerText = `房號 [${validated.roomNum}] 已開房`;
                 document.getElementById('invite-section').classList.remove('hidden');
                 document.getElementById('btn-start-game').classList.remove('hidden');
+                document.getElementById('client-waiting-tip').classList.add('hidden');
+                document.getElementById('host-controls-box').classList.add('hidden');
                 document.getElementById('client-controls-box').classList.add('hidden');
                 document.getElementById('display-room-id').innerText = validated.roomNum;
 
@@ -469,10 +484,7 @@
                 conn.on('data', (data) => handleHostReceiveData(conn, data));
                 
                 conn.on('close', () => {
-                    delete connections[conn.peer];
-                    gameState.players = gameState.players.filter(p => p.peerId !== conn.peer);
-                    updateLobbyPlayersList();
-                    broadcastState('玩家離開房間');
+                    handlePlayerDisconnect(conn.peer);
                 });
             });
 
@@ -504,8 +516,12 @@
                 hostConn = peer.connect(fullPeerId);
 
                 hostConn.on('open', () => {
-                    document.getElementById('conn-status').innerText = "已連線至房主";
+                    document.getElementById('conn-status').innerText = `已連線房號 [${validated.roomNum}]`;
                     document.getElementById('display-room-id').innerText = validated.roomNum;
+                    document.getElementById('invite-section').classList.remove('hidden');
+                    document.getElementById('host-controls-box').classList.add('hidden');
+                    document.getElementById('client-controls-box').classList.add('hidden');
+                    
                     hostConn.send({
                         type: 'JOIN_REQ',
                         playerName: myPlayerName
@@ -555,13 +571,17 @@
                 processUseInventoryCard(data.peerId, data.cardIndex);
             } else if (data.type === 'SEND_CHAT') {
                 broadcastChat(data.senderName, data.msg, data.avatar);
+            } else if (data.type === 'PLAYER_QUIT') {
+                handlePlayerDisconnect(data.peerId);
             }
         }
 
         function handleClientReceiveData(data) {
             if (data.type === 'STATE_UPDATE') {
                 gameState = data.state;
-                if (gameState.started) {
+                if (gameState.ended) {
+                    showGameOverModal();
+                } else if (gameState.started) {
                     switchToGameScreen();
                     updateUI();
                 } else {
@@ -573,6 +593,20 @@
                 playSound('chat');
             } else if (data.type === 'REJECT') {
                 alert("無法加入：" + data.reason);
+                location.reload();
+            }
+        }
+
+        function handlePlayerDisconnect(peerId) {
+            delete connections[peerId];
+            const player = gameState.players.find(p => p.peerId === peerId);
+            if (player && !player.isAi) {
+                player.isAi = true;
+                player.name += " (AI接管)";
+                addLog(`⚠️ 玩家 ${player.name} 離場，已由 AI 自動接管！`);
+                broadcastState();
+            } else {
+                updateLobbyPlayersList();
             }
         }
 
@@ -614,7 +648,7 @@
             playSound('chat');
         }
 
-        /* ================= GAME LOGIC (HOST DRIVEN) ================= */
+        /* ================= GAME LOGIC ================= */
 
         function startGameAsHost() {
             if (!isHost) return;
@@ -645,7 +679,19 @@
         function switchToGameScreen() {
             document.getElementById('screen-lobby').classList.add('hidden');
             document.getElementById('screen-game').classList.remove('hidden');
+            document.getElementById('btn-quit-game').classList.remove('hidden');
             renderBoard();
+        }
+
+        function quitGame() {
+            if (confirm("確定要退出遊戲嗎？離開後您的角色將由 AI 自動接管！")) {
+                if (isHost) {
+                    handlePlayerDisconnect(myPeerId);
+                } else if (hostConn && hostConn.open) {
+                    hostConn.send({ type: 'PLAYER_QUIT', peerId: myPeerId });
+                }
+                location.reload();
+            }
         }
 
         function requestRollDice() {
@@ -723,7 +769,6 @@
             finishTurn(logMsg);
         }
 
-        /* CARD ACTION SYNC FIX */
         function applyCardAction(choice) {
             document.getElementById('card-action-box').classList.add('hidden');
             if (!currentActiveDrawnCard) return;
@@ -856,7 +901,8 @@
             }
 
             if (gameState.round > gameState.maxRounds) {
-                broadcastState("🎉 20 回合結束！計算最終碳匯成績！");
+                gameState.ended = true;
+                broadcastState("🎉 20 回合結束！切換至最終排行榜頁面！");
                 showGameOverModal();
                 return;
             }
@@ -913,20 +959,25 @@
 
                 let tokens = '';
                 gameState.players.forEach(p => {
-                    if (p.pos === idx) tokens += `<span class="text-xs" title="${p.name}">${p.avatar}</span>`;
+                    if (p.pos === idx) tokens += `<span class="text-sm sm:text-base font-bold" title="${p.name}">${p.avatar}</span>`;
                 });
 
-                el.className = `bg-slate-900/90 rounded-xl p-1 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden transition`;
+                el.className = `bg-slate-900/90 rounded-xl p-2 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden shadow-md`;
                 el.innerHTML = `
-                    <div class="text-[10px] flex gap-0.5 min-h-[14px]">${tokens}</div>
-                    <div class="text-base sm:text-lg">${tile.icon}</div>
-                    <span class="text-[8px] sm:text-[9px] text-slate-300 font-bold truncate w-full">${tile.name}</span>
+                    <div class="text-xs flex gap-0.5 min-h-[18px]">${tokens}</div>
+                    <div class="text-xl sm:text-2xl">${tile.icon}</div>
+                    <span class="text-[10px] sm:text-xs text-slate-200 font-bold truncate w-full">${tile.name}</span>
                 `;
                 container.appendChild(el);
             });
         }
 
         function updateUI() {
+            if (gameState.ended) {
+                showGameOverModal();
+                return;
+            }
+
             document.getElementById('game-round-tag').innerText = `Round ${gameState.round}/${gameState.maxRounds}`;
             
             const list = document.getElementById('scoreboard-list');
@@ -946,17 +997,17 @@
             gameState.players.forEach((p, idx) => {
                 const isMyTurn = gameState.turnIndex === idx;
                 list.innerHTML += `
-                    <div class="p-2.5 rounded-xl border flex justify-between items-center text-xs ${isMyTurn ? 'bg-emerald-950/80 border-emerald-500 shadow-md ring-1 ring-emerald-500/50' : 'bg-slate-950/70 border-slate-800'}">
-                        <div class="space-y-0.5">
-                            <div class="font-bold flex items-center gap-1.5" style="color: ${p.color}">
-                                <span>${p.avatar}</span>
-                                <span class="truncate max-w-[100px]">${p.name}</span>
+                    <div class="p-3 rounded-2xl border flex justify-between items-center text-xs sm:text-sm ${isMyTurn ? 'bg-emerald-950/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/50' : 'bg-slate-950/70 border-slate-800'}">
+                        <div class="space-y-1">
+                            <div class="font-extrabold flex items-center gap-2 text-sm" style="color: ${p.color}">
+                                <span class="text-base">${p.avatar}</span>
+                                <span class="truncate max-w-[110px]">${p.name}</span>
                             </div>
-                            <div class="text-[9px] text-slate-400"><i class="fa-solid fa-bolt text-amber-400"></i> ${p.skill.name}</div>
+                            <div class="text-[10px] text-slate-300 font-semibold"><i class="fa-solid fa-bolt text-amber-400"></i> ${p.skill.name}</div>
                         </div>
                         <div class="text-right">
-                            <div class="font-black text-emerald-400 font-pixel text-sm">${p.carbon.toFixed(1)} kg</div>
-                            <div class="text-[9px] text-slate-400">資材: ${p.resources}</div>
+                            <div class="font-black text-emerald-400 font-pixel text-base sm:text-lg">${p.carbon.toFixed(1)} kg</div>
+                            <div class="text-xs text-slate-400">資材: ${p.resources}</div>
                         </div>
                     </div>
                 `;
@@ -964,27 +1015,30 @@
 
             const myPlayer = gameState.players.find(p => p.peerId === myPeerId);
             const invListEl = document.getElementById('my-inventory-list');
-            if (myPlayer && myPlayer.inventory && myPlayer.inventory.length > 0) {
-                invListEl.innerHTML = '';
-                myPlayer.inventory.forEach((item, idx) => {
-                    invListEl.innerHTML += `
-                        <div class="bg-slate-950 p-2 rounded-xl border border-slate-800 flex justify-between items-center">
-                            <div>
-                                <div class="font-bold text-amber-400 text-[11px]">${item.name}</div>
-                                <div class="text-[9px] text-slate-400">${item.desc}</div>
+            if (myPlayer && myPlayer.inventory) {
+                document.getElementById('inv-count').innerText = myPlayer.inventory.length;
+                if (myPlayer.inventory.length > 0) {
+                    invListEl.innerHTML = '';
+                    myPlayer.inventory.forEach((item, idx) => {
+                        invListEl.innerHTML += `
+                            <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 flex justify-between items-center shadow">
+                                <div>
+                                    <div class="font-bold text-amber-400 text-xs sm:text-sm">${item.name}</div>
+                                    <div class="text-[10px] text-slate-400">${item.desc}</div>
+                                </div>
+                                <button onclick="useInventoryCard(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-black shadow">發動</button>
                             </div>
-                            <button onclick="useInventoryCard(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] px-2 py-1 rounded-lg font-bold shadow">發動</button>
-                        </div>
-                    `;
-                });
-            } else {
-                invListEl.innerHTML = `<div class="text-[11px] text-slate-500 italic text-center py-2">目前沒有收藏的卡片</div>`;
+                        `;
+                    });
+                } else {
+                    invListEl.innerHTML = `<div class="text-xs text-slate-500 italic text-center py-2">目前沒有收藏的卡片</div>`;
+                }
             }
 
             renderBoard();
         }
 
-        /* ================= ENHANCED CHATROOM LOGIC ================= */
+        /* ================= CHATROOM & LOGS ================= */
 
         function handleSendChat(e) {
             e.preventDefault();
@@ -1000,12 +1054,12 @@
         function renderChatMessage(sender, msg, avatar, time) {
             const box = document.getElementById('chat-messages');
             box.innerHTML += `
-                <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 space-y-1 shadow-sm">
-                    <div class="flex justify-between items-center text-[10px] text-slate-400">
-                        <span class="font-bold text-emerald-400 flex items-center gap-1">${avatar} ${sender}</span>
-                        <span class="font-mono text-[8px] text-slate-500">${time}</span>
+                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800/80 space-y-1 shadow-sm">
+                    <div class="flex justify-between items-center text-xs text-slate-400">
+                        <span class="font-bold text-emerald-400 flex items-center gap-1.5 text-xs sm:text-sm">${avatar} ${sender}</span>
+                        <span class="font-mono text-[10px] text-slate-500">${time}</span>
                     </div>
-                    <div class="text-slate-200 text-xs leading-relaxed break-words">${msg}</div>
+                    <div class="text-slate-200 text-xs sm:text-sm leading-relaxed break-words">${msg}</div>
                 </div>
             `;
             box.scrollTop = box.scrollHeight;
@@ -1017,21 +1071,25 @@
         }
 
         function showGameOverModal() {
+            document.getElementById('screen-game').classList.add('hidden');
+            document.getElementById('screen-lobby').classList.add('hidden');
+            document.getElementById('btn-quit-game').classList.add('hidden');
+            document.getElementById('screen-gameover').classList.remove('hidden');
+
             const sorted = [...gameState.players].sort((a,b) => b.carbon - a.carbon);
             const winner = sorted[0];
-            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-bold">${winner.avatar} ${winner.name}</span> 榮獲峨眉永續碳匯冠軍！`;
+            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-extrabold text-base sm:text-lg">${winner.avatar} ${winner.name}</span> 榮獲峨眉永續碳匯總冠軍！`;
             
             const statsList = document.getElementById('final-stats-list');
             statsList.innerHTML = '';
             sorted.forEach((p, idx) => {
                 statsList.innerHTML += `
-                    <div class="flex justify-between items-center text-xs">
-                        <span>第 ${idx+1} 名: ${p.avatar} ${p.name}</span>
-                        <span class="font-mono font-bold text-emerald-400">${p.carbon.toFixed(1)} kg CO2e</span>
+                    <div class="flex justify-between items-center text-sm sm:text-base p-2 bg-slate-900 rounded-xl border border-slate-800">
+                        <span class="font-bold">第 ${idx+1} 名: ${p.avatar} ${p.name}</span>
+                        <span class="font-mono font-black text-emerald-400">${p.carbon.toFixed(1)} kg CO2e</span>
                     </div>
                 `;
             });
-            document.getElementById('modal-gameover').classList.remove('hidden');
         }
     </script>
 </body>
