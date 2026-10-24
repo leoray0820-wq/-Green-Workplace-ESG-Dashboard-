@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v10.1 穩健連線版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v10.2 終極修復版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.1 穩健版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v10.2 終極版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -380,33 +380,60 @@
             { name: "SOC 固碳先鋒", desc: "基礎移動碳匯 +20%", bonusType: "move", value: 1.20 }
         ];
 
-        // 10 Chance Cards (Investment Buffs)
+        // 10 Chance Cards (Pure Data for P2P Serialization)
         const CHANCE_CARDS = [
-            { id: "c1", name: "綠色金融補助", desc: "獲取永續金融基金，獲得 30 碳幣！", category: "chance", needTarget: false, effect: (p) => { p.coins += 30; } },
-            { id: "c2", name: "生物炭技術突破", desc: "炭化效率提升，固碳量增加 5.0 kg！", category: "chance", needTarget: false, effect: (p) => { p.carbon += 5; } },
-            { id: "c3", name: "蚓糞高價拍賣", desc: "有機農場搶購，收穫 20 碳幣與 3 kg 蚓糞！", category: "chance", needTarget: false, effect: (p) => { p.coins += 20; p.vermiCasting += 3; } },
-            { id: "c4", name: "資材回收補給", desc: "獲得社區廢棄咖啡渣，資材增加 25 個！", category: "chance", needTarget: false, effect: (p) => { p.resources += 25; } },
-            { id: "c5", name: "碳權拍賣獲利", desc: "成功拍賣企業碳權，獲得 40 碳幣！", category: "chance", needTarget: false, effect: (p) => { p.coins += 40; } },
-            { id: "c6", name: "ESG 專案資助", desc: "知名企業贊助資產，碳幣 +25，固碳 +3.0 kg！", category: "chance", needTarget: false, effect: (p) => { p.coins += 25; p.carbon += 3; } },
-            { id: "c7", name: "頂級黑金蚓糞", desc: "培育優良蚯蚓，蚓糞收成增加 5 kg！", category: "chance", needTarget: false, effect: (p) => { p.vermiCasting += 5; } },
-            { id: "c8", name: "生態循環倍增", desc: "全體設施產能大爆發，資材 +15，碳幣 +15！", category: "chance", needTarget: false, effect: (p) => { p.resources += 15; p.coins += 15; } },
-            { id: "c9", name: "商業掠奪合約", desc: "選定一名對手，掠奪其 15 碳幣！", category: "chance", needTarget: true, effect: (p, target) => { if(target && target.coins >= 15) { target.coins -= 15; p.coins += 15; } } },
-            { id: "c10", name: "資材技術轉移", desc: "選定一名對手，轉移其 10 個資材至自己囊中！", category: "chance", needTarget: true, effect: (p, target) => { if(target && target.resources >= 10) { target.resources -= 10; p.resources += 10; } } }
+            { id: "c1", name: "綠色金融補助", desc: "獲取永續金融基金，獲得 30 碳幣！", category: "chance", needTarget: false },
+            { id: "c2", name: "生物炭技術突破", desc: "炭化效率提升，固碳量增加 5.0 kg！", category: "chance", needTarget: false },
+            { id: "c3", name: "蚓糞高價拍賣", desc: "有機農場搶購，收穫 20 碳幣與 3 kg 蚓糞！", category: "chance", needTarget: false },
+            { id: "c4", name: "資材回收補給", desc: "獲得社區廢棄咖啡渣，資材增加 25 個！", category: "chance", needTarget: false },
+            { id: "c5", name: "碳權拍賣獲利", desc: "成功拍賣企業碳權，獲得 40 碳幣！", category: "chance", needTarget: false },
+            { id: "c6", name: "ESG 專案資助", desc: "知名企業贊助資產，碳幣 +25，固碳 +3.0 kg！", category: "chance", needTarget: false },
+            { id: "c7", name: "頂級黑金蚓糞", desc: "培育優良蚯蚓，蚓糞收成增加 5 kg！", category: "chance", needTarget: false },
+            { id: "c8", name: "生態循環倍增", desc: "全體設施產能大爆發，資材 +15，碳幣 +15！", category: "chance", needTarget: false },
+            { id: "c9", name: "商業掠奪合約", desc: "選定一名對手，掠奪其 15 碳幣！", category: "chance", needTarget: true },
+            { id: "c10", name: "資材技術轉移", desc: "選定一名對手，轉移其 10 個資材至自己囊中！", category: "chance", needTarget: true }
         ];
 
-        // 10 Destiny Cards (Disaster Debuffs & Mitigation)
+        // 10 Destiny Cards (Pure Data for P2P Serialization)
         const DESTINY_CARDS = [
-            { id: "d1", name: "紅螞蟻侵蝕災情", desc: "遭紅螞蟻入侵堆肥箱，損失 15 碳幣！", category: "destiny", needTarget: false, effect: (p) => { p.coins = Math.max(0, p.coins - 15); } },
-            { id: "d2", name: "極端暴雨沖刷", desc: "豪雨流失土壤有機碳，固碳量減少 4.0 kg！", category: "destiny", needTarget: false, effect: (p) => { p.carbon = Math.max(0, p.carbon - 4); } },
-            { id: "d3", name: "生廚餘發酵失敗", desc: "堆肥酸化失敗，資材損失 20 個！", category: "destiny", needTarget: false, effect: (p) => { p.resources = Math.max(0, p.resources - 20); } },
-            { id: "d4", name: "竹醋液設備破損", desc: "冷凝管破損維修，支付 20 碳幣修復費！", category: "destiny", needTarget: false, effect: (p) => { p.coins = Math.max(0, p.coins - 20); } },
-            { id: "d5", name: "範疇三盤查開罰", desc: "碳盤查數據不合規，罰款 25 碳幣！", category: "destiny", needTarget: false, effect: (p) => { p.coins = Math.max(0, p.coins - 25); } },
-            { id: "d6", name: "蚯蚓逃逸事件", desc: "土壤濕度異常造成蚯蚓逃逸，損失 3 kg 蚓糞！", category: "destiny", needTarget: false, effect: (p) => { p.vermiCasting = Math.max(0, p.vermiCasting - 3); } },
-            { id: "d7", name: "乾旱酷熱減產", desc: "高溫熱浪造成作物損害，資材損失 15 個！", category: "destiny", needTarget: false, effect: (p) => { p.resources = Math.max(0, p.resources - 15); } },
-            { id: "d8", name: "天災災害移轉", desc: "將自身天災損害移轉給選定之對手，扣除其 15 碳幣！", category: "destiny", needTarget: true, effect: (p, target) => { if(target) target.coins = Math.max(0, target.coins - 15); } },
-            { id: "d9", name: "碳稽查牽連", desc: "選定一名對手，舉報其設備問題扣除 3.0 kg 固碳量！", category: "destiny", needTarget: true, effect: (p, target) => { if(target) target.carbon = Math.max(0, target.carbon - 3); } },
-            { id: "d10", name: "生物安全隔離", desc: "強制暫停營運清消，支付 10 碳幣衛生費！", category: "destiny", needTarget: false, effect: (p) => { p.coins = Math.max(0, p.coins - 10); } }
+            { id: "d1", name: "紅螞蟻侵蝕災情", desc: "遭紅螞蟻入侵堆肥箱，損失 15 碳幣！", category: "destiny", needTarget: false },
+            { id: "d2", name: "極端暴雨沖刷", desc: "豪雨流失土壤有機碳，固碳量減少 4.0 kg！", category: "destiny", needTarget: false },
+            { id: "d3", name: "生廚餘發酵失敗", desc: "堆肥酸化失敗，資材損失 20 個！", category: "destiny", needTarget: false },
+            { id: "d4", name: "竹醋液設備破損", desc: "冷凝管破損維修，支付 20 碳幣修復費！", category: "destiny", needTarget: false },
+            { id: "d5", name: "範疇三盤查開罰", desc: "碳盤查數據不合規，罰款 25 碳幣！", category: "destiny", needTarget: false },
+            { id: "d6", name: "蚯蚓逃逸事件", desc: "土壤濕度異常造成蚯蚓逃逸，損失 3 kg 蚓糞！", category: "destiny", needTarget: false },
+            { id: "d7", name: "乾旱酷熱減產", desc: "高溫熱浪造成作物損害，資材損失 15 個！", category: "destiny", needTarget: false },
+            { id: "d8", name: "天災災害移轉", desc: "將自身天災損害移轉給選定之對手，扣除其 15 碳幣！", category: "destiny", needTarget: true },
+            { id: "d9", name: "碳稽查牽連", desc: "選定一名對手，舉報其設備問題扣除 3.0 kg 固碳量！", category: "destiny", needTarget: true },
+            { id: "d10", name: "生物安全隔離", desc: "強制暫停營運清消，支付 10 碳幣衛生費！", category: "destiny", needTarget: false }
         ];
+
+        // Host-side Centralized Execution Engine
+        function executeCardEffectById(cardId, p, target) {
+            switch(cardId) {
+                case "c1": p.coins += 30; break;
+                case "c2": p.carbon += 5; break;
+                case "c3": p.coins += 20; p.vermiCasting += 3; break;
+                case "c4": p.resources += 25; break;
+                case "c5": p.coins += 40; break;
+                case "c6": p.coins += 25; p.carbon += 3; break;
+                case "c7": p.vermiCasting += 5; break;
+                case "c8": p.resources += 15; p.coins += 15; break;
+                case "c9": if(target && target.coins >= 15) { target.coins -= 15; p.coins += 15; } break;
+                case "c10": if(target && target.resources >= 10) { target.resources -= 10; p.resources += 10; } break;
+
+                case "d1": p.coins = Math.max(0, p.coins - 15); break;
+                case "d2": p.carbon = Math.max(0, p.carbon - 4); break;
+                case "d3": p.resources = Math.max(0, p.resources - 20); break;
+                case "d4": p.coins = Math.max(0, p.coins - 20); break;
+                case "d5": p.coins = Math.max(0, p.coins - 25); break;
+                case "d6": p.vermiCasting = Math.max(0, p.vermiCasting - 3); break;
+                case "d7": p.resources = Math.max(0, p.resources - 15); break;
+                case "d8": if(target) target.coins = Math.max(0, target.coins - 15); break;
+                case "d9": if(target) target.carbon = Math.max(0, target.carbon - 3); break;
+                case "d10": p.coins = Math.max(0, p.coins - 10); break;
+            }
+        }
 
         // 20 Ring Board Tiles with Verifiable Station Triggers
         const BOARD_TILES = [
@@ -811,8 +838,8 @@
 
         function processRollDice(peerId) {
             if (!isHost || gameState.initialRollPhase) return;
-            const p = gameState.players[gameState.turnIndex];
-            if (!p || p.peerId !== peerId || p.bankrupt) return;
+            const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
+            if (!p || p.bankrupt) return;
 
             playSound('dice');
             const dice = Math.floor(Math.random() * 6) + 1;
@@ -825,7 +852,6 @@
             
             let logMsg = `${p.name} 擲出 ${dice} 點，移動至 [${BOARD_TILES[p.pos].name}]`;
 
-            // Passing start station trigger
             if (p.pos < oldPos) {
                 p.coins += 20;
                 p.resources += 10;
@@ -834,7 +860,6 @@
 
             const tile = BOARD_TILES[p.pos];
 
-            // Verifiable station effect triggers for all players (Host & Client)
             if (tile.type === 'start') {
                 p.coins += 20;
                 p.resources += 10;
@@ -873,9 +898,6 @@
                         return;
                     } else {
                         broadcastState(logMsg);
-                        if (p.peerId === myPeerId) {
-                            showFacilityPrompt(tile);
-                        }
                         return;
                     }
                 }
@@ -890,8 +912,7 @@
                 if (drawnCard.needTarget) {
                     target = gameState.players.find(x => x.peerId !== p.peerId && !x.bankrupt);
                 }
-                const effectFn = new Function('p', 'target', '(' + drawnCard.effect.toString() + ')(p, target)');
-                effectFn(p, target);
+                executeCardEffectById(drawnCard.id, p, target);
                 finishTurn(`${logMsg} (AI 自動生效效果)`);
             } else {
                 broadcastState(logMsg);
@@ -982,8 +1003,7 @@
             let logMsg = "";
             if (choice === 'use_now') {
                 const target = gameState.players.find(x => x.peerId === targetPeerId);
-                const effectFn = new Function('p', 'target', '(' + card.effect.toString() + ')(p, target)');
-                effectFn(p, target);
+                executeCardEffectById(card.id, p, target);
                 logMsg = `${p.name} 使用了 [${card.name}]${target ? ` (目標：${target.name})` : ''}！`;
             } else {
                 logMsg = `${p.name} 選擇將 [${card.name}] 收藏至背包！`;
@@ -1025,8 +1045,7 @@
 
             const card = p.inventory.splice(cardIndex, 1)[0];
             const target = gameState.players.find(x => x.peerId === targetPeerId);
-            const effectFn = new Function('p', 'target', '(' + card.effect.toString() + ')(p, target)');
-            effectFn(p, target);
+            executeCardEffectById(card.id, p, target);
             broadcastState(`${p.name} 從背包發動了 [${card.name}]${target ? ` (目標：${target.name})` : ''}！`);
         }
 
@@ -1167,6 +1186,12 @@
             if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
                 document.getElementById('card-action-box').classList.add('hidden');
                 document.getElementById('facility-action-box').classList.add('hidden');
+            } else {
+                // If it is my turn and I arrived at an unowned facility, show the prompt!
+                const tile = BOARD_TILES[currP.pos];
+                if (tile.type === 'facility' && !gameState.ownedFacilities[tile.id] && currP.coins >= tile.cost) {
+                    showFacilityPrompt(tile);
+                }
             }
 
             const orderBox = document.getElementById('order-determination-box');
