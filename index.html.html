@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 v3.0 科技樹版</title>
+    <title>歸蚓酷客：永續大地冒險 v3.1 完整修正版</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -51,7 +51,7 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.0 TechTree</span>
+                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.1 Final</span>
                     </h1>
                     <p class="text-[10px] sm:text-xs text-slate-400">Terra Chef: Eco-Farm RPG & Tech Upgrades</p>
                 </div>
@@ -738,6 +738,7 @@
         // Canvas Pixel Visualizer Rendering Loop
         function drawFarmCanvas() {
             const cvs = document.getElementById('farmCanvas');
+            if (!cvs) return;
             const ctx = cvs.getContext('2d');
             const w = cvs.width;
             const h = cvs.height;
@@ -814,13 +815,6 @@
                     ctx.fillRect(ax, 122, 4, 2);
                 }
             }
-        }
-
-        function initGame() {
-            loadGame();
-            updateUI();
-            renderScenario(gameState.currentScenarioId);
-            setInterval(drawFarmCanvas, 100);
         }
 
         function updateUI() {
@@ -900,7 +894,8 @@
         }
 
         function renderScenario(scenarioId) {
-            const sc = SCENARIOS[scenarioId] || SCENARIOS["DAILY_ROUTINE"];
+            if (!SCENARIOS[scenarioId]) scenarioId = "CH0_START";
+            const sc = SCENARIOS[scenarioId];
             gameState.currentScenarioId = scenarioId;
 
             document.getElementById('chapter-title').innerText = sc.chapterTitle;
@@ -980,8 +975,6 @@
 
         function nextDay() {
             gameState.day += 1;
-            
-            // Chicken Tractor Tech Bonus
             let chickenBonus = gameState.unlockedTechs.includes("CHICKEN_TRACTOR") ? 1.5 : 0;
 
             gameState.unprocessedWaste.coffee += 2.0 + chickenBonus;
@@ -1043,7 +1036,7 @@
         }
 
         function saveGame(showNotif = false) {
-            localStorage.setItem('TERRA_CHEF_SAVE_V3', JSON.stringify(gameState));
+            localStorage.setItem('TERRA_CHEF_SAVE_V31', JSON.stringify(gameState));
             if (showNotif) {
                 playSound('success');
                 showToast("遊戲進度已成功儲存！", "💾");
@@ -1051,24 +1044,42 @@
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V3');
+            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V31');
             if (saved) {
                 try {
-                    gameState = JSON.parse(saved);
-                } catch(e) {}
+                    const parsed = JSON.parse(saved);
+                    gameState = Object.assign({}, DEFAULT_STATE, parsed);
+                } catch(e) {
+                    gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+                }
             }
         }
 
         function confirmResetGame() {
             if (confirm("確定要重置所有農場進度、科技與成就嗎？")) {
-                localStorage.removeItem('TERRA_CHEF_SAVE_V3');
+                localStorage.removeItem('TERRA_CHEF_SAVE_V31');
                 gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                initGame();
+                forceStartGame();
                 showToast("農場已重置為初始狀態。");
             }
         }
 
-        window.onload = initGame;
+        // Robust Self-Correcting Initialization Engine
+        function forceStartGame() {
+            loadGame();
+            if (!SCENARIOS[gameState.currentScenarioId]) {
+                gameState.currentScenarioId = "CH0_START";
+            }
+            updateUI();
+            renderScenario(gameState.currentScenarioId);
+            setInterval(drawFarmCanvas, 100);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', forceStartGame);
+        } else {
+            forceStartGame();
+        }
     </script>
 </body>
 </html>
