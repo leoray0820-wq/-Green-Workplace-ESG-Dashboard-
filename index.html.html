@@ -1,27 +1,48 @@
-<web_code_canvas id="index.html">
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (多人線上競賽版)</title>
+    <title>歸蚓酷客：永續大地冒險 (PeerJS 雲端競賽版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        earth: {
+                            50: '#f4f9f4',
+                            100: '#e3f2e3',
+                            500: '#10b981',
+                            700: '#047857',
+                            900: '#064e3b',
+                            950: '#022c22'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <!-- FontAwesome Icons CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- PeerJS CDN -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@400;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=VT323&family=Noto+Sans+TC:wght@400;600;700;900&display=swap');
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #0b0f19;
+            background-color: #090d16;
             color: #f1f5f9;
+            overflow-x: hidden;
         }
         .font-pixel {
             font-family: 'VT323', monospace;
         }
         .text-glow {
-            text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+            text-shadow: 0 0 12px rgba(16, 185, 129, 0.7);
         }
         .board-grid {
             display: grid;
@@ -29,482 +50,713 @@
             grid-template-rows: repeat(6, minmax(0, 1fr));
             gap: 6px;
         }
-        .log-scrollbar::-webkit-scrollbar {
-            width: 6px;
+        .custom-scroll::-webkit-scrollbar {
+            width: 5px;
         }
-        .log-scrollbar::-webkit-scrollbar-track {
+        .custom-scroll::-webkit-scrollbar-track {
             background: #0f172a;
         }
-        .log-scrollbar::-webkit-scrollbar-thumb {
+        .custom-scroll::-webkit-scrollbar-thumb {
             background: #334155;
-            border-radius: 3px;
+            border-radius: 4px;
         }
         @keyframes dice-roll {
             0% { transform: rotate(0deg) scale(1); }
-            50% { transform: rotate(180deg) scale(1.2); }
+            50% { transform: rotate(180deg) scale(1.25); }
             100% { transform: rotate(360deg) scale(1); }
         }
         .animate-dice {
             animation: dice-roll 0.4s ease-in-out;
         }
-        @keyframes pulse-active {
-            0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
-            50% { box-shadow: 0 0 25px rgba(52, 211, 153, 1); }
-        }
-        .active-turn {
-            animation: pulse-active 1.5s infinite;
-            border-color: #34d399 !important;
-        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
 
-    <!-- Top Navigation Bar -->
-    <header class="bg-slate-900/95 border-b border-emerald-900/50 sticky top-0 z-50 backdrop-blur px-4 py-3">
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-900/90 border-b border-emerald-900/40 sticky top-0 z-50 backdrop-blur-md px-4 py-2.5">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-500/50 flex items-center justify-center text-2xl shadow-lg">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-900 border border-emerald-400/40 flex items-center justify-center text-2xl shadow-lg">
                     🪱
                 </div>
                 <div>
-                    <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v5.0 Online Race</span>
+                    <h1 class="font-black text-base sm:text-lg text-emerald-400 text-glow flex items-center gap-2">
+                        歸蚓酷客：永續大地冒險
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full border border-emerald-500/40">PeerJS 雲端競賽版</span>
                     </h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400">多人線上低碳大富翁競賽大廳</p>
+                    <p class="text-[10px] sm:text-xs text-slate-400 hidden sm:block">峨眉低碳循環農業 × P2P 碳匯競賽桌遊</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3">
-                <div id="room-tag" class="hidden bg-slate-800 border border-slate-700 text-xs text-amber-400 px-3 py-1.5 rounded-lg font-mono">
-                    房號: <span id="room-id-display">EARTH-888</span>
-                </div>
-                <button onclick="toggleSound()" id="sound-btn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i> <span class="hidden sm:inline">音效: 開</span>
+                <button id="btn-sound-toggle" onclick="toggleSound()" class="px-3 py-1.5 rounded-xl bg-slate-800 border border-slate-700 text-xs text-slate-300 hover:text-emerald-400 transition">
+                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i>
                 </button>
+                <div id="connection-badge" class="bg-slate-950 border border-slate-800 text-xs text-amber-400 px-3 py-1.5 rounded-xl font-mono flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span id="conn-status">準備連線</span>
+                </div>
             </div>
         </div>
     </header>
 
-    <!-- STEP 1: MULTIPLAYER LOBBY SCREEN -->
-    <div id="screen-lobby" class="max-w-4xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
-        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-emerald-500/30 shadow-2xl w-full space-y-6">
+    <!-- STEP 1: LOBBY & JOIN SCREEN -->
+    <main id="screen-lobby" class="max-w-2xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
+        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-emerald-500/30 shadow-2xl w-full space-y-6 relative overflow-hidden backdrop-blur">
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
             <div class="text-center space-y-2">
-                <span class="text-5xl animate-bounce inline-block">🌐</span>
-                <h2 class="text-2xl font-black text-emerald-400 text-glow">多人線上競賽對戰大廳</h2>
-                <p class="text-xs text-slate-400">建立專屬房間與全球或身邊夥伴較量永續碳匯影響力！</p>
+                <div class="inline-flex p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-4xl mb-1 shadow-inner">
+                    🌐
+                </div>
+                <h2 class="text-2xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
+                <p class="text-xs text-slate-400">輸入暱稱，建立房間發送連結給朋友，最多 4 人對戰（不足將自動補滿 AI）！</p>
             </div>
 
-            <!-- Lobby Config Deck -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
-                <!-- Room ID Setting -->
+            <!-- Player Setup -->
+            <div class="space-y-4 bg-slate-950/80 p-5 rounded-2xl border border-slate-800">
                 <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">房間代碼 (Room Code)</label>
+                    <label class="block text-xs font-bold text-emerald-400 mb-1.5">1. 設定您的玩家名稱</label>
+                    <input type="text" id="input-player-name" placeholder="請輸入遊戲名稱" value="永續冒險家" class="bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-xs text-slate-100 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                </div>
+
+                <!-- Host Controls -->
+                <div id="host-controls-box" class="space-y-3 pt-3 border-t border-slate-800">
+                    <label class="block text-xs font-bold text-slate-300">2A. 房主開房 (Host)</label>
                     <div class="flex gap-2">
-                        <input type="text" id="input-room-id" value="TERRA-2026" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500" />
-                        <button onclick="generateRandomRoom()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold border border-slate-700">隨機</button>
+                        <input type="text" id="input-room-id" placeholder="自訂房號 (留空則隨機生成)" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500" />
+                        <button onclick="hostRoom()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">創建房間</button>
                     </div>
                 </div>
 
-                <!-- Total Rounds Setting -->
-                <div>
-                    <label class="block text-xs font-bold text-slate-300 mb-1">競賽總回合數</label>
-                    <select id="select-rounds" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500">
-                        <option value="10">10 回合 (快速競速局 ~5分鐘)</option>
-                        <option value="15" selected>15 回合 (標準永續局 ~10分鐘)</option>
-                        <option value="20">20 回合 (深度競賽局 ~15分鐘)</option>
-                    </select>
+                <!-- Share Link Section -->
+                <div id="invite-section" class="hidden pt-3 border-t border-slate-800 space-y-2">
+                    <label class="block text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-link text-amber-400"></i> 專屬對戰邀請連結：
+                    </label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-invite-url" readonly class="bg-slate-900 border border-emerald-500/50 rounded-xl px-3 py-2 text-xs font-mono text-emerald-300 w-full select-all" />
+                        <button onclick="copyInviteLink()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-md">📋 複製連結</button>
+                    </div>
+                    <div class="p-3 bg-slate-900/90 rounded-xl border border-slate-800 space-y-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400">已加入玩家 (<span id="room-player-count">1</span>/4):</span>
+                            <button id="btn-start-game" onclick="startGameAsHost()" class="hidden bg-emerald-500 hover:bg-emerald-400 text-slate-950 px-3 py-1 rounded-lg font-black text-xs">立即開始 (AI補滿)</button>
+                        </div>
+                        <ul id="room-players-list" class="text-xs space-y-1 font-mono text-emerald-300">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
                 </div>
 
-                <!-- Character Selection Mode Setting -->
-                <div class="md:col-span-2 pt-2 border-t border-slate-800">
-                    <label class="block text-xs font-bold text-amber-400 mb-2">選角競賽模式 (Selection Mode)</label>
-                    <div class="grid grid-cols-2 gap-3">
-                        <label class="cursor-pointer bg-slate-900 border border-slate-700 p-3 rounded-xl flex items-center space-x-2 hover:border-emerald-500/50 transition">
-                            <input type="radio" name="select-mode" value="speed" checked class="accent-emerald-500" />
-                            <div>
-                                <span class="text-xs font-bold text-slate-100 block">⚡ 搶速選角模式</span>
-                                <span class="text-[10px] text-slate-400 block">進入大廳後，手速越快越早搶到心儀的角色技能！</span>
-                            </div>
-                        </label>
-                        <label class="cursor-pointer bg-slate-900 border border-slate-700 p-3 rounded-xl flex items-center space-x-2 hover:border-emerald-500/50 transition">
-                            <input type="radio" name="select-mode" value="random" class="accent-emerald-500" />
-                            <div>
-                                <span class="text-xs font-bold text-slate-100 block">🎲 公平隨機選角</span>
-                                <span class="text-[10px] text-slate-400 block">系統自動隨機分配 4 位角色技能與出手順序！</span>
-                            </div>
-                        </label>
+                <!-- Client Controls -->
+                <div id="client-controls-box" class="pt-3 border-t border-slate-800 space-y-2">
+                    <label class="block text-xs font-bold text-slate-300">2B. 訪客加入 (Join)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-join-id" placeholder="貼上房號或透過邀請連結自動載入" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-amber-400 w-full focus:outline-none focus:border-amber-500" />
+                        <button onclick="joinRoom()" class="bg-amber-600 hover:bg-amber-500 text-slate-950 px-5 py-2.5 rounded-xl text-xs font-bold whitespace-nowrap shadow-lg transition">加入對戰</button>
                     </div>
                 </div>
             </div>
 
-            <!-- Player Slots Lobby -->
-            <div class="space-y-2">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex justify-between">
-                    <span>玩家席位選取 (4人對戰)</span>
-                    <span class="text-emerald-400">未填滿席位將由 AI 棋手自動補位</span>
-                </h3>
-                
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="lobby-player-slots">
-                    <!-- Dynamic Slots -->
-                </div>
+            <div id="lobby-msg" class="text-center text-xs text-slate-400 italic">
+                提示：朋友開啟帶有房號的連結後，只需輸入名稱即可直接連線！
             </div>
-
-            <!-- Action Start Button -->
-            <button onclick="startLobbyGame()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-base shadow-lg transition flex items-center justify-center gap-2">
-                <i class="fa-solid fa-play"></i> 進入選角與啟動永續對戰
-            </button>
         </div>
-    </div>
+    </main>
 
-    <!-- STEP 2: SPEED SELECTION SCREEN (If Speed Mode Chosen) -->
-    <div id="screen-speed-select" class="hidden max-w-4xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
-        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl w-full space-y-6">
-            <div class="text-center space-y-1">
-                <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">⚡ 手速搶選角色</span>
-                <h2 class="text-xl font-extrabold text-slate-100">請真人玩家快速鎖定您的競賽角！</h2>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="speed-character-cards">
-                <!-- Dynamic Character Cards -->
-            </div>
-
-            <button onclick="confirmCharacterSelection()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-2xl text-sm shadow-lg transition">
-                鎖定角色並開啟大地棋盤！
-            </button>
-        </div>
-    </div>
-
-    <!-- STEP 3: MAIN MONOPOLY GAME BOARD SCREEN -->
-    <div id="screen-game" class="hidden max-w-7xl mx-auto px-4 py-4 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-        <!-- Left Column: Real-time Leaderboard & Active Turn (3 cols) -->
-        <div class="lg:col-span-3 space-y-3">
-            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-3 shadow-xl">
+    <!-- STEP 2: MAIN GAME BOARD SCREEN -->
+    <main id="screen-game" class="hidden max-w-7xl mx-auto px-2 sm:px-4 py-3 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3">
+        <!-- Left Sidebar: Scoreboard & Player Skills -->
+        <div class="lg:col-span-3 space-y-3 flex flex-col">
+            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2.5 shadow-xl">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
                     <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-trophy text-amber-400"></i> 即時碳匯影響力榜
+                        <i class="fa-solid fa-trophy text-amber-400"></i> 即時碳匯與能力
                     </span>
-                    <span class="text-xs font-pixel font-black text-amber-400" id="game-round-tag">Round 1/15</span>
+                    <span class="text-xs font-pixel font-black text-amber-400 bg-slate-950 px-2 py-0.5 rounded border border-amber-500/30" id="game-round-tag">Round 1/20</span>
                 </div>
-
-                <!-- Live Scoreboard -->
                 <div class="space-y-2" id="scoreboard-list">
-                    <!-- Dynamic Scoreboard Items -->
+                    <!-- Dynamic Player Cards -->
                 </div>
             </div>
 
-            <!-- Current Player Action Controls -->
-            <div class="bg-slate-900/90 rounded-2xl p-4 border border-emerald-500/30 space-y-3 shadow-xl">
-                <div class="flex items-center space-x-3 pb-2 border-b border-slate-800">
-                    <div id="active-avatar" class="w-10 h-10 rounded-xl bg-slate-800 border flex items-center justify-center text-xl">
-                        🧑‍🌾
-                    </div>
-                    <div>
-                        <h4 id="active-name" class="font-bold text-xs text-slate-100">玩家回合</h4>
-                        <p id="active-role" class="text-[10px] text-emerald-400">技能說明</p>
-                    </div>
-                </div>
-
-                <!-- Dice Action Control -->
-                <div class="flex flex-col items-center justify-center py-2 space-y-2">
-                    <div id="dice-display" class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-emerald-500/50 flex items-center justify-center text-3xl font-black text-amber-400 font-pixel shadow-inner">
+            <!-- Dice Controls -->
+            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-emerald-500/30 space-y-3 shadow-xl text-center">
+                <div class="flex items-center justify-around">
+                    <div id="dice-display" class="w-14 h-14 rounded-2xl bg-slate-950 border-2 border-emerald-500/50 flex items-center justify-center text-3xl font-black text-amber-400 font-pixel shadow-inner">
                         🎲
                     </div>
-                    <button id="btn-roll-dice" onclick="playerRollDice()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition">
-                        擲骰前進 (Roll Dice)
-                    </button>
+                    <div class="text-left space-y-0.5">
+                        <div class="text-[10px] text-slate-400">目前回合玩家</div>
+                        <div id="current-turn-player-name" class="text-xs font-extrabold text-emerald-300">等待開始...</div>
+                    </div>
                 </div>
+                <button id="btn-roll-dice" onclick="requestRollDice()" class="w-full bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    🎲 擲骰前進 (Roll Dice)
+                </button>
             </div>
         </div>
 
-        <!-- Middle Column: 20-Tile Ring Board (6 cols) -->
+        <!-- Middle Column: 20-Tile Ring Board -->
         <div class="lg:col-span-6 flex flex-col justify-between">
-            <div class="board-grid bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[480px] relative">
-                <!-- Ring Board Tiles dynamically rendered via JS -->
-                <div id="board-container" class="contents"></div>
-
-                <!-- Board Center Info Display -->
-                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/80 rounded-xl border border-slate-800/80 p-4 flex flex-col justify-between items-center text-center relative overflow-hidden">
-                    <div class="space-y-1 z-10">
-                        <span class="text-3xl">🌱</span>
-                        <h3 class="font-black text-sm text-emerald-400">峨眉低碳永續試驗地圖</h3>
-                        <p class="text-[10px] text-slate-400">建設蚯蚓箱與生物炭設施，累積最高碳匯贏得競賽！</p>
+            <div class="board-grid bg-slate-900/90 p-2 sm:p-3 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[440px] sm:min-h-[500px] relative">
+                <div id="board-container" class="contents">
+                    <!-- Dynamic Board Tiles -->
+                </div>
+                
+                <!-- Inner Board Plaza -->
+                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/90 rounded-xl border border-slate-800/80 p-3 sm:p-5 flex flex-col justify-between items-center text-center relative overflow-hidden">
+                    <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="space-y-1.5 z-10">
+                        <span class="text-3xl sm:text-4xl inline-block animate-bounce">🌱</span>
+                        <h3 class="font-black text-xs sm:text-sm text-emerald-400">峨眉低碳循環農業試驗地圖</h3>
+                        <p class="text-[10px] sm:text-xs text-slate-400" id="center-event-text">歡迎來到峨眉鄉！骰子移動以積累碳匯與建置永續設施。</p>
                     </div>
 
-                    <!-- Center Event/Action Feedback Card -->
-                    <div id="board-center-event" class="bg-slate-900/90 border border-slate-700/80 p-3 rounded-xl w-full space-y-1.5 text-left text-xs z-10 my-auto">
-                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">遊戲準備完畢</span>
-                        <p class="text-slate-200 text-xs leading-relaxed" id="center-event-text">輪到第 1 位玩家擲骰！</p>
+                    <!-- Facility Purchase Option Banner -->
+                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-2.5 rounded-xl border border-emerald-500/50 space-y-2">
+                        <div class="text-xs font-bold text-amber-300" id="facility-title">可建造設施！</div>
+                        <div class="text-[10px] text-slate-300" id="facility-desc">消耗資源獲取每回合固碳產值</div>
+                        <div class="flex gap-2 justify-center">
+                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs">投資建設</button>
+                            <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-3 py-1 rounded-lg text-xs">略過</button>
+                        </div>
                     </div>
 
-                    <div class="text-[10px] text-slate-500 font-mono z-10">
-                        GRI 306 & TNFD 概念實踐對戰平台
+                    <div class="text-[9px] text-slate-500 z-10 font-mono">
+                        P2P WebRTC Synced • Room ID: <span id="display-room-id" class="text-emerald-400">---</span>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Right Column: Interactive Log & Action Modal (3 cols) -->
+        <!-- Right Sidebar: Live P2P Chatroom & Log -->
         <div class="lg:col-span-3 space-y-3 flex flex-col">
-            <!-- Event Action Modal / Decision Card -->
-            <div id="modal-action-deck" class="bg-slate-900/90 rounded-2xl p-4 border border-amber-500/30 shadow-xl space-y-3 min-h-[180px] flex flex-col justify-between">
-                <div class="space-y-1">
-                    <span id="modal-tag" class="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-500/30">設施事件</span>
-                    <h4 id="modal-title" class="font-bold text-xs text-slate-100 mt-1">到達地點</h4>
-                    <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed">請擲骰展開回合...</p>
+            <!-- Chatroom Module -->
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner flex-1 flex flex-col h-64 lg:h-auto">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                    <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-comments"></i> 雲端即時聊天室
+                    </h4>
+                    <span class="text-[10px] text-slate-500 font-mono">P2P Live</span>
                 </div>
-                <div id="modal-buttons" class="space-y-1.5">
-                    <!-- Dynamic Buttons -->
+                
+                <!-- Chat Messages Box -->
+                <div id="chat-messages" class="text-xs space-y-2 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
+                    <div class="text-[10px] text-slate-500 italic text-center">聊天室已啟動，傳送訊息給房間內的玩家吧！</div>
                 </div>
+
+                <!-- Chat Input Form -->
+                <form onsubmit="handleSendChat(event)" class="mt-2 flex gap-1.5">
+                    <input type="text" id="input-chat-msg" placeholder="輸入聊天訊息..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500" />
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold shadow"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
             </div>
 
-            <!-- Match Event Console Log -->
-            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1.5 flex-1 flex flex-col">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1"><i class="fa-solid fa-terminal text-emerald-500"></i> 對戰日誌</span>
-                </h4>
-                <div id="game-log" class="text-xs text-slate-400 space-y-1 max-h-48 overflow-y-auto log-scrollbar font-mono flex-1"></div>
+            <!-- Game Log Panel -->
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1 h-36 flex flex-col">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">即時比賽日誌</h4>
+                <div id="game-log" class="text-[11px] text-slate-400 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
+                    <div>[系統] 遊戲準備完畢。</div>
+                </div>
             </div>
         </div>
+    </main>
 
-    </div>
-
-    <!-- GAME OVER WINNER MODAL OVERLAY -->
-    <div id="modal-winner" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-6 shadow-2xl">
-            <span class="text-6xl animate-bounce inline-block">🏆</span>
-            <div class="space-y-1">
-                <h2 class="text-2xl font-black text-emerald-400 text-glow">永續競賽優勝誕生！</h2>
-                <p class="text-xs text-slate-400">通過第三方 GRI & TNFD 碳匯稽核認證</p>
+    <!-- STEP 3: GAME OVER / CERTIFICATE MODAL -->
+    <div id="modal-gameover" class="hidden fixed inset-0 bg-slate-950/90 z-50 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 max-w-lg w-full text-center space-y-5 shadow-2xl">
+            <div class="text-5xl">🏆</div>
+            <h2 class="text-2xl font-black text-emerald-400 text-glow">永續大地競賽 圓滿結束！</h2>
+            <p class="text-xs text-slate-300" id="winner-announcement">冠軍玩家誕生！</p>
+            
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-left" id="final-stats-list">
+                <!-- Populated dynamically -->
             </div>
 
-            <div id="winner-details" class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left space-y-2">
-                <!-- Dynamic Winner Info -->
-            </div>
-
-            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg transition">
-                返回大廳重新對戰
+            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-xl text-xs shadow-lg transition">
+                返回大廳 / 重啟新局
             </button>
         </div>
     </div>
 
-    <!-- GAME ENGINE SCRIPT -->
+    <!-- SCRIPT LOGIC -->
     <script>
-        // Web Audio Synthesizer
+        /* ================= AUDIO SYNTHESIZER (Web Audio API) ================= */
         let soundEnabled = true;
-        const AudioCtx = window.AudioContext || window.webkitAudioContext;
-        let audioCtx = null;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
         function playSound(type) {
             if (!soundEnabled) return;
             try {
-                if (!audioCtx) audioCtx = new AudioCtx();
                 const osc = audioCtx.createOscillator();
                 const gain = audioCtx.createGain();
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
 
-                if (type === 'roll') {
-                    osc.type = 'sawtooth';
+                if (type === 'dice') {
+                    osc.type = 'triangle';
                     osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
-                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'chat') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.1);
                 } else if (type === 'buy') {
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-                    osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
-                    osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.16);
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.2);
+                    gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.2);
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.25);
+                    osc.stop(audioCtx.currentTime + 0.2);
                 }
             } catch(e) {}
         }
 
         function toggleSound() {
             soundEnabled = !soundEnabled;
-            document.getElementById('sound-icon').className = soundEnabled ? "fa-solid fa-volume-high text-emerald-400" : "fa-solid fa-volume-xmark text-slate-500";
+            document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-emerald-400' : 'fa-solid fa-volume-xmark text-slate-500';
         }
 
-        function generateRandomRoom() {
-            const rand = Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('input-room-id').value = `EARTH-${rand}`;
-        }
-
-        // CHARACTERS DEFINITION
-        const CHARACTER_PRESETS = [
-            { id: "aku", name: "阿酷", role: "歸蚓酷客創辦人", avatar: "🧑‍🌾", skill: "蚯蚓堆肥收益 +20%", color: "#10b981" },
-            { id: "xiaolv", name: "小綠", role: "綠色循環工程師", avatar: "👩‍🔬", skill: "熱裂解生物炭減碳量 +25%", color: "#38bdf8" },
-            { id: "chang", name: "張總", role: "跨國企業 CSR 總監", avatar: "💼", skill: "ESG 贊助積分 +30%", color: "#a855f7" },
-            { id: "lin", name: "林老伯", role: "峨眉在地資深農夫", avatar: "👨‍🌾", skill: "SOC 土壤碳匯加成 +25%", color: "#f59e0b" }
+        /* ================= GAME DATA & ABILITIES ================= */
+        const ECO_SKILLS = [
+            { name: "蚯蚓分解專家", desc: "蚯蚓箱產值 +25%", bonusType: "vermi", value: 1.25 },
+            { name: "生物炭大師", desc: "生物炭固碳 +30%", bonusType: "char", value: 1.30 },
+            { name: "ESG 領航員", desc: "企業贊助獎勵 +35%", bonusType: "esg", value: 1.35 },
+            { name: "SOC 固碳先鋒", desc: "基礎移動碳匯 +20%", bonusType: "move", value: 1.20 }
         ];
 
-        // 20-TILE BOARD TILES DEFINITION
         const BOARD_TILES = [
-            { id: 0, name: "起點站", type: "start", icon: "🚩", desc: "經過獲得資材 +5kg，減碳 +2.0" },
-            { id: 1, name: "咖啡渣收集站", type: "resource", icon: "☕", resource: "coffee", amount: 4, desc: "獲得 4kg 咖啡渣" },
-            { id: 2, name: "蚯蚓堆肥箱 V1.0", type: "facility", icon: "🪱", cost: 5, carbonBonus: 3.0, owner: null },
-            { id: 3, name: "極端氣候：午後暴雨", type: "event", icon: "🌧️", eventType: "rain" },
-            { id: 4, name: "茶葉渣收集站", type: "resource", icon: "🍵", resource: "tea", amount: 4, desc: "獲得 4kg 茶葉渣" },
-            { id: 5, name: "熱裂解生物炭主機", type: "facility", icon: "🔥", cost: 8, carbonBonus: 5.0, owner: null },
-            { id: 6, name: "ESG 企業贊助", type: "esg", icon: "💼", pts: 20, desc: "獲得 ESG 社群積分 +20" },
-            { id: 7, name: "生廚餘收集站", type: "resource", icon: "🍎", resource: "foodScraps", amount: 4, desc: "獲得 4kg 生廚餘" },
-            { id: 8, name: "A型移動雞舍", type: "facility", icon: "🐔", cost: 10, carbonBonus: 6.0, owner: null },
-            { id: 9, name: "竹醋液冷凝收集器", type: "facility", icon: "🧪", cost: 6, carbonBonus: 4.0, owner: null },
-            { id: 10, name: "枯枝落葉堆置場", type: "resource", icon: "🍂", resource: "dryLeaves", amount: 6, desc: "獲得 6kg 枯枝落葉" },
-            { id: 11, name: "極端氣候：酷暑熱浪", type: "event", icon: "☀️", eventType: "heat" },
-            { id: 12, name: "蚯蚓堆肥箱 V2.0", type: "facility", icon: "📦", cost: 12, carbonBonus: 8.0, owner: null },
-            { id: 13, name: "社區 WORKSHOP", type: "esg", icon: "🤝", pts: 30, desc: "舉辦體驗工作坊，ESG +30" },
-            { id: 14, name: "生物炭自然建築壁體", type: "facility", icon: "🏛️", cost: 15, carbonBonus: 10.0, owner: null },
-            { id: 15, name: "紅螞蟻大軍襲擊", type: "event", icon: "🐜", eventType: "ants" },
-            { id: 16, name: "峨眉 SOC 碳匯試驗田", type: "facility", icon: "🌱", cost: 10, carbonBonus: 7.0, owner: null },
-            { id: 17, name: "範疇三 Scope 3 揭露", type: "esg", icon: "📊", pts: 25, desc: "完成碳盤查揭露，ESG +25" },
-            { id: 18, name: "有機資材補給站", type: "resource", icon: "📦", resource: "all", amount: 3, desc: "全有機資材各 +3kg" },
-            { id: 19, name: "GRI 306 永續認證", type: "esg", icon: "📜", pts: 40, desc: "通過第三方驗證，ESG +40" }
+            { id: 0, name: "起點站", icon: "🚩", type: "start", desc: "經過獲得基礎研發資材 +10" },
+            { id: 1, name: "咖啡渣收集站", icon: "☕", type: "resource", resource: 15 },
+            { id: 2, name: "蚯蚓堆肥箱 V1", icon: "🪱", type: "facility", cost: 20, carbonPerTurn: 2.5 },
+            { id: 3, name: "暴雨氣候事件", icon: "🌧️", type: "event", impact: -5 },
+            { id: 4, name: "茶葉渣收集站", icon: "🍵", type: "resource", resource: 15 },
+            { id: 5, name: "熱裂解生物炭", icon: "🔥", type: "facility", cost: 30, carbonPerTurn: 4.0 },
+            { id: 6, name: "ESG 企業贊助", icon: "💼", type: "esg", bonus: 20 },
+            { id: 7, name: "生廚餘收集站", icon: "🍎", type: "resource", resource: 15 },
+            { id: 8, name: "A型移動雞舍", icon: "🐔", type: "facility", cost: 25, carbonPerTurn: 3.0 },
+            { id: 9, name: "竹醋液收集器", icon: "🧪", type: "facility", cost: 25, carbonPerTurn: 3.0 },
+            { id: 10, name: "枯枝落葉場", icon: "🍂", type: "resource", resource: 20 },
+            { id: 11, name: "熱浪氣候事件", icon: "☀️", type: "event", impact: -5 },
+            { id: 12, name: "蚯蚓堆肥箱 V2", icon: "📦", type: "facility", cost: 35, carbonPerTurn: 5.0 },
+            { id: 13, name: "社區 WORKSHOP", icon: "🤝", type: "esg", bonus: 15 },
+            { id: 14, name: "自然建築壁體", icon: "🏛️", type: "facility", cost: 40, carbonPerTurn: 6.0 },
+            { id: 15, name: "紅螞蟻襲擊", icon: "🐜", type: "event", impact: -8 },
+            { id: 16, name: "SOC 碳匯試驗田", icon: "🌱", type: "facility", cost: 45, carbonPerTurn: 7.0 },
+            { id: 17, name: "範疇三盤查", icon: "📊", type: "esg", bonus: 25 },
+            { id: 18, name: "有機資材補給", icon: "📦", type: "resource", resource: 20 },
+            { id: 19, name: "GRI 永續認證", icon: "📜", type: "esg", bonus: 30 }
         ];
 
-        // GAME STATE
-        let gameConfig = {
-            roomId: "TERRA-2026",
-            maxRounds: 15,
-            selectMode: "speed",
-            slots: ["human", "ai", "ai", "ai"]
-        };
+        /* ================= P2P & GAME STATE ================= */
+        let peer = null;
+        let connections = {}; // For host: peerId -> DataConnection
+        let hostConn = null;  // For client: DataConnection to host
+        let isHost = false;
+        let myPeerId = '';
+        let myPlayerName = '永續冒險家';
 
         let gameState = {
-            currentRound: 1,
+            started: false,
+            round: 1,
+            maxRounds: 20,
             turnIndex: 0,
             players: [],
-            board: JSON.parse(JSON.stringify(BOARD_TILES)),
-            logHistory: []
+            ownedFacilities: {} // tileId -> playerId
         };
 
-        // LOBBY INITIALIZATION
-        function initLobbyUI() {
-            const container = document.getElementById('lobby-player-slots');
-            container.innerHTML = '';
+        const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
+        const COLORS = ["#10b981", "#38bdf8", "#f59e0b", "#a855f7"];
 
-            for (let i = 0; i < 4; i++) {
-                const isHuman = gameConfig.slots[i] === 'human';
-                const card = document.createElement('div');
-                card.className = `p-3.5 rounded-2xl border text-center transition flex flex-col justify-between ${
-                    isHuman ? 'bg-emerald-950/40 border-emerald-500/50' : 'bg-slate-900 border-slate-800'
-                }`;
-
-                card.innerHTML = `
-                    <div class="space-y-1">
-                        <span class="text-xs font-bold text-slate-400">席位 P${i + 1}</span>
-                        <div class="text-2xl">${isHuman ? '👤' : '🤖'}</div>
-                        <span class="text-xs font-extrabold text-slate-200 block">${isHuman ? '真人玩家' : 'AI 棋手'}</span>
-                    </div>
-                    <button onclick="toggleSlotType(${i})" class="mt-3 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 px-2 rounded-lg border border-slate-700">
-                        切換為 ${isHuman ? '🤖 AI' : '👤 真人'}
-                    </button>
-                `;
-                container.appendChild(card);
+        // URL Auto-Join Check
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoRoom = urlParams.get('room');
+            if (autoRoom) {
+                document.getElementById('input-join-id').value = autoRoom;
+                document.getElementById('lobby-msg').innerHTML = `<span class="text-amber-400 font-bold">已載入對戰房號 [${autoRoom}]，輸入暱稱後請點擊「加入對戰」！</span>`;
             }
-        }
+        });
 
-        function toggleSlotType(idx) {
-            gameConfig.slots[idx] = gameConfig.slots[idx] === 'human' ? 'ai' : 'human';
-            initLobbyUI();
-        }
+        /* ================= PEERJS NETWORKING ================= */
 
-        function startLobbyGame() {
-            gameConfig.roomId = document.getElementById('input-room-id').value || "TERRA-2026";
-            gameConfig.maxRounds = parseInt(document.getElementById('select-rounds').value);
-            gameConfig.selectMode = document.querySelector('input[name="select-mode"]:checked').value;
+        // 1. Host Room Creation
+        function hostRoom() {
+            myPlayerName = document.getElementById('input-player-name').value.trim() || '房主';
+            const customId = document.getElementById('input-room-id').value.trim() || `earth-${Math.floor(Math.random()*9000 + 1000)}`;
+            isHost = true;
 
-            document.getElementById('room-id-display').innerText = gameConfig.roomId;
-            document.getElementById('room-tag').classList.remove('hidden');
+            peer = new Peer(customId);
 
-            if (gameConfig.selectMode === 'speed') {
-                document.getElementById('screen-lobby').classList.add('hidden');
-                document.getElementById('screen-speed-select').classList.remove('hidden');
-                initSpeedSelectionUI();
-            } else {
-                // Random Selection directly
-                setupPlayersRandomly();
-                launchBoardGame();
-            }
-        }
+            peer.on('open', (id) => {
+                myPeerId = id;
+                document.getElementById('conn-status').innerText = `房主已開房 (${id})`;
+                const inviteUrl = `${window.location.origin}${window.location.pathname}?room=${id}`;
+                document.getElementById('input-invite-url').value = inviteUrl;
+                document.getElementById('invite-section').classList.remove('hidden');
+                document.getElementById('btn-start-game').classList.remove('hidden');
+                document.getElementById('client-controls-box').classList.add('hidden');
+                document.getElementById('display-room-id').innerText = id;
 
-        // SPEED SELECTION UI
-        let selectedCharacterIds = {};
+                // Host is Player 0
+                const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
+                gameState.players = [{
+                    peerId: id,
+                    name: myPlayerName,
+                    isAi: false,
+                    avatar: AVATARS[0],
+                    color: COLORS[0],
+                    pos: 0,
+                    carbon: 0,
+                    resources: 30,
+                    skill: skill
+                }];
+                updateLobbyPlayersList();
+            });
 
-        function initSpeedSelectionUI() {
-            const container = document.getElementById('speed-character-cards');
-            container.innerHTML = '';
+            peer.on('connection', (conn) => {
+                if (gameState.players.length >= 4) {
+                    conn.send({ type: 'REJECT', reason: '房間已滿 4 人' });
+                    setTimeout(() => conn.close(), 500);
+                    return;
+                }
 
-            CHARACTER_PRESETS.forEach((char, idx) => {
-                const card = document.createElement('div');
-                card.className = "p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-amber-500/50 transition flex items-center space-x-3";
-                card.innerHTML = `
-                    <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-2xl">
-                        ${char.avatar}
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-center">
-                            <h4 class="font-extrabold text-sm text-slate-100">${char.name}</h4>
-                            <span class="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">${char.skill}</span>
-                        </div>
-                        <p class="text-[11px] text-slate-400">${char.role}</p>
-                    </div>
-                `;
-                container.appendChild(card);
+                conn.on('open', () => {
+                    connections[conn.peer] = conn;
+                });
+
+                conn.on('data', (data) => handleHostReceiveData(conn, data));
+                
+                conn.on('close', () => {
+                    delete connections[conn.peer];
+                    gameState.players = gameState.players.filter(p => p.peerId !== conn.peer);
+                    updateLobbyPlayersList();
+                    broadcastState('玩家離開房間');
+                });
+            });
+
+            peer.on('error', (err) => {
+                alert("開房失敗：" + err.type);
             });
         }
 
-        function confirmCharacterSelection() {
-            setupPlayersRandomly();
-            document.getElementById('screen-speed-select').classList.add('hidden');
-            launchBoardGame();
+        // 2. Client Join Room
+        function joinRoom() {
+            myPlayerName = document.getElementById('input-player-name').value.trim() || '訪客玩家';
+            const roomId = document.getElementById('input-join-id').value.trim();
+            if (!roomId) {
+                alert("請輸入房號 ID！");
+                return;
+            }
+
+            isHost = false;
+            peer = new Peer();
+
+            peer.on('open', (id) => {
+                myPeerId = id;
+                document.getElementById('conn-status').innerText = "連線中...";
+                hostConn = peer.connect(roomId);
+
+                hostConn.on('open', () => {
+                    document.getElementById('conn-status').innerText = "已連線至房主";
+                    document.getElementById('display-room-id').innerText = roomId;
+                    // Send Join Request
+                    hostConn.send({
+                        type: 'JOIN_REQ',
+                        playerName: myPlayerName
+                    });
+                });
+
+                hostConn.on('data', (data) => handleClientReceiveData(data));
+
+                hostConn.on('close', () => {
+                    alert("與房主的連線已中斷");
+                    location.reload();
+                });
+            });
+
+            peer.on('error', (err) => {
+                alert("連線失敗：" + err.type);
+            });
         }
 
-        function setupPlayersRandomly() {
-            const shuffled = [...CHARACTER_PRESETS].sort(() => 0.5 - Math.random());
-            gameState.players = [];
-
-            for (let i = 0; i < 4; i++) {
-                const preset = shuffled[i];
-                const isAi = gameConfig.slots[i] === 'ai';
+        // Host Message Router
+        function handleHostReceiveData(conn, data) {
+            if (data.type === 'JOIN_REQ') {
+                const pIdx = gameState.players.length;
+                const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
                 gameState.players.push({
-                    id: i,
-                    name: `${preset.name}${isAi ? ' (AI)' : ''}`,
-                    isAi: isAi,
-                    avatar: preset.avatar,
-                    skill: preset.skill,
-                    color: preset.color,
-                    position: 0,
-                    carbon: 0.0,
-                    soc: 10,
-                    esg: 0,
-                    waste: { coffee: 5, tea: 5, foodScraps: 5, dryLeaves: 5 }
+                    peerId: conn.peer,
+                    name: data.playerName,
+                    isAi: false,
+                    avatar: AVATARS[pIdx],
+                    color: COLORS[pIdx],
+                    pos: 0,
+                    carbon: 0,
+                    resources: 30,
+                    skill: skill
                 });
+                updateLobbyPlayersList();
+                broadcastState(`${data.playerName} 加入了對戰！`);
+            } else if (data.type === 'ACTION_ROLL_DICE') {
+                processRollDice(data.peerId);
+            } else if (data.type === 'ACTION_BUY_FACILITY') {
+                processBuyFacility(data.peerId, data.buy);
+            } else if (data.type === 'SEND_CHAT') {
+                broadcastChat(data.senderName, data.msg, data.avatar);
             }
         }
 
-        // LAUNCH BOARD GAME
-        function launchBoardGame() {
-            document.getElementById('screen-lobby').classList.add('hidden');
-            document.getElementById('screen-game').classList.remove('hidden');
-
-            renderRingBoardTiles();
-            updateScoreboard();
-            updateActivePlayerTurnUI();
-            addLog(`對戰正式開啟！房號 [${gameConfig.roomId}]，共 ${gameConfig.maxRounds} 回合。`);
+        // Client Message Router
+        function handleClientReceiveData(data) {
+            if (data.type === 'STATE_UPDATE') {
+                gameState = data.state;
+                if (gameState.started) {
+                    switchToGameScreen();
+                    updateUI();
+                } else {
+                    updateLobbyPlayersList();
+                }
+                if (data.msg) addLog(data.msg);
+            } else if (data.type === 'CHAT_MSG') {
+                renderChatMessage(data.sender, data.msg, data.avatar, data.time);
+                playSound('chat');
+            } else if (data.type === 'REJECT') {
+                alert("無法加入：" + data.reason);
+            }
         }
 
-        // RENDER RING BOARD TILES (20-TILE PERIMETER)
-        function renderRingBoardTiles() {
+        function updateLobbyPlayersList() {
+            const listEl = document.getElementById('room-players-list');
+            if (!listEl) return;
+            listEl.innerHTML = '';
+            gameState.players.forEach((p, i) => {
+                listEl.innerHTML += `<li>${p.avatar} ${p.name} (${p.skill.name})</li>`;
+            });
+            document.getElementById('room-player-count').innerText = gameState.players.length;
+        }
+
+        function broadcastState(logMsg = "") {
+            if (!isHost) return;
+            const payload = {
+                type: 'STATE_UPDATE',
+                state: gameState,
+                msg: logMsg
+            };
+            Object.values(connections).forEach(c => {
+                if (c.open) c.send(payload);
+            });
+            updateUI();
+            if (logMsg) addLog(logMsg);
+        }
+
+        function broadcastChat(sender, msg, avatar) {
+            const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const payload = { type: 'CHAT_MSG', sender, msg, avatar, time };
+            
+            // Broadcast to clients
+            if (isHost) {
+                Object.values(connections).forEach(c => { if (c.open) c.send(payload); });
+            } else if (hostConn && hostConn.open) {
+                hostConn.send({ type: 'SEND_CHAT', senderName: sender, msg, avatar });
+                return;
+            }
+            renderChatMessage(sender, msg, avatar, time);
+            playSound('chat');
+        }
+
+        /* ================= GAME LOGIC (HOST DRIVEN) ================= */
+
+        function startGameAsHost() {
+            if (!isHost) return;
+
+            // Fill remaining slots with AI up to 4 players
+            const currentCount = gameState.players.length;
+            for (let i = currentCount; i < 4; i++) {
+                const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
+                gameState.players.push({
+                    peerId: `AI-${i}`,
+                    name: `永續 AI Robot ${i}`,
+                    isAi: true,
+                    avatar: AVATARS[i],
+                    color: COLORS[i],
+                    pos: 0,
+                    carbon: 0,
+                    resources: 30,
+                    skill: skill
+                });
+            }
+
+            gameState.started = true;
+            switchToGameScreen();
+            broadcastState('競賽正式開始！每位玩家配發專屬永續技能。');
+            checkTurnExecution();
+        }
+
+        function switchToGameScreen() {
+            document.getElementById('screen-lobby').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+            renderBoard();
+        }
+
+        function requestRollDice() {
+            const currP = gameState.players[gameState.turnIndex];
+            if (currP.peerId !== myPeerId) return;
+
+            if (isHost) {
+                processRollDice(myPeerId);
+            } else {
+                hostConn.send({ type: 'ACTION_ROLL_DICE', peerId: myPeerId });
+            }
+        }
+
+        function processRollDice(peerId) {
+            if (!isHost) return;
+            const p = gameState.players[gameState.turnIndex];
+            if (p.peerId !== peerId) return;
+
+            playSound('dice');
+            const dice = Math.floor(Math.random() * 6) + 1;
+            document.getElementById('dice-display').innerText = dice;
+            document.getElementById('dice-display').classList.add('animate-dice');
+            setTimeout(() => document.getElementById('dice-display').classList.remove('animate-dice'), 400);
+
+            p.pos = (p.pos + dice) % BOARD_TILES.length;
+            
+            // Apply Move Skill Bonus
+            let moveCarbon = 2.0;
+            if (p.skill.bonusType === 'move') moveCarbon *= p.skill.value;
+            p.carbon += moveCarbon;
+
+            const tile = BOARD_TILES[p.pos];
+            let logMsg = `${p.name} 擲出 ${dice} 點，移動至 [${tile.name}]`;
+
+            // Tile Landing Events
+            if (tile.type === 'resource') {
+                p.resources += tile.resource;
+                logMsg += `，獲得資材 +${tile.resource}`;
+            } else if (tile.type === 'esg') {
+                let bonus = tile.bonus;
+                if (p.skill.bonusType === 'esg') bonus *= p.skill.value;
+                p.carbon += bonus;
+                logMsg += `，獲取 ESG 碳匯 +${bonus.toFixed(1)} kg`;
+            } else if (tile.type === 'event') {
+                p.carbon = Math.max(0, p.carbon + tile.impact);
+                logMsg += `，受到極端氣候影響 碳匯 ${tile.impact} kg`;
+            } else if (tile.type === 'facility') {
+                // Check if buyable
+                if (!gameState.ownedFacilities[tile.id] && p.resources >= tile.cost) {
+                    if (p.isAi) {
+                        // AI Auto-buy
+                        gameState.ownedFacilities[tile.id] = p.peerId;
+                        p.resources -= tile.cost;
+                        logMsg += `，AI 決定投資建造 [${tile.name}]！`;
+                        finishTurn(logMsg);
+                        return;
+                    } else {
+                        // Prompt Human Choice
+                        broadcastState(logMsg);
+                        if (p.peerId === myPeerId) {
+                            showFacilityPrompt(tile);
+                        }
+                        return; // Wait for human purchase decision
+                    }
+                }
+            }
+
+            finishTurn(logMsg);
+        }
+
+        function requestBuyFacility(buy) {
+            document.getElementById('facility-action-box').classList.add('hidden');
+            if (isHost) {
+                processBuyFacility(myPeerId, buy);
+            } else {
+                hostConn.send({ type: 'ACTION_BUY_FACILITY', peerId: myPeerId, buy: buy });
+            }
+        }
+
+        function processBuyFacility(peerId, buy) {
+            if (!isHost) return;
+            const p = gameState.players[gameState.turnIndex];
+            const tile = BOARD_TILES[p.pos];
+            let logMsg = "";
+
+            if (buy && p.resources >= tile.cost && !gameState.ownedFacilities[tile.id]) {
+                gameState.ownedFacilities[tile.id] = p.peerId;
+                p.resources -= tile.cost;
+                playSound('buy');
+                logMsg = `${p.name} 投資建造了 [${tile.name}]！`;
+            } else {
+                logMsg = `${p.name} 選擇跳過建造 [${tile.name}]。`;
+            }
+
+            finishTurn(logMsg);
+        }
+
+        function finishTurn(logMsg) {
+            // End of Round facility yield calculations
+            gameState.players.forEach(p => {
+                BOARD_TILES.forEach(t => {
+                    if (t.type === 'facility' && gameState.ownedFacilities[t.id] === p.peerId) {
+                        let yieldVal = t.carbonPerTurn;
+                        if (t.id === 2 || t.id === 12) { if (p.skill.bonusType === 'vermi') yieldVal *= p.skill.value; }
+                        if (t.id === 5) { if (p.skill.bonusType === 'char') yieldVal *= p.skill.value; }
+                        p.carbon += yieldVal;
+                    }
+                });
+            });
+
+            // Turn Rotation
+            gameState.turnIndex = (gameState.turnIndex + 1) % gameState.players.length;
+            if (gameState.turnIndex === 0) {
+                gameState.round += 1;
+            }
+
+            // Check Game Over
+            if (gameState.round > gameState.maxRounds) {
+                broadcastState("🎉 20 回合結束！計算最終碳匯成績！");
+                showGameOverModal();
+                return;
+            }
+
+            broadcastState(logMsg);
+            checkTurnExecution();
+        }
+
+        function checkTurnExecution() {
+            if (!isHost) return;
+            const currP = gameState.players[gameState.turnIndex];
+            if (currP.isAi) {
+                setTimeout(() => {
+                    processRollDice(currP.peerId);
+                }, 1000);
+            }
+        }
+
+        function showFacilityPrompt(tile) {
+            document.getElementById('facility-title').innerText = `可建造：${tile.name} (花費 ${tile.cost} 資材)`;
+            document.getElementById('facility-desc').innerText = `每回合固定提供 +${tile.carbonPerTurn} kg 碳匯產值`;
+            document.getElementById('facility-action-box').classList.remove('hidden');
+        }
+
+        /* ================= UI RENDERING ================= */
+
+        function renderBoard() {
             const container = document.getElementById('board-container');
             container.innerHTML = '';
-
-            // Grid mapping for 6x6 perimeter (0-19)
+            
             const coords = [
                 { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 },
                 { r: 2, c: 6 }, { r: 3, c: 6 }, { r: 4, c: 6 }, { r: 5, c: 6 },
@@ -512,257 +764,123 @@
                 { r: 5, c: 1 }, { r: 4, c: 1 }, { r: 3, c: 1 }, { r: 2, c: 1 }
             ];
 
-            gameState.board.forEach((tile, idx) => {
+            BOARD_TILES.forEach((tile, idx) => {
                 const pos = coords[idx];
-                const tileEl = document.createElement('div');
-                tileEl.style.gridRowStart = pos.r;
-                tileEl.style.gridColumnStart = pos.c;
+                const el = document.createElement('div');
+                el.style.gridRowStart = pos.r;
+                el.style.gridColumnStart = pos.c;
 
-                // Owner border highlight
-                let ownerBorder = "border-slate-800";
-                if (tile.owner !== null) {
-                    const ownerPlayer = gameState.players[tile.owner];
-                    if (ownerPlayer) ownerBorder = `border-2 border-[${ownerPlayer.color}]`;
-                }
+                const ownerPeerId = gameState.ownedFacilities[tile.id];
+                const owner = gameState.players.find(p => p.peerId === ownerPeerId);
+                const ownerBorder = owner ? `border-2 border-[${owner.color}]` : 'border border-slate-800';
 
-                tileEl.className = `bg-slate-900/90 rounded-xl p-1.5 border ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden`;
-
-                // Players currently on this tile
-                let playerTokens = '';
+                let tokens = '';
                 gameState.players.forEach(p => {
-                    if (p.position === idx) {
-                        playerTokens += `<span class="text-xs" title="${p.name}">${p.avatar}</span>`;
-                    }
+                    if (p.pos === idx) tokens += `<span class="text-xs" title="${p.name}">${p.avatar}</span>`;
                 });
 
-                tileEl.innerHTML = `
-                    <div class="text-xs flex gap-0.5 justify-center">${playerTokens}</div>
-                    <div class="text-lg my-0.5">${tile.icon}</div>
-                    <span class="text-[9px] font-bold text-slate-200 truncate w-full">${tile.name}</span>
+                el.className = `bg-slate-900/90 rounded-xl p-1 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden transition`;
+                el.innerHTML = `
+                    <div class="text-[10px] flex gap-0.5 min-h-[14px]">${tokens}</div>
+                    <div class="text-base sm:text-lg">${tile.icon}</div>
+                    <span class="text-[8px] sm:text-[9px] text-slate-300 font-bold truncate w-full">${tile.name}</span>
                 `;
-                container.appendChild(tileEl);
+                container.appendChild(el);
             });
         }
 
-        // UPDATE SCOREBOARD
-        function updateScoreboard() {
-            document.getElementById('game-round-tag').innerText = `Round ${gameState.currentRound}/${gameConfig.maxRounds}`;
-            const container = document.getElementById('scoreboard-list');
-            container.innerHTML = '';
+        function updateUI() {
+            document.getElementById('game-round-tag').innerText = `Round ${gameState.round}/${gameState.maxRounds}`;
+            
+            // Scoreboard
+            const list = document.getElementById('scoreboard-list');
+            list.innerHTML = '';
+            
+            const currP = gameState.players[gameState.turnIndex];
+            document.getElementById('current-turn-player-name').innerText = currP ? `${currP.avatar} ${currP.name}` : '...';
 
-            // Sort by Carbon + SOC + ESG
-            const sorted = [...gameState.players].sort((a, b) => (b.carbon + b.soc + b.esg) - (a.carbon + a.soc + a.esg));
+            // Disable/Enable Roll Button
+            const btnRoll = document.getElementById('btn-roll-dice');
+            btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi;
 
-            sorted.forEach((p, rank) => {
-                const isCurrentTurn = p.id === gameState.turnIndex;
-                const card = document.createElement('div');
-                card.className = `p-2 rounded-xl border flex justify-between items-center text-xs transition ${
-                    isCurrentTurn ? 'bg-emerald-950/60 border-emerald-500 active-turn' : 'bg-slate-950/60 border-slate-800'
-                }`;
-
-                card.innerHTML = `
-                    <div class="flex items-center space-x-2">
-                        <span class="font-pixel text-amber-400 font-bold">#${rank + 1}</span>
-                        <span>${p.avatar}</span>
-                        <div>
-                            <span class="font-bold text-slate-100 block text-[11px]">${p.name}</span>
-                            <span class="text-[9px] text-slate-400 block">${p.skill}</span>
+            gameState.players.forEach((p, idx) => {
+                const isMyTurn = gameState.turnIndex === idx;
+                list.innerHTML += `
+                    <div class="p-2.5 rounded-xl border flex justify-between items-center text-xs ${isMyTurn ? 'bg-emerald-950/80 border-emerald-500 shadow-md ring-1 ring-emerald-500/50' : 'bg-slate-950/70 border-slate-800'}">
+                        <div class="space-y-0.5">
+                            <div class="font-bold flex items-center gap-1.5" style="color: ${p.color}">
+                                <span>${p.avatar}</span>
+                                <span class="truncate max-w-[100px]">${p.name}</span>
+                            </div>
+                            <div class="text-[9px] text-slate-400"><i class="fa-solid fa-bolt text-amber-400"></i> ${p.skill.name}</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-black text-emerald-400 font-pixel text-sm">${p.carbon.toFixed(1)} kg</div>
+                            <div class="text-[9px] text-slate-400">資材: ${p.resources}</div>
                         </div>
                     </div>
-                    <div class="text-right font-mono">
-                        <span class="font-bold text-emerald-400 block">${p.carbon.toFixed(1)} kg</span>
-                        <span class="text-[9px] text-amber-400 block">${p.soc} pt / ${p.esg} pts</span>
-                    </div>
                 `;
-                container.appendChild(card);
             });
+
+            renderBoard();
         }
 
-        function updateActivePlayerTurnUI() {
-            const p = gameState.players[gameState.turnIndex];
-            document.getElementById('active-avatar').innerText = p.avatar;
-            document.getElementById('active-name').innerText = `${p.name} 回合`;
-            document.getElementById('active-role').innerText = p.skill;
+        /* ================= CHATROOM LOGIC ================= */
 
-            const rollBtn = document.getElementById('btn-roll-dice');
-            if (p.isAi) {
-                rollBtn.disabled = true;
-                rollBtn.innerText = "🤖 AI 思考中...";
-                rollBtn.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed";
-                setTimeout(aiExecuteTurn, 1200);
-            } else {
-                rollBtn.disabled = false;
-                rollBtn.innerText = "擲骰前進 (Roll Dice)";
-                rollBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition";
-            }
+        function handleSendChat(e) {
+            e.preventDefault();
+            const input = document.getElementById('input-chat-msg');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const myPlayer = gameState.players.find(p => p.peerId === myPeerId) || { avatar: '💬', name: myPlayerName };
+            broadcastChat(myPlayer.name, msg, myPlayer.avatar);
+            input.value = '';
         }
 
-        // PLAYER ROLL DICE ACTION
-        function playerRollDice() {
-            playSound('roll');
-            const p = gameState.players[gameState.turnIndex];
-            const dice = Math.floor(Math.random() * 6) + 1;
-
-            const diceDisplay = document.getElementById('dice-display');
-            diceDisplay.classList.add('animate-dice');
-            diceDisplay.innerText = dice;
-
-            setTimeout(() => {
-                diceDisplay.classList.remove('animate-dice');
-                p.position = (p.position + dice) % 20;
-                renderRingBoardTiles();
-                handleTileLanding(p, p.position);
-            }, 400);
-        }
-
-        function aiExecuteTurn() {
-            playerRollDice();
-        }
-
-        // HANDLE TILE LANDING LOGIC
-        function handleTileLanding(player, tileIdx) {
-            const tile = gameState.board[tileIdx];
-            document.getElementById('center-event-text').innerText = `${player.name} 移動至 [${tile.name}]`;
-
-            const modalTag = document.getElementById('modal-tag');
-            const modalTitle = document.getElementById('modal-title');
-            const modalDesc = document.getElementById('modal-desc');
-            const modalBtns = document.getElementById('modal-buttons');
-
-            modalTitle.innerText = `${tile.icon} ${tile.name}`;
-            modalBtns.innerHTML = '';
-
-            if (tile.type === 'facility') {
-                modalTag.innerText = "低碳永續設施";
-                if (tile.owner === null) {
-                    modalDesc.innerText = `建設需要耗費 3kg 枯枝資材，完成後可獲得 ${tile.carbonBonus} kg CO2e 減碳效益！`;
-                    
-                    if (!player.isAi) {
-                        modalBtns.innerHTML = `
-                            <button onclick="buildFacility(${tileIdx})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">投入資材建設 (+減碳)</button>
-                            <button onclick="endTurn()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-xs">路過不建設</button>
-                        `;
-                    } else {
-                        // AI Decision
-                        if (player.waste.dryLeaves >= 3) {
-                            buildFacility(tileIdx);
-                        } else {
-                            endTurn();
-                        }
-                    }
-                } else {
-                    const owner = gameState.players[tile.owner];
-                    modalDesc.innerText = `此設施已由 ${owner.name} 建置，參訪學習可為其提供 +1.0 kg CO2e 碳匯加成。`;
-                    owner.carbon += 1.0;
-                    if (!player.isAi) {
-                        modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-slate-800 text-slate-200 py-2 rounded-xl text-xs">確認了解</button>`;
-                    } else {
-                        setTimeout(endTurn, 1000);
-                    }
-                }
-            } else if (tile.type === 'resource') {
-                modalTag.innerText = "有機資材收集";
-                player.waste.dryLeaves += 4;
-                player.carbon += 1.5;
-                modalDesc.innerText = `成功收集資材，減碳點數 +1.5 kg CO2e！`;
-                if (!player.isAi) {
-                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs">收下資材並結束回合</button>`;
-                } else {
-                    setTimeout(endTurn, 1000);
-                }
-            } else if (tile.type === 'esg') {
-                modalTag.innerText = "ESG 社群積分";
-                player.esg += tile.pts;
-                modalDesc.innerText = `成功推動永續，獲得 ESG 社群積分 +${tile.pts} pts！`;
-                if (!player.isAi) {
-                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs">領取 ESG 獎勵</button>`;
-                } else {
-                    setTimeout(endTurn, 1000);
-                }
-            } else {
-                modalTag.innerText = "事件點";
-                modalDesc.innerText = `路過 ${tile.name}！`;
-                if (!player.isAi) {
-                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-slate-800 text-slate-200 py-2 rounded-xl text-xs">繼續下一回合</button>`;
-                } else {
-                    setTimeout(endTurn, 1000);
-                }
-            }
-
-            updateScoreboard();
-        }
-
-        function buildFacility(tileIdx) {
-            playSound('buy');
-            const p = gameState.players[gameState.turnIndex];
-            const tile = gameState.board[tileIdx];
-
-            tile.owner = p.id;
-            p.carbon += tile.carbonBonus;
-            p.soc += 5;
-
-            addLog(`${p.name} 成功建置了 [${tile.name}]！減碳 +${tile.carbonBonus}kg`);
-            renderRingBoardTiles();
-            endTurn();
-        }
-
-        function endTurn() {
-            gameState.turnIndex = (gameState.turnIndex + 1) % 4;
-            if (gameState.turnIndex === 0) {
-                gameState.currentRound += 1;
-            }
-
-            if (gameState.currentRound > gameConfig.maxRounds) {
-                triggerGameOver();
-                return;
-            }
-
-            updateScoreboard();
-            updateActivePlayerTurnUI();
-        }
-
-        function triggerGameOver() {
-            const sorted = [...gameState.players].sort((a, b) => (b.carbon + b.soc + b.esg) - (a.carbon + a.soc + a.esg));
-            const winner = sorted[0];
-
-            document.getElementById('winner-details').innerHTML = `
-                <div class="flex items-center space-x-3 mb-2">
-                    <span class="text-3xl">${winner.avatar}</span>
-                    <div>
-                        <h4 class="font-extrabold text-sm text-emerald-400">${winner.name}</h4>
-                        <p class="text-[11px] text-slate-400">${winner.skill}</p>
+        function renderChatMessage(sender, msg, avatar, time) {
+            const box = document.getElementById('chat-messages');
+            box.innerHTML += `
+                <div class="bg-slate-950 p-2 rounded-xl border border-slate-800/80 space-y-0.5">
+                    <div class="flex justify-between items-center text-[10px] text-slate-400">
+                        <span class="font-bold text-emerald-400">${avatar} ${sender}</span>
+                        <span class="font-mono text-[8px] text-slate-500">${time}</span>
                     </div>
-                </div>
-                <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800">
-                    <div>
-                        <span class="text-[10px] text-slate-500 block">總減碳量</span>
-                        <span class="font-bold text-emerald-400">${winner.carbon.toFixed(1)} kg</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-500 block">SOC 碳匯</span>
-                        <span class="font-bold text-amber-400">${winner.soc} pt</span>
-                    </div>
-                    <div>
-                        <span class="text-[10px] text-slate-500 block">ESG 影響力</span>
-                        <span class="font-bold text-indigo-400">${winner.esg} pts</span>
-                    </div>
+                    <div class="text-slate-200 text-xs">${msg}</div>
                 </div>
             `;
-
-            document.getElementById('modal-winner').classList.remove('hidden');
+            box.scrollTop = box.scrollHeight;
         }
 
         function addLog(text) {
-            const timeStr = `[R${gameState.currentRound}]`;
-            gameState.logHistory.unshift(`${timeStr} ${text}`);
-            if (gameState.logHistory.length > 20) gameState.logHistory.pop();
-            document.getElementById('game-log').innerHTML = gameState.logHistory.join('<br>');
+            const logBox = document.getElementById('game-log');
+            logBox.innerHTML = `<div>[R${gameState.round}] ${text}</div>` + logBox.innerHTML;
         }
 
-        window.onload = () => {
-            initLobbyUI();
-        };
+        function copyInviteLink() {
+            const input = document.getElementById('input-invite-url');
+            input.select();
+            document.execCommand('copy');
+            alert("已成功複製對戰邀請連結！貼給好友即可一鍵連線。");
+        }
+
+        function showGameOverModal() {
+            const sorted = [...gameState.players].sort((a,b) => b.carbon - a.carbon);
+            const winner = sorted[0];
+            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-bold">${winner.avatar} ${winner.name}</span> 榮獲峨眉永續碳匯冠軍！`;
+            
+            const statsList = document.getElementById('final-stats-list');
+            statsList.innerHTML = '';
+            sorted.forEach((p, idx) => {
+                statsList.innerHTML += `
+                    <div class="flex justify-between items-center text-xs">
+                        <span>第 ${idx+1} 名: ${p.avatar} ${p.name}</span>
+                        <span class="font-mono font-bold text-emerald-400">${p.carbon.toFixed(1)} kg CO2e</span>
+                    </div>
+                `;
+            });
+            document.getElementById('modal-gameover').classList.remove('hidden');
+        }
     </script>
 </body>
 </html>
-</web_code_canvas>
