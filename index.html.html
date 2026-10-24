@@ -1,9 +1,10 @@
+<web_code_canvas id="index.html">
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 v4.0 Tamagotchi Edition</title>
+    <title>歸蚓酷客：永續大地冒險 (多人線上競賽版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -13,13 +14,20 @@
         
         body {
             font-family: 'Noto Sans TC', sans-serif;
-            background-color: #090d16;
+            background-color: #0b0f19;
+            color: #f1f5f9;
         }
         .font-pixel {
             font-family: 'VT323', monospace;
         }
         .text-glow {
             text-shadow: 0 0 10px rgba(16, 185, 129, 0.6);
+        }
+        .board-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            grid-template-rows: repeat(6, minmax(0, 1fr));
+            gap: 6px;
         }
         .log-scrollbar::-webkit-scrollbar {
             width: 6px;
@@ -31,264 +39,258 @@
             background: #334155;
             border-radius: 3px;
         }
-        @keyframes bounce-gentle {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-3px); }
+        @keyframes dice-roll {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
         }
-        .animate-worm {
-            animation: bounce-gentle 1.5s infinite ease-in-out;
+        .animate-dice {
+            animation: dice-roll 0.4s ease-in-out;
+        }
+        @keyframes pulse-active {
+            0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.8); }
+            50% { box-shadow: 0 0 25px rgba(52, 211, 153, 1); }
+        }
+        .active-turn {
+            animation: pulse-active 1.5s infinite;
+            border-color: #34d399 !important;
         }
     </style>
 </head>
-<body class="text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
 
     <!-- Top Navigation Bar -->
-    <header class="bg-slate-900/95 border-b border-emerald-900/50 sticky top-0 z-50 backdrop-blur">
-        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+    <header class="bg-slate-900/95 border-b border-emerald-900/50 sticky top-0 z-50 backdrop-blur px-4 py-3">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-900/80 border border-emerald-500/50 flex items-center justify-center text-2xl shadow-lg">
                     🪱
                 </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v4.0 Real-Time Tamagotchi</span>
+                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v5.0 Online Race</span>
                     </h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400">即時電子蚯蚓養成與開放低碳生態箱</p>
+                    <p class="text-[10px] sm:text-xs text-slate-400">多人線上低碳大富翁競賽大廳</p>
                 </div>
             </div>
             
-            <div class="flex items-center space-x-2">
+            <div class="flex items-center space-x-3">
+                <div id="room-tag" class="hidden bg-slate-800 border border-slate-700 text-xs text-amber-400 px-3 py-1.5 rounded-lg font-mono">
+                    房號: <span id="room-id-display">EARTH-888</span>
+                </div>
                 <button onclick="toggleSound()" id="sound-btn" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i> <span>音效: 開</span>
-                </button>
-                <button onclick="saveGame(true)" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-floppy-disk text-emerald-400"></i> <span class="hidden sm:inline">儲存</span>
-                </button>
-                <button onclick="confirmResetGame()" class="bg-rose-950/40 hover:bg-rose-900/60 border border-rose-800/50 text-xs text-rose-300 px-3 py-1.5 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-rotate-right"></i> <span class="hidden sm:inline">重置</span>
+                    <i class="fa-solid fa-volume-high text-emerald-400" id="sound-icon"></i> <span class="hidden sm:inline">音效: 開</span>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- Main Game Canvas Container -->
-    <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
-
-        <!-- Left Column: Tamagotchi Dashboard & Real-Time Stats (4 cols) -->
-        <div class="lg:col-span-4 space-y-4">
-            
-            <!-- Pixel Farm Interactive Canvas Visualizer -->
-            <div class="bg-slate-900 rounded-2xl p-3 border border-emerald-500/30 shadow-2xl relative overflow-hidden flex flex-col items-center">
-                <div class="w-full flex justify-between items-center mb-2 px-1">
-                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                        <i class="fa-solid fa-gamepad"></i> 實時動態農場視窗 (點擊畫面互動)
-                    </span>
-                    <span id="weather-badge" class="text-[10px] bg-slate-800 text-sky-300 px-2 py-0.5 rounded-full border border-slate-700">
-                        ☀️ 晴朗微風
-                    </span>
-                </div>
-                <canvas id="farmCanvas" width="320" height="160" onclick="petWorm()" class="rounded-xl border border-slate-800 bg-slate-950 w-full shadow-inner cursor-pointer hover:border-emerald-500/50 transition"></canvas>
+    <!-- STEP 1: MULTIPLAYER LOBBY SCREEN -->
+    <div id="screen-lobby" class="max-w-4xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
+        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-emerald-500/30 shadow-2xl w-full space-y-6">
+            <div class="text-center space-y-2">
+                <span class="text-5xl animate-bounce inline-block">🌐</span>
+                <h2 class="text-2xl font-black text-emerald-400 text-glow">多人線上競賽對戰大廳</h2>
+                <p class="text-xs text-slate-400">建立專屬房間與全球或身邊夥伴較量永續碳匯影響力！</p>
             </div>
 
-            <!-- Core Eco Tamagotchi Status Monitor -->
-            <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 space-y-3 shadow-xl">
-                <div class="flex justify-between items-center pb-2 border-b border-slate-700/80">
-                    <div>
-                        <span id="chapter-badge" class="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
-                            生態箱運作中
-                        </span>
-                        <h2 id="farm-name" class="font-bold text-slate-100 text-sm mt-1">峨眉低碳示範農場</h2>
-                        <p id="chapter-title" class="text-[11px] text-emerald-400 font-semibold mt-0.5">即時養育沙盒模式</p>
-                    </div>
-                    <div class="text-right">
-                        <span class="text-xs text-slate-400 block">運作時間</span>
-                        <span class="text-2xl font-black text-amber-400 font-pixel" id="stat-day">Day 1</span>
-                    </div>
-                </div>
-
-                <!-- Pet Status 1: Hunger Bar -->
+            <!-- Lobby Config Deck -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-950 p-4 rounded-2xl border border-slate-800">
+                <!-- Room ID Setting -->
                 <div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 font-medium flex items-center gap-1">
-                            🍖 蚯蚓飽食度 (Hunger)
-                        </span>
-                        <span id="stat-hunger-text" class="font-bold text-amber-400">80%</span>
-                    </div>
-                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="stat-hunger-bar" class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: 80%"></div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">房間代碼 (Room Code)</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="input-room-id" value="TERRA-2026" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs font-mono text-emerald-400 w-full focus:outline-none focus:border-emerald-500" />
+                        <button onclick="generateRandomRoom()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-2 rounded-xl text-xs font-bold border border-slate-700">隨機</button>
                     </div>
                 </div>
 
-                <!-- Pet Status 2: Bin Moisture Bar -->
+                <!-- Total Rounds Setting -->
                 <div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 font-medium flex items-center gap-1">💧 堆肥濕度 (Moisture)</span>
-                        <span id="stat-moisture-text" class="font-bold text-sky-400">70%</span>
-                    </div>
-                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="stat-moisture-bar" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 70%"></div>
-                    </div>
+                    <label class="block text-xs font-bold text-slate-300 mb-1">競賽總回合數</label>
+                    <select id="select-rounds" class="bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500">
+                        <option value="10">10 回合 (快速競速局 ~5分鐘)</option>
+                        <option value="15" selected>15 回合 (標準永續局 ~10分鐘)</option>
+                        <option value="20">20 回合 (深度競賽局 ~15分鐘)</option>
+                    </select>
                 </div>
 
-                <!-- Pet Status 3: Worm Mood & Vitality -->
-                <div>
-                    <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 font-medium flex items-center gap-1">
-                            <span id="worm-mood">🪱</span> 蚯蚓總體活力
-                        </span>
-                        <span id="stat-worm-text" class="font-bold text-emerald-400">85%</span>
-                    </div>
-                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="stat-worm-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 85%"></div>
-                    </div>
-                </div>
-
-                <!-- Carbon & Impact Grid -->
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">累積減碳點數</p>
-                        <p class="text-base font-black text-emerald-400" id="stat-carbon">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
-                    </div>
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">土壤碳匯 (SOC)</p>
-                        <p class="text-base font-black text-amber-400" id="stat-soc">10 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
-                    </div>
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">ESG 影響力</p>
-                        <p class="text-base font-black text-indigo-400" id="stat-esg">0 <span class="text-[10px] font-normal text-slate-400">pts</span></p>
-                    </div>
-                    <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">蚓糞肥料庫存</p>
-                        <p class="text-base font-black text-teal-400" id="stat-compost">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
+                <!-- Character Selection Mode Setting -->
+                <div class="md:col-span-2 pt-2 border-t border-slate-800">
+                    <label class="block text-xs font-bold text-amber-400 mb-2">選角競賽模式 (Selection Mode)</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="cursor-pointer bg-slate-900 border border-slate-700 p-3 rounded-xl flex items-center space-x-2 hover:border-emerald-500/50 transition">
+                            <input type="radio" name="select-mode" value="speed" checked class="accent-emerald-500" />
+                            <div>
+                                <span class="text-xs font-bold text-slate-100 block">⚡ 搶速選角模式</span>
+                                <span class="text-[10px] text-slate-400 block">進入大廳後，手速越快越早搶到心儀的角色技能！</span>
+                            </div>
+                        </label>
+                        <label class="cursor-pointer bg-slate-900 border border-slate-700 p-3 rounded-xl flex items-center space-x-2 hover:border-emerald-500/50 transition">
+                            <input type="radio" name="select-mode" value="random" class="accent-emerald-500" />
+                            <div>
+                                <span class="text-xs font-bold text-slate-100 block">🎲 公平隨機選角</span>
+                                <span class="text-[10px] text-slate-400 block">系統自動隨機分配 4 位角色技能與出手順序！</span>
+                            </div>
+                        </label>
                     </div>
                 </div>
             </div>
 
-            <!-- Material Inventory -->
-            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-packing text-amber-400"></i> 有機資材庫存</span>
-                    <button onclick="replenishMaterials()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded text-slate-300">補給資材</button>
+            <!-- Player Slots Lobby -->
+            <div class="space-y-2">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex justify-between">
+                    <span>玩家席位選取 (4人對戰)</span>
+                    <span class="text-emerald-400">未填滿席位將由 AI 棋手自動補位</span>
                 </h3>
-                <div id="materials-list" class="grid grid-cols-2 gap-2"></div>
-            </div>
-
-            <!-- Badges -->
-            <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="fa-solid fa-award text-yellow-400"></i> 解鎖成就與稱號
-                </h3>
-                <div id="badges-container" class="flex flex-wrap gap-2 pt-1"></div>
-            </div>
-
-        </div>
-
-        <!-- Right Column: Tamagotchi Care Control Deck & Tech Tree Panel (8 cols) -->
-        <div class="lg:col-span-8 flex flex-col space-y-4">
-
-            <!-- Tab Navigation Header -->
-            <div class="flex space-x-2 border-b border-slate-800 pb-1">
-                <button onclick="switchTab('care')" id="tab-care-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition">
-                    <i class="fa-solid fa-hand-holding-heart"></i> 即時照照養與行動
-                </button>
-                <button onclick="switchTab('tech')" id="tab-tech-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition">
-                    <i class="fa-solid fa-sitemap text-amber-400"></i> 永續科技樹 (Tech Tree)
-                </button>
-            </div>
-
-            <!-- View 1: Tamagotchi Care Control Hub -->
-            <div id="view-care" class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[380px] relative overflow-hidden">
                 
-                <!-- Status Banner / Character Dialogue -->
-                <div id="npc-header" class="flex items-center space-x-3 pb-3 border-b border-slate-700/60">
-                    <div id="npc-avatar" class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-2xl flex items-center justify-center shadow-inner animate-worm">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3" id="lobby-player-slots">
+                    <!-- Dynamic Slots -->
+                </div>
+            </div>
+
+            <!-- Action Start Button -->
+            <button onclick="startLobbyGame()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-4 rounded-2xl text-base shadow-lg transition flex items-center justify-center gap-2">
+                <i class="fa-solid fa-play"></i> 進入選角與啟動永續對戰
+            </button>
+        </div>
+    </div>
+
+    <!-- STEP 2: SPEED SELECTION SCREEN (If Speed Mode Chosen) -->
+    <div id="screen-speed-select" class="hidden max-w-4xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
+        <div class="bg-slate-900/90 rounded-3xl p-6 sm:p-8 border border-amber-500/30 shadow-2xl w-full space-y-6">
+            <div class="text-center space-y-1">
+                <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/30">⚡ 手速搶選角色</span>
+                <h2 class="text-xl font-extrabold text-slate-100">請真人玩家快速鎖定您的競賽角！</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="speed-character-cards">
+                <!-- Dynamic Character Cards -->
+            </div>
+
+            <button onclick="confirmCharacterSelection()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-black py-3.5 rounded-2xl text-sm shadow-lg transition">
+                鎖定角色並開啟大地棋盤！
+            </button>
+        </div>
+    </div>
+
+    <!-- STEP 3: MAIN MONOPOLY GAME BOARD SCREEN -->
+    <div id="screen-game" class="hidden max-w-7xl mx-auto px-4 py-4 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4">
+
+        <!-- Left Column: Real-time Leaderboard & Active Turn (3 cols) -->
+        <div class="lg:col-span-3 space-y-3">
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-3 shadow-xl">
+                <div class="flex justify-between items-center pb-2 border-b border-slate-800">
+                    <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-trophy text-amber-400"></i> 即時碳匯影響力榜
+                    </span>
+                    <span class="text-xs font-pixel font-black text-amber-400" id="game-round-tag">Round 1/15</span>
+                </div>
+
+                <!-- Live Scoreboard -->
+                <div class="space-y-2" id="scoreboard-list">
+                    <!-- Dynamic Scoreboard Items -->
+                </div>
+            </div>
+
+            <!-- Current Player Action Controls -->
+            <div class="bg-slate-900/90 rounded-2xl p-4 border border-emerald-500/30 space-y-3 shadow-xl">
+                <div class="flex items-center space-x-3 pb-2 border-b border-slate-800">
+                    <div id="active-avatar" class="w-10 h-10 rounded-xl bg-slate-800 border flex items-center justify-center text-xl">
                         🧑‍🌾
                     </div>
                     <div>
-                        <h4 id="npc-name" class="font-bold text-slate-100 text-sm">主角 (阿酷)</h4>
-                        <p id="npc-role" class="text-[11px] text-emerald-400 font-medium">歸蚓酷客創辦人</p>
+                        <h4 id="active-name" class="font-bold text-xs text-slate-100">玩家回合</h4>
+                        <p id="active-role" class="text-[10px] text-emerald-400">技能說明</p>
                     </div>
                 </div>
 
-                <!-- Interactive Text Prompt -->
-                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
-                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium" id="care-dialogue">
-                        「請時刻注意蚯蚓的飽食度與濕度！點擊下方按鈕可進行投餵、灑水調節或熱裂解生物炭！」
-                    </p>
-                </div>
-
-                <!-- Instant Action Control Deck -->
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-                    <button onclick="feedWorms()" class="bg-amber-900/40 hover:bg-amber-800/70 border border-amber-600/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-amber-200 shadow-md">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> 投餵咖啡渣/廚餘 (+飽食)</span>
-                        <span class="text-[10px] bg-amber-950 px-2 py-0.5 rounded text-amber-300">-2kg 廢材</span>
-                    </button>
-
-                    <button onclick="waterBin()" class="bg-sky-900/40 hover:bg-sky-800/70 border border-sky-600/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-sky-200 shadow-md">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-droplet text-sky-400"></i> 灑水噴霧 (+15% 濕度)</span>
-                        <span class="text-[10px] bg-sky-950 px-2 py-0.5 rounded text-sky-300">保濕</span>
-                    </button>
-
-                    <button onclick="addDryLeaves()" class="bg-amber-950/40 hover:bg-amber-900/60 border border-amber-700/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-amber-100 shadow-md">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-leaf text-amber-500"></i> 鋪入枯枝落葉 (-10% 濕度)</span>
-                        <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-amber-400">-2kg 枯枝</span>
-                    </button>
-
-                    <button onclick="makeBiochar()" class="bg-rose-950/40 hover:bg-rose-900/60 border border-rose-700/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-rose-200 shadow-md">
-                        <span class="flex items-center gap-2"><i class="fa-solid fa-fire text-rose-400"></i> 熱裂解生物炭 (+減碳/SOC)</span>
-                        <span class="text-[10px] bg-rose-950 px-2 py-0.5 rounded text-rose-300">-3kg 枯枝</span>
-                    </button>
-                </div>
-
-                <!-- Harvest & Emergency Rescue -->
-                <div class="flex gap-2 pt-2 border-t border-slate-700/60">
-                    <button onclick="harvestCompost()" class="flex-1 bg-emerald-800/80 hover:bg-emerald-700 border border-emerald-500 p-2.5 rounded-xl text-xs font-bold transition text-emerald-100 flex items-center justify-center gap-1.5 shadow-md">
-                        <i class="fa-solid fa-seedling text-emerald-300"></i> 收成蚓糞肥 (轉換為 SOC 碳匯)
-                    </button>
-                </div>
-
-            </div>
-
-            <!-- View 2: Tech Tree Panel -->
-            <div id="view-tech" class="hidden bg-slate-800/90 rounded-2xl border border-amber-500/30 p-5 shadow-2xl flex-1 flex-col justify-between space-y-4 min-h-[380px]">
-                <div>
-                    <div class="flex justify-between items-center pb-3 border-b border-slate-700/80 mb-3">
-                        <div>
-                            <h3 class="font-extrabold text-sm text-amber-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-microchip"></i> 永續裝備與低碳科技樹
-                            </h3>
-                            <p class="text-[11px] text-slate-400">消費累積的減碳量與 ESG 影響力，解鎖自動化設施與加成技術</p>
-                        </div>
+                <!-- Dice Action Control -->
+                <div class="flex flex-col items-center justify-center py-2 space-y-2">
+                    <div id="dice-display" class="w-16 h-16 rounded-2xl bg-slate-800 border-2 border-emerald-500/50 flex items-center justify-center text-3xl font-black text-amber-400 font-pixel shadow-inner">
+                        🎲
                     </div>
-
-                    <!-- Tech Items Grid -->
-                    <div id="tech-tree-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[300px] overflow-y-auto log-scrollbar pr-1">
-                        <!-- Dynamic Tech Cards -->
-                    </div>
+                    <button id="btn-roll-dice" onclick="playerRollDice()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition">
+                        擲骰前進 (Roll Dice)
+                    </button>
                 </div>
             </div>
-
-            <!-- Feedback Toast Notification Popup -->
-            <div id="feedback-toast" class="hidden bg-emerald-900/95 border border-emerald-400 text-emerald-200 px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg animate-bounce">
-                <span id="toast-icon">✨</span> <span id="feedback-text">行動成功！</span>
-            </div>
-
-            <!-- Log Console -->
-            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 shadow-inner space-y-2">
-                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-emerald-500"></i> 生態日誌 Console Log</span>
-                    <button onclick="clearGameLog()" class="text-[10px] text-slate-500 hover:text-slate-300 transition">清除紀錄</button>
-                </h4>
-                <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-28 overflow-y-auto log-scrollbar font-mono leading-relaxed"></div>
-            </div>
-
         </div>
 
-    </main>
+        <!-- Middle Column: 20-Tile Ring Board (6 cols) -->
+        <div class="lg:col-span-6 flex flex-col justify-between">
+            <div class="board-grid bg-slate-900/90 p-2.5 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[480px] relative">
+                <!-- Ring Board Tiles dynamically rendered via JS -->
+                <div id="board-container" class="contents"></div>
 
-    <!-- Game Engine & Script -->
+                <!-- Board Center Info Display -->
+                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/80 rounded-xl border border-slate-800/80 p-4 flex flex-col justify-between items-center text-center relative overflow-hidden">
+                    <div class="space-y-1 z-10">
+                        <span class="text-3xl">🌱</span>
+                        <h3 class="font-black text-sm text-emerald-400">峨眉低碳永續試驗地圖</h3>
+                        <p class="text-[10px] text-slate-400">建設蚯蚓箱與生物炭設施，累積最高碳匯贏得競賽！</p>
+                    </div>
+
+                    <!-- Center Event/Action Feedback Card -->
+                    <div id="board-center-event" class="bg-slate-900/90 border border-slate-700/80 p-3 rounded-xl w-full space-y-1.5 text-left text-xs z-10 my-auto">
+                        <span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">遊戲準備完畢</span>
+                        <p class="text-slate-200 text-xs leading-relaxed" id="center-event-text">輪到第 1 位玩家擲骰！</p>
+                    </div>
+
+                    <div class="text-[10px] text-slate-500 font-mono z-10">
+                        GRI 306 & TNFD 概念實踐對戰平台
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Interactive Log & Action Modal (3 cols) -->
+        <div class="lg:col-span-3 space-y-3 flex flex-col">
+            <!-- Event Action Modal / Decision Card -->
+            <div id="modal-action-deck" class="bg-slate-900/90 rounded-2xl p-4 border border-amber-500/30 shadow-xl space-y-3 min-h-[180px] flex flex-col justify-between">
+                <div class="space-y-1">
+                    <span id="modal-tag" class="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded border border-amber-500/30">設施事件</span>
+                    <h4 id="modal-title" class="font-bold text-xs text-slate-100 mt-1">到達地點</h4>
+                    <p id="modal-desc" class="text-xs text-slate-300 leading-relaxed">請擲骰展開回合...</p>
+                </div>
+                <div id="modal-buttons" class="space-y-1.5">
+                    <!-- Dynamic Buttons -->
+                </div>
+            </div>
+
+            <!-- Match Event Console Log -->
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1.5 flex-1 flex flex-col">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+                    <span class="flex items-center gap-1"><i class="fa-solid fa-terminal text-emerald-500"></i> 對戰日誌</span>
+                </h4>
+                <div id="game-log" class="text-xs text-slate-400 space-y-1 max-h-48 overflow-y-auto log-scrollbar font-mono flex-1"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- GAME OVER WINNER MODAL OVERLAY -->
+    <div id="modal-winner" class="hidden fixed inset-0 bg-slate-950/90 z-50 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="bg-slate-900 border border-emerald-500/50 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center space-y-6 shadow-2xl">
+            <span class="text-6xl animate-bounce inline-block">🏆</span>
+            <div class="space-y-1">
+                <h2 class="text-2xl font-black text-emerald-400 text-glow">永續競賽優勝誕生！</h2>
+                <p class="text-xs text-slate-400">通過第三方 GRI & TNFD 碳匯稽核認證</p>
+            </div>
+
+            <div id="winner-details" class="bg-slate-950 p-4 rounded-2xl border border-slate-800 text-left space-y-2">
+                <!-- Dynamic Winner Info -->
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3.5 rounded-2xl text-sm shadow-lg transition">
+                返回大廳重新對戰
+            </button>
+        </div>
+    </div>
+
+    <!-- GAME ENGINE SCRIPT -->
     <script>
-        // Web Audio Synthesizer Engine
+        // Web Audio Synthesizer
         let soundEnabled = true;
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -302,15 +304,15 @@
                 osc.connect(gain);
                 gain.connect(audioCtx.destination);
 
-                if (type === 'click') {
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(400, audioCtx.currentTime);
-                    osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                if (type === 'roll') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.1);
                     gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
                     osc.start();
-                    osc.stop(audioCtx.currentTime + 0.08);
-                } else if (type === 'success') {
+                    osc.stop(audioCtx.currentTime + 0.1);
+                } else if (type === 'buy') {
                     osc.type = 'triangle';
                     osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
                     osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.08);
@@ -319,14 +321,6 @@
                     gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.25);
                     osc.start();
                     osc.stop(audioCtx.currentTime + 0.25);
-                } else if (type === 'alert') {
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
-                    osc.frequency.linearRampToValueAtTime(150, audioCtx.currentTime + 0.15);
-                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-                    gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-                    osc.start();
-                    osc.stop(audioCtx.currentTime + 0.15);
                 }
             } catch(e) {}
         }
@@ -334,567 +328,441 @@
         function toggleSound() {
             soundEnabled = !soundEnabled;
             document.getElementById('sound-icon').className = soundEnabled ? "fa-solid fa-volume-high text-emerald-400" : "fa-solid fa-volume-xmark text-slate-500";
-            document.getElementById('sound-btn').querySelector('span').innerText = `音效: ${soundEnabled ? '開' : '關'}`;
         }
 
-        // TECH TREE DATABASE DEFINITIONS
-        const TECH_TREE = {
-            "WORM_BIN_V2": {
-                id: "WORM_BIN_V2",
-                name: "歸蚓酷客蚯蚓箱 V2.0",
-                icon: "🪱",
-                costType: "carbon",
-                cost: 5.0,
-                desc: "採用 304 不鏽鋼結構與雙層透氣保濕蓋，降低 30% 濕度自然蒸散速率。",
-                unlocked: false
-            },
-            "BIOCHAR_COLLECTOR": {
-                id: "BIOCHAR_COLLECTOR",
-                name: "竹醋液冷凝收集器",
-                icon: "🧪",
-                costType: "carbon",
-                cost: 10.0,
-                desc: "在熱裂解時收集竹醋液，天然驅離害蟲並增加 SOC 土壤碳匯點數。",
-                unlocked: false,
-                effect: () => { gameState.socScore += 10; }
-            },
-            "CHICKEN_TRACTOR": {
-                id: "CHICKEN_TRACTOR",
-                name: "A 型移動雞舍 (Chicken Tractor)",
-                icon: "🐔",
-                costType: "esg",
-                cost: 30,
-                desc: "讓蛋雞協助扒鬆堆肥，每 10 秒自動產生 1.0kg 咖啡渣與枯枝資材！",
-                unlocked: false,
-                effect: () => { addLog("解鎖 A 型移動雞舍！蛋雞群開始自動清理扒鬆資材。"); }
-            },
-            "EARTH_BUILDING": {
-                id: "EARTH_BUILDING",
-                name: "生物炭自然建築壁體",
-                icon: "🏛️",
-                costType: "esg",
-                cost: 50,
-                desc: "將生物炭固化於土漿結構中，封存碳排並解鎖低碳建築師技術標章。",
-                unlocked: false,
-                effect: () => { unlockBadge("NATURAL_BUILDER"); }
-            }
+        function generateRandomRoom() {
+            const rand = Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('input-room-id').value = `EARTH-${rand}`;
+        }
+
+        // CHARACTERS DEFINITION
+        const CHARACTER_PRESETS = [
+            { id: "aku", name: "阿酷", role: "歸蚓酷客創辦人", avatar: "🧑‍🌾", skill: "蚯蚓堆肥收益 +20%", color: "#10b981" },
+            { id: "xiaolv", name: "小綠", role: "綠色循環工程師", avatar: "👩‍🔬", skill: "熱裂解生物炭減碳量 +25%", color: "#38bdf8" },
+            { id: "chang", name: "張總", role: "跨國企業 CSR 總監", avatar: "💼", skill: "ESG 贊助積分 +30%", color: "#a855f7" },
+            { id: "lin", name: "林老伯", role: "峨眉在地資深農夫", avatar: "👨‍🌾", skill: "SOC 土壤碳匯加成 +25%", color: "#f59e0b" }
+        ];
+
+        // 20-TILE BOARD TILES DEFINITION
+        const BOARD_TILES = [
+            { id: 0, name: "起點站", type: "start", icon: "🚩", desc: "經過獲得資材 +5kg，減碳 +2.0" },
+            { id: 1, name: "咖啡渣收集站", type: "resource", icon: "☕", resource: "coffee", amount: 4, desc: "獲得 4kg 咖啡渣" },
+            { id: 2, name: "蚯蚓堆肥箱 V1.0", type: "facility", icon: "🪱", cost: 5, carbonBonus: 3.0, owner: null },
+            { id: 3, name: "極端氣候：午後暴雨", type: "event", icon: "🌧️", eventType: "rain" },
+            { id: 4, name: "茶葉渣收集站", type: "resource", icon: "🍵", resource: "tea", amount: 4, desc: "獲得 4kg 茶葉渣" },
+            { id: 5, name: "熱裂解生物炭主機", type: "facility", icon: "🔥", cost: 8, carbonBonus: 5.0, owner: null },
+            { id: 6, name: "ESG 企業贊助", type: "esg", icon: "💼", pts: 20, desc: "獲得 ESG 社群積分 +20" },
+            { id: 7, name: "生廚餘收集站", type: "resource", icon: "🍎", resource: "foodScraps", amount: 4, desc: "獲得 4kg 生廚餘" },
+            { id: 8, name: "A型移動雞舍", type: "facility", icon: "🐔", cost: 10, carbonBonus: 6.0, owner: null },
+            { id: 9, name: "竹醋液冷凝收集器", type: "facility", icon: "🧪", cost: 6, carbonBonus: 4.0, owner: null },
+            { id: 10, name: "枯枝落葉堆置場", type: "resource", icon: "🍂", resource: "dryLeaves", amount: 6, desc: "獲得 6kg 枯枝落葉" },
+            { id: 11, name: "極端氣候：酷暑熱浪", type: "event", icon: "☀️", eventType: "heat" },
+            { id: 12, name: "蚯蚓堆肥箱 V2.0", type: "facility", icon: "📦", cost: 12, carbonBonus: 8.0, owner: null },
+            { id: 13, name: "社區 WORKSHOP", type: "esg", icon: "🤝", pts: 30, desc: "舉辦體驗工作坊，ESG +30" },
+            { id: 14, name: "生物炭自然建築壁體", type: "facility", icon: "🏛️", cost: 15, carbonBonus: 10.0, owner: null },
+            { id: 15, name: "紅螞蟻大軍襲擊", type: "event", icon: "🐜", eventType: "ants" },
+            { id: 16, name: "峨眉 SOC 碳匯試驗田", type: "facility", icon: "🌱", cost: 10, carbonBonus: 7.0, owner: null },
+            { id: 17, name: "範疇三 Scope 3 揭露", type: "esg", icon: "📊", pts: 25, desc: "完成碳盤查揭露，ESG +25" },
+            { id: 18, name: "有機資材補給站", type: "resource", icon: "📦", resource: "all", amount: 3, desc: "全有機資材各 +3kg" },
+            { id: 19, name: "GRI 306 永續認證", type: "esg", icon: "📜", pts: 40, desc: "通過第三方驗證，ESG +40" }
+        ];
+
+        // GAME STATE
+        let gameConfig = {
+            roomId: "TERRA-2026",
+            maxRounds: 15,
+            selectMode: "speed",
+            slots: ["human", "ai", "ai", "ai"]
         };
 
-        // State Engine
-        const DEFAULT_STATE = {
-            ticks: 0,
-            day: 1,
-            farmName: "峨眉低碳示範農場",
-            hunger: 80,         // 飽食度 0-100
-            moisture: 70,       // 濕度 0-100
-            wormVitality: 85,   // 總活力 0-100
-            carbonOffset: 0.0,
-            socScore: 10,
-            esgImpact: 0,
-            vermicompost: 0.0,
-            weather: "☀️ 晴朗微風",
-            unprocessedWaste: {
-                coffee: 10.0,
-                tea: 5.0,
-                foodScraps: 8.0,
-                dryLeaves: 12.0
-            },
-            unlockedTechs: [],
-            badges: [],
+        let gameState = {
+            currentRound: 1,
+            turnIndex: 0,
+            players: [],
+            board: JSON.parse(JSON.stringify(BOARD_TILES)),
             logHistory: []
         };
 
-        let gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
+        // LOBBY INITIALIZATION
+        function initLobbyUI() {
+            const container = document.getElementById('lobby-player-slots');
+            container.innerHTML = '';
 
-        const ALL_BADGES = {
-            "WORM_MASTER": { name: "蚓酷客大師", icon: "🪱", desc: "蚯蚓活力保持在 90% 以上" },
-            "CARBON_HERO": { name: "減碳英雄", icon: "🌿", desc: "累計減碳量突破 50 kg CO₂e" },
-            "BIOCHAR_PIONEER": { name: "生物炭先驅", icon: "🔥", desc: "成功熱裂解製作高品質生物炭" },
-            "NATURAL_BUILDER": { name: "低碳建築師", icon: "🏛️", desc: "完成自然建築土漿固碳試驗" },
-            "GRI_COMPLIANT": { name: "GRI & TNFD 雙認證", icon: "📜", desc: "通過第三方永續稽核驗證" }
-        };
-
-        // UI View Switcher
-        function switchTab(tab) {
-            playSound('click');
-            const careView = document.getElementById('view-care');
-            const techView = document.getElementById('view-tech');
-            const careBtn = document.getElementById('tab-care-btn');
-            const techBtn = document.getElementById('tab-tech-btn');
-
-            if (tab === 'care') {
-                careView.classList.remove('hidden');
-                techView.classList.add('hidden');
-                careBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition";
-                techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
-            } else {
-                careView.classList.add('hidden');
-                techView.classList.remove('hidden');
-                techView.classList.add('flex');
-                techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-amber-600 text-white shadow-lg transition";
-                careBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
-                renderTechTree();
-            }
-        }
-
-        // REAL-TIME TICK LOOP (每 3 秒觸發一次時間流逝)
-        function startRealTimeEngine() {
-            setInterval(() => {
-                gameState.ticks += 1;
-                gameState.day = Math.floor(gameState.ticks / 10) + 1;
-
-                // 自然狀態衰減 (V2 箱體可減緩水分蒸散)
-                let evapRate = gameState.unlockedTechs.includes("WORM_BIN_V2") ? 1 : 2;
-                gameState.moisture = Math.max(10, gameState.moisture - evapRate);
-                gameState.hunger = Math.max(0, gameState.hunger - 2);
-
-                // Chicken Tractor Auto Supply
-                if (gameState.unlockedTechs.includes("CHICKEN_TRACTOR") && gameState.ticks % 3 === 0) {
-                    gameState.unprocessedWaste.coffee += 0.5;
-                    gameState.unprocessedWaste.dryLeaves += 0.5;
-                }
-
-                // 蚯蚓消化轉化產出 (當飽食度與濕度適宜時自動分解)
-                if (gameState.hunger > 20 && gameState.moisture >= 40 && gameState.moisture <= 85) {
-                    gameState.vermicompost += 0.1;
-                    gameState.carbonOffset += 0.05;
-                }
-
-                // 計算蚯蚓總活力狀態
-                let moodScore = 100;
-                if (gameState.moisture < 40 || gameState.moisture > 85) moodScore -= 30;
-                if (gameState.hunger < 30) moodScore -= 30;
-                gameState.wormVitality = Math.max(0, moodScore);
-
-                // 動態對話與警告性提示
-                updateDialogueAndWeather();
-
-                updateUI();
-                saveGame(false);
-            }, 3000);
-        }
-
-        function updateDialogueAndWeather() {
-            const dlg = document.getElementById('care-dialogue');
-            if (gameState.moisture < 30) {
-                dlg.innerText = "「⚠️ 堆肥過於乾旱！蚯蚓快乾枯了，請快點灑水！」";
-                gameState.weather = "☀️ 酷暑乾旱";
-            } else if (gameState.moisture > 85) {
-                dlg.innerText = "「⚠️ 堆肥過度濕潤缺氧！請快加入乾枯枝落葉吸水！」";
-                gameState.weather = "🌧️ 積水缺氧";
-            } else if (gameState.hunger < 30) {
-                dlg.innerText = "「🤤 蚯蚓肚子餓了，請投餵咖啡渣或生廚餘！」";
-            } else {
-                dlg.innerText = "「😄 蚯蚓正在開心分解有機廢材，順利固碳中！」";
-                if (gameState.ticks % 5 === 0) gameState.weather = "☀️ 晴朗微風";
-            }
-        }
-
-        function petWorm() {
-            playSound('click');
-            showToast("🪱 蚯蚓開心地位扭動了一下！", "💖");
-            addWormVitality(2);
-        }
-
-        function feedWorms() {
-            if (gameState.unprocessedWaste.coffee >= 2.0) {
-                gameState.unprocessedWaste.coffee -= 2.0;
-                gameState.hunger = Math.min(100, gameState.hunger + 25);
-                gameState.vermicompost += 0.5;
-                addCarbon(0.3);
-                playSound('success');
-                showToast("投餵 2kg 咖啡渣！飽食度提升", "🍖");
-                addLog("投餵咖啡渣，蚯蚓大軍開始快樂進食。");
-            } else {
-                showToast("咖啡渣庫存不足！請先補充資材", "❌");
-            }
-            updateUI();
-        }
-
-        function waterBin() {
-            gameState.moisture = Math.min(100, gameState.moisture + 15);
-            playSound('success');
-            showToast("噴淋灑水完成！濕度 +15%", "💧");
-            addLog("補充水分，維持堆肥最適濕度。");
-            updateUI();
-        }
-
-        function addDryLeaves() {
-            if (gameState.unprocessedWaste.dryLeaves >= 2.0) {
-                gameState.unprocessedWaste.dryLeaves -= 2.0;
-                gameState.moisture = Math.max(10, gameState.moisture - 12);
-                gameState.socScore += 1;
-                playSound('success');
-                showToast("鋪入 2kg 枯枝落葉！濕度 -12%", "🍂");
-                addLog("鋪入乾碳資材，調整 C/N 比與濕度。");
-            } else {
-                showToast("枯枝落葉庫存不足！", "❌");
-            }
-            updateUI();
-        }
-
-        function makeBiochar() {
-            if (gameState.unprocessedWaste.dryLeaves >= 3.0) {
-                gameState.unprocessedWaste.dryLeaves -= 3.0;
-                addCarbon(2.0);
-                addSOC(5);
-                unlockBadge("BIOCHAR_PIONEER");
-                playSound('success');
-                showToast("熱裂解完成！獲得固定碳與 SOC 碳匯", "🔥");
-                addLog("進行無煙熱裂解，封存 2.0kg 固定碳！");
-            } else {
-                showToast("枯枝落葉不足 3kg，無法啟動熱裂解！", "❌");
-            }
-            updateUI();
-        }
-
-        function harvestCompost() {
-            if (gameState.vermicompost >= 1.0) {
-                let amount = gameState.vermicompost;
-                gameState.vermicompost = 0;
-                gameState.socScore += Math.floor(amount * 2);
-                addESG(10);
-                playSound('success');
-                showToast(`成功收成 ${amount.toFixed(1)}kg 蚓糞肥！SOC 碳匯提升`, "🌱");
-                addLog(`收成 ${amount.toFixed(1)}kg 蚓糞優質有機肥，回饋大地！`);
-            } else {
-                showToast("蚓糞肥料庫存不足 1.0kg，尚無法收成", "❌");
-            }
-            updateUI();
-        }
-
-        function replenishMaterials() {
-            gameState.unprocessedWaste.coffee += 5.0;
-            gameState.unprocessedWaste.tea += 3.0;
-            gameState.unprocessedWaste.foodScraps += 4.0;
-            gameState.unprocessedWaste.dryLeaves += 6.0;
-            playSound('click');
-            showToast("成功接收社區贊助的新批次有機資材！", "📦");
-            addLog("接收社區送來的有機廢棄物資材。");
-            updateUI();
-        }
-
-        function renderTechTree() {
-            const grid = document.getElementById('tech-tree-grid');
-            grid.innerHTML = '';
-
-            Object.values(TECH_TREE).forEach(tech => {
-                const isUnlocked = gameState.unlockedTechs.includes(tech.id);
-                const canAfford = tech.costType === 'carbon' ? gameState.carbonOffset >= tech.cost : gameState.esgImpact >= tech.cost;
-                const costUnit = tech.costType === 'carbon' ? 'kg CO₂e' : 'pts ESG';
-
+            for (let i = 0; i < 4; i++) {
+                const isHuman = gameConfig.slots[i] === 'human';
                 const card = document.createElement('div');
-                card.className = `p-3.5 rounded-xl border transition flex flex-col justify-between ${
-                    isUnlocked ? 'bg-emerald-950/40 border-emerald-500/50' : canAfford ? 'bg-slate-900 border-amber-500/50 hover:border-amber-400' : 'bg-slate-900/50 border-slate-800 opacity-60'
+                card.className = `p-3.5 rounded-2xl border text-center transition flex flex-col justify-between ${
+                    isHuman ? 'bg-emerald-950/40 border-emerald-500/50' : 'bg-slate-900 border-slate-800'
                 }`;
 
                 card.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-                                <span>${tech.icon}</span> <span>${tech.name}</span>
-                            </span>
-                            ${isUnlocked ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded border border-emerald-500/40">已解鎖</span>' : `<span class="text-[10px] font-bold text-amber-400">${tech.cost} ${costUnit}</span>`}
-                        </div>
-                        <p class="text-[11px] text-slate-400 leading-snug mb-3">${tech.desc}</p>
+                    <div class="space-y-1">
+                        <span class="text-xs font-bold text-slate-400">席位 P${i + 1}</span>
+                        <div class="text-2xl">${isHuman ? '👤' : '🤖'}</div>
+                        <span class="text-xs font-extrabold text-slate-200 block">${isHuman ? '真人玩家' : 'AI 棋手'}</span>
                     </div>
-                    ${!isUnlocked ? `
-                        <button onclick="unlockTech('${tech.id}')" ${!canAfford ? 'disabled' : ''} class="w-full py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 ${
-                            canAfford ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md' : 'bg-slate-800 text-slate-500 cursor-not-allowed'
-                        }">
-                            <i class="fa-solid fa-lock-open"></i> 研發解鎖
-                        </button>
-                    ` : ''}
+                    <button onclick="toggleSlotType(${i})" class="mt-3 text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 py-1 px-2 rounded-lg border border-slate-700">
+                        切換為 ${isHuman ? '🤖 AI' : '👤 真人'}
+                    </button>
                 `;
-                grid.appendChild(card);
+                container.appendChild(card);
+            }
+        }
+
+        function toggleSlotType(idx) {
+            gameConfig.slots[idx] = gameConfig.slots[idx] === 'human' ? 'ai' : 'human';
+            initLobbyUI();
+        }
+
+        function startLobbyGame() {
+            gameConfig.roomId = document.getElementById('input-room-id').value || "TERRA-2026";
+            gameConfig.maxRounds = parseInt(document.getElementById('select-rounds').value);
+            gameConfig.selectMode = document.querySelector('input[name="select-mode"]:checked').value;
+
+            document.getElementById('room-id-display').innerText = gameConfig.roomId;
+            document.getElementById('room-tag').classList.remove('hidden');
+
+            if (gameConfig.selectMode === 'speed') {
+                document.getElementById('screen-lobby').classList.add('hidden');
+                document.getElementById('screen-speed-select').classList.remove('hidden');
+                initSpeedSelectionUI();
+            } else {
+                // Random Selection directly
+                setupPlayersRandomly();
+                launchBoardGame();
+            }
+        }
+
+        // SPEED SELECTION UI
+        let selectedCharacterIds = {};
+
+        function initSpeedSelectionUI() {
+            const container = document.getElementById('speed-character-cards');
+            container.innerHTML = '';
+
+            CHARACTER_PRESETS.forEach((char, idx) => {
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-2xl bg-slate-950 border border-slate-800 hover:border-amber-500/50 transition flex items-center space-x-3";
+                card.innerHTML = `
+                    <div class="w-12 h-12 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-2xl">
+                        ${char.avatar}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-extrabold text-sm text-slate-100">${char.name}</h4>
+                            <span class="text-[10px] text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/30">${char.skill}</span>
+                        </div>
+                        <p class="text-[11px] text-slate-400">${char.role}</p>
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
 
-        function unlockTech(techId) {
-            const tech = TECH_TREE[techId];
-            if (!tech || gameState.unlockedTechs.includes(techId)) return;
+        function confirmCharacterSelection() {
+            setupPlayersRandomly();
+            document.getElementById('screen-speed-select').classList.add('hidden');
+            launchBoardGame();
+        }
 
-            if (tech.costType === 'carbon' && gameState.carbonOffset >= tech.cost) {
-                gameState.carbonOffset -= tech.cost;
-                executeUnlock(tech);
-            } else if (tech.costType === 'esg' && gameState.esgImpact >= tech.cost) {
-                gameState.esgImpact -= tech.cost;
-                executeUnlock(tech);
+        function setupPlayersRandomly() {
+            const shuffled = [...CHARACTER_PRESETS].sort(() => 0.5 - Math.random());
+            gameState.players = [];
+
+            for (let i = 0; i < 4; i++) {
+                const preset = shuffled[i];
+                const isAi = gameConfig.slots[i] === 'ai';
+                gameState.players.push({
+                    id: i,
+                    name: `${preset.name}${isAi ? ' (AI)' : ''}`,
+                    isAi: isAi,
+                    avatar: preset.avatar,
+                    skill: preset.skill,
+                    color: preset.color,
+                    position: 0,
+                    carbon: 0.0,
+                    soc: 10,
+                    esg: 0,
+                    waste: { coffee: 5, tea: 5, foodScraps: 5, dryLeaves: 5 }
+                });
             }
         }
 
-        function executeUnlock(tech) {
-            gameState.unlockedTechs.push(tech.id);
-            if (tech.effect) tech.effect();
-            playSound('success');
-            showToast(`成功解鎖科技：${tech.name}`, "🔬");
-            addLog(`研發解鎖低碳技術：${tech.name}`);
-            updateUI();
-            renderTechTree();
+        // LAUNCH BOARD GAME
+        function launchBoardGame() {
+            document.getElementById('screen-lobby').classList.add('hidden');
+            document.getElementById('screen-game').classList.remove('hidden');
+
+            renderRingBoardTiles();
+            updateScoreboard();
+            updateActivePlayerTurnUI();
+            addLog(`對戰正式開啟！房號 [${gameConfig.roomId}]，共 ${gameConfig.maxRounds} 回合。`);
         }
 
-        // Canvas Pixel Visualizer Rendering Loop
-        function drawFarmCanvas() {
-            const cvs = document.getElementById('farmCanvas');
-            if (!cvs) return;
-            const ctx = cvs.getContext('2d');
-            const w = cvs.width;
-            const h = cvs.height;
+        // RENDER RING BOARD TILES (20-TILE PERIMETER)
+        function renderRingBoardTiles() {
+            const container = document.getElementById('board-container');
+            container.innerHTML = '';
 
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(0, 0, w, h);
+            // Grid mapping for 6x6 perimeter (0-19)
+            const coords = [
+                { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 },
+                { r: 2, c: 6 }, { r: 3, c: 6 }, { r: 4, c: 6 }, { r: 5, c: 6 },
+                { r: 6, c: 6 }, { r: 6, c: 5 }, { r: 6, c: 4 }, { r: 6, c: 3 }, { r: 6, c: 2 }, { r: 6, c: 1 },
+                { r: 5, c: 1 }, { r: 4, c: 1 }, { r: 3, c: 1 }, { r: 2, c: 1 }
+            ];
 
-            // 天氣 background
-            if (gameState.weather.includes('雨') || gameState.weather.includes('缺氧')) {
-                ctx.fillStyle = '#1e293b';
-            } else if (gameState.weather.includes('乾旱')) {
-                ctx.fillStyle = '#451a03';
+            gameState.board.forEach((tile, idx) => {
+                const pos = coords[idx];
+                const tileEl = document.createElement('div');
+                tileEl.style.gridRowStart = pos.r;
+                tileEl.style.gridColumnStart = pos.c;
+
+                // Owner border highlight
+                let ownerBorder = "border-slate-800";
+                if (tile.owner !== null) {
+                    const ownerPlayer = gameState.players[tile.owner];
+                    if (ownerPlayer) ownerBorder = `border-2 border-[${ownerPlayer.color}]`;
+                }
+
+                tileEl.className = `bg-slate-900/90 rounded-xl p-1.5 border ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden`;
+
+                // Players currently on this tile
+                let playerTokens = '';
+                gameState.players.forEach(p => {
+                    if (p.position === idx) {
+                        playerTokens += `<span class="text-xs" title="${p.name}">${p.avatar}</span>`;
+                    }
+                });
+
+                tileEl.innerHTML = `
+                    <div class="text-xs flex gap-0.5 justify-center">${playerTokens}</div>
+                    <div class="text-lg my-0.5">${tile.icon}</div>
+                    <span class="text-[9px] font-bold text-slate-200 truncate w-full">${tile.name}</span>
+                `;
+                container.appendChild(tileEl);
+            });
+        }
+
+        // UPDATE SCOREBOARD
+        function updateScoreboard() {
+            document.getElementById('game-round-tag').innerText = `Round ${gameState.currentRound}/${gameConfig.maxRounds}`;
+            const container = document.getElementById('scoreboard-list');
+            container.innerHTML = '';
+
+            // Sort by Carbon + SOC + ESG
+            const sorted = [...gameState.players].sort((a, b) => (b.carbon + b.soc + b.esg) - (a.carbon + a.soc + a.esg));
+
+            sorted.forEach((p, rank) => {
+                const isCurrentTurn = p.id === gameState.turnIndex;
+                const card = document.createElement('div');
+                card.className = `p-2 rounded-xl border flex justify-between items-center text-xs transition ${
+                    isCurrentTurn ? 'bg-emerald-950/60 border-emerald-500 active-turn' : 'bg-slate-950/60 border-slate-800'
+                }`;
+
+                card.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="font-pixel text-amber-400 font-bold">#${rank + 1}</span>
+                        <span>${p.avatar}</span>
+                        <div>
+                            <span class="font-bold text-slate-100 block text-[11px]">${p.name}</span>
+                            <span class="text-[9px] text-slate-400 block">${p.skill}</span>
+                        </div>
+                    </div>
+                    <div class="text-right font-mono">
+                        <span class="font-bold text-emerald-400 block">${p.carbon.toFixed(1)} kg</span>
+                        <span class="text-[9px] text-amber-400 block">${p.soc} pt / ${p.esg} pts</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function updateActivePlayerTurnUI() {
+            const p = gameState.players[gameState.turnIndex];
+            document.getElementById('active-avatar').innerText = p.avatar;
+            document.getElementById('active-name').innerText = `${p.name} 回合`;
+            document.getElementById('active-role').innerText = p.skill;
+
+            const rollBtn = document.getElementById('btn-roll-dice');
+            if (p.isAi) {
+                rollBtn.disabled = true;
+                rollBtn.innerText = "🤖 AI 思考中...";
+                rollBtn.className = "w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl text-xs cursor-not-allowed";
+                setTimeout(aiExecuteTurn, 1200);
             } else {
-                ctx.fillStyle = '#064e3b';
+                rollBtn.disabled = false;
+                rollBtn.innerText = "擲骰前進 (Roll Dice)";
+                rollBtn.className = "w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 rounded-xl text-xs shadow-lg transition";
             }
-            ctx.fillRect(0, 0, w, 80);
+        }
 
-            ctx.fillStyle = '#271c19';
-            ctx.fillRect(0, 80, w, 80);
+        // PLAYER ROLL DICE ACTION
+        function playerRollDice() {
+            playSound('roll');
+            const p = gameState.players[gameState.turnIndex];
+            const dice = Math.floor(Math.random() * 6) + 1;
 
-            // Worm Bin Frame
-            const isV2 = gameState.unlockedTechs.includes("WORM_BIN_V2");
-            ctx.fillStyle = isV2 ? '#0284c7' : '#475569';
-            ctx.fillRect(120, 70, 80, 50);
-            ctx.fillStyle = '#0f172a';
-            ctx.fillRect(125, 75, 70, 40);
+            const diceDisplay = document.getElementById('dice-display');
+            diceDisplay.classList.add('animate-dice');
+            diceDisplay.innerText = dice;
 
-            // Compost Level Inside Bin
-            const binLevel = Math.min(35, Math.floor(gameState.vermicompost * 3) + 12);
-            ctx.fillStyle = '#3f2e21';
-            ctx.fillRect(125, 115 - binLevel, 70, binLevel);
+            setTimeout(() => {
+                diceDisplay.classList.remove('animate-dice');
+                p.position = (p.position + dice) % 20;
+                renderRingBoardTiles();
+                handleTileLanding(p, p.position);
+            }, 400);
+        }
 
-            // Animated Worms (Real-time Wiggle)
-            ctx.fillStyle = '#f43f5e';
-            const wormCount = Math.floor(gameState.wormVitality / 20);
-            const timeOffset = Date.now() / 300;
-            for(let i = 0; i < wormCount; i++) {
-                let wx = 130 + (i * 12) % 60;
-                let wy = 110 - (i * 5) % 25 + Math.sin(timeOffset + i) * 2;
-                ctx.fillRect(wx, wy, 8, 3);
-            }
+        function aiExecuteTurn() {
+            playerRollDice();
+        }
 
-            // Unlocked Tech Icons
-            if (gameState.badges.includes("BIOCHAR_PIONEER") || gameState.unlockedTechs.includes("BIOCHAR_COLLECTOR")) {
-                ctx.fillStyle = '#334155';
-                ctx.fillRect(30, 60, 40, 40);
-                ctx.fillStyle = '#f59e0b';
-                ctx.fillRect(45, 50, 10, 10);
-            }
+        // HANDLE TILE LANDING LOGIC
+        function handleTileLanding(player, tileIdx) {
+            const tile = gameState.board[tileIdx];
+            document.getElementById('center-event-text').innerText = `${player.name} 移動至 [${tile.name}]`;
 
-            if (gameState.unlockedTechs.includes("CHICKEN_TRACTOR")) {
-                ctx.fillStyle = '#d97706';
-                ctx.beginPath();
-                ctx.moveTo(90, 110);
-                ctx.lineTo(105, 80);
-                ctx.lineTo(120, 110);
-                ctx.fill();
-            }
+            const modalTag = document.getElementById('modal-tag');
+            const modalTitle = document.getElementById('modal-title');
+            const modalDesc = document.getElementById('modal-desc');
+            const modalBtns = document.getElementById('modal-buttons');
 
-            if (gameState.unlockedTechs.includes("EARTH_BUILDING") || gameState.badges.includes("NATURAL_BUILDER")) {
-                ctx.fillStyle = '#78350f';
-                ctx.fillRect(240, 55, 50, 45);
-                ctx.fillStyle = '#10b981';
-                ctx.fillRect(255, 75, 20, 25);
-            }
+            modalTitle.innerText = `${tile.icon} ${tile.name}`;
+            modalBtns.innerHTML = '';
 
-            // Weather Particles
-            if (gameState.weather.includes('雨')) {
-                ctx.fillStyle = '#38bdf8';
-                for (let i = 0; i < 15; i++) {
-                    let rx = (Date.now() / 5 + i * 25) % w;
-                    let ry = (Date.now() / 3 + i * 15) % h;
-                    ctx.fillRect(rx, ry, 2, 6);
+            if (tile.type === 'facility') {
+                modalTag.innerText = "低碳永續設施";
+                if (tile.owner === null) {
+                    modalDesc.innerText = `建設需要耗費 3kg 枯枝資材，完成後可獲得 ${tile.carbonBonus} kg CO2e 減碳效益！`;
+                    
+                    if (!player.isAi) {
+                        modalBtns.innerHTML = `
+                            <button onclick="buildFacility(${tileIdx})" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-xl text-xs">投入資材建設 (+減碳)</button>
+                            <button onclick="endTurn()" class="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 py-1.5 rounded-xl text-xs">路過不建設</button>
+                        `;
+                    } else {
+                        // AI Decision
+                        if (player.waste.dryLeaves >= 3) {
+                            buildFacility(tileIdx);
+                        } else {
+                            endTurn();
+                        }
+                    }
+                } else {
+                    const owner = gameState.players[tile.owner];
+                    modalDesc.innerText = `此設施已由 ${owner.name} 建置，參訪學習可為其提供 +1.0 kg CO2e 碳匯加成。`;
+                    owner.carbon += 1.0;
+                    if (!player.isAi) {
+                        modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-slate-800 text-slate-200 py-2 rounded-xl text-xs">確認了解</button>`;
+                    } else {
+                        setTimeout(endTurn, 1000);
+                    }
+                }
+            } else if (tile.type === 'resource') {
+                modalTag.innerText = "有機資材收集";
+                player.waste.dryLeaves += 4;
+                player.carbon += 1.5;
+                modalDesc.innerText = `成功收集資材，減碳點數 +1.5 kg CO2e！`;
+                if (!player.isAi) {
+                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-emerald-600 text-white font-bold py-2 rounded-xl text-xs">收下資材並結束回合</button>`;
+                } else {
+                    setTimeout(endTurn, 1000);
+                }
+            } else if (tile.type === 'esg') {
+                modalTag.innerText = "ESG 社群積分";
+                player.esg += tile.pts;
+                modalDesc.innerText = `成功推動永續，獲得 ESG 社群積分 +${tile.pts} pts！`;
+                if (!player.isAi) {
+                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs">領取 ESG 獎勵</button>`;
+                } else {
+                    setTimeout(endTurn, 1000);
+                }
+            } else {
+                modalTag.innerText = "事件點";
+                modalDesc.innerText = `路過 ${tile.name}！`;
+                if (!player.isAi) {
+                    modalBtns.innerHTML = `<button onclick="endTurn()" class="w-full bg-slate-800 text-slate-200 py-2 rounded-xl text-xs">繼續下一回合</button>`;
+                } else {
+                    setTimeout(endTurn, 1000);
                 }
             }
+
+            updateScoreboard();
         }
 
-        function updateUI() {
-            document.getElementById('stat-day').innerText = `Day ${gameState.day}`;
-            document.getElementById('stat-hunger-text').innerText = `${gameState.hunger}%`;
-            document.getElementById('stat-moisture-text').innerText = `${gameState.moisture}%`;
-            document.getElementById('stat-worm-text').innerText = `${gameState.wormVitality}%`;
-            
-            document.getElementById('stat-carbon').innerHTML = `${gameState.carbonOffset.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
-            document.getElementById('stat-soc').innerHTML = `${gameState.socScore} <span class="text-[10px] font-normal text-slate-400">pt</span>`;
-            document.getElementById('stat-esg').innerHTML = `${gameState.esgImpact} <span class="text-[10px] font-normal text-slate-400">pts</span>`;
-            document.getElementById('stat-compost').innerHTML = `${gameState.vermicompost.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
+        function buildFacility(tileIdx) {
+            playSound('buy');
+            const p = gameState.players[gameState.turnIndex];
+            const tile = gameState.board[tileIdx];
 
-            const moodEl = document.getElementById('worm-mood');
-            if (gameState.wormVitality > 80) moodEl.innerText = "🪱 (超開心)";
-            else if (gameState.wormVitality > 50) moodEl.innerText = "🪱 (普通)";
-            else moodEl.innerText = "🪱 (虛弱受苦)";
+            tile.owner = p.id;
+            p.carbon += tile.carbonBonus;
+            p.soc += 5;
 
-            // Progress Bars
-            const hungerBar = document.getElementById('stat-hunger-bar');
-            hungerBar.style.width = `${gameState.hunger}%`;
-            if (gameState.hunger < 30) hungerBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
-            else hungerBar.className = "bg-amber-500 h-full rounded-full transition-all duration-300";
-
-            const wormBar = document.getElementById('stat-worm-bar');
-            wormBar.style.width = `${gameState.wormVitality}%`;
-            if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
-            else wormBar.className = "bg-emerald-500 h-full rounded-full transition-all duration-300";
-
-            const moistureBar = document.getElementById('stat-moisture-bar');
-            moistureBar.style.width = `${gameState.moisture}%`;
-            if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
-            else moistureBar.className = "bg-sky-500 h-full rounded-full transition-all duration-300";
-
-            document.getElementById('weather-badge').innerText = gameState.weather;
-
-            renderMaterials();
-            renderBadges();
-            checkBadgeCriteria();
+            addLog(`${p.name} 成功建置了 [${tile.name}]！減碳 +${tile.carbonBonus}kg`);
+            renderRingBoardTiles();
+            endTurn();
         }
 
-        function renderMaterials() {
-            const list = document.getElementById('materials-list');
-            list.innerHTML = `
-                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
-                    <span>☕ 咖啡渣</span>
-                    <span class="font-bold text-amber-400 font-pixel text-sm">${gameState.unprocessedWaste.coffee.toFixed(1)} kg</span>
-                </div>
-                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
-                    <span>🍵 茶葉渣</span>
-                    <span class="font-bold text-emerald-400 font-pixel text-sm">${gameState.unprocessedWaste.tea.toFixed(1)} kg</span>
-                </div>
-                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
-                    <span>🍎 生廚餘</span>
-                    <span class="font-bold text-rose-400 font-pixel text-sm">${gameState.unprocessedWaste.foodScraps.toFixed(1)} kg</span>
-                </div>
-                <div class="bg-slate-900/80 p-2 rounded-xl border border-slate-700/60 flex justify-between items-center text-xs">
-                    <span>🍂 枯枝落葉</span>
-                    <span class="font-bold text-amber-600 font-pixel text-sm">${gameState.unprocessedWaste.dryLeaves.toFixed(1)} kg</span>
-                </div>
-            `;
-        }
+        function endTurn() {
+            gameState.turnIndex = (gameState.turnIndex + 1) % 4;
+            if (gameState.turnIndex === 0) {
+                gameState.currentRound += 1;
+            }
 
-        function renderBadges() {
-            const container = document.getElementById('badges-container');
-            container.innerHTML = '';
-            if (gameState.badges.length === 0) {
-                container.innerHTML = `<span class="text-xs text-slate-500 italic">尚未解鎖成就...</span>`;
+            if (gameState.currentRound > gameConfig.maxRounds) {
+                triggerGameOver();
                 return;
             }
 
-            gameState.badges.forEach(bKey => {
-                const badge = ALL_BADGES[bKey];
-                if (badge) {
-                    const badgeEl = document.createElement('div');
-                    badgeEl.className = "bg-amber-500/10 border border-amber-500/40 text-amber-300 px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-sm";
-                    badgeEl.title = badge.desc;
-                    badgeEl.innerHTML = `<span>${badge.icon}</span> <span>${badge.name}</span>`;
-                    container.appendChild(badgeEl);
-                }
-            });
+            updateScoreboard();
+            updateActivePlayerTurnUI();
         }
 
-        function addCarbon(amt) {
-            gameState.carbonOffset += amt;
-            if (gameState.carbonOffset >= 50) unlockBadge("CARBON_HERO");
-        }
+        function triggerGameOver() {
+            const sorted = [...gameState.players].sort((a, b) => (b.carbon + b.soc + b.esg) - (a.carbon + a.soc + a.esg));
+            const winner = sorted[0];
 
-        function addSOC(amt) {
-            gameState.socScore += amt;
-        }
+            document.getElementById('winner-details').innerHTML = `
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="text-3xl">${winner.avatar}</span>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-emerald-400">${winner.name}</h4>
+                        <p class="text-[11px] text-slate-400">${winner.skill}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-2 text-center text-xs pt-2 border-t border-slate-800">
+                    <div>
+                        <span class="text-[10px] text-slate-500 block">總減碳量</span>
+                        <span class="font-bold text-emerald-400">${winner.carbon.toFixed(1)} kg</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block">SOC 碳匯</span>
+                        <span class="font-bold text-amber-400">${winner.soc} pt</span>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-slate-500 block">ESG 影響力</span>
+                        <span class="font-bold text-indigo-400">${winner.esg} pts</span>
+                    </div>
+                </div>
+            `;
 
-        function addESG(amt) {
-            gameState.esgImpact += amt;
-        }
-
-        function addWormVitality(amt) {
-            gameState.wormVitality = Math.max(0, Math.min(100, gameState.wormVitality + amt));
-        }
-
-        function unlockBadge(bKey) {
-            if (!gameState.badges.includes(bKey)) {
-                gameState.badges.push(bKey);
-                playSound('success');
-                showToast(`解鎖成就：${ALL_BADGES[bKey].name} ${ALL_BADGES[bKey].icon}`, "🏆");
-                addLog(`獲得成就：${ALL_BADGES[bKey].name}`);
-            }
-        }
-
-        function checkBadgeCriteria() {
-            if (gameState.wormVitality >= 90 && !gameState.badges.includes("WORM_MASTER")) {
-                unlockBadge("WORM_MASTER");
-            }
+            document.getElementById('modal-winner').classList.remove('hidden');
         }
 
         function addLog(text) {
-            const timeStr = `[Day ${gameState.day}]`;
+            const timeStr = `[R${gameState.currentRound}]`;
             gameState.logHistory.unshift(`${timeStr} ${text}`);
-            if (gameState.logHistory.length > 30) gameState.logHistory.pop();
-            renderLog();
+            if (gameState.logHistory.length > 20) gameState.logHistory.pop();
+            document.getElementById('game-log').innerHTML = gameState.logHistory.join('<br>');
         }
 
-        function renderLog() {
-            const logBox = document.getElementById('game-log');
-            logBox.innerHTML = gameState.logHistory.join('<br>');
-        }
-
-        function clearGameLog() {
-            gameState.logHistory = [];
-            renderLog();
-        }
-
-        function showToast(msg, icon = "✨") {
-            const toast = document.getElementById('feedback-toast');
-            document.getElementById('toast-icon').innerText = icon;
-            document.getElementById('feedback-text').innerText = msg;
-            toast.classList.remove('hidden');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-            }, 3000);
-        }
-
-        function saveGame(showNotif = false) {
-            localStorage.setItem('TERRA_CHEF_TAMAGOTCHI_V4', JSON.stringify(gameState));
-            if (showNotif) {
-                playSound('success');
-                showToast("生態箱進度已成功儲存！", "💾");
-            }
-        }
-
-        function loadGame() {
-            const saved = localStorage.getItem('TERRA_CHEF_TAMAGOTCHI_V4');
-            if (saved) {
-                try {
-                    const parsed = JSON.parse(saved);
-                    gameState = Object.assign({}, DEFAULT_STATE, parsed);
-                } catch(e) {
-                    gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                }
-            }
-        }
-
-        function confirmResetGame() {
-            if (confirm("確定要重置所有生態箱進度、科技與成就嗎？")) {
-                localStorage.removeItem('TERRA_CHEF_TAMAGOTCHI_V4');
-                gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                updateUI();
-                showToast("生態箱已重置為初始狀態。");
-            }
-        }
-
-        function forceStartGame() {
-            loadGame();
-            updateUI();
-            startRealTimeEngine();
-            setInterval(drawFarmCanvas, 100);
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', forceStartGame);
-        } else {
-            forceStartGame();
-        }
+        window.onload = () => {
+            initLobbyUI();
+        };
     </script>
 </body>
 </html>
+</web_code_canvas>
