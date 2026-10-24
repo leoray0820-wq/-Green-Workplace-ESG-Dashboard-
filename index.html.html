@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v9.4 最終完美版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v9.5 競技順序版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,14 +83,14 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v9.4 放大版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v9.5 競技版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳匯競賽桌遊</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3">
-                <!-- Quit Game Button (Active during gameplay) -->
+                <!-- Quit Game Button -->
                 <button id="btn-quit-game" onclick="quitGame()" class="hidden px-3.5 py-2 rounded-xl bg-rose-950/80 border border-rose-800 text-xs font-bold text-rose-300 hover:bg-rose-900 transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-right-from-bracket"></i> 退出遊戲
                 </button>
@@ -143,7 +143,7 @@
                     </div>
                 </div>
 
-                <!-- Room Status & Joined Players Section (Visible for both Host and Clients) -->
+                <!-- Room Status & Joined Players Section -->
                 <div id="invite-section" class="hidden pt-4 border-t border-slate-800 space-y-3">
                     <div class="p-4 bg-slate-900/90 rounded-2xl border border-emerald-500/30 space-y-3 shadow">
                         <div class="flex justify-between items-center text-sm">
@@ -227,6 +227,16 @@
                         <span class="text-4xl sm:text-5xl inline-block animate-bounce">🌱</span>
                         <h3 class="font-black text-sm sm:text-base text-emerald-400">峨眉低碳循環農業試驗地圖</h3>
                         <p class="text-xs sm:text-sm text-slate-300" id="center-event-text">歡迎來到峨眉鄉！骰子移動以積累碳匯與建置永續設施。</p>
+                    </div>
+
+                    <!-- Initial Order Determination Box -->
+                    <div id="order-determination-box" class="hidden z-20 w-full bg-slate-900/95 p-4 rounded-2xl border-2 border-amber-500/80 space-y-3 shadow-2xl">
+                        <div class="text-sm font-black text-amber-400 flex items-center justify-center gap-2">
+                            🎲 開局擲骰比大小（決定玩家順序）
+                        </div>
+                        <div id="order-rolls-list" class="text-xs sm:text-sm space-y-1.5 font-mono text-left bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <!-- Roll results populated here -->
+                        </div>
                     </div>
 
                     <!-- Facility Purchase Banner -->
@@ -403,6 +413,8 @@
         let gameState = {
             started: false,
             ended: false,
+            initialRollPhase: false,
+            initialRolls: {},
             round: 1,
             maxRounds: 20,
             turnIndex: 0,
@@ -518,9 +530,6 @@
                 hostConn.on('open', () => {
                     document.getElementById('conn-status').innerText = `已連線房號 [${validated.roomNum}]`;
                     document.getElementById('display-room-id').innerText = validated.roomNum;
-                    document.getElementById('invite-section').classList.remove('hidden');
-                    document.getElementById('host-controls-box').classList.add('hidden');
-                    document.getElementById('client-controls-box').classList.add('hidden');
                     
                     hostConn.send({
                         type: 'JOIN_REQ',
@@ -545,6 +554,14 @@
 
         function handleHostReceiveData(conn, data) {
             if (data.type === 'JOIN_REQ') {
+                // Name duplication check
+                const nameExists = gameState.players.some(p => p.name === data.playerName);
+                if (nameExists) {
+                    conn.send({ type: 'REJECT', reason: '名稱與房間內其他玩家重複，請修改玩家名稱後再試！' });
+                    setTimeout(() => conn.close(), 500);
+                    return;
+                }
+
                 const pIdx = gameState.players.length;
                 const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
                 gameState.players.push({
@@ -559,6 +576,11 @@
                     skill: skill,
                     inventory: []
                 });
+                
+                document.getElementById('invite-section').classList.remove('hidden');
+                document.getElementById('host-controls-box').classList.add('hidden');
+                document.getElementById('client-controls-box').classList.add('hidden');
+
                 updateLobbyPlayersList();
                 broadcastState(`${data.playerName} 加入了對戰！`);
             } else if (data.type === 'ACTION_ROLL_DICE') {
@@ -585,6 +607,9 @@
                     switchToGameScreen();
                     updateUI();
                 } else {
+                    document.getElementById('invite-section').classList.remove('hidden');
+                    document.getElementById('host-controls-box').classList.add('hidden');
+                    document.getElementById('client-controls-box').classList.add('hidden');
                     updateLobbyPlayersList();
                 }
                 if (data.msg) addLog(data.msg);
@@ -600,13 +625,18 @@
         function handlePlayerDisconnect(peerId) {
             delete connections[peerId];
             const player = gameState.players.find(p => p.peerId === peerId);
-            if (player && !player.isAi) {
-                player.isAi = true;
-                player.name += " (AI接管)";
-                addLog(`⚠️ 玩家 ${player.name} 離場，已由 AI 自動接管！`);
-                broadcastState();
+            if (!player) return;
+
+            if (gameState.started) {
+                if (!player.isAi) {
+                    player.isAi = true;
+                    player.name += " (AI接管)";
+                    broadcastState(`⚠️ 玩家 ${player.name} 離場，已由 AI 自動接管！`);
+                }
             } else {
+                gameState.players = gameState.players.filter(p => p.peerId !== peerId);
                 updateLobbyPlayersList();
+                broadcastState(`玩家離開了房間。`);
             }
         }
 
@@ -615,7 +645,7 @@
             if (!listEl) return;
             listEl.innerHTML = '';
             gameState.players.forEach((p) => {
-                listEl.innerHTML += `<li>${p.avatar} ${p.name} (${p.skill.name})</li>`;
+                listEl.innerHTML += `<li class="flex justify-between items-center py-1 border-b border-slate-800/50"><span>${p.avatar} ${p.name}</span> <span class="text-xs text-emerald-400">(${p.skill.name})</span></li>`;
             });
             document.getElementById('room-player-count').innerText = gameState.players.length;
         }
@@ -648,11 +678,12 @@
             playSound('chat');
         }
 
-        /* ================= GAME LOGIC ================= */
+        /* ================= GAME LOGIC & INITIAL ROLL ORDER ================= */
 
         function startGameAsHost() {
             if (!isHost) return;
 
+            // Fill with AI up to 4 players
             const currentCount = gameState.players.length;
             for (let i = currentCount; i < 4; i++) {
                 const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
@@ -671,9 +702,44 @@
             }
 
             gameState.started = true;
+            gameState.initialRollPhase = true;
             switchToGameScreen();
-            broadcastState('競賽正式開始！每位玩家配發專屬永續能力。');
-            checkTurnExecution();
+            
+            broadcastState('競賽開始！準備進行【開局擲骰比大小】決定優先順序！');
+            executeInitialRolls();
+        }
+
+        function executeInitialRolls() {
+            if (!isHost) return;
+
+            playSound('dice');
+            const rollResults = [];
+            gameState.players.forEach((p) => {
+                const roll = Math.floor(Math.random() * 6) + 1;
+                gameState.initialRolls[p.peerId] = roll;
+                rollResults.push({ player: p, roll });
+            });
+
+            // Re-order players based on roll value (descending)
+            gameState.players.sort((a, b) => {
+                const rollA = gameState.initialRolls[a.peerId];
+                const rollB = gameState.initialRolls[b.peerId];
+                return rollB - rollA;
+            });
+
+            // Re-assign colors and avatars based on new order
+            gameState.players.forEach((p, idx) => {
+                p.avatar = AVATARS[idx];
+                p.color = COLORS[idx];
+            });
+
+            broadcastState(`🎲 比大小完成！由點數最高者 [${gameState.players[0].name}] 優先行動！`);
+
+            setTimeout(() => {
+                gameState.initialRollPhase = false;
+                broadcastState(`第一回合正式開始！`);
+                checkTurnExecution();
+            }, 3500);
         }
 
         function switchToGameScreen() {
@@ -696,7 +762,7 @@
 
         function requestRollDice() {
             const currP = gameState.players[gameState.turnIndex];
-            if (currP.peerId !== myPeerId) return;
+            if (currP.peerId !== myPeerId || gameState.initialRollPhase) return;
 
             if (isHost) {
                 processRollDice(myPeerId);
@@ -706,7 +772,7 @@
         }
 
         function processRollDice(peerId) {
-            if (!isHost) return;
+            if (!isHost || gameState.initialRollPhase) return;
             const p = gameState.players[gameState.turnIndex];
             if (p.peerId !== peerId) return;
 
@@ -834,7 +900,7 @@
 
         function useInventoryCard(idx) {
             const p = gameState.players.find(x => x.peerId === myPeerId);
-            if (gameState.players[gameState.turnIndex].peerId !== myPeerId) {
+            if (gameState.players[gameState.turnIndex].peerId !== myPeerId || gameState.initialRollPhase) {
                 alert("只有在您的回合時才能發動背包卡片！");
                 return;
             }
@@ -912,7 +978,7 @@
         }
 
         function checkTurnExecution() {
-            if (!isHost) return;
+            if (!isHost || gameState.initialRollPhase) return;
             const currP = gameState.players[gameState.turnIndex];
             if (currP.isAi) {
                 setTimeout(() => {
@@ -987,15 +1053,34 @@
             document.getElementById('current-turn-player-name').innerText = currP ? `${currP.avatar} ${currP.name}` : '...';
 
             const btnRoll = document.getElementById('btn-roll-dice');
-            btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi;
+            btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi || gameState.initialRollPhase;
 
-            if (!currP || currP.peerId !== myPeerId) {
+            if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
                 document.getElementById('card-action-box').classList.add('hidden');
                 document.getElementById('facility-action-box').classList.add('hidden');
             }
 
+            // Render Roll Order Determination Box
+            const orderBox = document.getElementById('order-determination-box');
+            if (gameState.initialRollPhase) {
+                orderBox.classList.remove('hidden');
+                const rollsList = document.getElementById('order-rolls-list');
+                rollsList.innerHTML = '';
+                gameState.players.forEach((p, idx) => {
+                    const rollVal = gameState.initialRolls[p.peerId] || '-';
+                    rollsList.innerHTML += `
+                        <div class="flex justify-between items-center border-b border-slate-800/80 py-1">
+                            <span class="font-bold" style="color: ${p.color}">${idx+1}. ${p.avatar} ${p.name}</span>
+                            <span class="font-pixel text-amber-400 font-black text-base sm:text-lg">🎲 ${rollVal} 點</span>
+                        </div>
+                    `;
+                });
+            } else {
+                orderBox.classList.add('hidden');
+            }
+
             gameState.players.forEach((p, idx) => {
-                const isMyTurn = gameState.turnIndex === idx;
+                const isMyTurn = gameState.turnIndex === idx && !gameState.initialRollPhase;
                 list.innerHTML += `
                     <div class="p-3 rounded-2xl border flex justify-between items-center text-xs sm:text-sm ${isMyTurn ? 'bg-emerald-950/90 border-emerald-500 shadow-md ring-2 ring-emerald-500/50' : 'bg-slate-950/70 border-slate-800'}">
                         <div class="space-y-1">
@@ -1084,7 +1169,7 @@
             statsList.innerHTML = '';
             sorted.forEach((p, idx) => {
                 statsList.innerHTML += `
-                    <div class="flex justify-between items-center text-sm sm:text-base p-2 bg-slate-900 rounded-xl border border-slate-800">
+                    <div class="flex justify-between items-center text-sm sm:text-base p-2.5 bg-slate-900 rounded-xl border border-slate-800">
                         <span class="font-bold">第 ${idx+1} 名: ${p.avatar} ${p.name}</span>
                         <span class="font-mono font-black text-emerald-400">${p.carbon.toFixed(1)} kg CO2e</span>
                     </div>
