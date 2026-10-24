@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 v3.2 最終修復版</title>
+    <title>歸蚓酷客：永續大地冒險 v4.0 Tamagotchi Edition</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons CDN -->
@@ -31,12 +31,12 @@
             background: #334155;
             border-radius: 3px;
         }
-        @keyframes pulse-slow {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.03); }
+        @keyframes bounce-gentle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
-        .animate-pulse-slow {
-            animation: pulse-slow 3s infinite ease-in-out;
+        .animate-worm {
+            animation: bounce-gentle 1.5s infinite ease-in-out;
         }
     </style>
 </head>
@@ -51,9 +51,9 @@
                 </div>
                 <div>
                     <h1 class="font-extrabold text-lg sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
-                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v3.2 Fixed</span>
+                        歸蚓酷客：永續大地冒險 <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded border border-emerald-500/40">v4.0 Real-Time Tamagotchi</span>
                     </h1>
-                    <p class="text-[10px] sm:text-xs text-slate-400">Terra Chef: Eco-Farm RPG & Tech Upgrades</p>
+                    <p class="text-[10px] sm:text-xs text-slate-400">即時電子蚯蚓養成與開放低碳生態箱</p>
                 </div>
             </div>
             
@@ -74,66 +74,79 @@
     <!-- Main Game Canvas Container -->
     <main class="max-w-6xl mx-auto px-4 py-6 w-full flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        <!-- Left Column: Eco-Farm Dashboard & Stats (4 cols) -->
+        <!-- Left Column: Tamagotchi Dashboard & Real-Time Stats (4 cols) -->
         <div class="lg:col-span-4 space-y-4">
             
-            <!-- Pixel Farm Canvas -->
+            <!-- Pixel Farm Interactive Canvas Visualizer -->
             <div class="bg-slate-900 rounded-2xl p-3 border border-emerald-500/30 shadow-2xl relative overflow-hidden flex flex-col items-center">
                 <div class="w-full flex justify-between items-center mb-2 px-1">
                     <span class="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                        <i class="fa-solid fa-gamepad"></i> 農場即時像素視窗
+                        <i class="fa-solid fa-gamepad"></i> 實時動態農場視窗 (點擊畫面互動)
                     </span>
                     <span id="weather-badge" class="text-[10px] bg-slate-800 text-sky-300 px-2 py-0.5 rounded-full border border-slate-700">
                         ☀️ 晴朗微風
                     </span>
                 </div>
-                <canvas id="farmCanvas" width="320" height="160" class="rounded-xl border border-slate-800 bg-slate-950 w-full shadow-inner"></canvas>
+                <canvas id="farmCanvas" width="320" height="160" onclick="petWorm()" class="rounded-xl border border-slate-800 bg-slate-950 w-full shadow-inner cursor-pointer hover:border-emerald-500/50 transition"></canvas>
             </div>
 
-            <!-- Core Eco Stats Monitor -->
+            <!-- Core Eco Tamagotchi Status Monitor -->
             <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700 space-y-3 shadow-xl">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-700/80">
                     <div>
                         <span id="chapter-badge" class="bg-emerald-950 text-emerald-300 border border-emerald-500/40 text-[10px] font-black px-2.5 py-0.5 rounded-full uppercase">
-                            第 0 章
+                            生態箱運作中
                         </span>
                         <h2 id="farm-name" class="font-bold text-slate-100 text-sm mt-1">峨眉低碳示範農場</h2>
-                        <!-- 修正：補回 chapter-title 元素 -->
-                        <p id="chapter-title" class="text-[11px] text-emerald-400 font-semibold mt-0.5">架設蚯蚓箱 V1.0</p>
+                        <p id="chapter-title" class="text-[11px] text-emerald-400 font-semibold mt-0.5">即時養育沙盒模式</p>
                     </div>
                     <div class="text-right">
-                        <span class="text-3xl font-black text-amber-400 font-pixel" id="stat-day">Day 1</span>
+                        <span class="text-xs text-slate-400 block">運作時間</span>
+                        <span class="text-2xl font-black text-amber-400 font-pixel" id="stat-day">Day 1</span>
                     </div>
                 </div>
 
-                <!-- Worm Vitality Bar -->
+                <!-- Pet Status 1: Hunger Bar -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
                         <span class="text-slate-300 font-medium flex items-center gap-1">
-                            <span id="worm-mood">🪱</span> 蚯蚓活力
+                            🍖 蚯蚓飽食度 (Hunger)
                         </span>
-                        <span id="stat-worm-text" class="font-bold text-emerald-400">80%</span>
+                        <span id="stat-hunger-text" class="font-bold text-amber-400">80%</span>
                     </div>
                     <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="stat-worm-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-500" style="width: 80%"></div>
+                        <div id="stat-hunger-bar" class="bg-amber-500 h-full rounded-full transition-all duration-300" style="width: 80%"></div>
                     </div>
                 </div>
 
-                <!-- Moisture Bar -->
+                <!-- Pet Status 2: Bin Moisture Bar -->
                 <div>
                     <div class="flex justify-between text-xs mb-1">
-                        <span class="text-slate-300 font-medium flex items-center gap-1">💧 堆肥濕度</span>
+                        <span class="text-slate-300 font-medium flex items-center gap-1">💧 堆肥濕度 (Moisture)</span>
                         <span id="stat-moisture-text" class="font-bold text-sky-400">70%</span>
                     </div>
                     <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
-                        <div id="stat-moisture-bar" class="bg-sky-500 h-full rounded-full transition-all duration-500" style="width: 70%"></div>
+                        <div id="stat-moisture-bar" class="bg-sky-500 h-full rounded-full transition-all duration-300" style="width: 70%"></div>
                     </div>
                 </div>
 
-                <!-- Carbon & ESG Grid -->
+                <!-- Pet Status 3: Worm Mood & Vitality -->
+                <div>
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-slate-300 font-medium flex items-center gap-1">
+                            <span id="worm-mood">🪱</span> 蚯蚓總體活力
+                        </span>
+                        <span id="stat-worm-text" class="font-bold text-emerald-400">85%</span>
+                    </div>
+                    <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700">
+                        <div id="stat-worm-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 85%"></div>
+                    </div>
+                </div>
+
+                <!-- Carbon & Impact Grid -->
                 <div class="grid grid-cols-2 gap-2 pt-1">
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">減碳點數 (可消費)</p>
+                        <p class="text-[10px] text-slate-400">累積減碳點數</p>
                         <p class="text-base font-black text-emerald-400" id="stat-carbon">0.0 <span class="text-[10px] font-normal text-slate-400">kg</span></p>
                     </div>
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
@@ -141,7 +154,7 @@
                         <p class="text-base font-black text-amber-400" id="stat-soc">10 <span class="text-[10px] font-normal text-slate-400">pt</span></p>
                     </div>
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
-                        <p class="text-[10px] text-slate-400">ESG 影響力 (可消費)</p>
+                        <p class="text-[10px] text-slate-400">ESG 影響力</p>
                         <p class="text-base font-black text-indigo-400" id="stat-esg">0 <span class="text-[10px] font-normal text-slate-400">pts</span></p>
                     </div>
                     <div class="bg-slate-900/80 p-2.5 rounded-xl border border-slate-700/60">
@@ -155,6 +168,7 @@
             <div class="bg-slate-800/80 rounded-2xl p-4 border border-slate-700/80 space-y-2">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
                     <span class="flex items-center gap-1.5"><i class="fa-solid fa-boxes-packing text-amber-400"></i> 有機資材庫存</span>
+                    <button onclick="replenishMaterials()" class="text-[10px] bg-slate-700 hover:bg-slate-600 px-2 py-0.5 rounded text-slate-300">補給資材</button>
                 </h3>
                 <div id="materials-list" class="grid grid-cols-2 gap-2"></div>
             </div>
@@ -169,25 +183,25 @@
 
         </div>
 
-        <!-- Right Column: Interactive RPG Story & Tech Tree Panel (8 cols) -->
+        <!-- Right Column: Tamagotchi Care Control Deck & Tech Tree Panel (8 cols) -->
         <div class="lg:col-span-8 flex flex-col space-y-4">
 
             <!-- Tab Navigation Header -->
             <div class="flex space-x-2 border-b border-slate-800 pb-1">
-                <button onclick="switchTab('story')" id="tab-story-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition">
-                    <i class="fa-solid fa-book-open"></i> 冒險故事劇情
+                <button onclick="switchTab('care')" id="tab-care-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition">
+                    <i class="fa-solid fa-hand-holding-heart"></i> 即時照照養與行動
                 </button>
                 <button onclick="switchTab('tech')" id="tab-tech-btn" class="px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition">
                     <i class="fa-solid fa-sitemap text-amber-400"></i> 永續科技樹 (Tech Tree)
                 </button>
             </div>
 
-            <!-- View 1: RPG Story Panel -->
-            <div id="view-story" class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[380px] relative overflow-hidden">
+            <!-- View 1: Tamagotchi Care Control Hub -->
+            <div id="view-care" class="bg-slate-800/90 rounded-2xl border border-emerald-500/30 p-5 shadow-2xl flex-1 flex flex-col justify-between space-y-4 min-h-[380px] relative overflow-hidden">
                 
-                <!-- NPC Profile Header -->
+                <!-- Status Banner / Character Dialogue -->
                 <div id="npc-header" class="flex items-center space-x-3 pb-3 border-b border-slate-700/60">
-                    <div id="npc-avatar" class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-2xl flex items-center justify-center shadow-inner animate-pulse-slow">
+                    <div id="npc-avatar" class="w-12 h-12 rounded-2xl bg-emerald-950 border border-emerald-500/40 text-2xl flex items-center justify-center shadow-inner animate-worm">
                         🧑‍🌾
                     </div>
                     <div>
@@ -196,15 +210,42 @@
                     </div>
                 </div>
 
-                <!-- Story Text Box -->
-                <div class="space-y-3 flex-1 overflow-y-auto max-h-[220px] log-scrollbar pr-2" id="story-body">
-                    <p class="text-sm text-slate-200 leading-relaxed font-medium" id="story-text">
-                        初始化冒險章節中...
+                <!-- Interactive Text Prompt -->
+                <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-700/60">
+                    <p class="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium" id="care-dialogue">
+                        「請時刻注意蚯蚓的飽食度與濕度！點擊下方按鈕可進行投餵、灑水調節或熱裂解生物炭！」
                     </p>
                 </div>
 
-                <!-- Choice Action Buttons -->
-                <div id="choices-container" class="space-y-2 pt-2 border-t border-slate-700/60"></div>
+                <!-- Instant Action Control Deck -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                    <button onclick="feedWorms()" class="bg-amber-900/40 hover:bg-amber-800/70 border border-amber-600/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-amber-200 shadow-md">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-utensils text-amber-400"></i> 投餵咖啡渣/廚餘 (+飽食)</span>
+                        <span class="text-[10px] bg-amber-950 px-2 py-0.5 rounded text-amber-300">-2kg 廢材</span>
+                    </button>
+
+                    <button onclick="waterBin()" class="bg-sky-900/40 hover:bg-sky-800/70 border border-sky-600/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-sky-200 shadow-md">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-droplet text-sky-400"></i> 灑水噴霧 (+15% 濕度)</span>
+                        <span class="text-[10px] bg-sky-950 px-2 py-0.5 rounded text-sky-300">保濕</span>
+                    </button>
+
+                    <button onclick="addDryLeaves()" class="bg-amber-950/40 hover:bg-amber-900/60 border border-amber-700/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-amber-100 shadow-md">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-leaf text-amber-500"></i> 鋪入枯枝落葉 (-10% 濕度)</span>
+                        <span class="text-[10px] bg-slate-900 px-2 py-0.5 rounded text-amber-400">-2kg 枯枝</span>
+                    </button>
+
+                    <button onclick="makeBiochar()" class="bg-rose-950/40 hover:bg-rose-900/60 border border-rose-700/50 p-3 rounded-xl text-xs font-bold transition flex items-center justify-between text-rose-200 shadow-md">
+                        <span class="flex items-center gap-2"><i class="fa-solid fa-fire text-rose-400"></i> 熱裂解生物炭 (+減碳/SOC)</span>
+                        <span class="text-[10px] bg-rose-950 px-2 py-0.5 rounded text-rose-300">-3kg 枯枝</span>
+                    </button>
+                </div>
+
+                <!-- Harvest & Emergency Rescue -->
+                <div class="flex gap-2 pt-2 border-t border-slate-700/60">
+                    <button onclick="harvestCompost()" class="flex-1 bg-emerald-800/80 hover:bg-emerald-700 border border-emerald-500 p-2.5 rounded-xl text-xs font-bold transition text-emerald-100 flex items-center justify-center gap-1.5 shadow-md">
+                        <i class="fa-solid fa-seedling text-emerald-300"></i> 收成蚓糞肥 (轉換為 SOC 碳匯)
+                    </button>
+                </div>
 
             </div>
 
@@ -235,7 +276,7 @@
             <!-- Log Console -->
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-4 shadow-inner space-y-2">
                 <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
-                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-emerald-500"></i> 大地日誌 Console Log</span>
+                    <span class="flex items-center gap-1.5"><i class="fa-solid fa-terminal text-emerald-500"></i> 生態日誌 Console Log</span>
                     <button onclick="clearGameLog()" class="text-[10px] text-slate-500 hover:text-slate-300 transition">清除紀錄</button>
                 </h4>
                 <div id="game-log" class="text-xs text-slate-400 space-y-1.5 max-h-28 overflow-y-auto log-scrollbar font-mono leading-relaxed"></div>
@@ -247,7 +288,7 @@
 
     <!-- Game Engine & Script -->
     <script>
-        // Audio Synthesizer Engine
+        // Web Audio Synthesizer Engine
         let soundEnabled = true;
         const AudioCtx = window.AudioContext || window.webkitAudioContext;
         let audioCtx = null;
@@ -304,9 +345,8 @@
                 icon: "🪱",
                 costType: "carbon",
                 cost: 5.0,
-                desc: "採用 304 不鏽鋼結構與雙層透氣保濕蓋，提升 15% 蚯蚓分解效率。",
-                unlocked: false,
-                effect: () => { gameState.wormVitality = Math.min(100, gameState.wormVitality + 10); }
+                desc: "採用 304 不鏽鋼結構與雙層透氣保濕蓋，降低 30% 濕度自然蒸散速率。",
+                unlocked: false
             },
             "BIOCHAR_COLLECTOR": {
                 id: "BIOCHAR_COLLECTOR",
@@ -314,7 +354,7 @@
                 icon: "🧪",
                 costType: "carbon",
                 cost: 10.0,
-                desc: "在木枝熱裂解過程中收集竹醋液，有效驅離害蟲並提高土壤碳匯分數。",
+                desc: "在熱裂解時收集竹醋液，天然驅離害蟲並增加 SOC 土壤碳匯點數。",
                 unlocked: false,
                 effect: () => { gameState.socScore += 10; }
             },
@@ -324,9 +364,9 @@
                 icon: "🐔",
                 costType: "esg",
                 cost: 30,
-                desc: "整合槓桿輪組與外部產蛋箱，讓蛋雞協助扒鬆堆肥，每日自動增加資材。",
+                desc: "讓蛋雞協助扒鬆堆肥，每 10 秒自動產生 1.0kg 咖啡渣與枯枝資材！",
                 unlocked: false,
-                effect: () => { addLog("解鎖 A 型移動雞舍！蛋雞群開始協助扒鬆土壤資材。"); }
+                effect: () => { addLog("解鎖 A 型移動雞舍！蛋雞群開始自動清理扒鬆資材。"); }
             },
             "EARTH_BUILDING": {
                 id: "EARTH_BUILDING",
@@ -342,26 +382,26 @@
 
         // State Engine
         const DEFAULT_STATE = {
+            ticks: 0,
             day: 1,
-            chapter: 0,
             farmName: "峨眉低碳示範農場",
-            wormVitality: 80,
-            moisture: 70,
+            hunger: 80,         // 飽食度 0-100
+            moisture: 70,       // 濕度 0-100
+            wormVitality: 85,   // 總活力 0-100
             carbonOffset: 0.0,
             socScore: 10,
             esgImpact: 0,
             vermicompost: 0.0,
-            weather: "晴朗微風",
+            weather: "☀️ 晴朗微風",
             unprocessedWaste: {
-                coffee: 5.0,
-                tea: 3.0,
-                foodScraps: 4.0,
-                dryLeaves: 6.0
+                coffee: 10.0,
+                tea: 5.0,
+                foodScraps: 8.0,
+                dryLeaves: 12.0
             },
             unlockedTechs: [],
             badges: [],
-            logHistory: [],
-            currentScenarioId: "CH0_START"
+            logHistory: []
         };
 
         let gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
@@ -374,308 +414,164 @@
             "GRI_COMPLIANT": { name: "GRI & TNFD 雙認證", icon: "📜", desc: "通過第三方永續稽核驗證" }
         };
 
-        const SCENARIOS = {
-            "CH0_START": {
-                chapter: 0,
-                chapterTitle: "第 0 章：起源 - 峨眉之約",
-                npcName: "林業主 (峨眉農夫)",
-                npcRole: "土地合作夥伴",
-                avatar: "👨‍🌾",
-                text: "「阿酷，這片在峨眉的土地就交給你打造低碳基地了！這裡有滿地的枯枝落葉，社區每天還有好多咖啡渣與茶葉渣，你打算怎麼發揮『歸蚓酷客』的魔力？」",
-                choices: [
-                    {
-                        text: "🪱 架設「蚯蚓堆肥箱 V1.0」，引進太平二號軍團",
-                        nextScenario: "CH0_BIN_SETUP",
-                        action: () => {
-                            addLog("你架設了『蚯蚓堆肥箱 V1.0』，太平二號正式入住！");
-                            addCarbon(2.5);
-                            addESG(10);
-                        }
-                    },
-                    {
-                        text: "🍃 收集整理現場枯枝落葉，作為高碳骨材資材",
-                        nextScenario: "CH0_LEAVES_SETUP",
-                        action: () => {
-                            addLog("你將現場枯枝落葉分類堆置，為乾碳源打下堅實基礎。");
-                            gameState.unprocessedWaste.dryLeaves += 5.0;
-                            addSOC(5);
-                        }
-                    }
-                ]
-            },
-            "CH0_BIN_SETUP": {
-                chapter: 0,
-                chapterTitle: "第 0 章：啟動蚯蚓分解引擎",
-                npcName: "阿酷",
-                npcRole: "歸蚓酷客創辦人",
-                avatar: "🧑‍🌾",
-                text: "蚯蚓箱 setup 完成！箱體底部鋪好了滿滿腐植質。今天收到了 5kg 的咖啡渣與茶葉渣，你要如何處理？",
-                choices: [
-                    {
-                        text: "☕ 將咖啡渣與茶葉渣按比例投入蚯蚓箱 (補充氮源)",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            processMaterial('coffee', 3.0, 'worm');
-                            processMaterial('tea', 2.0, 'worm');
-                            addLog("蚯蚓大軍開心地開始分解有機資材！");
-                        }
-                    },
-                    {
-                        text: "💧 灑水調節堆肥濕度，維持在 70% 黃金比例",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(15);
-                            addLog("將蚯蚓箱濕度調整至最佳舒適區 (70%)。");
-                        }
-                    }
-                ]
-            },
-            "CH0_LEAVES_SETUP": {
-                chapter: 0,
-                chapterTitle: "第 0 章：高碳資材整備",
-                npcName: "阿酷",
-                npcRole: "歸蚓酷客創辦人",
-                avatar: "🧑‍🌾",
-                text: "枯枝落葉收集完成！有了高碳比資材，現在可以立刻建置舒適的蚯蚓環境了！",
-                choices: [
-                    {
-                        text: "🪱 立即建置「蚯蚓堆肥箱 V1.0」",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            addLog("蚯蚓箱裝設完成！開啟大地循環體驗。");
-                            addCarbon(3.0);
-                        }
-                    }
-                ]
-            },
-            "DAILY_ROUTINE": {
-                chapter: 1,
-                chapterTitle: "第 1 章：日常運育 - 生物循環與資材轉化",
-                npcName: "小綠",
-                npcRole: "綠色循環工程師",
-                avatar: "👩‍🔬",
-                text: "「阿酷早安！今天農場又收到社區贊助的有機廢棄資材囉。請密切留意蚯蚓活力與堆肥濕度！」",
-                choices: [
-                    {
-                        text: "🪱 餵食蚯蚓箱：投入咖啡渣與生廚餘",
-                        nextScenario: "AFTER_ACTION",
-                        action: () => {
-                            let coffeeAmt = Math.min(2.5, gameState.unprocessedWaste.coffee);
-                            let foodAmt = Math.min(2.0, gameState.unprocessedWaste.foodScraps);
-                            processMaterial('coffee', coffeeAmt, 'worm');
-                            processMaterial('foodScraps', foodAmt, 'worm');
-                            addLog(`投入 ${coffeeAmt}kg 咖啡渣與 ${foodAmt}kg 廚餘至蚯蚓箱。`);
-                        }
-                    },
-                    {
-                        text: "🍂 乾碳調配：加入枯枝落葉優化碳氮比 (C/N)",
-                        nextScenario: "AFTER_ACTION",
-                        action: () => {
-                            let leafAmt = Math.min(3.0, gameState.unprocessedWaste.dryLeaves);
-                            processMaterial('dryLeaves', leafAmt, 'worm');
-                            adjustMoisture(-10);
-                            addLog(`加入 ${leafAmt}kg 枯枝落葉，調降過多濕度並平衡 C/N 比。`);
-                        }
-                    },
-                    {
-                        text: "🔥 啟動熱裂解：將枯枝燒製為『生物炭 (Biochar)』",
-                        nextScenario: "AFTER_ACTION",
-                        action: () => {
-                            let leafAmt = Math.min(4.0, gameState.unprocessedWaste.dryLeaves);
-                            processMaterial('dryLeaves', leafAmt, 'biochar');
-                            addSOC(8);
-                            addCarbon(5.0);
-                            unlockBadge("BIOCHAR_PIONEER");
-                            addLog(`進行無煙熱裂解，將 ${leafAmt}kg 枯枝轉化為永久固定碳！`);
-                        }
-                    }
-                ]
-            },
-            "AFTER_ACTION": {
-                chapter: 1,
-                chapterTitle: "第 1 章：日常運育 - 日落結算",
-                npcName: "農場日誌",
-                npcRole: "系統報告",
-                avatar: "📊",
-                text: "充實的一天過去了，土壤微生物正在為地球封存碳元素！準備進入下一天嗎？",
-                choices: [
-                    {
-                        text: "🌙 結束今日作業，迎接新的一天 (Next Day)",
-                        nextScenario: "CHECK_EVENTS",
-                        action: () => {
-                            nextDay();
-                        }
-                    }
-                ]
-            },
-            "EVENT_RAIN": {
-                chapter: 1,
-                chapterTitle: "⚠️ 突發事件：峨眉山區極端豪雨！",
-                npcName: "氣象警報",
-                npcRole: "極端氣候監控",
-                avatar: "🌧️",
-                text: "午後雷陣雨狂炸！蚯蚓箱積水風險急遽飆高，若濕度超過 90%，蚯蚓將會集體逃跑！",
-                choices: [
-                    {
-                        text: "🍂 緊急鋪入乾枯枝與生物炭吸附積水",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(-20);
-                            addWormVitality(10);
-                            addLog("緊急加入乾碳資材與生物炭，完美吸水保住蚯蚓！");
-                        }
-                    },
-                    {
-                        text: "🎪 架設帆布遮雨棚並開啟箱底排水閥",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(-30);
-                            addLog("搭建遮雨棚並疏通排水系統！");
-                        }
-                    }
-                ]
-            },
-            "EVENT_HEAT": {
-                chapter: 1,
-                chapterTitle: "⚠️ 突發事件：酷暑熱浪襲來！",
-                npcName: "環境感測器",
-                npcRole: "溫濕度監控",
-                avatar: "☀️",
-                text: "氣溫高達 36°C！蚯蚓箱內部溫度驟升、水分蒸散，濕度跌破 40%！",
-                choices: [
-                    {
-                        text: "💧 立即灑水降溫並搬移至樹蔭下",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(25);
-                            addWormVitality(15);
-                            addLog("快速噴淋降溫並移至陰涼樹冠下！");
-                        }
-                    },
-                    {
-                        text: "🌿 表層覆蓋濕潤茶葉渣形成保護層",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(15);
-                            addLog("覆蓋濕茶葉渣有效預防水分蒸發！");
-                        }
-                    }
-                ]
-            },
-            "EVENT_ANTS": {
-                chapter: 1,
-                chapterTitle: "⚠️ 突發事件：紅螞蟻大軍入侵！",
-                npcName: "小綠",
-                npcRole: "生態觀察員",
-                avatar: "🐜",
-                text: "「不好了！箱體邊角偏乾，紅螞蟻入侵築巢威脅到幼蚓安全！」",
-                choices: [
-                    {
-                        text: "💧 提高箱體邊緣濕度並架設水盤防蟻護欄",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            adjustMoisture(10);
-                            addWormVitality(5);
-                            addLog("架設物理防蟻水盤護欄！");
-                        }
-                    },
-                    {
-                        text: "☕ 鋪撒咖啡渣（天然咖啡因驅離作用）",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            addWormVitality(10);
-                            addLog("咖啡渣天然氣味成功驅離螞蟻大軍！");
-                        }
-                    }
-                ]
-            },
-            "CHAPTER_2_ENTER": {
-                chapter: 2,
-                chapterTitle: "第 2 章：影響力擴張 - 企業 ESG 參訪",
-                npcName: "張經理",
-                npcRole: "跨國企業 CSR 總監",
-                avatar: "💼",
-                text: "「聽說你們在峨眉打造了極具前瞻性的低碳示範農場！我們公司有範疇三減碳需求，希望能導入 GRI 306 廢棄物揭露與 TNFD 生態指標合作！」",
-                choices: [
-                    {
-                        text: "📊 展示農場完整減碳數據與蚯蚓堆肥履歷",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            addESG(30);
-                            addCarbon(10.0);
-                            addLog("展現專業科學數據，成功簽署 ESG 合作協議！");
-                        }
-                    },
-                    {
-                        text: "🤝 舉辦『歸蚓酷客低碳體驗工作坊』",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            addESG(50);
-                            addSOC(15);
-                            addLog("體驗工作坊大受好評！促進企業員工永續意識。");
-                        }
-                    }
-                ]
-            },
-            "CHAPTER_3_ENTER": {
-                chapter: 3,
-                chapterTitle: "第 3 章：圓滿輝煌 - 永續大地示範基地",
-                npcName: "ESG 權威稽核員",
-                npcRole: "第三方認證機構",
-                avatar: "📜",
-                text: "「經過長時間實地檢測，歸蚓酷客農場完美展現了循環經濟與生物多樣性淨正向影響 (Net Positive Impact)！」",
-                choices: [
-                    {
-                        text: "🏆 榮獲『GRI & TNFD 雙認證永續基地』",
-                        nextScenario: "GAME_COMPLETE",
-                        action: () => {
-                            unlockBadge("GRI_COMPLIANT");
-                            addESG(100);
-                            addLog("🎉 恭喜達成永續大地的最高榮譽稱號！");
-                        }
-                    }
-                ]
-            },
-            "GAME_COMPLETE": {
-                chapter: 3,
-                chapterTitle: "終章：永續不息",
-                npcName: "阿酷與全體夥伴",
-                npcRole: "歸蚓酷客團隊",
-                avatar: "🌟",
-                text: "恭喜您！透過細心照顧蚯蚓、生物炭製作與自然建築，峨眉這片土地已成為台灣低碳農業的永續典範！",
-                choices: [
-                    {
-                        text: "🔄 繼續在自由營運模式下探索農場",
-                        nextScenario: "DAILY_ROUTINE",
-                        action: () => {
-                            addLog("開啟自由經營模式，挑戰更高減碳里程碑！");
-                        }
-                    }
-                ]
-            }
-        };
-
         // UI View Switcher
         function switchTab(tab) {
             playSound('click');
-            const storyView = document.getElementById('view-story');
+            const careView = document.getElementById('view-care');
             const techView = document.getElementById('view-tech');
-            const storyBtn = document.getElementById('tab-story-btn');
+            const careBtn = document.getElementById('tab-care-btn');
             const techBtn = document.getElementById('tab-tech-btn');
 
-            if (tab === 'story') {
-                storyView.classList.remove('hidden');
+            if (tab === 'care') {
+                careView.classList.remove('hidden');
                 techView.classList.add('hidden');
-                storyBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition";
+                careBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-emerald-600 text-white shadow-lg transition";
                 techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
             } else {
-                storyView.classList.add('hidden');
+                careView.classList.add('hidden');
                 techView.classList.remove('hidden');
                 techView.classList.add('flex');
                 techBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-amber-600 text-white shadow-lg transition";
-                storyBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
+                careBtn.className = "px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 bg-slate-800 text-slate-400 hover:text-slate-200 border border-slate-700 transition";
                 renderTechTree();
             }
+        }
+
+        // REAL-TIME TICK LOOP (每 3 秒觸發一次時間流逝)
+        function startRealTimeEngine() {
+            setInterval(() => {
+                gameState.ticks += 1;
+                gameState.day = Math.floor(gameState.ticks / 10) + 1;
+
+                // 自然狀態衰減 (V2 箱體可減緩水分蒸散)
+                let evapRate = gameState.unlockedTechs.includes("WORM_BIN_V2") ? 1 : 2;
+                gameState.moisture = Math.max(10, gameState.moisture - evapRate);
+                gameState.hunger = Math.max(0, gameState.hunger - 2);
+
+                // Chicken Tractor Auto Supply
+                if (gameState.unlockedTechs.includes("CHICKEN_TRACTOR") && gameState.ticks % 3 === 0) {
+                    gameState.unprocessedWaste.coffee += 0.5;
+                    gameState.unprocessedWaste.dryLeaves += 0.5;
+                }
+
+                // 蚯蚓消化轉化產出 (當飽食度與濕度適宜時自動分解)
+                if (gameState.hunger > 20 && gameState.moisture >= 40 && gameState.moisture <= 85) {
+                    gameState.vermicompost += 0.1;
+                    gameState.carbonOffset += 0.05;
+                }
+
+                // 計算蚯蚓總活力狀態
+                let moodScore = 100;
+                if (gameState.moisture < 40 || gameState.moisture > 85) moodScore -= 30;
+                if (gameState.hunger < 30) moodScore -= 30;
+                gameState.wormVitality = Math.max(0, moodScore);
+
+                // 動態對話與警告性提示
+                updateDialogueAndWeather();
+
+                updateUI();
+                saveGame(false);
+            }, 3000);
+        }
+
+        function updateDialogueAndWeather() {
+            const dlg = document.getElementById('care-dialogue');
+            if (gameState.moisture < 30) {
+                dlg.innerText = "「⚠️ 堆肥過於乾旱！蚯蚓快乾枯了，請快點灑水！」";
+                gameState.weather = "☀️ 酷暑乾旱";
+            } else if (gameState.moisture > 85) {
+                dlg.innerText = "「⚠️ 堆肥過度濕潤缺氧！請快加入乾枯枝落葉吸水！」";
+                gameState.weather = "🌧️ 積水缺氧";
+            } else if (gameState.hunger < 30) {
+                dlg.innerText = "「🤤 蚯蚓肚子餓了，請投餵咖啡渣或生廚餘！」";
+            } else {
+                dlg.innerText = "「😄 蚯蚓正在開心分解有機廢材，順利固碳中！」";
+                if (gameState.ticks % 5 === 0) gameState.weather = "☀️ 晴朗微風";
+            }
+        }
+
+        function petWorm() {
+            playSound('click');
+            showToast("🪱 蚯蚓開心地位扭動了一下！", "💖");
+            addWormVitality(2);
+        }
+
+        function feedWorms() {
+            if (gameState.unprocessedWaste.coffee >= 2.0) {
+                gameState.unprocessedWaste.coffee -= 2.0;
+                gameState.hunger = Math.min(100, gameState.hunger + 25);
+                gameState.vermicompost += 0.5;
+                addCarbon(0.3);
+                playSound('success');
+                showToast("投餵 2kg 咖啡渣！飽食度提升", "🍖");
+                addLog("投餵咖啡渣，蚯蚓大軍開始快樂進食。");
+            } else {
+                showToast("咖啡渣庫存不足！請先補充資材", "❌");
+            }
+            updateUI();
+        }
+
+        function waterBin() {
+            gameState.moisture = Math.min(100, gameState.moisture + 15);
+            playSound('success');
+            showToast("噴淋灑水完成！濕度 +15%", "💧");
+            addLog("補充水分，維持堆肥最適濕度。");
+            updateUI();
+        }
+
+        function addDryLeaves() {
+            if (gameState.unprocessedWaste.dryLeaves >= 2.0) {
+                gameState.unprocessedWaste.dryLeaves -= 2.0;
+                gameState.moisture = Math.max(10, gameState.moisture - 12);
+                gameState.socScore += 1;
+                playSound('success');
+                showToast("鋪入 2kg 枯枝落葉！濕度 -12%", "🍂");
+                addLog("鋪入乾碳資材，調整 C/N 比與濕度。");
+            } else {
+                showToast("枯枝落葉庫存不足！", "❌");
+            }
+            updateUI();
+        }
+
+        function makeBiochar() {
+            if (gameState.unprocessedWaste.dryLeaves >= 3.0) {
+                gameState.unprocessedWaste.dryLeaves -= 3.0;
+                addCarbon(2.0);
+                addSOC(5);
+                unlockBadge("BIOCHAR_PIONEER");
+                playSound('success');
+                showToast("熱裂解完成！獲得固定碳與 SOC 碳匯", "🔥");
+                addLog("進行無煙熱裂解，封存 2.0kg 固定碳！");
+            } else {
+                showToast("枯枝落葉不足 3kg，無法啟動熱裂解！", "❌");
+            }
+            updateUI();
+        }
+
+        function harvestCompost() {
+            if (gameState.vermicompost >= 1.0) {
+                let amount = gameState.vermicompost;
+                gameState.vermicompost = 0;
+                gameState.socScore += Math.floor(amount * 2);
+                addESG(10);
+                playSound('success');
+                showToast(`成功收成 ${amount.toFixed(1)}kg 蚓糞肥！SOC 碳匯提升`, "🌱");
+                addLog(`收成 ${amount.toFixed(1)}kg 蚓糞優質有機肥，回饋大地！`);
+            } else {
+                showToast("蚓糞肥料庫存不足 1.0kg，尚無法收成", "❌");
+            }
+            updateUI();
+        }
+
+        function replenishMaterials() {
+            gameState.unprocessedWaste.coffee += 5.0;
+            gameState.unprocessedWaste.tea += 3.0;
+            gameState.unprocessedWaste.foodScraps += 4.0;
+            gameState.unprocessedWaste.dryLeaves += 6.0;
+            playSound('click');
+            showToast("成功接收社區贊助的新批次有機資材！", "📦");
+            addLog("接收社區送來的有機廢棄物資材。");
+            updateUI();
         }
 
         function renderTechTree() {
@@ -748,9 +644,10 @@
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(0, 0, w, h);
 
-            if (gameState.weather.includes('雨')) {
+            // 天氣 background
+            if (gameState.weather.includes('雨') || gameState.weather.includes('缺氧')) {
                 ctx.fillStyle = '#1e293b';
-            } else if (gameState.weather.includes('熱浪')) {
+            } else if (gameState.weather.includes('乾旱')) {
                 ctx.fillStyle = '#451a03';
             } else {
                 ctx.fillStyle = '#064e3b';
@@ -760,26 +657,29 @@
             ctx.fillStyle = '#271c19';
             ctx.fillRect(0, 80, w, 80);
 
-            // Worm Bin V1 / V2
+            // Worm Bin Frame
             const isV2 = gameState.unlockedTechs.includes("WORM_BIN_V2");
             ctx.fillStyle = isV2 ? '#0284c7' : '#475569';
             ctx.fillRect(120, 70, 80, 50);
             ctx.fillStyle = '#0f172a';
             ctx.fillRect(125, 75, 70, 40);
 
-            const binLevel = Math.min(35, Math.floor(gameState.vermicompost * 2) + 10);
+            // Compost Level Inside Bin
+            const binLevel = Math.min(35, Math.floor(gameState.vermicompost * 3) + 12);
             ctx.fillStyle = '#3f2e21';
             ctx.fillRect(125, 115 - binLevel, 70, binLevel);
 
+            // Animated Worms (Real-time Wiggle)
             ctx.fillStyle = '#f43f5e';
             const wormCount = Math.floor(gameState.wormVitality / 20);
+            const timeOffset = Date.now() / 300;
             for(let i = 0; i < wormCount; i++) {
                 let wx = 130 + (i * 12) % 60;
-                let wy = 110 - (i * 5) % 25;
+                let wy = 110 - (i * 5) % 25 + Math.sin(timeOffset + i) * 2;
                 ctx.fillRect(wx, wy, 8, 3);
             }
 
-            // Tech Tree Unlocked Buildings
+            // Unlocked Tech Icons
             if (gameState.badges.includes("BIOCHAR_PIONEER") || gameState.unlockedTechs.includes("BIOCHAR_COLLECTOR")) {
                 ctx.fillStyle = '#334155';
                 ctx.fillRect(30, 60, 40, 40);
@@ -803,6 +703,7 @@
                 ctx.fillRect(255, 75, 20, 25);
             }
 
+            // Weather Particles
             if (gameState.weather.includes('雨')) {
                 ctx.fillStyle = '#38bdf8';
                 for (let i = 0; i < 15; i++) {
@@ -810,21 +711,15 @@
                     let ry = (Date.now() / 3 + i * 15) % h;
                     ctx.fillRect(rx, ry, 2, 6);
                 }
-            } else if (gameState.weather.includes('螞蟻')) {
-                ctx.fillStyle = '#ef4444';
-                for (let i = 0; i < 6; i++) {
-                    let ax = 100 + (i * 20);
-                    ctx.fillRect(ax, 122, 4, 2);
-                }
             }
         }
 
         function updateUI() {
             document.getElementById('stat-day').innerText = `Day ${gameState.day}`;
-            document.getElementById('chapter-badge').innerText = `第 ${gameState.chapter} 章`;
-            document.getElementById('farm-name').innerText = gameState.farmName;
-            document.getElementById('stat-worm-text').innerText = `${gameState.wormVitality}%`;
+            document.getElementById('stat-hunger-text').innerText = `${gameState.hunger}%`;
             document.getElementById('stat-moisture-text').innerText = `${gameState.moisture}%`;
+            document.getElementById('stat-worm-text').innerText = `${gameState.wormVitality}%`;
+            
             document.getElementById('stat-carbon').innerHTML = `${gameState.carbonOffset.toFixed(1)} <span class="text-[10px] font-normal text-slate-400">kg</span>`;
             document.getElementById('stat-soc').innerHTML = `${gameState.socScore} <span class="text-[10px] font-normal text-slate-400">pt</span>`;
             document.getElementById('stat-esg').innerHTML = `${gameState.esgImpact} <span class="text-[10px] font-normal text-slate-400">pts</span>`;
@@ -833,18 +728,23 @@
             const moodEl = document.getElementById('worm-mood');
             if (gameState.wormVitality > 80) moodEl.innerText = "🪱 (超開心)";
             else if (gameState.wormVitality > 50) moodEl.innerText = "🪱 (普通)";
-            else moodEl.innerText = "🪱 (奄奄一息)";
+            else moodEl.innerText = "🪱 (虛弱受苦)";
+
+            // Progress Bars
+            const hungerBar = document.getElementById('stat-hunger-bar');
+            hungerBar.style.width = `${gameState.hunger}%`;
+            if (gameState.hunger < 30) hungerBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
+            else hungerBar.className = "bg-amber-500 h-full rounded-full transition-all duration-300";
 
             const wormBar = document.getElementById('stat-worm-bar');
             wormBar.style.width = `${gameState.wormVitality}%`;
-            if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
-            else if (gameState.wormVitality < 70) wormBar.className = "bg-amber-500 h-full rounded-full transition-all duration-500";
-            else wormBar.className = "bg-emerald-500 h-full rounded-full transition-all duration-500";
+            if (gameState.wormVitality < 40) wormBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
+            else wormBar.className = "bg-emerald-500 h-full rounded-full transition-all duration-300";
 
             const moistureBar = document.getElementById('stat-moisture-bar');
             moistureBar.style.width = `${gameState.moisture}%`;
-            if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-full rounded-full transition-all duration-500";
-            else moistureBar.className = "bg-sky-500 h-full rounded-full transition-all duration-500";
+            if (gameState.moisture < 40 || gameState.moisture > 85) moistureBar.className = "bg-rose-500 h-full rounded-full transition-all duration-300";
+            else moistureBar.className = "bg-sky-500 h-full rounded-full transition-all duration-300";
 
             document.getElementById('weather-badge').innerText = gameState.weather;
 
@@ -895,61 +795,6 @@
             });
         }
 
-        function renderScenario(scenarioId) {
-            if (!SCENARIOS[scenarioId]) scenarioId = "CH0_START";
-            const sc = SCENARIOS[scenarioId];
-            gameState.currentScenarioId = scenarioId;
-
-            // 安全渲染章節標題
-            const titleEl = document.getElementById('chapter-title');
-            if (titleEl) titleEl.innerText = sc.chapterTitle;
-
-            gameState.chapter = sc.chapter;
-
-            document.getElementById('npc-name').innerText = sc.npcName;
-            document.getElementById('npc-role').innerText = sc.npcRole;
-            document.getElementById('npc-avatar').innerText = sc.avatar || "🧑‍🌾";
-            document.getElementById('story-text').innerText = sc.text;
-
-            const choicesBox = document.getElementById('choices-container');
-            choicesBox.innerHTML = '';
-
-            sc.choices.forEach(choice => {
-                const btn = document.createElement('button');
-                btn.className = "w-full text-left bg-slate-800/80 hover:bg-emerald-800/80 hover:border-emerald-500 border border-slate-700 p-3.5 rounded-xl text-xs sm:text-sm font-semibold transition duration-200 flex items-center justify-between group shadow-md";
-                btn.innerHTML = `<span>${choice.text}</span> <i class="fa-solid fa-chevron-right text-slate-500 group-hover:text-emerald-300 group-hover:translate-x-1 transition"></i>`;
-                btn.onclick = () => {
-                    playSound('click');
-                    if (choice.action) choice.action();
-                    updateUI();
-                    saveGame(false);
-                    renderScenario(choice.nextScenario);
-                };
-                choicesBox.appendChild(btn);
-            });
-        }
-
-        function processMaterial(type, amount, target) {
-            if (gameState.unprocessedWaste[type] >= amount) {
-                gameState.unprocessedWaste[type] -= amount;
-                if (target === 'worm') {
-                    let boost = gameState.unlockedTechs.includes("WORM_BIN_V2") ? 1.15 : 1.0;
-                    gameState.vermicompost += amount * 0.6 * boost;
-                    addCarbon(amount * 0.4 * boost);
-                    addWormVitality(5);
-                    playSound('success');
-                }
-            }
-        }
-
-        function adjustMoisture(amount) {
-            gameState.moisture = Math.max(20, Math.min(100, gameState.moisture + amount));
-        }
-
-        function addWormVitality(amt) {
-            gameState.wormVitality = Math.max(0, Math.min(100, gameState.wormVitality + amt));
-        }
-
         function addCarbon(amt) {
             gameState.carbonOffset += amt;
             if (gameState.carbonOffset >= 50) unlockBadge("CARBON_HERO");
@@ -961,6 +806,10 @@
 
         function addESG(amt) {
             gameState.esgImpact += amt;
+        }
+
+        function addWormVitality(amt) {
+            gameState.wormVitality = Math.max(0, Math.min(100, gameState.wormVitality + amt));
         }
 
         function unlockBadge(bKey) {
@@ -976,41 +825,6 @@
             if (gameState.wormVitality >= 90 && !gameState.badges.includes("WORM_MASTER")) {
                 unlockBadge("WORM_MASTER");
             }
-        }
-
-        function nextDay() {
-            gameState.day += 1;
-            let chickenBonus = gameState.unlockedTechs.includes("CHICKEN_TRACTOR") ? 1.5 : 0;
-
-            gameState.unprocessedWaste.coffee += 2.0 + chickenBonus;
-            gameState.unprocessedWaste.tea += 1.5;
-            gameState.unprocessedWaste.foodScraps += 2.0;
-            gameState.unprocessedWaste.dryLeaves += 3.0 + chickenBonus;
-
-            if (gameState.day === 3 && gameState.chapter < 2) {
-                renderScenario("CHAPTER_2_ENTER");
-                return;
-            }
-            if (gameState.day === 6 && gameState.chapter < 3) {
-                renderScenario("CHAPTER_3_ENTER");
-                return;
-            }
-
-            const eventPool = [
-                { id: "EVENT_RAIN", weather: "🌧️ 豪雨降臨" },
-                { id: "EVENT_HEAT", weather: "☀️ 酷暑熱浪" },
-                { id: "EVENT_ANTS", weather: "🐜 蟻群襲擊" },
-                { id: "DAILY_ROUTINE", weather: "☀️ 晴朗微風" },
-                { id: "DAILY_ROUTINE", weather: "☁️ 多雲舒適" }
-            ];
-            
-            const selected = eventPool[Math.floor(Math.random() * eventPool.length)];
-            gameState.weather = selected.weather;
-            
-            if (selected.id !== "DAILY_ROUTINE") playSound('alert');
-            
-            addLog(`-- 進入 Day ${gameState.day} (${gameState.weather}) --`);
-            renderScenario(selected.id);
         }
 
         function addLog(text) {
@@ -1041,15 +855,15 @@
         }
 
         function saveGame(showNotif = false) {
-            localStorage.setItem('TERRA_CHEF_SAVE_V32', JSON.stringify(gameState));
+            localStorage.setItem('TERRA_CHEF_TAMAGOTCHI_V4', JSON.stringify(gameState));
             if (showNotif) {
                 playSound('success');
-                showToast("遊戲進度已成功儲存！", "💾");
+                showToast("生態箱進度已成功儲存！", "💾");
             }
         }
 
         function loadGame() {
-            const saved = localStorage.getItem('TERRA_CHEF_SAVE_V32');
+            const saved = localStorage.getItem('TERRA_CHEF_TAMAGOTCHI_V4');
             if (saved) {
                 try {
                     const parsed = JSON.parse(saved);
@@ -1061,21 +875,18 @@
         }
 
         function confirmResetGame() {
-            if (confirm("確定要重置所有農場進度、科技與成就嗎？")) {
-                localStorage.removeItem('TERRA_CHEF_SAVE_V32');
+            if (confirm("確定要重置所有生態箱進度、科技與成就嗎？")) {
+                localStorage.removeItem('TERRA_CHEF_TAMAGOTCHI_V4');
                 gameState = JSON.parse(JSON.stringify(DEFAULT_STATE));
-                forceStartGame();
-                showToast("農場已重置為初始狀態。");
+                updateUI();
+                showToast("生態箱已重置為初始狀態。");
             }
         }
 
         function forceStartGame() {
             loadGame();
-            if (!SCENARIOS[gameState.currentScenarioId]) {
-                gameState.currentScenarioId = "CH0_START";
-            }
             updateUI();
-            renderScenario(gameState.currentScenarioId);
+            startRealTimeEngine();
             setInterval(drawFarmCanvas, 100);
         }
 
