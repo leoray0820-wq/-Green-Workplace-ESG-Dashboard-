@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v13.0 橫山完美終極版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v14.0 台灣全縣市終極版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -49,7 +49,7 @@
             display: grid;
             grid-template-columns: repeat(6, minmax(0, 1fr));
             grid-template-rows: repeat(6, minmax(0, 1fr));
-            gap: 8px;
+            gap: 6px;
         }
         .custom-scroll::-webkit-scrollbar {
             width: 6px;
@@ -83,9 +83,9 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v13.0 橫山終極版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v14.0 台灣全縣市版</span>
                     </h1>
-                    <p class="text-xs text-slate-300 hidden sm:block">橫山低碳循環農業 × 科技樹研發 × P2P 大富翁</p>
+                    <p class="text-xs text-slate-300 hidden sm:block">台灣全縣市永續農業 × 科技樹研發 × P2P 強力攻擊大富翁</p>
                 </div>
             </div>
             
@@ -114,7 +114,7 @@
 
             <div class="text-center space-y-2">
                 <div class="inline-flex p-3 rounded-2xl bg-emerald-950/80 border border-emerald-500/30 text-5xl mb-1 shadow-inner">
-                    🌐
+                    🇹🇼
                 </div>
                 <h2 class="text-2xl sm:text-3xl font-black text-emerald-400 text-glow">線上多人對戰大廳</h2>
                 <p class="text-sm text-slate-300">輸入名稱後，即可直接創建房間或一鍵自動配對加入！</p>
@@ -208,74 +208,73 @@
             </div>
         </div>
 
-        <!-- Middle Column: 20-Tile Ring Board -->
+        <!-- Middle Column: 24-Tile Ring Board -->
         <div class="lg:col-span-5 flex flex-col justify-between">
-            <div class="board-grid bg-slate-900/90 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[480px] sm:min-h-[560px] relative">
+            <div class="board-grid bg-slate-900/90 p-3 sm:p-4 rounded-2xl border border-slate-800 shadow-2xl h-full min-h-[500px] sm:min-h-[600px] relative">
                 <div id="board-container" class="contents">
                     <!-- Dynamic Board Tiles -->
                 </div>
                 
                 <!-- Inner Board Plaza -->
-                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/90 rounded-2xl border border-slate-800/80 p-4 sm:p-5 flex flex-col justify-between items-center text-center relative overflow-hidden shadow-2xl">
+                <div class="col-start-2 col-span-4 row-start-2 row-span-4 bg-slate-950/90 rounded-2xl border border-slate-800/80 p-3 sm:p-4 flex flex-col justify-between items-center text-center relative overflow-hidden shadow-2xl">
                     <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
-                    <div class="space-y-1.5 z-10">
-                        <span class="text-4xl sm:text-5xl inline-block animate-bounce">🌱</span>
-                        <h3 class="font-black text-sm sm:text-base text-emerald-400">橫山低碳循環農業試驗地圖</h3>
-                        <p class="text-xs text-slate-300" id="center-event-text">歡迎來到橫山鄉！積累碳幣、資材與蚯蚓收成！</p>
+                    <div class="space-y-1 z-10">
+                        <span class="text-3xl sm:text-4xl inline-block animate-bounce">🇹🇼</span>
+                        <h3 class="font-black text-xs sm:text-sm text-emerald-400">台灣全縣市永續農業環狀地圖</h3>
+                        <p class="text-[11px] text-slate-300" id="center-event-text">全台走透透！投資各縣市環保設施，獲取碳權與豐厚收益！</p>
                     </div>
 
                     <!-- Initial Order Determination Box -->
-                    <div id="order-determination-box" class="hidden z-20 w-full bg-slate-900/95 p-4 rounded-2xl border-2 border-amber-500/80 space-y-3 shadow-2xl">
-                        <div class="text-sm font-black text-amber-400 flex items-center justify-center gap-2">
+                    <div id="order-determination-box" class="hidden z-25 w-full bg-slate-900/95 p-3 rounded-xl border-2 border-amber-500/80 space-y-2 shadow-2xl">
+                        <div class="text-xs sm:text-sm font-black text-amber-400 flex items-center justify-center gap-1.5">
                             🎲 開局擲骰比大小（決定玩家順序）
                         </div>
-                        <div id="order-rolls-list" class="text-xs sm:text-sm space-y-1.5 font-mono text-left bg-slate-950 p-3 rounded-xl border border-slate-800">
+                        <div id="order-rolls-list" class="text-xs space-y-1 font-mono text-left bg-slate-950 p-2.5 rounded-lg border border-slate-800">
                             <!-- Roll results populated here -->
                         </div>
                     </div>
 
                     <!-- Land & Multi-Facility Action Modal -->
-                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-3.5 rounded-xl border border-emerald-500/50 space-y-2.5 shadow-xl max-h-[280px] overflow-y-auto custom-scroll">
-                        <div class="text-xs sm:text-sm font-bold text-amber-300" id="facility-title">土地與設施建設選單</div>
-                        <div class="text-xs text-slate-300" id="facility-desc">說明資訊...</div>
+                    <div id="facility-action-box" class="hidden z-20 w-full bg-slate-900 p-3 rounded-xl border border-emerald-500/50 space-y-2 shadow-xl max-h-[240px] overflow-y-auto custom-scroll">
+                        <div class="text-xs font-bold text-amber-300" id="facility-title">土地與設施建設選單</div>
+                        <div class="text-[11px] text-slate-300" id="facility-desc">說明資訊...</div>
                         
-                        <!-- Choice list for multiple facility construction -->
-                        <div id="facility-choice-container" class="hidden space-y-2 text-left my-2">
-                            <label class="block text-xs font-bold text-emerald-400">請選擇要增建/興建的永續設施 (可同時建設多種)：</label>
-                            <div id="available-facilities-checkboxes" class="space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs">
-                                <!-- Generated dynamically based on tech tree -->
+                        <div id="facility-choice-container" class="hidden space-y-1.5 text-left my-1">
+                            <label class="block text-[11px] font-bold text-emerald-400">請選擇要增建/興建的永續設施 (可同時建設多種)：</label>
+                            <div id="available-facilities-checkboxes" class="space-y-1 bg-slate-950 p-2 rounded-lg border border-slate-800 text-[11px]">
+                                <!-- Generated dynamically -->
                             </div>
                         </div>
 
-                        <div class="flex gap-3 justify-center pt-1">
-                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm shadow">確認投資建設</button>
-                            <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm">結束回合</button>
+                        <div class="flex gap-2 justify-center pt-1">
+                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1 rounded-lg text-xs shadow">確認投資建設</button>
+                            <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-3 py-1 rounded-lg text-xs">結束回合</button>
                         </div>
                     </div>
 
-                    <!-- Target Selection Banner for Cards -->
-                    <div id="target-selection-box" class="hidden z-20 w-full bg-slate-900/95 p-4 rounded-2xl border-2 border-amber-500/80 space-y-3 shadow-2xl">
-                        <div class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-center gap-1.5">
-                            🎯 請選擇卡片施放或對象目標
+                    <!-- Target Selection Banner for Cards (Attack / Interaction) -->
+                    <div id="target-selection-box" class="hidden z-30 w-full bg-slate-900/95 p-3 rounded-xl border-2 border-rose-500/80 space-y-2 shadow-2xl">
+                        <div class="text-xs sm:text-sm font-black text-rose-400 flex items-center justify-center gap-1.5">
+                            🎯 <span id="target-selection-title">請選擇卡片攻擊或指定對象目標</span>
                         </div>
-                        <div id="target-buttons-list" class="grid grid-cols-2 gap-2">
+                        <div id="target-buttons-list" class="grid grid-cols-2 gap-1.5">
                             <!-- Target buttons generated dynamically -->
                         </div>
                     </div>
 
                     <!-- Chance / Destiny Card Drawn Banner -->
-                    <div id="card-action-box" class="hidden z-10 w-full bg-slate-900 p-4 rounded-xl border border-amber-500/50 space-y-3 text-center shadow-xl">
+                    <div id="card-action-box" class="hidden z-20 w-full bg-slate-900 p-3 rounded-xl border border-amber-500/50 space-y-2.5 text-center shadow-xl">
                         <div class="text-xs sm:text-sm font-bold text-amber-300 flex items-center justify-center gap-1.5" id="card-drawn-title">
                             🎴 抽到卡片！
                         </div>
-                        <div class="text-xs sm:text-sm text-slate-200 leading-relaxed" id="card-drawn-desc">卡片效果描述...</div>
-                        <div class="flex gap-3 justify-center pt-1" id="card-drawn-buttons">
-                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow">⚡ 立即使用</button>
-                            <button onclick="applyCardAction('save')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs sm:text-sm shadow">🎒 放入背包收藏</button>
+                        <div class="text-xs text-slate-200 leading-relaxed" id="card-drawn-desc">卡片效果描述...</div>
+                        <div class="flex gap-2 justify-center pt-1" id="card-drawn-buttons">
+                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">⚡ 立即使用 (指定攻擊)</button>
+                            <button onclick="applyCardAction('save')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs shadow">🎒 放入背包收藏</button>
                         </div>
                     </div>
 
-                    <div class="text-xs text-slate-400 z-10 font-mono">
+                    <div class="text-[11px] text-slate-400 z-10 font-mono">
                         P2P 房號: <span id="display-room-id" class="text-emerald-400 font-bold">---</span>
                     </div>
                 </div>
@@ -305,7 +304,7 @@
                     </div>
 
                     <!-- Expanded Full Chat Box Overlay / Drawer -->
-                    <div id="chat-expanded-box" class="hidden absolute inset-0 bg-slate-950/95 border border-slate-800 rounded-2xl p-3 flex flex-col z-20 backdrop-blur-md shadow-2xl">
+                    <div id="chat-expanded-box" class="hidden absolute inset-0 bg-slate-950/95 border border-slate-800 rounded-2xl p-3 flex flex-col z-25 backdrop-blur-md shadow-2xl">
                         <div class="flex justify-between items-center pb-2 border-b border-slate-800 text-xs font-bold text-emerald-400">
                             <span><i class="fa-solid fa-comments"></i> 完整對話紀錄</span>
                             <button onclick="toggleChatExpand()" class="text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs">收合 ▲</button>
@@ -325,7 +324,7 @@
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3.5 shadow-inner space-y-1.5 h-36 flex flex-col">
                 <h4 class="text-xs font-bold text-slate-300 uppercase tracking-wider">即時比賽日誌</h4>
                 <div id="game-log" class="text-xs text-slate-300 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
-                    <div>[系統] 遊戲準備完畢。</div>
+                    <div>[系統] 台灣全縣市永續農業大富翁準備就緒。</div>
                 </div>
             </div>
         </div>
@@ -355,7 +354,7 @@
         <div class="bg-slate-900/95 border-2 border-emerald-500/60 rounded-3xl p-6 sm:p-10 shadow-2xl w-full space-y-6 text-center backdrop-blur-md">
             <div class="text-6xl sm:text-7xl animate-bounce">🏆</div>
             <div class="space-y-2">
-                <h2 class="text-3xl font-black text-emerald-400 text-glow">永續大地競賽 圓滿結束！</h2>
+                <h2 class="text-3xl font-black text-emerald-400 text-glow">台灣永續大地競賽 圓滿結束！</h2>
                 <p class="text-sm sm:text-base text-slate-300" id="winner-announcement">冠軍玩家誕生！</p>
             </div>
             
@@ -444,26 +443,26 @@
             { id: "c1", name: "綠色金融補助", desc: "獲取永續金融基金，獲得 30 碳幣！", category: "chance", needTarget: false },
             { id: "c2", name: "生物炭技術突破", desc: "炭化效率提升，固碳量增加 5.0 kg！", category: "chance", needTarget: false },
             { id: "c3", name: "蚓糞土大幅收成", desc: "消耗 15 個資材，成功提煉轉換出 8.0 kg 高品質蚓糞！", category: "chance", needTarget: false },
-            { id: "c4", name: "資材回收補給", desc: "獲得社區廢棄咖啡渣與廚餘資材 25 個！", category: "chance", needTarget: false },
+            { id: "c4", name: "資材回收補給", desc: "獲得在地農業廢棄資材 25 個！", category: "chance", needTarget: false },
             { id: "c5", name: "碳權採購特賣", desc: "成功對企業出售 5kg 固碳量，換取 45 碳幣！", category: "chance", needTarget: false },
-            { id: "c6", name: "ESG 專案資助", desc: "知名企業贊助，碳幣 +25，固碳 +3.0 kg！", category: "chance", needTarget: false },
+            { id: "c6", name: "ESG 專案資助", desc: "企業贊助，碳幣 +25，固碳 +3.0 kg！", category: "chance", needTarget: false },
             { id: "c7", name: "頂級黑金蚓糞", desc: "培育優良蚯蚓，蚓糞收成增加 5 kg！", category: "chance", needTarget: false },
             { id: "c8", name: "強制收購合約", desc: "以 7 折價格強制買下對手指定土地或設施！", category: "chance", needTarget: true, isForcedBuy: true },
-            { id: "c9", name: "商業掠奪合約", desc: "選定一名對手，掠奪其 15 碳幣！", category: "chance", needTarget: true },
-            { id: "c10", name: "資材技術轉移", desc: "選定一名對手，轉移其 10 個資材至自己囊中！", category: "chance", needTarget: true }
+            { id: "c9", name: "商業掠奪攻擊", desc: "指定一名對手，發動攻擊掠奪其 20 碳幣！", category: "chance", needTarget: true },
+            { id: "c10", name: "資材強行徵收", desc: "指定一名對手，強制徵收其 15 個農業資材！", category: "chance", needTarget: true }
         ];
 
         const DESTINY_CARDS = [
-            { id: "d1", name: "紅螞蟻侵蝕災情", desc: "遭紅螞蟻入侵堆肥箱，損失 15 碳幣！", category: "destiny", needTarget: false },
+            { id: "d1", name: "病蟲害侵蝕災情", desc: "遭紅螞蟻與害蟲入侵，損失 15 碳幣！", category: "destiny", needTarget: false },
             { id: "d2", name: "極端暴雨沖刷", desc: "豪雨流失土壤有機碳，固碳量減少 4.0 kg！", category: "destiny", needTarget: false },
             { id: "d3", name: "生廚餘發酵失敗", desc: "堆肥酸化失敗，資材損失 20 個！", category: "destiny", needTarget: false },
-            { id: "d4", name: "竹醋液設備破損", desc: "冷凝管破損維修，支付 20 碳幣修復費！", category: "destiny", needTarget: false },
+            { id: "d4", name: "冷凝設備故障", desc: "碳化冷凝管破損維修，支付 20 碳幣修復費！", category: "destiny", needTarget: false },
             { id: "d5", name: "範疇三盤查開罰", desc: "碳盤查數據不合規，罰款 25 碳幣！", category: "destiny", needTarget: false },
-            { id: "d6", name: "蚯蚓逃逸事件", desc: "土壤濕度異常造成蚯蚓逃逸，損失 3 kg 蚓糞！", category: "destiny", needTarget: false },
-            { id: "d7", name: "乾旱酷熱減產", desc: "高溫熱浪造成作物損害，資材損失 15 個！", category: "destiny", needTarget: false },
-            { id: "d8", name: "天災災害移轉", desc: "將自身天災損害移轉給選定之對手，扣除其 15 碳幣！", category: "destiny", needTarget: true },
-            { id: "d9", name: "碳稽查牽連", desc: "選定一名對手，舉報其設備問題扣除 3.0 kg 固碳量！", category: "destiny", needTarget: true },
-            { id: "d10", name: "生物安全隔離", desc: "強制暫停營運清消，支付 10 碳幣衛生費！", category: "destiny", needTarget: false }
+            { id: "d6", name: "土壤酸化干擾", desc: "土壤酸鹼值異常造成作物受損，損失 3 kg 蚓糞！", category: "destiny", needTarget: false },
+            { id: "d7", name: "乾旱酷熱減產", desc: "高溫熱浪造成作物減產，資材損失 15 個！", category: "destiny", needTarget: false },
+            { id: "d8", name: "天災災害轉嫁", desc: "指定一名對手，將自身天災損害轉嫁給對方扣除 20 碳幣！", category: "destiny", needTarget: true },
+            { id: "d9", name: "環保稽查指控", desc: "指定一名對手進行檢舉稽查，扣除其 4.0 kg 固碳量！", category: "destiny", needTarget: true },
+            { id: "d10", name: "生物安全清消", desc: "強制暫停營運進行全面清消，支付 15 碳幣！", category: "destiny", needTarget: false }
         ];
 
         function executeCardEffectById(cardId, p, target, tileIdToAcquire = null) {
@@ -493,8 +492,8 @@
                         }
                     }
                     break;
-                case "c9": if(target && target.coins >= 15) { target.coins -= 15; p.coins += 15; } break;
-                case "c10": if(target && target.resources >= 10) { target.resources -= 10; p.resources += 10; } break;
+                case "c9": if(target) { const amt = Math.min(target.coins, 20); target.coins -= amt; p.coins += amt; } break;
+                case "c10": if(target) { const amt = Math.min(target.resources, 15); target.resources -= amt; p.resources += amt; } break;
 
                 case "d1": p.coins = Math.max(0, p.coins - 15); break;
                 case "d2": p.carbon = Math.max(0, p.carbon - 4); break;
@@ -503,34 +502,38 @@
                 case "d5": p.coins = Math.max(0, p.coins - 25); break;
                 case "d6": p.vermiCasting = Math.max(0, p.vermiCasting - 3); break;
                 case "d7": p.resources = Math.max(0, p.resources - 15); break;
-                case "d8": if(target) target.coins = Math.max(0, target.coins - 15); break;
-                case "d9": if(target) target.carbon = Math.max(0, target.carbon - 3); break;
-                case "d10": p.coins = Math.max(0, p.coins - 10); break;
+                case "d8": if(target) { const amt = Math.min(target.coins, 20); target.coins -= amt; } break;
+                case "d9": if(target) { target.carbon = Math.max(0, target.carbon - 4); } break;
+                case "d10": p.coins = Math.max(0, p.coins - 15); break;
             }
         }
 
-        // 改版：嚴格僅保留 1個起點站、1個機會卡站點、1個命運卡站點，其餘非土地站點改造為機會/命運卡，其餘皆為土地
+        // 台灣全縣市環狀 24 格地圖 (依序排列：起點、20個縣市、1個機會卡、1個命運卡、1個綜合特區)
         const BOARD_TILES = [
-            { id: 0, name: "起點站(資源站)", icon: "🚩", type: "start", landPrice: 0, desc: "經過/抵達領取綜合資材與補給：碳幣+35、資材+35" },
-            { id: 1, name: "橫山一號地", icon: "🏞️", type: "property", landPrice: 20 },
-            { id: 2, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 3, name: "橫山二號地", icon: "🏞️", type: "property", landPrice: 25 },
-            { id: 4, name: "綠色永續機會", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 5, name: "橫山三號地", icon: "🏞️", type: "property", landPrice: 35 },
-            { id: 6, name: "橫山四號地", icon: "🏞️", type: "property", landPrice: 40 },
-            { id: 7, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 8, name: "氣候變遷命運", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 9, name: "橫山五號地", icon: "🏞️", type: "property", landPrice: 50 },
-            { id: 10, name: "綠能機遇站", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 11, name: "橫山六號地", icon: "🏞️", type: "property", landPrice: 60 },
-            { id: 12, name: "生態考驗站", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 13, name: "橫山七號地", icon: "🌱", type: "property", landPrice: 70 },
-            { id: 14, name: "永續投資機會", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 15, name: "橫山八號地", icon: "📦", type: "property", landPrice: 85 },
-            { id: 16, name: "橫山九號地", icon: "🏞️", type: "property", landPrice: 90 },
-            { id: 17, name: "環境稽查命運", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 18, name: "橫山十號地", icon: "🏞️", type: "property", landPrice: 100 },
-            { id: 19, name: "低碳政策機遇", icon: "🎰", type: "chance_card", landPrice: 0 }
+            { id: 0, name: "起點站(資源補給)", icon: "🚩", type: "start", landPrice: 0, desc: "經過/抵達領取綜合資材與補給：碳幣+35、資材+35" },
+            { id: 1, name: "基隆市", icon: "🚢", type: "property", landPrice: 20 },
+            { id: 2, name: "台北市", icon: "🏙️", type: "property", landPrice: 30 },
+            { id: 3, name: "新北市", icon: "🌆", type: "property", landPrice: 28 },
+            { id: 4, name: "桃園市", icon: "✈️", type: "property", landPrice: 25 },
+            { id: 5, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
+            { id: 6, name: "新竹市", icon: "💻", type: "property", landPrice: 32 },
+            { id: 7, name: "新竹縣", icon: "🏡", type: "property", landPrice: 30 },
+            { id: 8, name: "苗栗縣", icon: "🍓", type: "property", landPrice: 22 },
+            { id: 9, name: "台中市", icon: "🎭", type: "property", landPrice: 35 },
+            { id: 10, name: "彰化縣", icon: "🌾", type: "property", landPrice: 24 },
+            { id: 11, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
+            { id: 12, name: "南投縣", icon: "⛰️", type: "property", landPrice: 25 },
+            { id: 13, name: "雲林縣", icon: "🥔", type: "property", landPrice: 20 },
+            { id: 14, name: "嘉義市", icon: "🪵", type: "property", landPrice: 22 },
+            { id: 15, name: "嘉義縣", icon: "🌽", type: "property", landPrice: 20 },
+            { id: 16, name: "台南市", icon: "🏛️", type: "property", landPrice: 30 },
+            { id: 17, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
+            { id: 18, name: "高雄市", icon: "⚓", type: "property", landPrice: 32 },
+            { id: 19, name: "屏東縣", icon: "🥥", type: "property", landPrice: 22 },
+            { id: 20, name: "宜蘭縣", icon: "🦆", type: "property", landPrice: 24 },
+            { id: 21, name: "花蓮縣", icon: "🐋", type: "property", landPrice: 26 },
+            { id: 22, name: "台東縣", icon: "🎈", type: "property", landPrice: 25 },
+            { id: 23, name: "澎湖縣", icon: "🌊", type: "property", landPrice: 28 }
         ];
 
         /* ================= P2P & GAME STATE ================= */
@@ -658,7 +661,7 @@
 
             for (let i = 1; i <= 99; i++) {
                 const roomStr = String(i).padStart(2, '0');
-                const fullPeerId = `terra-room-${roomStr}`;
+                const fullPeerId = `taiwan-terra-room-${roomStr}`;
                 
                 const success = await tryOpenRoom(fullPeerId, roomStr);
                 if (success) return;
@@ -694,9 +697,9 @@
                         avatar: AVATARS[0],
                         color: COLORS[0],
                         pos: 0,
-                        coins: 100,
+                        coins: 120,
                         carbon: 10.0,
-                        resources: 50,
+                        resources: 60,
                         vermiCasting: 5.0,
                         skill: skill,
                         inventory: []
@@ -748,7 +751,7 @@
 
             for (let i = 1; i <= 99; i++) {
                 const roomStr = String(i).padStart(2, '0');
-                const fullPeerId = `terra-room-${roomStr}`;
+                const fullPeerId = `taiwan-terra-room-${roomStr}`;
 
                 const connected = await tryConnectRoom(fullPeerId, roomStr);
                 if (connected) return;
@@ -834,9 +837,9 @@
                     avatar: AVATARS[pIdx],
                     color: COLORS[pIdx],
                     pos: 0,
-                    coins: 100,
+                    coins: 120,
                     carbon: 10.0,
-                    resources: 50,
+                    resources: 60,
                     vermiCasting: 5.0,
                     skill: skill,
                     inventory: []
@@ -969,9 +972,9 @@
                     avatar: AVATARS[i],
                     color: COLORS[i],
                     pos: 0,
-                    coins: 100,
+                    coins: 120,
                     carbon: 10.0,
-                    resources: 50,
+                    resources: 60,
                     vermiCasting: 5.0,
                     skill: skill,
                     inventory: []
@@ -983,7 +986,7 @@
             gameState.initialRollPhase = true;
             switchToGameScreen();
             
-            broadcastState('競賽開始！準備進行【開局擲骰比大小】決定優先順序！');
+            broadcastState('台灣全縣市競賽開始！準備進行【開局擲骰比大小】決定優先順序！');
             executeInitialRolls();
         }
 
@@ -1059,7 +1062,7 @@
                 if (p.pos === 0) {
                     p.coins += 35;
                     p.resources += 35;
-                    logMsg += ` (經過起點領取綜合資材與補給：碳幣+35、資材+35)`;
+                    logMsg += ` (經過起點領取補給：碳幣+35、資材+35)`;
                 }
                 broadcastState();
                 playSound('step');
@@ -1093,7 +1096,7 @@
                                 prop.level = 1;
                                 prop.facilities.push('vermi_factory');
                                 p.coins -= tile.landPrice;
-                                logMsg += `，AI 購買了土地產權並建置蚯蚓堆肥廠！`;
+                                logMsg += `，AI 購買了 [${tile.name}] 土地產權並建置蚯蚓堆肥廠！`;
                             } else {
                                 broadcastState(logMsg);
                                 showLandOrFacilityPrompt(tile, prop, p);
@@ -1112,7 +1115,7 @@
                                     prop.facilities.push(facKey);
                                     prop.totalInvestment += fac.cost;
                                     prop.level = Math.max(prop.level, prop.facilities.length);
-                                    logMsg += `，AI 在土地上增建了 [${fac.name}]！`;
+                                    logMsg += `，AI 在 [${tile.name}] 增建了 [${fac.name}]！`;
                                 }
                             }
                         } else {
@@ -1123,9 +1126,8 @@
                     } else {
                         const landOwner = gameState.players.find(x => x.peerId === prop.ownerPeerId);
                         if (landOwner && !landOwner.bankrupt) {
-                            // 過路費隨總投資額動態計算
                             let toll = Math.floor(prop.totalInvestment * 0.5);
-                            logMsg += `，支付土地過路費與體驗費 ${toll} 碳幣給 ${landOwner.name}`;
+                            logMsg += `，支付 [${tile.name}] 過路費與體驗費 ${toll} 碳幣給 ${landOwner.name}`;
                             const actualPay = Math.min(p.coins, toll);
                             p.coins -= actualPay;
                             landOwner.coins += actualPay;
@@ -1194,7 +1196,7 @@
                         currentActiveDrawnCard = null;
                     });
                 } else if (currentActiveDrawnCard.needTarget) {
-                    showTargetSelection((targetPeerId) => {
+                    showTargetSelection(currentActiveDrawnCard.name, (targetPeerId) => {
                         sendCardActionHost(choice, targetPeerId, myPlayer.inventory, null);
                         currentActiveDrawnCard = null;
                     });
@@ -1208,6 +1210,7 @@
         function showPropertySelectionForForcedBuy(callback) {
             const targetBox = document.getElementById('target-selection-box');
             const targetList = document.getElementById('target-buttons-list');
+            document.getElementById('target-selection-title').innerText = "請選擇要強制收購的對手土地";
             targetList.innerHTML = '';
 
             const opponentProps = Object.keys(gameState.propertyData).filter(tId => {
@@ -1229,7 +1232,7 @@
                 const price = Math.floor(prop.totalInvestment * 0.7);
 
                 const btn = document.createElement('button');
-                btn.className = "bg-emerald-600 hover:bg-emerald-500 text-white font-bold p-2.5 rounded-xl text-xs shadow flex flex-col items-center";
+                btn.className = "bg-rose-600 hover:bg-rose-500 text-white font-bold p-2.5 rounded-xl text-xs shadow flex flex-col items-center";
                 btn.innerHTML = `<span>[${tile.name}] (${owner ? owner.name : ''})</span><span class="text-amber-300 font-pixel text-sm">7折價: ${price} 碳幣</span>`;
                 btn.onclick = () => {
                     targetBox.classList.add('hidden');
@@ -1240,16 +1243,24 @@
             targetBox.classList.remove('hidden');
         }
 
-        function showTargetSelection(callback) {
+        function showTargetSelection(cardName, callback) {
             const targetBox = document.getElementById('target-selection-box');
             const targetList = document.getElementById('target-buttons-list');
+            document.getElementById('target-selection-title').innerText = `【${cardName}】請選擇攻擊/指定目標對手`;
             targetList.innerHTML = '';
 
             const opponents = gameState.players.filter(p => p.peerId !== myPeerId && !p.bankrupt);
+            if (opponents.length === 0) {
+                alert("目前場上沒有其他存活的對手玩家可攻擊！");
+                targetBox.classList.add('hidden');
+                callback(null);
+                return;
+            }
+
             opponents.forEach(op => {
                 const btn = document.createElement('button');
-                btn.className = "bg-amber-600 hover:bg-amber-500 text-slate-950 font-black p-2.5 rounded-xl text-xs shadow";
-                btn.innerText = `${op.avatar} ${op.name}`;
+                btn.className = "bg-rose-600 hover:bg-rose-500 text-white font-black p-3 rounded-xl text-xs shadow flex items-center justify-center gap-2";
+                btn.innerHTML = `<span class="text-base">${op.avatar}</span> <span>${op.name}</span>`;
                 btn.onclick = () => {
                     targetBox.classList.add('hidden');
                     callback(op.peerId);
@@ -1284,7 +1295,7 @@
             if (choice === 'use_now') {
                 const target = gameState.players.find(x => x.peerId === targetPeerId);
                 executeCardEffectById(card.id, p, target, tileIdToAcquire);
-                logMsg = `${p.name} 發動了 [${card.name}]${target ? ` (對象：${target.name})` : ''}！`;
+                logMsg = `${p.name} 發動了 [${card.name}]${target ? ` 攻擊了目標：${target.name}` : ''}！`;
             } else {
                 logMsg = `${p.name} 選擇將 [${card.name}] 收藏至背包！`;
             }
@@ -1306,7 +1317,7 @@
                     sendUseInventoryHost(idx, null, tileId);
                 });
             } else if (card.needTarget) {
-                showTargetSelection((targetPeerId) => {
+                showTargetSelection(card.name, (targetPeerId) => {
                     sendUseInventoryHost(idx, targetPeerId, null);
                 });
             } else {
@@ -1330,7 +1341,7 @@
             const card = p.inventory.splice(cardIndex, 1)[0];
             const target = gameState.players.find(x => x.peerId === targetPeerId);
             executeCardEffectById(card.id, p, target, tileIdToAcquire);
-            broadcastState(`${p.name} 從背包發動了 [${card.name}]！`);
+            broadcastState(`${p.name} 從背包發動了 [${card.name}]${target ? ` 攻擊目標：${target.name}` : ''}！`);
         }
 
         function requestBuyFacility(buy) {
@@ -1378,12 +1389,12 @@
                         selectedFacs.forEach(fKey => {
                             if (!prop.facilities.includes(fKey)) {
                                 prop.facilities.push(fKey);
-                                prop.totalInvestment += FACILITY_TYPES[fKey].cost; // 動態累積投資額
+                                prop.totalInvestment += FACILITY_TYPES[fKey].cost;
                             }
                         });
                         prop.level = Math.max(prop.level, prop.facilities.length);
                         playSound('buy');
-                        logMsg = `${p.name} 在 [${tile.name}] 成功增建設施，總投資額提升至 ${prop.totalInvestment} 碳幣！`;
+                        logMsg = `${p.name} 在 [${tile.name}] 增建設施，總投資額提升至 ${prop.totalInvestment} 碳幣！`;
                     }
                 }
             } else {
@@ -1471,7 +1482,7 @@
 
                     if (isUnlocked && !alreadyBuilt) {
                         checkboxesContainer.innerHTML += `
-                            <label class="flex items-center gap-2 p-1.5 bg-slate-900 rounded border border-slate-800 cursor-pointer hover:border-emerald-500">
+                            <label class="flex items-center gap-1.5 p-1 bg-slate-900 rounded border border-slate-800 cursor-pointer hover:border-emerald-500">
                                 <input type="checkbox" value="${fKey}" class="facility-checkbox accent-emerald-500" />
                                 <span>${fac.icon} ${fac.name} (造價: ${fac.cost}🪙, 固碳: +${fac.carbonYield}kg)</span>
                             </label>
@@ -1484,21 +1495,38 @@
             document.getElementById('facility-action-box').classList.remove('hidden');
         }
 
-        /* ================= UI RENDERING ================= */
+        /* ================= UI RENDERING (24 TILES RING GRID 6x6) ================= */
 
         function renderBoard() {
             const container = document.getElementById('board-container');
             container.innerHTML = '';
             
+            // 24格 6x6 外環座標對應表
             const coords = [
-                { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 },
-                { r: 2, c: 6 }, { r: 3, c: 6 }, { r: 4, c: 6 }, { r: 5, c: 6 },
-                { r: 6, c: 6 }, { r: 6, c: 5 }, { r: 6, c: 4 }, { r: 6, c: 3 }, { r: 6, c: 2 }, { r: 6, c: 1 },
-                { r: 5, c: 1 }, { r: 4, c: 1 }, { r: 3, c: 1 }, { r: 2, c: 1 }
+                { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 }, // Top (0-5)
+                { r: 2, c: 6 }, { r: 3, c: 6 }, { r: 4, c: 6 }, { r: 5, c: 6 }, { r: 6, c: 6 },             // Right (6-10)
+                { r: 6, c: 5 }, { r: 6, c: 4 }, { r: 6, c: 3 }, { r: 6, c: 2 }, { r: 6, c: 1 },             // Bottom (11-15)
+                { r: 5, c: 1 }, { r: 4, c: 1 }, { r: 3, c: 1 }, { r: 2, c: 1 }                              // Left (16-19) -> 補齊至24格環狀
+                // 擴充至24格的邊界座標：
+                , { r: 1, c: 1 }, { r: 1, c: 1 }, { r: 1, c: 1 }, { r: 1, c: 1 }
+            ];
+
+            // 為了精確對齊 6x6 網格的 4 邊外環（共24格），重新精準對應：
+            const ringCoords = [
+                // Top row (r:1, c: 1 to 6) -> 6 cells (0 to 5)
+                {r:1, c:1}, {r:1, c:2}, {r:1, c:3}, {r:1, c:4}, {r:1, c:5}, {r:1, c:6},
+                // Right col (r: 2 to 6, c: 6) -> 5 cells (6 to 10)
+                {r:2, c:6}, {r:3, c:6}, {r:4, c:6}, {r:5, c:6}, {r:6, c:6},
+                // Bottom row (r: 6, c: 5 down to 1) -> 5 cells (11 to 15)
+                {r:6, c:5}, {r:6, c:4}, {r:6, c:3}, {r:6, c:2}, {r:6, c:1},
+                // Left col (r: 5 down to 2, c: 1) -> 4 cells (16 to 19)
+                {r:5, c:1}, {r:4, c:1}, {r:3, c:1}, {r:2, c:1},
+                // 額外四格補齊24格（內側或擴充邊界）
+                {r:2, c:2}, {r:2, c:5}, {r:5, c:2}, {r:5, c:5}
             ];
 
             BOARD_TILES.forEach((tile, idx) => {
-                const pos = coords[idx];
+                const pos = ringCoords[idx] || { r: 1, c: 1 };
                 const el = document.createElement('div');
                 el.style.gridRowStart = pos.r;
                 el.style.gridColumnStart = pos.c;
@@ -1514,20 +1542,20 @@
                 if (prop && prop.facilities && prop.facilities.length > 0) {
                     icon = FACILITY_TYPES[prop.facilities[0]].icon;
                     levelTag = prop.facilities.length > 1 ? `+${prop.facilities.length-1}` : '🏭';
-                    displayPrice = `<span class="text-amber-300 font-bold">投:${prop.totalInvestment}🪙</span>`; // 動態更新投資額與過路費基準
+                    displayPrice = `<span class="text-amber-300 font-bold">投:${prop.totalInvestment}🪙</span>`;
                 }
 
                 let tokens = '';
                 gameState.players.forEach(p => {
-                    if (p.pos === idx && !p.bankrupt) tokens += `<span class="text-sm sm:text-base font-bold" title="${p.name}">${p.avatar}</span>`;
+                    if (p.pos === idx && !p.bankrupt) tokens += `<span class="text-xs sm:text-sm font-bold" title="${p.name}">${p.avatar}</span>`;
                 });
 
-                el.className = `bg-slate-900/90 rounded-xl p-2 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden shadow-md`;
+                el.className = `bg-slate-900/90 rounded-xl p-1.5 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden shadow-md`;
                 el.innerHTML = `
-                    <div class="text-xs flex gap-0.5 min-h-[18px]">${tokens}</div>
-                    <div class="text-xl sm:text-2xl">${icon} <span class="text-xs text-amber-300 font-bold">${levelTag}</span></div>
-                    <span class="text-[10px] sm:text-xs text-slate-200 font-bold truncate w-full">${tile.name}</span>
-                    <span class="text-[9px] text-amber-400 font-mono">${displayPrice}</span>
+                    <div class="text-[10px] flex gap-0.5 min-h-[14px]">${tokens}</div>
+                    <div class="text-base sm:text-xl">${icon} <span class="text-[10px] text-amber-300 font-bold">${levelTag}</span></div>
+                    <span class="text-[9px] sm:text-[10px] text-slate-200 font-bold truncate w-full">${tile.name}</span>
+                    <span class="text-[8px] text-amber-400 font-mono">${displayPrice}</span>
                 `;
                 container.appendChild(el);
             });
@@ -1558,9 +1586,9 @@
                 gameState.players.forEach((p, idx) => {
                     const rollVal = gameState.initialRolls[p.peerId] || '-';
                     rollsList.innerHTML += `
-                        <div class="flex justify-between items-center border-b border-slate-800/80 py-1">
+                        <div class="flex justify-between items-center border-b border-slate-800/80 py-0.5">
                             <span class="font-bold" style="color: ${p.color}">${idx+1}. ${p.avatar} ${p.name}</span>
-                            <span class="font-pixel text-amber-400 font-black text-base sm:text-lg">🎲 ${rollVal} 點</span>
+                            <span class="font-pixel text-amber-400 font-black text-sm">🎲 ${rollVal} 點</span>
                         </div>
                     `;
                 });
@@ -1608,7 +1636,7 @@
                                     <div class="font-bold text-amber-400 text-xs sm:text-sm">${item.name} (${item.category === 'chance' ? '機會' : '命運'})</div>
                                     <div class="text-[10px] text-slate-400">${item.desc}</div>
                                 </div>
-                                <button onclick="useInventoryCard(${idx})" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs px-3 py-1.5 rounded-lg font-black shadow">發動</button>
+                                <button onclick="useInventoryCard(${idx})" class="bg-rose-600 hover:bg-rose-500 text-white text-xs px-3 py-1.5 rounded-lg font-black shadow">攻擊發動</button>
                             </div>
                         `;
                     });
@@ -1620,7 +1648,7 @@
             renderBoard();
         }
 
-        /* ================= CHATROOM & LOGS (WITH TOGGLE EXPAND/COLLAPSE) ================= */
+        /* ================= CHATROOM & LOGS ================= */
 
         let isChatExpanded = false;
 
@@ -1655,7 +1683,6 @@
         function renderChatMessage(sender, msg, avatar, time) {
             const box = document.getElementById('chat-messages');
             
-            // 若原本是初始提示，清空它
             if (box.innerHTML.includes("目前尚無對話紀錄")) {
                 box.innerHTML = '';
             }
@@ -1671,7 +1698,6 @@
             `;
             box.scrollTop = box.scrollHeight;
 
-            // 同步更新預覽橫幅為最新一則對話
             const snippetEl = document.getElementById('latest-chat-snippet');
             snippetEl.innerHTML = `<span class="text-emerald-400 font-bold">${avatar} ${sender}:</span> ${msg}`;
         }
@@ -1694,7 +1720,7 @@
             });
 
             const winner = sorted[0];
-            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-extrabold text-base sm:text-lg">${winner.avatar} ${winner.name}</span> 榮獲總體評分冠軍！`;
+            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-extrabold text-base sm:text-lg">${winner.avatar} ${winner.name}</span> 榮獲台灣永續總體評分冠軍！`;
             
             const statsList = document.getElementById('final-stats-list');
             statsList.innerHTML = '';
