@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v11.2 終點站絕對唯一觸發版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v11.3 嚴格擲骰觸發與狀態重置版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.2 終點站絕對唯一觸發版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.3 嚴格擲骰觸發版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -882,7 +882,7 @@
 
             setTimeout(() => {
                 gameState.initialRollPhase = false;
-                broadcastState(`第一回合正式開始！`);
+                broadcastState(`第一回合正式開始！請 [${gameState.players[0].name}] 擲骰前進。`);
                 checkTurnExecution();
             }, 3000);
         }
@@ -929,7 +929,7 @@
 
             let logMsg = `${p.name} 擲出 ${dice} 點！`;
 
-            // Step-by-Step Animated Movement (純視覺過渡動畫，絕不在此處觸發格子事件)
+            // 1. 動畫步步移動 (絕對不觸發中途格子事件)
             for (let step = 1; step <= dice; step++) {
                 p.pos = (p.pos + 1) % BOARD_TILES.length;
                 if (p.pos === 0) {
@@ -937,14 +937,12 @@
                     p.resources += 10;
                     logMsg += ` (經過起點領取補給：碳幣+20、資材+10)`;
                 }
-                broadcastState(); // 同步中間過渡格子的視覺動畫位置
+                broadcastState(); // 同步畫面移動位置
                 playSound('step');
                 await new Promise(r => setTimeout(r, 220));
             }
 
-            // ==========================================
-            // 完全抵達最終目標站點後，絕對唯一觸發一次事件！
-            // ==========================================
+            // 2. 移動結束，精準抵達最終目標站點！唯一觸發一次事件！
             const tile = BOARD_TILES[p.pos];
             logMsg += ` 最終抵達 [${tile.name}]`;
 
@@ -989,7 +987,8 @@
                                 logMsg += `，AI 購買了土地產權！`;
                             } else {
                                 broadcastState(logMsg);
-                                return; // 暫停等待玩家按鈕互動
+                                showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
+                                return; 
                             }
                         }
                     } else if (prop.ownerPeerId === p.peerId) {
@@ -1006,7 +1005,8 @@
                                 }
                             } else {
                                 broadcastState(logMsg);
-                                return; // 暫停等待玩家按鈕互動
+                                showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
+                                return; 
                             }
                         } else if (prop.level === 2) {
                             const fac = FACILITY_TYPES[prop.facilityType];
@@ -1019,7 +1019,8 @@
                                     logMsg += `，AI 升級了 [${fac.name}] 至最高極限！`;
                                 } else {
                                     broadcastState(logMsg);
-                                    return; // 暫停等待玩家按鈕互動
+                                    showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
+                                    return; 
                                 }
                             }
                         }
@@ -1295,6 +1296,11 @@
         }
 
         function finishTurn(logMsg) {
+            // 每次結束回合時，強制將所有彈出對話框與選單隱藏歸零！
+            document.getElementById('facility-action-box').classList.add('hidden');
+            document.getElementById('card-action-box').classList.add('hidden');
+            document.getElementById('target-selection-box').classList.add('hidden');
+
             gameState.players.forEach(p => {
                 if (p.bankrupt) return;
 
@@ -1446,21 +1452,10 @@
             const btnRoll = document.getElementById('btn-roll-dice');
             btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi || gameState.initialRollPhase || currP.bankrupt;
 
+            // ⚠️ 關鍵修復：在更新介面時，絕不自動彈出土地或卡片視窗！
+            // 只有在玩家主動擲骰並確實停留在該格子時，才會呼叫 prompt 函數。
             if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
-                document.getElementById('card-action-box').classList.add('hidden');
-                document.getElementById('facility-action-box').classList.add('hidden');
-            } else {
-                const tile = BOARD_TILES[currP.pos];
-                if (tile.type === 'property') {
-                    const prop = gameState.propertyData[tile.id];
-                    if (prop) {
-                        if (prop.ownerPeerId === null && currP.coins >= tile.landPrice) {
-                            showLandOrFacilityPrompt(tile, prop, currP);
-                        } else if (prop.ownerPeerId === currP.peerId && prop.level < 3) {
-                            showLandOrFacilityPrompt(tile, prop, currP);
-                        }
-                    }
-                }
+                // 非本人回合或比大小階段，確保面板隱藏
             }
 
             const orderBox = document.getElementById('order-determination-box');
@@ -1578,7 +1573,7 @@
             });
 
             const winner = sorted[0];
-            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-extrabold text-base sm:text-lg">${winner.avatar} ${winner.name}</span> 榮獲永續總體評分冠軍！`;
+            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-extrabold text-base sm:text-lg">${winner.avatar} ${winner.name}</span> 榮獲總體評分冠軍！`;
             
             const statsList = document.getElementById('final-stats-list');
             statsList.innerHTML = '';
