@@ -3,1182 +3,933 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terra Deck: ESG Championship Deluxe v2.0 (黑金協定)</title>
-    <!-- Tailwind CSS -->
+    <title>黑金協定：純粹卡牌 Combo 爆發版 (Vermi-Deck)</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
-        
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
+            font-family: 'Inter', 'Noto Sans TC', sans-serif;
+            background-color: #0b132b;
+            color: #f1f5f9;
             user-select: none;
+            overflow-x: hidden;
         }
 
-        .font-mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Custom Scrollbar */
+        /* Custom Scrollbars */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #1e293b;
+            background: rgba(15, 23, 42, 0.6);
         }
         ::-webkit-scrollbar-thumb {
             background: #334155;
-            border-radius: 3px;
+            border-radius: 4px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
+            background: #10b981;
         }
 
-        /* Card Glow & Glassmorphism */
+        /* Card Styles & Animations */
+        .card-item {
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+            transform-style: preserve-3d;
+        }
+        .card-item:hover {
+            transform: translateY(-16px) scale(1.05);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(16, 185, 129, 0.4);
+            z-index: 30;
+        }
+        .card-selected {
+            transform: translateY(-28px) scale(1.08) !important;
+            box-shadow: 0 0 25px #10b981, 0 0 5px #34d399 !important;
+            border-color: #34d399 !important;
+            z-index: 40 !important;
+        }
+
+        /* Scoring Number Pop Animation */
+        @keyframes scorePop {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-score-pop {
+            animation: scorePop 0.35s ease-out forwards;
+        }
+
+        /* Glow Effects */
+        .glow-green {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        }
+        .glow-amber {
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
+        }
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);
+        }
+
+        /* Glassmorphism Panel */
         .glass-panel {
-            background: rgba(30, 41, 59, 0.7);
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
 
-        .card-hover {
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        /* Floating Score Text */
+        .floating-score {
+            position: absolute;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            font-weight: 900;
+            color: #34d399;
+            text-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 20px #10b981;
+            z-index: 100;
         }
-        .card-hover:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 12px 24px -8px rgba(16, 185, 129, 0.25);
-        }
-
-        /* Animated Progress Bars */
-        .progress-bar-glow {
-            box-shadow: 0 0 10px currentColor;
-        }
-
-        /* Tab Transition */
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
-            animation: fadeIn 0.3s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(6px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Pulse glow animation */
-        @keyframes pulseGlow {
-            0%, 100% { opacity: 0.8; transform: scale(1); }
-            50% { opacity: 1; transform: scale(1.05); }
-        }
-        .animate-pulse-glow {
-            animation: pulseGlow 2s infinite ease-in-out;
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
         }
     </style>
 </head>
-<body class="h-screen w-screen overflow-hidden flex flex-col bg-slate-950 text-slate-100">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 overflow-x-hidden">
 
-    <!-- TOP HEADER / HUD -->
-    <header class="h-16 bg-slate-900/90 border-b border-slate-800 px-4 sm:px-6 flex items-center justify-between z-20 shrink-0">
-        <!-- Title & Turn Indicator -->
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2">
-                <div class="p-2 bg-emerald-500/20 text-emerald-400 rounded-lg border border-emerald-500/30">
-                    <i data-lucide="sprout" class="w-6 h-6"></i>
+    <!-- TOP BAR: Stage, Target Quota, Stats, Relics -->
+    <header class="w-full bg-slate-900/90 border-b border-slate-800 p-3 sm:p-4 sticky top-0 z-50 glass-panel">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+            
+            <!-- Stage Info -->
+            <div class="flex items-center space-x-4">
+                <div class="bg-emerald-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+                    <i class="fa-solid me-1 fa-layer-group text-emerald-400"></i>
+                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">關卡</span>
+                    <span id="stage-num" class="text-xl font-black text-emerald-400">1 / 5</span>
                 </div>
                 <div>
-                    <h1 class="text-base sm:text-lg font-bold tracking-wide text-slate-100 flex items-center gap-2">
-                        Terra Deck <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-mono">v2.0 ESG</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 hidden sm:block">黑金協定：40回合 豪華競賽版</p>
+                    <div class="text-xs text-slate-400 font-medium" id="stage-title">關卡 1: 社區微型堆肥站</div>
+                    <div class="flex items-center space-x-2">
+                        <span class="text-xs text-slate-400">目標黑金配額:</span>
+                        <span id="target-score" class="text-lg font-extrabold text-amber-400">500</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="h-8 w-[1px] bg-slate-800 mx-1"></div>
+            <!-- Current Match Progress -->
+            <div class="flex-1 max-w-md mx-2 hidden md:block">
+                <div class="flex justify-between text-xs font-bold mb-1">
+                    <span class="text-slate-400">本局累積得分</span>
+                    <span id="score-progress-text" class="text-emerald-400">0 / 500</span>
+                </div>
+                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                    <div id="score-bar" class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full transition-all duration-500 w-0"></div>
+                </div>
+            </div>
 
-            <!-- Turn Count -->
-            <div class="bg-slate-800/80 px-3 py-1.5 rounded-lg border border-slate-700/60 flex items-center gap-2">
-                <i data-lucide="calendar" class="w-4 h-4 text-emerald-400"></i>
-                <div>
-                    <div class="text-[10px] text-slate-400 uppercase font-semibold">Turn</div>
-                    <div class="text-sm font-bold font-mono text-emerald-400"><span id="turn-display">1</span> / 40</div>
+            <!-- Player Status & Counters -->
+            <div class="flex items-center space-x-3 sm:space-x-5">
+                <div class="text-center">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">出牌機會</div>
+                    <div id="hands-left" class="text-xl font-black text-blue-400">4</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">重抽次數</div>
+                    <div id="discards-left" class="text-xl font-black text-rose-400">3</div>
+                </div>
+                <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+                    <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
+                    <span id="player-coins" class="text-lg font-black text-amber-400">15</span>
                 </div>
             </div>
         </div>
 
-        <!-- Resources Summary Bar -->
-        <div class="flex items-center gap-2 sm:gap-6 font-mono text-xs sm:text-sm">
-            <!-- AP -->
-            <div class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg text-amber-300" title="行動點數 (Action Points)">
-                <i data-lucide="zap" class="w-4 h-4 text-amber-400 fill-amber-400/20"></i>
-                <span class="font-bold text-sm" id="ap-display">3</span>/<span id="max-ap-display">3</span>
+        <!-- Active Relics Row -->
+        <div class="max-w-7xl mx-auto mt-2 pt-2 border-t border-slate-800/80 flex items-center space-x-3 overflow-x-auto pb-1">
+            <span class="text-xs text-slate-400 font-bold whitespace-nowrap flex items-center">
+                <i class="fa-solid fa-award text-amber-400 mr-1.5"></i>被動寶物 (<span id="relic-count">0</span>/5):
+            </span>
+            <div id="relics-container" class="flex items-center space-x-2 min-h-[36px]">
+                <span class="text-xs text-slate-600 italic">尚無寶物（可在通關商店購買）</span>
             </div>
-
-            <!-- Cash -->
-            <div class="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-emerald-300" title="資金 (Black Gold Cash)">
-                <i data-lucide="circle-dollar-sign" class="w-4 h-4 text-emerald-400"></i>
-                <span class="font-bold" id="cash-display">$1,200</span>
-            </div>
-
-            <!-- ESG Carbon Points -->
-            <div class="flex items-center gap-1.5 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-lg text-cyan-300" title="ESG 碳積分 (ESG Score)">
-                <i data-lucide="award" class="w-4 h-4 text-cyan-400"></i>
-                <span class="font-bold" id="esg-display">150</span> <span class="text-[10px] text-cyan-500 hidden md:inline">PTS</span>
-            </div>
-
-            <!-- Research Points -->
-            <div class="flex items-center gap-1.5 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-lg text-indigo-300" title="科研點數 (RP)">
-                <i data-lucide="flask-conical" class="w-4 h-4 text-indigo-400"></i>
-                <span class="font-bold" id="rp-display">0</span> <span class="text-[10px] text-indigo-500 hidden md:inline">RP</span>
-            </div>
-        </div>
-
-        <!-- Controls: End Turn Button -->
-        <div class="flex items-center gap-2">
-            <button id="end-turn-btn" onclick="endTurn()" class="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-sm rounded-lg shadow-lg shadow-emerald-900/30 transition-all flex items-center gap-2 border border-emerald-400/30 active:scale-95">
-                <span>結束回合</span>
-                <i data-lucide="arrow-right-circle" class="w-4 h-4"></i>
-            </button>
         </div>
     </header>
 
-    <!-- MAIN GAME LAYOUT -->
-    <div class="flex-1 flex overflow-hidden relative">
+    <!-- MAIN GAMEPLAY AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col justify-between space-y-4">
 
-        <!-- LEFT TAB SYSTEM & WORKSPACE -->
-        <main class="flex-1 flex flex-col min-w-0 bg-slate-950 overflow-hidden">
+        <!-- PLAY BOARD / SCORING ENGINE ZONE -->
+        <div class="relative glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800/80 shadow-2xl flex flex-col items-center justify-center min-h-[220px]">
+            
+            <!-- Floating Score Overlay Container -->
+            <div id="floating-score-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"></div>
 
-            <!-- NAVIGATION TABS -->
-            <div class="bg-slate-900/60 border-b border-slate-800 px-4 flex gap-1 sm:gap-2 overflow-x-auto shrink-0 pt-2">
-                <button onclick="switchTab('compost')" id="tab-btn-compost" class="tab-btn active px-4 py-2 rounded-t-lg font-semibold text-xs sm:text-sm flex items-center gap-2 bg-slate-800 text-emerald-400 border-t border-x border-slate-700">
-                    <i data-lucide="recycle" class="w-4 h-4"></i> 堆肥反應槽
-                </button>
-                <button onclick="switchTab('nursery')" id="tab-btn-nursery" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs sm:text-sm flex items-center gap-2 text-slate-400 hover:text-slate-200">
-                    <i data-lucide="flower2" class="w-4 h-4"></i> 蚯蚓與植栽養成
-                </button>
-                <button onclick="switchTab('tech')" id="tab-btn-tech" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs sm:text-sm flex items-center gap-2 text-slate-400 hover:text-slate-200">
-                    <i data-lucide="cpu" class="w-4 h-4"></i> 科技樹 (Tech Tree)
-                </button>
-                <button onclick="switchTab('rivals')" id="tab-btn-rivals" class="tab-btn px-4 py-2 rounded-t-lg font-semibold text-xs sm:text-sm flex items-center gap-2 text-slate-400 hover:text-slate-200">
-                    <i data-lucide="swords" class="w-4 h-4"></i> 聯賽競賽與干擾
-                </button>
-            </div>
-
-            <!-- TAB CONTENTS CONTAINER -->
-            <div class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
-
-                <!-- TAB 1: COMPOST FACILITY (MAIN CANVAS & CARDS) -->
-                <div id="tab-compost" class="tab-content active space-y-4">
-                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
-
-                        <!-- Canvas Visualizer Section (7 Cols) -->
-                        <div class="lg:col-span-7 glass-panel p-4 rounded-xl flex flex-col space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i>
-                                    <h2 class="font-bold text-sm sm:text-base text-slate-200">堆肥反應槽即時狀態 Monitor</h2>
-                                </div>
-                                <span class="text-xs font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded border border-slate-700" id="microbe-activity-badge">微生物活性: 100%</span>
-                            </div>
-
-                            <!-- Canvas Visual -->
-                            <div class="relative w-full h-52 sm:h-64 bg-slate-900 rounded-lg overflow-hidden border border-slate-800 shadow-inner">
-                                <canvas id="compostCanvas" class="w-full h-full block"></canvas>
-                                
-                                <!-- Canvas Overlay Status -->
-                                <div class="absolute top-2 left-2 flex gap-2">
-                                    <span id="canvas-temp-badge" class="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-950/80 border border-slate-700 text-amber-400 flex items-center gap-1">
-                                        <i data-lucide="thermometer" class="w-3 h-3"></i> 55°C
-                                    </span>
-                                    <span id="canvas-moisture-badge" class="px-2 py-0.5 rounded text-xs font-mono font-semibold bg-slate-950/80 border border-slate-700 text-cyan-400 flex items-center gap-1">
-                                        <i data-lucide="droplets" class="w-3 h-3"></i> 60%
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- Pile Metrics Gauges -->
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono pt-1">
-                                <!-- C:N Ratio -->
-                                <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                                    <div class="text-slate-400 text-[10px] mb-0.5 flex justify-between">
-                                        <span>碳氮比 (C:N)</span>
-                                        <span class="text-emerald-400" id="cn-status">最佳</span>
-                                    </div>
-                                    <div class="text-base font-bold text-slate-100" id="cn-value">28:1</div>
-                                    <div class="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                                        <div id="cn-bar" class="bg-emerald-500 h-full w-[70%] transition-all"></div>
-                                    </div>
-                                </div>
-
-                                <!-- pH Level -->
-                                <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                                    <div class="text-slate-400 text-[10px] mb-0.5 flex justify-between">
-                                        <span>酸鹼度 (pH)</span>
-                                        <span class="text-emerald-400" id="ph-status">中性</span>
-                                    </div>
-                                    <div class="text-base font-bold text-slate-100" id="ph-value">6.8</div>
-                                    <div class="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                                        <div id="ph-bar" class="bg-emerald-500 h-full w-[60%] transition-all"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Moisture -->
-                                <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                                    <div class="text-slate-400 text-[10px] mb-0.5 flex justify-between">
-                                        <span>含水量</span>
-                                        <span class="text-cyan-400" id="moisture-status">適中</span>
-                                    </div>
-                                    <div class="text-base font-bold text-slate-100" id="moisture-value">62%</div>
-                                    <div class="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                                        <div id="moisture-bar" class="bg-cyan-500 h-full w-[62%] transition-all"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Odor Level -->
-                                <div class="bg-slate-900/80 p-2 rounded-lg border border-slate-800">
-                                    <div class="text-slate-400 text-[10px] mb-0.5 flex justify-between">
-                                        <span>異味風險</span>
-                                        <span class="text-emerald-400" id="odor-status">安全</span>
-                                    </div>
-                                    <div class="text-base font-bold text-slate-100" id="odor-value">12%</div>
-                                    <div class="w-full bg-slate-800 h-1 rounded-full mt-1 overflow-hidden">
-                                        <div id="odor-bar" class="bg-amber-500 h-full w-[12%] transition-all"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Facility Operational Dashboard (5 Cols) -->
-                        <div class="lg:col-span-5 glass-panel p-4 rounded-xl flex flex-col justify-between space-y-3">
-                            <div class="space-y-3">
-                                <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                    <div class="flex items-center gap-2">
-                                        <i data-lucide="factory" class="w-5 h-5 text-cyan-400"></i>
-                                        <h2 class="font-bold text-sm sm:text-base text-slate-200">廠區營運與產量</h2>
-                                    </div>
-                                    <span class="text-xs text-slate-400">自動結算/ Turn</span>
-                                </div>
-
-                                <!-- Production Rates -->
-                                <div class="space-y-2 text-xs">
-                                    <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-800">
-                                        <span class="text-slate-400 flex items-center gap-1.5">
-                                            <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-400"></i> 黑金有機肥產出
-                                        </span>
-                                        <span class="font-mono font-bold text-amber-300" id="fertilizer-stock">+15 噸/回合</span>
-                                    </div>
-                                    <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-800">
-                                        <span class="text-slate-400 flex items-center gap-1.5">
-                                            <i data-lucide="droplet" class="w-3.5 h-3.5 text-cyan-400"></i> 蚯蚓液肥 (Worm Tea)
-                                        </span>
-                                        <span class="font-mono font-bold text-cyan-300" id="tea-stock">+8 升/回合</span>
-                                    </div>
-                                    <div class="flex justify-between items-center bg-slate-900/50 p-2 rounded border border-slate-800">
-                                        <span class="text-slate-400 flex items-center gap-1.5">
-                                            <i data-lucide="leaf" class="w-3.5 h-3.5 text-emerald-400"></i> 碳封存認證 (ESG Points)
-                                        </span>
-                                        <span class="font-mono font-bold text-emerald-300" id="esg-rate">+25 PTS/回合</span>
-                                    </div>
-                                </div>
-
-                                <!-- Facility Quick Actions -->
-                                <div class="pt-2 border-t border-slate-800">
-                                    <div class="text-xs font-semibold text-slate-400 mb-2">極速緊急維護 (耗費 $50)</div>
-                                    <div class="grid grid-cols-2 gap-2">
-                                        <button onclick="quickAction('water')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded text-xs font-medium border border-slate-700 flex items-center justify-center gap-1">
-                                            <i data-lucide="shower-head" class="w-3.5 h-3.5"></i> 灑水降溫 (+15%)
-                                        </button>
-                                        <button onclick="quickAction('lime')" class="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-300 rounded text-xs font-medium border border-slate-700 flex items-center justify-center gap-1">
-                                            <i data-lucide="shield-alert" class="w-3.5 h-3.5"></i> 灑石灰調pH (+0.5)
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Shield / Protection Status -->
-                            <div id="active-shield-banner" class="bg-emerald-500/10 border border-emerald-500/30 p-2.5 rounded-lg flex items-center justify-between text-xs text-emerald-300">
-                                <div class="flex items-center gap-2">
-                                    <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i>
-                                    <span>合規護盾 (Compliance Shield)</span>
-                                </div>
-                                <span class="font-mono font-bold" id="shield-count">未啟用</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- CARD DECK INTERACTION PANEL -->
-                    <div class="glass-panel p-4 rounded-xl space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center gap-2">
-                                <i data-lucide="layers" class="w-5 h-5 text-amber-400"></i>
-                                <h3 class="font-bold text-sm sm:text-base text-slate-200">手牌區域 (Action Cards)</h3>
-                                <span class="text-xs text-slate-400">(點擊消耗 AP 使用卡牌)</span>
-                            </div>
-                            <button onclick="drawNewHandModal()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1 rounded border border-slate-700 flex items-center gap-1">
-                                <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i> 重洗手牌 ($30)
-                            </button>
-                        </div>
-
-                        <!-- Card Hand Grid -->
-                        <div id="hand-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 pt-1">
-                            <!-- Cards dynamically rendered here -->
-                        </div>
-                    </div>
+            <!-- Score Multiplier Display Banner -->
+            <div class="flex items-center justify-center space-x-3 sm:space-x-6 mb-4">
+                <!-- Base Mass Box -->
+                <div class="bg-slate-900 border-2 border-blue-500/50 rounded-2xl px-4 py-2 sm:px-6 sm:py-3 text-center min-w-[100px] shadow-lg">
+                    <div class="text-[10px] sm:text-xs font-bold text-blue-400 uppercase tracking-wider">基礎質量 (Mass)</div>
+                    <div id="calc-mass" class="text-2xl sm:text-4xl font-black text-blue-300">0</div>
                 </div>
 
-                <!-- TAB 2: NURSERY & WORM NURTURING -->
-                <div id="tab-nursery" class="tab-content space-y-4">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="text-2xl sm:text-4xl font-black text-slate-500">×</div>
 
-                        <!-- Worm Colony Care Section -->
-                        <div class="glass-panel p-5 rounded-xl space-y-4">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/20">
-                                        <i data-lucide="bug" class="w-6 h-6"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-base text-slate-100">太平二號 蚯蚓養殖槽 (Eisenia Fetida)</h3>
-                                        <p class="text-xs text-slate-400">提升有機廢棄物消化速度與品質</p>
-                                    </div>
-                                </div>
-                                <span class="px-2.5 py-1 bg-rose-500/20 text-rose-300 font-mono text-xs font-bold rounded-full border border-rose-500/30" id="worm-level">Lv.1 初級養殖槽</span>
-                            </div>
-
-                            <!-- Worm Metrics -->
-                            <div class="grid grid-cols-3 gap-3 font-mono text-center">
-                                <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                                    <div class="text-[10px] text-slate-400">蚯蚓族群數量</div>
-                                    <div class="text-sm font-bold text-rose-400 mt-1" id="worm-pop">5,000 隻</div>
-                                </div>
-                                <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                                    <div class="text-[10px] text-slate-400">消化轉換效率</div>
-                                    <div class="text-sm font-bold text-amber-400 mt-1" id="worm-efficiency">1.2x</div>
-                                </div>
-                                <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-800">
-                                    <div class="text-[10px] text-slate-400">健康滿意度</div>
-                                    <div class="text-sm font-bold text-emerald-400 mt-1" id="worm-health">95%</div>
-                                </div>
-                            </div>
-
-                            <!-- Worm Care Actions -->
-                            <div class="space-y-2 pt-2">
-                                <button onclick="feedWorms()" class="w-full p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 text-xs font-semibold flex items-center justify-between">
-                                    <span class="flex items-center gap-2"><i data-lucide="apple" class="w-4 h-4 text-amber-400"></i> 投餵精緻熟化廚餘 (增殖族群)</span>
-                                    <span class="font-mono text-amber-400">-$40 / +500隻</span>
-                                </button>
-                                <button onclick="upgradeWormBin()" class="w-full p-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg border border-slate-700 text-xs font-semibold flex items-center justify-between">
-                                    <span class="flex items-center gap-2"><i data-lucide="arrow-up-circle" class="w-4 h-4 text-emerald-400"></i> 升級溫控保濕養殖箱</span>
-                                    <span class="font-mono text-emerald-400">-$200 / Lv+1</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Botanical Nursery Section -->
-                        <div class="glass-panel p-5 rounded-xl space-y-4">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-lg border border-emerald-500/20">
-                                        <i data-lucide="plant" class="w-6 h-6"></i>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-bold text-base text-slate-100">高價值經濟作物育苗溫室</h3>
-                                        <p class="text-xs text-slate-400">施用蚯蚓肥與液肥提升收益與碳匯</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Crop Slots -->
-                            <div class="grid grid-cols-3 gap-3" id="nursery-plots-container">
-                                <!-- Plant plots dynamically injected -->
-                            </div>
-                        </div>
-                    </div>
+                <!-- Mult Box -->
+                <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-2xl px-4 py-2 sm:px-6 sm:py-3 text-center min-w-[100px] shadow-lg">
+                    <div class="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">分解倍率 (Mult)</div>
+                    <div id="calc-mult" class="text-2xl sm:text-4xl font-black text-emerald-300">+0</div>
                 </div>
 
-                <!-- TAB 3: TECH TREE (3 BRANCHES) -->
-                <div id="tab-tech" class="tab-content space-y-4">
-                    <div class="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl border border-slate-800">
-                        <div>
-                            <h3 class="font-bold text-base text-slate-100 flex items-center gap-2">
-                                <i data-lucide="binary" class="w-5 h-5 text-indigo-400"></i> ESG 與生物科技研發中心
-                            </h3>
-                            <p class="text-xs text-slate-400">累積科研點數 (RP) 解鎖高階轉型科技</p>
-                        </div>
-                        <div class="text-right font-mono">
-                            <div class="text-xs text-slate-400">當前可用科研點數</div>
-                            <div class="text-lg font-bold text-indigo-400" id="tech-rp-val">0 RP</div>
-                        </div>
-                    </div>
+                <div class="text-2xl sm:text-4xl font-black text-slate-500">=</div>
 
-                    <!-- Tech Tree 3 Branches Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        
-                        <!-- Branch 🔬 Biochemical -->
-                        <div class="glass-panel p-4 rounded-xl space-y-3">
-                            <div class="flex items-center gap-2 border-b border-slate-800 pb-2 text-indigo-400 font-bold text-sm">
-                                <i data-lucide="flask-conical" class="w-4 h-4"></i>
-                                <span>1. 生物化學與菌株分支</span>
-                            </div>
-                            <div class="space-y-2" id="tech-branch-biochem">
-                                <!-- Tech Node -->
-                            </div>
-                        </div>
-
-                        <!-- Branch 🤖 Automation -->
-                        <div class="glass-panel p-4 rounded-xl space-y-3">
-                            <div class="flex items-center gap-2 border-b border-slate-800 pb-2 text-cyan-400 font-bold text-sm">
-                                <i data-lucide="bot" class="w-4 h-4"></i>
-                                <span>2. AI 智慧自動化分支</span>
-                            </div>
-                            <div class="space-y-2" id="tech-branch-auto">
-                                <!-- Tech Node -->
-                            </div>
-                        </div>
-
-                        <!-- Branch 💼 ESG & Commercial -->
-                        <div class="glass-panel p-4 rounded-xl space-y-3">
-                            <div class="flex items-center gap-2 border-b border-slate-800 pb-2 text-emerald-400 font-bold text-sm">
-                                <i data-lucide="briefcase" class="w-4 h-4"></i>
-                                <span>3. 商業與碳權證照分支</span>
-                            </div>
-                            <div class="space-y-2" id="tech-branch-esg">
-                                <!-- Tech Node -->
-                            </div>
-                        </div>
-
-                    </div>
-                </div>
-
-                <!-- TAB 4: LEAGUE RIVALS & SABOTAGE -->
-                <div id="tab-rivals" class="tab-content space-y-4">
-                    <div class="glass-panel p-5 rounded-xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <div>
-                                <h3 class="font-bold text-base text-slate-100 flex items-center gap-2">
-                                    <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i> ESG 黑金企業聯賽排行榜
-                                </h3>
-                                <p class="text-xs text-slate-400">40 回合總結算，碳權積分 + 淨資產決定冠軍名次</p>
-                            </div>
-                        </div>
-
-                        <!-- Leaderboard Table -->
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-xs sm:text-sm">
-                                <thead>
-                                    <tr class="border-b border-slate-800 text-slate-400 font-mono uppercase">
-                                        <th class="p-2">排名</th>
-                                        <th class="p-2">企業名稱</th>
-                                        <th class="p-2">ESG 碳積分</th>
-                                        <th class="p-2">總資產</th>
-                                        <th class="p-2">狀態與護盾</th>
-                                        <th class="p-2 text-right">商戰干擾操作</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="leaderboard-body" class="divide-y divide-slate-800/50">
-                                    <!-- Dynamic rival rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
-
-        <!-- RIGHT EVENT LOG & CHANCE/FATE SIDEBAR -->
-        <aside class="w-80 bg-slate-900/90 border-l border-slate-800 flex flex-col shrink-0 hidden lg:flex">
-            <!-- Opportunity & Fate Card Display -->
-            <div class="p-4 border-b border-slate-800 space-y-2 bg-slate-950/50">
-                <div class="flex items-center gap-2 text-amber-400 font-bold text-xs uppercase tracking-wider">
-                    <i data-lucide="sparkle" class="w-4 h-4"></i>
-                    <span>本回合命運/機會事件</span>
-                </div>
-                <div id="event-card-box" class="p-3 bg-slate-900 rounded-lg border border-amber-500/30 space-y-1">
-                    <div id="event-title" class="font-bold text-sm text-amber-300">開局賽事啟動</div>
-                    <div id="event-desc" class="text-xs text-slate-300 leading-relaxed">首屆全球 ESG 黑金堆肥大賽正式展開！全體參賽企業獲得初始資金。</div>
+                <!-- Total Yield Score Box -->
+                <div class="bg-gradient-to-br from-amber-950 to-slate-900 border-2 border-amber-500/60 rounded-2xl px-5 py-2 sm:px-8 sm:py-3 text-center min-w-[140px] shadow-xl glow-amber">
+                    <div class="text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider">預估黑金得分</div>
+                    <div id="calc-total" class="text-2xl sm:text-4xl font-black text-amber-300">0</div>
                 </div>
             </div>
 
-            <!-- Operational Log Console -->
-            <div class="flex-1 p-4 flex flex-col min-h-0">
-                <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5">
-                        <i data-lucide="terminal" class="w-3.5 h-3.5 text-slate-500"></i> 營運即時紀錄
-                    </span>
-                    <button onclick="clearLogs()" class="text-[10px] text-slate-500 hover:text-slate-300">清除</button>
+            <!-- Active Played Cards Slot -->
+            <div id="played-cards-zone" class="w-full flex items-center justify-center gap-2 sm:gap-3 min-h-[140px] border-2 border-dashed border-slate-800/80 rounded-xl p-3 bg-slate-950/40">
+                <span class="text-sm text-slate-500 italic">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>
+            </div>
+            
+            <!-- Trigger Log / Active Combos Badges -->
+            <div id="combo-log-container" class="mt-3 flex flex-wrap justify-center gap-2 min-h-[28px]">
+                <!-- Active combo badges will appear here -->
+            </div>
+        </div>
+
+        <!-- ACTION BUTTONS BAR -->
+        <div class="flex items-center justify-center space-x-4 py-1">
+            <button id="btn-discard" onclick="game.discardSelected()" class="bg-slate-800 hover:bg-rose-900/60 text-slate-200 border border-slate-700 hover:border-rose-500 font-bold px-5 py-3 rounded-xl transition duration-150 flex items-center space-x-2 shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+                <i class="fa-solid fa-trash-can text-rose-400"></i>
+                <span>棄牌重抽 (<span id="btn-discard-count">3</span>)</span>
+            </button>
+
+            <button id="btn-play" onclick="game.playSelectedHand()" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-black text-lg px-8 py-3 rounded-xl transition duration-150 flex items-center space-x-2 shadow-lg glow-green active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
+                <i class="fa-solid fa-bolt"></i>
+                <span>出牌結算 (Play)</span>
+            </button>
+        </div>
+
+        <!-- PLAYER HAND ZONE -->
+        <div class="w-full">
+            <div class="flex justify-between items-center mb-2 px-1">
+                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
+                    <i class="fa-solid fa-hand text-emerald-400"></i>
+                    <span>目前手牌 (<span id="hand-count">0</span> / 8)</span>
+                    <span class="text-[11px] text-slate-500 font-normal">（可勾選最多 5 張進行組合）</span>
                 </div>
-                <div id="log-console" class="flex-1 bg-slate-950 rounded-lg p-3 border border-slate-800/80 font-mono text-[11px] space-y-1.5 overflow-y-auto text-slate-300">
-                    <div class="text-emerald-400">[系統] 歡迎來到 Terra Deck ESG Championship v2.0！</div>
+                <div class="text-xs text-slate-400">
+                    牌堆剩餘: <span id="deck-left-count" class="font-bold text-slate-200">0</span> 張
                 </div>
             </div>
-        </aside>
 
+            <!-- Hand Cards Container -->
+            <div id="hand-container" class="flex justify-center items-end gap-2 sm:gap-3 min-h-[170px] sm:min-h-[190px] pt-4 pb-2 px-2 overflow-x-auto">
+                <!-- Cards render here dynamically -->
+            </div>
+        </div>
+    </main>
+
+    <!-- SHOP MODAL (POST ROUND) -->
+    <div id="shop-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-4xl w-full p-6 sm:p-8 flex flex-col justify-between max-h-[90vh] overflow-y-auto shadow-2xl">
+            
+            <div>
+                <!-- Header -->
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
+                    <div>
+                        <div class="text-xs font-bold text-emerald-400 tracking-wider uppercase">通關慶賀！黑金有機整備站</div>
+                        <h2 class="text-2xl sm:text-3xl font-black text-slate-100">黑金擴充商店 (Shop)</h2>
+                    </div>
+                    <div class="bg-amber-500/10 border border-amber-500/30 px-4 py-2 rounded-2xl flex items-center space-x-2">
+                        <i class="fa-solid fa-coins text-amber-400 text-lg"></i>
+                        <span id="shop-player-coins" class="text-2xl font-black text-amber-400">0</span>
+                    </div>
+                </div>
+
+                <!-- Card Draft Options -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center">
+                        <i class="fa-solid fa-plus-circle text-emerald-400 mr-2"></i>增強牌組：選購強力卡牌（加入牌組）
+                    </h3>
+                    <div id="shop-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <!-- Shop Cards Rendered Here -->
+                    </div>
+                </div>
+
+                <!-- Relic Draft Options -->
+                <div class="mb-6">
+                    <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center">
+                        <i class="fa-solid fa-award text-amber-400 mr-2"></i>被動寶物：購買全域增益（最多持有 5 個）
+                    </h3>
+                    <div id="shop-relics-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Shop Relics Rendered Here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Action -->
+            <div class="border-t border-slate-800 pt-4 flex justify-between items-center">
+                <div class="text-xs text-slate-400">
+                    提示：優秀的牌組講究【高氮/高碳廢棄物】與【特定分解者】的 Combo 連動！
+                </div>
+                <button onclick="game.nextStage()" class="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black px-8 py-3 rounded-xl shadow-lg glow-green transition active:scale-95">
+                    前往下一關 <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
     </div>
 
-    <!-- MODAL POPUPS (VICTORY / EVENT NOTIFICATION) -->
-    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
-        <div class="glass-panel p-6 sm:p-8 rounded-2xl max-w-lg w-full text-center space-y-6 border border-emerald-500/40 shadow-2xl">
-            <div class="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30">
-                <i data-lucide="trophy" class="w-10 h-10 animate-bounce"></i>
+    <!-- GAME OVER / VICTORY MODAL -->
+    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-50 flex items-center justify-center p-4 hidden">
+        <div class="glass-panel border border-slate-800 rounded-3xl max-w-lg w-full p-8 text-center shadow-2xl">
+            <div id="game-over-icon" class="text-6xl mb-4 text-emerald-400">
+                <i class="fa-solid fa-trophy"></i>
             </div>
-            <div>
-                <h2 class="text-2xl font-bold text-slate-100">40 回合總決賽結算</h2>
-                <p class="text-sm text-slate-400 mt-1">ESG 黑金協定大賽正式圓滿落幕</p>
+            <h2 id="game-over-title" class="text-3xl font-black mb-2 text-slate-100">完全通關！黑金帝國大成功</h2>
+            <p id="game-over-desc" class="text-slate-400 text-sm mb-6">您成功將微型堆肥站升級為全球綠色循環典範！</p>
+            
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-6 space-y-2 text-left text-sm">
+                <div class="flex justify-between">
+                    <span class="text-slate-400">最終到達關卡:</span>
+                    <span id="end-stage" class="font-bold text-slate-200">5 / 5</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">剩餘黑金幣:</span>
+                    <span id="end-coins" class="font-bold text-amber-400">0</span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-slate-400">牌組總張數:</span>
+                    <span id="end-deck-size" class="font-bold text-emerald-400">0</span>
+                </div>
             </div>
 
-            <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-800 space-y-3 font-mono text-left" id="podium-content">
-                <!-- Calculated rank scores -->
-            </div>
-
-            <button onclick="location.reload()" class="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-xl shadow-lg hover:from-emerald-500 hover:to-teal-500 transition-all">
-                重新開始新賽季
+            <button onclick="game.restartGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg glow-green transition active:scale-95">
+                <i class="fa-solid fa-rotate-right mr-2"></i>重新開啟黑金協定
             </button>
         </div>
     </div>
 
-    <!-- AUDIO & LOGIC ENGINE SCRIPT -->
+    <!-- AUDIO SYNTHESIZER & GAME SCRIPT -->
     <script>
-        // --- WEB AUDIO API SYNTHESIZER ---
-        const AudioEngine = {
-            ctx: null,
+        /**
+         * Web Audio API Synthesizer for SFX
+         */
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+            }
             init() {
                 if (!this.ctx) {
                     this.ctx = new (window.AudioContext || window.webkitAudioContext)();
                 }
-            },
-            playClick() {
+            }
+            playSelect() {
                 this.init();
+                if (!this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = 'sine';
-                osc.frequency.setValueAtTime(400, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(800, this.ctx.currentTime + 0.05);
+                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
                 gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.05);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.05);
-            },
-            playCardPlay() {
+                osc.stop(this.ctx.currentTime + 0.08);
+            }
+            playCombo() {
                 this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
+                    gain.gain.setValueAtTime(0.2, now + idx * 0.06);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.15);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.06);
+                    osc.stop(now + idx * 0.06 + 0.15);
+                });
+            }
+            playScorePop() {
+                this.init();
+                if (!this.ctx) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(250, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.12);
-                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.12);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.12);
-            },
-            playAlert() {
-                this.init();
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sawtooth';
+                osc.type = 'square';
                 osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.setValueAtTime(300, this.ctx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.25, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.2);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
                 osc.connect(gain);
                 gain.connect(this.ctx.destination);
                 osc.start();
-                osc.stop(this.ctx.currentTime + 0.25);
+                osc.stop(this.ctx.currentTime + 0.2);
             }
+            playWin() {
+                this.init();
+                if (!this.ctx) return;
+                const now = this.ctx.currentTime;
+                [440, 554.37, 659.25, 880, 1108.73].forEach((freq, idx) => {
+                    const osc = this.ctx.createOscillator();
+                    const gain = this.ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+                    gain.gain.setValueAtTime(0.25, now + idx * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
+                    osc.connect(gain);
+                    gain.connect(this.ctx.destination);
+                    osc.start(now + idx * 0.1);
+                    osc.stop(now + idx * 0.1 + 0.4);
+                });
+            }
+        }
+
+        const sfx = new SoundFX();
+
+        /**
+         * Master Card Database Definition
+         */
+        const CARD_TYPES = {
+            FEED: { name: '廢棄物卡', color: 'border-amber-700 bg-gradient-to-b from-amber-950/80 to-slate-900', badge: 'bg-amber-900/80 text-amber-300' },
+            WORM: { name: '分解者卡', color: 'border-emerald-600 bg-gradient-to-b from-emerald-950/80 to-slate-900', badge: 'bg-emerald-900/80 text-emerald-300' },
+            YIELD: { name: '轉化收成', color: 'border-teal-500 bg-gradient-to-b from-teal-950/80 to-slate-900', badge: 'bg-teal-900/80 text-teal-300' }
         };
 
-        // --- GAME STATE DATA MODEL ---
-        const gameState = {
-            turn: 1,
-            maxTurns: 40,
-            ap: 3,
-            maxAp: 3,
-            cash: 1200,
-            esgScore: 150,
-            rp: 0,
-            
-            // Pile Metrics
-            cnRatio: 28, // Ideal: 25-30
-            ph: 6.8,    // Ideal: 6.5-7.5
-            moisture: 62, // Ideal: 55-65%
-            temp: 55,   // Ideal: 50-60 C
-            odor: 12,   // Penalty if > 50%
-            microbeActivity: 100,
+        const CARD_DATABASE = [
+            // BASIC FEEDSTOCK CARDS
+            { id: 'f1', type: 'FEED', name: '咖啡渣', icon: 'fa-mug-hot', mass: 25, mult: 0, tags: ['高氮'], desc: '基礎高氮資材。', rarity: 'C' },
+            { id: 'f2', type: 'FEED', name: '枯樹葉', icon: 'fa-leaf', mass: 40, mult: 0, tags: ['高碳'], desc: '基礎高碳資材，提供龐大質量。', rarity: 'C' },
+            { id: 'f3', type: 'FEED', name: '廚餘果皮', icon: 'fa-apple-whole', mass: 20, mult: 2, tags: ['高氮', '有機'], desc: '富有水分與養分。', rarity: 'C' },
+            { id: 'f4', type: 'FEED', name: '廢棄紙箱', icon: 'fa-box', mass: 50, mult: 0, tags: ['高碳'], desc: '純纖維高碳資材。', rarity: 'C' },
+            { id: 'f5', type: 'FEED', name: '牛糞有機資材', icon: 'fa-cow', mass: 35, mult: 5, tags: ['高氮', '有機'], desc: '極度優質的複合養分來源。', rarity: 'U' },
+            { id: 'f6', type: 'FEED', name: '菇類培植廢渣', icon: 'fa-cubes-stacked', mass: 60, mult: 3, tags: ['高碳', '有機'], desc: '豐富菌絲與有機木質素。', rarity: 'U' },
 
-            // Stocks & Production per turn
-            fertilizerStock: 15,
-            wormTeaStock: 8,
-            esgRate: 25,
+            // DECOMPOSER / WORM CARDS
+            { id: 'w1', type: 'WORM', name: '太平二號紅蚯蚓', icon: 'fa-worm', mass: 5, mult: 10, tags: ['分解者'], effectMsg: '高氮卡每張 +8 Mult', effect: (ctx) => {
+                const nCount = ctx.playedCards.filter(c => c.tags.includes('高氮')).length;
+                return { addMass: 0, addMult: nCount * 8 };
+            }, rarity: 'C' },
+            { id: 'w2', type: 'WORM', name: '歐洲大巨蚓', icon: 'fa-bug', mass: 10, mult: 12, tags: ['分解者'], effectMsg: '高碳卡每張 +10 Mass', effect: (ctx) => {
+                const cCount = ctx.playedCards.filter(c => c.tags.includes('高碳')).length;
+                return { addMass: cCount * 10, addMult: 0 };
+            }, rarity: 'C' },
+            { id: 'w3', type: 'WORM', name: '光合菌分解酵素', icon: 'fa-flask', mass: 0, mult: 15, tags: ['分解者'], effectMsg: '若同時有 [高氮] 與 [高碳]，Mult ×1.5', effect: (ctx) => {
+                const hasN = ctx.playedCards.some(c => c.tags.includes('高氮'));
+                const hasC = ctx.playedCards.some(c => c.tags.includes('高碳'));
+                return { multFactor: (hasN && hasC) ? 1.5 : 1.0 };
+            }, rarity: 'U' },
+            { id: 'w4', type: 'WORM', name: '極化變異王蚓', icon: 'fa-dna', mass: 15, mult: 25, tags: ['分解者'], effectMsg: '手牌每多一張分解者，+15 Mult', effect: (ctx) => {
+                const wCount = ctx.playedCards.filter(c => c.type === 'WORM').length;
+                return { addMass: 0, addMult: wCount * 15 };
+            }, rarity: 'R' },
 
-            // Shields & Debuffs
-            complianceShields: 0,
-            sabotageDebuff: 0,
+            // YIELD / HARVEST CARDS
+            { id: 'y1', type: 'YIELD', name: '有機優質黑金土', icon: 'fa-seedling', mass: 10, mult: 5, tags: ['轉化'], effectMsg: '最終總分 ×1.2', effect: (ctx) => {
+                return { finalScoreFactor: 1.2 };
+            }, rarity: 'C' },
+            { id: 'y2', type: 'YIELD', name: '溫室草莓高價作物', icon: 'fa-stroopwafel', mass: 0, mult: 20, tags: ['轉化'], effectMsg: '若本牌組包含 3 張以上廢棄物，+40 Mult', effect: (ctx) => {
+                const fCount = ctx.playedCards.filter(c => c.type === 'FEED').length;
+                return { addMass: 0, addMult: fCount >= 3 ? 40 : 0 };
+            }, rarity: 'U' },
+            { id: 'y3', type: 'YIELD', name: 'ESG 碳權認證標章', icon: 'fa-certificate', mass: 30, mult: 30, tags: ['轉化'], effectMsg: '最終總分 ×1.8 爆發！', effect: (ctx) => {
+                return { finalScoreFactor: 1.8 };
+            }, rarity: 'R' }
+        ];
 
-            // Worm Colony
-            wormLevel: 1,
-            wormPop: 5000,
-            wormHealth: 95,
+        /**
+         * Relics Database Definition
+         */
+        const RELICS_DATABASE = [
+            { id: 'r1', name: '生物炭過濾器', icon: 'fa-filter', cost: 7, desc: '每回合開始時，額外獲得 +1 次棄牌重抽機會。', onStartTurn: (g) => { g.discardsLeft += 1; } },
+            { id: 'r2', name: '溫控自動噴滴灌', icon: 'fa-droplet', cost: 8, desc: '每次出牌基礎 Mass 自動 +20。', onPlay: () => { return { addMass: 20, addMult: 0 }; } },
+            { id: 'r3', name: 'AI 光學分選機', icon: 'fa-eye', cost: 10, desc: '打出 [高氮] 卡片時，額外獲得 +8 Mult。', onPlayCard: (card) => { return card.tags.includes('高氮') ? { addMult: 8 } : {}; } },
+            { id: 'r4', name: '蚯蚓王國皇冠', icon: 'fa-crown', cost: 12, desc: '打出的每張 [分解者卡] 效果翻倍 (+15 Mult)。', onPlayCard: (card) => { return card.type === 'WORM' ? { addMult: 15 } : {}; } }
+        ];
 
-            // Nursery Plots
-            plots: [
-                { id: 1, crop: '羅勒 Basil', progress: 0, maxProgress: 3, ready: false, teaFed: false },
-                { id: 2, crop: '櫻桃小番茄 Tomato', progress: 0, maxProgress: 4, ready: false, teaFed: false },
-                { id: 3, crop: '珍稀藥草 Medicinal', progress: 0, maxProgress: 5, ready: false, teaFed: false }
-            ],
+        /**
+         * Game Stage Quotas
+         */
+        const STAGES = [
+            { id: 1, name: '關卡 1: 社區微型堆肥站', quota: 500, rewardCoins: 10 },
+            { id: 2, name: '關卡 2: 市政有機資源回收廠', quota: 1800, rewardCoins: 15 },
+            { id: 3, name: '關卡 3: 科技園區 ESG 生態中心', quota: 6000, rewardCoins: 20 },
+            { id: 4, name: '關卡 4: 跨國農企黑金研發基地', quota: 20000, rewardCoins: 25 },
+            { id: 5, name: '關卡 5: 全球零碳循環終極殿堂', quota: 65000, rewardCoins: 30 }
+        ];
 
-            // Hand Cards
-            hand: [],
+        /**
+         * Master Game Engine Object
+         */
+        class VermiGame {
+            constructor() {
+                this.stageIndex = 0;
+                this.coins = 15;
+                this.handsLeft = 4;
+                this.discardsLeft = 3;
+                this.currentScore = 0;
 
-            // AI Competitors
-            rivals: [
-                { id: 'eco', name: '綠洲科技 (Eco-Corp)', esg: 140, cash: 1100, shield: false, status: '正常' },
-                { id: 'terra', name: '大地純真 (Terra Pure)', esg: 160, cash: 950, shield: false, status: '正常' },
-                { id: 'hyper', name: '超能農場 (Hyper-Farm)', esg: 130, cash: 1400, shield: false, status: '正常' }
-            ],
+                this.deck = [];
+                this.hand = [];
+                this.selectedCardIndices = [];
+                this.activeRelics = [];
 
-            // Tech Unlocks
-            techs: {
-                biochar: false,
-                extremophile: false,
-                misters: false,
-                harvester: false,
-                carbonCert: false,
-                b2bContract: false
+                this.initDefaultDeck();
             }
-        };
 
-        // --- CARDS DATABASE ---
-        const CARDS_DB = [
-            { id: 'c1', title: '投入高碳稻殼 (Rice Husk)', cost: 1, type: 'feed', desc: '提升 C:N 比 +6，吸濕 -8%', effect: () => { gameState.cnRatio += 6; gameState.moisture -= 8; logMsg("使用了 [投入高碳稻殼]"); } },
-            { id: 'c2', title: '投放餐廚濕廚餘 (Food Waste)', cost: 1, type: 'feed', desc: '降低 C:N 比 -5，含水量 +12%，異味 +8%', effect: () => { gameState.cnRatio -= 5; gameState.moisture += 12; gameState.odor += 8; logMsg("使用了 [投放餐廚濕廚餘]"); } },
-            { id: 'c3', title: '噴灑高效發酵菌株', cost: 1, type: 'buff', desc: '提升微生物活性 +25%，升溫 +5°C', effect: () => { gameState.microbeActivity += 25; gameState.temp += 5; logMsg("使用了 [噴灑高效發酵菌株]"); } },
-            { id: 'c4', title: 'ESG 合規防護盾', cost: 1, type: 'shield', desc: '獲得 1 層合規護盾，抵禦對手商戰干擾', effect: () => { gameState.complianceShields += 1; logMsg("獲得了 [ESG 合規防護盾]"); } },
-            { id: 'c5', title: '環保局稽查舉報 (Tip-off)', cost: 2, type: 'sabotage', desc: '指定對手扣除 40 PTS ESG 積分 (可被護盾抵擋)', targetRival: true, effect: (rival) => {
-                if (rival.shield) {
-                    rival.shield = false;
-                    logMsg(`對 ${rival.name} 發動舉報，但被其合規護盾抵擋！`);
+            initDefaultDeck() {
+                this.deck = [
+                    { ...CARD_DATABASE[0] }, { ...CARD_DATABASE[0] }, { ...CARD_DATABASE[0] }, // 3 咖啡渣
+                    { ...CARD_DATABASE[1] }, { ...CARD_DATABASE[1] }, { ...CARD_DATABASE[1] }, // 3 枯樹葉
+                    { ...CARD_DATABASE[2] }, { ...CARD_DATABASE[2] },                         // 2 廚餘果皮
+                    { ...CARD_DATABASE[3] },                                                  // 1 紙箱
+                    { ...CARD_DATABASE[6] }, { ...CARD_DATABASE[6] },                         // 2 太平二號
+                    { ...CARD_DATABASE[7] },                                                  // 1 歐洲大巨蚓
+                    { ...CARD_DATABASE[10] }                                                  // 1 優質黑金土
+                ].map((c, i) => ({ ...c, instanceId: 'card_' + Date.now() + '_' + i }));
+            }
+
+            startStage() {
+                const stageData = STAGES[this.stageIndex];
+                this.currentScore = 0;
+                this.handsLeft = 4;
+                this.discardsLeft = 3;
+
+                // Trigger Relic turn start effects
+                this.activeRelics.forEach(r => {
+                    if (r.onStartTurn) r.onStartTurn(this);
+                });
+
+                // Shuffle Deck
+                this.deck = [...this.deck].sort(() => Math.random() - 0.5);
+                this.hand = [];
+                this.selectedCardIndices = [];
+
+                // Draw Initial Hand (8 cards)
+                this.drawCards(8);
+
+                this.updateUI();
+            }
+
+            drawCards(count) {
+                while (this.hand.length < 8 && this.deck.length > 0 && count > 0) {
+                    this.hand.push(this.deck.pop());
+                    count--;
+                }
+            }
+
+            toggleSelectCard(index) {
+                sfx.playSelect();
+                const pos = this.selectedCardIndices.indexOf(index);
+                if (pos > -1) {
+                    this.selectedCardIndices.splice(pos, 1);
                 } else {
-                    rival.esg -= 40;
-                    logMsg(`成功舉報 ${rival.name}，造成其 ESG 積分 -40！`);
+                    if (this.selectedCardIndices.length < 5) {
+                        this.selectedCardIndices.push(index);
+                    }
                 }
-            }},
-            { id: 'c6', title: '有機廢棄物壟斷', cost: 2, type: 'sabotage', desc: '強行吸納市場廚餘，奪取指定對手 $150 資金', targetRival: true, effect: (rival) => {
-                const stolen = Math.min(rival.cash, 150);
-                rival.cash -= stolen;
-                gameState.cash += stolen;
-                logMsg(`實施壟斷掠奪，從 ${rival.name} 處奪取了 $${stolen}！`);
-            }},
-            { id: 'c7', title: '翻堆通氣作業 (Aeration)', cost: 1, type: 'buff', desc: '大幅降低異味 -20%，溫度回落 -4°C', effect: () => { gameState.odor = Math.max(0, gameState.odor - 20); gameState.temp -= 4; logMsg("執行了 [翻堆通氣作業]"); } }
-        ];
+                this.updateUI();
+            }
 
-        // --- OPPORTUNITY & FATE CARDS DATABASE ---
-        const CHANCE_CARDS = [
-            { title: '碳稅價格暴脹', desc: '全球碳交易市場價格飆升，本回合每點碳匯額外獲得 +$2 收益。', effect: () => { gameState.cash += Math.round(gameState.esgScore * 0.2); } },
-            { title: '酷暑熱浪襲擊', desc: '極端高溫導致堆肥水分快速蒸發 -15%，異味增加 +10%。', effect: () => { gameState.moisture -= 15; gameState.odor += 10; } },
-            { title: '政府綠色補貼發放', desc: '符合永續低碳規範，獲頒中央綠色企業獎勵金 +$200。', effect: () => { gameState.cash += 200; } },
-            { title: '有機農業需求大增', desc: '優質黑金肥料市場供不應求，本回合額外帶來 +30 ESG 積分。', effect: () => { gameState.esgScore += 30; } },
-            { title: '環保局突襲抽檢', desc: '若當前異味風險 > 30%，將被裁罰 $150 罰款與 -20 PTS 積分。', effect: () => {
-                if (gameState.odor > 30) {
-                    gameState.cash -= 150;
-                    gameState.esgScore -= 20;
-                    logMsg("⚠️ 異味過高！遭環保局裁罰 $150 且 ESG -20 PTS");
-                    AudioEngine.playAlert();
+            discardSelected() {
+                if (this.discardsLeft <= 0 || this.selectedCardIndices.length === 0) return;
+                sfx.playSelect();
+
+                // Remove selected cards from hand
+                this.selectedCardIndices.sort((a, b) => b - a);
+                this.selectedCardIndices.forEach(idx => {
+                    this.hand.splice(idx, 1);
+                });
+
+                this.discardsLeft--;
+                this.selectedCardIndices = [];
+
+                // Draw back to 8 cards
+                this.drawCards(8 - this.hand.length);
+                this.updateUI();
+            }
+
+            calculateScorePreview() {
+                if (this.selectedCardIndices.length === 0) {
+                    return { baseMass: 0, totalMult: 0, totalScore: 0, triggers: [] };
                 }
-            }}
-        ];
 
-        // --- INITIALIZATION ---
-        window.onload = () => {
-            lucide.createIcons();
-            initCanvas();
-            drawNewHand();
-            updateUI();
-            logMsg("新賽季開始！請選擇卡牌進行堆肥管理或干擾對手。");
-        };
+                const playedCards = this.selectedCardIndices.map(i => this.hand[i]);
+                let baseMass = 0;
+                let totalMult = 0;
+                let multFactor = 1.0;
+                let finalScoreFactor = 1.0;
+                let triggers = [];
 
-        // --- UI TAB SWITCHING ---
-        function switchTab(tabId) {
-            AudioEngine.playClick();
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => {
-                el.classList.remove('bg-slate-800', 'text-emerald-400', 'border-t', 'border-x', 'border-slate-700');
-                el.classList.add('text-slate-400');
-            });
+                // 1. Calculate inherent Base Mass & Mult from cards
+                playedCards.forEach(card => {
+                    baseMass += card.mass || 0;
+                    totalMult += card.mult || 0;
 
-            document.getElementById(`tab-${tabId}`).classList.add('active');
-            const btn = document.getElementById(`tab-btn-${tabId}`);
-            btn.classList.add('bg-slate-800', 'text-emerald-400', 'border-t', 'border-x', 'border-slate-700');
-            btn.classList.remove('text-slate-400');
-        }
+                    // Relic trigger on card
+                    this.activeRelics.forEach(relic => {
+                        if (relic.onPlayCard) {
+                            const res = relic.onPlayCard(card);
+                            if (res.addMult) totalMult += res.addMult;
+                        }
+                    });
+                });
 
-        // --- HAND CARD SYSTEM ---
-        function drawNewHand() {
-            gameState.hand = [];
-            for (let i = 0; i < 5; i++) {
-                const randomCard = CARDS_DB[Math.floor(Math.random() * CARDS_DB.length)];
-                gameState.hand.push({ ...randomCard, uid: Math.random() });
+                // 2. Calculate Relic base play bonuses
+                this.activeRelics.forEach(relic => {
+                    if (relic.onPlay) {
+                        const res = relic.onPlay();
+                        if (res.addMass) baseMass += res.addMass;
+                        if (res.addMult) totalMult += res.addMult;
+                    }
+                });
+
+                // 3. Calculate Worm / Yield Combo Effects
+                const context = { playedCards };
+                playedCards.forEach(card => {
+                    if (card.effect) {
+                        const res = card.effect(context);
+                        if (res.addMass) baseMass += res.addMass;
+                        if (res.addMult) totalMult += res.addMult;
+                        if (res.multFactor) multFactor *= res.multFactor;
+                        if (res.finalScoreFactor) finalScoreFactor *= res.finalScoreFactor;
+                        if (card.effectMsg) triggers.push(`${card.name}: ${card.effectMsg}`);
+                    }
+                });
+
+                totalMult = Math.round(totalMult * multFactor);
+                let totalScore = Math.round((baseMass * totalMult) * finalScoreFactor);
+
+                return { baseMass, totalMult, totalScore, triggers };
             }
-            renderHand();
-        }
 
-        function drawNewHandModal() {
-            if (gameState.cash < 30) {
-                alert("資金不足以重洗手牌 ($30)");
-                return;
+            playSelectedHand() {
+                if (this.handsLeft <= 0 || this.selectedCardIndices.length === 0) return;
+
+                const { totalScore, triggers } = this.calculateScorePreview();
+
+                sfx.playScorePop();
+                this.spawnFloatingScore(`+${totalScore.toLocaleString()} 黑金分!`);
+
+                this.currentScore += totalScore;
+                this.handsLeft--;
+
+                // Particle explosion
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: Math.min(60, Math.floor(totalScore / 10)),
+                        spread: 60,
+                        origin: { y: 0.6 }
+                    });
+                }
+
+                // Remove played cards from hand
+                this.selectedCardIndices.sort((a, b) => b - a);
+                this.selectedCardIndices.forEach(idx => {
+                    this.hand.splice(idx, 1);
+                });
+                this.selectedCardIndices = [];
+
+                // Check quota victory
+                const targetQuota = STAGES[this.stageIndex].quota;
+                if (this.currentScore >= targetQuota) {
+                    sfx.playWin();
+                    setTimeout(() => {
+                        this.openShop();
+                    }, 800);
+                    return;
+                }
+
+                // Check Game Over
+                if (this.handsLeft <= 0 && this.currentScore < targetQuota) {
+                    this.showGameOver(false);
+                    return;
+                }
+
+                // Refill Hand
+                this.drawCards(8 - this.hand.length);
+                this.updateUI();
             }
-            gameState.cash -= 30;
-            drawNewHand();
-            updateUI();
-            logMsg("花費 $30 重新洗牌手牌。");
-        }
 
-        function renderHand() {
-            const container = document.getElementById('hand-container');
-            container.innerHTML = '';
-
-            gameState.hand.forEach((card, idx) => {
+            spawnFloatingScore(text) {
+                const container = document.getElementById('floating-score-container');
                 const el = document.createElement('div');
-                el.className = 'bg-slate-900 border border-slate-700/80 hover:border-emerald-500/50 p-3 rounded-lg flex flex-col justify-between space-y-2 card-hover cursor-pointer';
-                
-                let targetSelector = '';
-                if (card.targetRival) {
-                    targetSelector = `
-                        <select id="target-select-${idx}" onclick="event.stopPropagation()" class="w-full bg-slate-950 text-slate-200 border border-slate-700 text-[10px] rounded p-1">
-                            ${gameState.rivals.map(r => `<option value="${r.id}">${r.name}</option>`).join('')}
-                        </select>
-                    `;
-                }
-
-                el.innerHTML = `
-                    <div class="space-y-1">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-100">${card.title}</span>
-                            <span class="px-1.5 py-0.5 bg-amber-500/20 text-amber-300 font-mono text-[10px] rounded font-bold border border-amber-500/30">${card.cost} AP</span>
-                        </div>
-                        <p class="text-[11px] text-slate-400 leading-tight">${card.desc}</p>
-                    </div>
-                    ${targetSelector}
-                    <button onclick="playCard(${idx})" class="w-full py-1 bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white rounded text-xs font-semibold transition-all">
-                        使用卡牌
-                    </button>
-                `;
+                el.className = 'floating-score text-3xl sm:text-5xl font-black left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2';
+                el.innerText = text;
                 container.appendChild(el);
-            });
-        }
-
-        function playCard(index) {
-            const card = gameState.hand[index];
-            if (gameState.ap < card.cost) {
-                AudioEngine.playAlert();
-                alert("行動點數 (AP) 不足！");
-                return;
+                setTimeout(() => el.remove(), 1000);
             }
 
-            gameState.ap -= card.cost;
-            AudioEngine.playCardPlay();
+            openShop() {
+                const reward = STAGES[this.stageIndex].rewardCoins;
+                this.coins += reward;
 
-            if (card.targetRival) {
-                const targetId = document.getElementById(`target-select-${index}`).value;
-                const rival = gameState.rivals.find(r => r.id === targetId);
-                card.effect(rival);
-            } else {
-                card.effect();
-            }
-
-            gameState.hand.splice(index, 1);
-            renderHand();
-            updateUI();
-        }
-
-        // --- NURSERY & CROPS ---
-        function renderNursery() {
-            const container = document.getElementById('nursery-plots-container');
-            container.innerHTML = '';
-
-            gameState.plots.forEach(plot => {
-                const pct = Math.min(100, Math.round((plot.progress / plot.maxProgress) * 100));
-                const el = document.createElement('div');
-                el.className = 'bg-slate-900 p-3 rounded-lg border border-slate-800 flex flex-col justify-between space-y-2 text-xs';
+                document.getElementById('shop-player-coins').innerText = this.coins;
                 
-                el.innerHTML = `
-                    <div class="space-y-1">
-                        <div class="font-bold text-slate-200">${plot.crop}</div>
-                        <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                            <span>生長進度</span>
-                            <span>${pct}%</span>
-                        </div>
-                        <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-emerald-500 h-full transition-all" style="width: ${pct}%"></div>
-                        </div>
-                    </div>
+                // Generate 3 Card Draft Options
+                const shopCardsContainer = document.getElementById('shop-cards-container');
+                shopCardsContainer.innerHTML = '';
+                const pool = CARD_DATABASE.sort(() => Math.random() - 0.5).slice(0, 3);
 
-                    ${plot.ready ? `
-                        <button onclick="harvestPlot(${plot.id})" class="w-full py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded font-bold text-xs">
-                            採收 (+ $120 / +15 ESG)
-                        </button>
-                    ` : `
-                        <button onclick="feedPlotTea(${plot.id})" class="w-full py-1 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded text-[11px] border border-slate-700" ${plot.teaFed ? 'disabled class="opacity-50"' : ''}>
-                            ${plot.teaFed ? '本回合已灌溉' : '灌溉蚯蚓液肥 (加速)'}
-                        </button>
-                    `}
-                `;
-                container.appendChild(el);
-            });
-        }
-
-        function feedPlotTea(id) {
-            const plot = gameState.plots.find(p => p.id === id);
-            if (plot && !plot.teaFed) {
-                plot.teaFed = true;
-                plot.progress += 1;
-                if (plot.progress >= plot.maxProgress) plot.ready = true;
-                AudioEngine.playClick();
-                logMsg(`對 ${plot.crop} 灌溉蚯蚓液肥，促進生長！`);
-                renderNursery();
-            }
-        }
-
-        function harvestPlot(id) {
-            const plot = gameState.plots.find(p => p.id === id);
-            if (plot && plot.ready) {
-                gameState.cash += 120;
-                gameState.esgScore += 15;
-                plot.progress = 0;
-                plot.ready = false;
-                plot.teaFed = false;
-                AudioEngine.playClick();
-                logMsg(`採收了 ${plot.crop}，獲得 $120 資金與 +15 ESG 積分！`);
-                renderNursery();
-                updateUI();
-            }
-        }
-
-        function feedWorms() {
-            if (gameState.cash < 40) return alert("資金不足！");
-            gameState.cash -= 40;
-            gameState.wormPop += 500;
-            AudioEngine.playClick();
-            logMsg("投餵熟化廚餘，蚯蚓族群擴充 +500 隻。");
-            updateUI();
-        }
-
-        function upgradeWormBin() {
-            if (gameState.cash < 200) return alert("資金不足！");
-            gameState.cash -= 200;
-            gameState.wormLevel += 1;
-            AudioEngine.playClick();
-            logMsg(`升級蚯蚓養殖槽至 Lv.${gameState.wormLevel}！`);
-            updateUI();
-        }
-
-        // --- TECH TREE ENGINE ---
-        const TECH_DB = [
-            { id: 'biochar', branch: 'biochem', name: '生物炭碳封存 (Biochar)', cost: 30, desc: '堆肥碳匯點數產出 +30%', unlocked: false },
-            { id: 'extremophile', branch: 'biochem', name: '極端耐熱菌株', cost: 50, desc: '堆肥分解高溫上限擴充，分解速率 +25%', unlocked: false },
-            { id: 'misters', branch: 'auto', name: 'AI 智慧微噴濕度系統', cost: 35, desc: '自動維持含水量於最佳區間 (60%)', unlocked: false },
-            { id: 'harvester', branch: 'auto', name: '自動化蚯蚓篩分機', cost: 60, desc: '每回合免費自動收穫黑金有機肥', unlocked: false },
-            { id: 'carbonCert', branch: 'esg', name: 'Scope 3 碳足跡認證', cost: 50, desc: '每回合額外獲得 +20 ESG 積分', unlocked: false },
-            { id: 'b2bContract', branch: 'esg', name: '跨國綠色供應鏈 B2B 複約', cost: 80, desc: '每回合固定帶來 +$150 商業收益', unlocked: false }
-        ];
-
-        function renderTechTree() {
-            document.getElementById('tech-rp-val').innerText = `${gameState.rp} RP`;
-            
-            ['biochem', 'auto', 'esg'].forEach(branch => {
-                const container = document.getElementById(`tech-branch-${branch}`);
-                container.innerHTML = '';
-
-                TECH_DB.filter(t => t.branch === branch).forEach(tech => {
-                    const el = document.createElement('div');
-                    el.className = `p-3 rounded-lg border text-xs flex flex-col justify-between space-y-2 ${tech.unlocked ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-slate-900 border-slate-800'}`;
-                    
-                    el.innerHTML = `
+                pool.forEach(card => {
+                    const cost = card.rarity === 'R' ? 8 : (card.rarity === 'U' ? 6 : 4);
+                    const div = document.createElement('div');
+                    div.className = 'bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-2xl p-4 flex flex-col justify-between transition shadow-lg';
+                    div.innerHTML = `
                         <div>
-                            <div class="font-bold text-slate-200 flex justify-between">
-                                <span>${tech.name}</span>
-                                <span class="font-mono text-indigo-400">${tech.cost} RP</span>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded ${CARD_TYPES[card.type].badge}">${CARD_TYPES[card.type].name}</span>
+                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${cost}</span>
                             </div>
-                            <p class="text-[11px] text-slate-400 mt-1">${tech.desc}</p>
+                            <div class="text-base font-black text-slate-100 flex items-center mb-1">
+                                <i class="fa-solid ${card.icon} mr-2 text-emerald-400"></i>${card.name}
+                            </div>
+                            <div class="text-xs text-slate-400 mb-3">${card.desc || card.effectMsg || ''}</div>
                         </div>
-                        ${tech.unlocked ? `
-                            <span class="text-emerald-400 text-[10px] font-bold flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> 已解鎖啟用</span>
-                        ` : `
-                            <button onclick="unlockTech('${tech.id}')" class="w-full py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded font-bold text-xs">
-                                研發解鎖
-                            </button>
-                        `}
+                        <button onclick="game.buyCard('${card.id}', ${cost}, this)" class="w-full bg-slate-800 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 font-bold py-2 rounded-xl border border-slate-700 transition">
+                            購入此牌
+                        </button>
                     `;
-                    container.appendChild(el);
+                    shopCardsContainer.appendChild(div);
                 });
-            });
-            lucide.createIcons();
-        }
 
-        function unlockTech(id) {
-            const tech = TECH_DB.find(t => t.id === id);
-            if (tech && !tech.unlocked) {
-                if (gameState.rp < tech.cost) {
-                    AudioEngine.playAlert();
-                    return alert("科研點數 (RP) 不足！");
+                // Generate 2 Relic Options
+                const shopRelicsContainer = document.getElementById('shop-relics-container');
+                shopRelicsContainer.innerHTML = '';
+                const availableRelics = RELICS_DATABASE.filter(r => !this.activeRelics.some(ar => ar.id === r.id)).slice(0, 2);
+
+                availableRelics.forEach(relic => {
+                    const div = document.createElement('div');
+                    div.className = 'bg-slate-900 border border-slate-700 hover:border-amber-500 rounded-2xl p-4 flex flex-col justify-between transition shadow-lg';
+                    div.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/30">被動寶物</span>
+                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${relic.cost}</span>
+                            </div>
+                            <div class="text-base font-black text-slate-100 flex items-center mb-1">
+                                <i class="fa-solid ${relic.icon} mr-2 text-amber-400"></i>${relic.name}
+                            </div>
+                            <div class="text-xs text-slate-400 mb-3">${relic.desc}</div>
+                        </div>
+                        <button onclick="game.buyRelic('${relic.id}', ${relic.cost}, this)" class="w-full bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold py-2 rounded-xl border border-slate-700 transition">
+                            裝備寶物
+                        </button>
+                    `;
+                    shopRelicsContainer.appendChild(div);
+                });
+
+                document.getElementById('shop-modal').classList.remove('hidden');
+            }
+
+            buyCard(cardId, cost, btnEl) {
+                if (this.coins < cost) return;
+                this.coins -= cost;
+                document.getElementById('shop-player-coins').innerText = this.coins;
+
+                const template = CARD_DATABASE.find(c => c.id === cardId);
+                this.deck.push({ ...template, instanceId: 'card_' + Date.now() });
+
+                btnEl.disabled = true;
+                btnEl.innerText = '已購入 ✓';
+                btnEl.className = 'w-full bg-slate-800 text-slate-500 font-bold py-2 rounded-xl opacity-60 cursor-not-allowed';
+                this.updateUI();
+            }
+
+            buyRelic(relicId, cost, btnEl) {
+                if (this.coins < cost || this.activeRelics.length >= 5) return;
+                this.coins -= cost;
+                document.getElementById('shop-player-coins').innerText = this.coins;
+
+                const relic = RELICS_DATABASE.find(r => r.id === relicId);
+                this.activeRelics.push(relic);
+
+                btnEl.disabled = true;
+                btnEl.innerText = '已裝備 ✓';
+                btnEl.className = 'w-full bg-slate-800 text-slate-500 font-bold py-2 rounded-xl opacity-60 cursor-not-allowed';
+                this.updateUI();
+            }
+
+            nextStage() {
+                document.getElementById('shop-modal').classList.add('hidden');
+                this.stageIndex++;
+
+                if (this.stageIndex >= STAGES.length) {
+                    this.showGameOver(true);
+                } else {
+                    this.startStage();
                 }
-                gameState.rp -= tech.cost;
-                tech.unlocked = true;
-                gameState.techs[id] = true;
-                AudioEngine.playClick();
-                logMsg(`成功解鎖科技：[${tech.name}]！`);
-                renderTechTree();
-                updateUI();
-            }
-        }
-
-        // --- LEAGUE & RIVALS ENGINE ---
-        function renderRivals() {
-            const tbody = document.getElementById('leaderboard-body');
-            tbody.innerHTML = '';
-
-            // Player Row
-            const playerNetWorth = gameState.cash + (gameState.esgScore * 5);
-            const allTeams = [
-                { name: '貴公司 (Your Company)', esg: gameState.esgScore, cash: gameState.cash, net: playerNetWorth, shield: gameState.complianceShields > 0, isPlayer: true },
-                ...gameState.rivals.map(r => ({ ...r, net: r.cash + (r.esg * 5), isPlayer: false }))
-            ];
-
-            allTeams.sort((a, b) => b.net - a.net);
-
-            allTeams.forEach((team, idx) => {
-                const tr = document.createElement('tr');
-                tr.className = team.isPlayer ? 'bg-emerald-500/10 font-bold border-l-2 border-emerald-500' : 'hover:bg-slate-900/50';
-                
-                tr.innerHTML = `
-                    <td class="p-2.5 font-mono text-amber-400">#${idx + 1}</td>
-                    <td class="p-2.5 flex items-center gap-2">
-                        <span>${team.name}</span>
-                        ${team.isPlayer ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded">玩家</span>' : ''}
-                    </td>
-                    <td class="p-2.5 font-mono text-cyan-300">${team.esg} PTS</td>
-                    <td class="p-2.5 font-mono text-emerald-400">$${team.cash}</td>
-                    <td class="p-2.5 font-mono text-xs">
-                        ${team.shield ? '<span class="text-emerald-400 flex items-center gap-1"><i data-lucide="shield" class="w-3 h-3"></i> 護盾中</span>' : '<span class="text-slate-500">無護盾</span>'}
-                    </td>
-                    <td class="p-2.5 text-right">
-                        ${!team.isPlayer ? `
-                            <button onclick="switchTab('compost')" class="px-2 py-0.5 bg-slate-800 hover:bg-slate-700 text-xs rounded border border-slate-700 text-slate-300">
-                                打出干擾卡
-                            </button>
-                        ` : '-'}
-                    </td>
-                `;
-                tbody.appendChild(tr);
-            });
-            lucide.createIcons();
-        }
-
-        // --- END TURN ENGINE ---
-        function endTurn() {
-            AudioEngine.playClick();
-
-            // 1. Resolve Player Yields & Maintenance
-            gameState.rp += 5; // Base RP per turn
-            let turnCash = 100; // Base contract
-            let turnEsg = gameState.esgRate;
-
-            if (gameState.techs.b2bContract) turnCash += 150;
-            if (gameState.techs.carbonCert) turnEsg += 20;
-
-            gameState.cash += turnCash;
-            gameState.esgScore += turnEsg;
-
-            // 2. Crop Growth Progression
-            gameState.plots.forEach(p => {
-                p.progress += 1;
-                if (p.progress >= p.maxProgress) p.ready = true;
-                p.teaFed = false;
-            });
-
-            // 3. AI Rivals Simulated Actions
-            gameState.rivals.forEach(r => {
-                r.esg += Math.floor(15 + Math.random() * 20);
-                r.cash += Math.floor(80 + Math.random() * 100);
-                if (Math.random() < 0.25) r.shield = true;
-            });
-
-            // 4. Trigger Chance / Fate Event
-            const randomEvent = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
-            document.getElementById('event-title').innerText = randomEvent.title;
-            document.getElementById('event-desc').innerText = randomEvent.desc;
-            randomEvent.effect();
-
-            // 5. Turn Progression & AP Reset
-            gameState.turn += 1;
-            gameState.ap = gameState.maxAp;
-            drawNewHand();
-
-            // Check Game Over
-            if (gameState.turn > gameState.maxTurns) {
-                triggerGameOver();
-                return;
             }
 
-            logMsg(`Turn ${gameState.turn - 1} 結算完成。獲得 +$${turnCash}、+${turnEsg} ESG 積分與 +5 RP。`);
-            updateUI();
-        }
+            showGameOver(isVictory) {
+                const modal = document.getElementById('game-over-modal');
+                const title = document.getElementById('game-over-title');
+                const desc = document.getElementById('game-over-desc');
+                const icon = document.getElementById('game-over-icon');
 
-        function quickAction(type) {
-            if (gameState.cash < 50) return alert("資金不足 ($50)");
-            gameState.cash -= 50;
-            if (type === 'water') {
-                gameState.moisture += 15;
-                gameState.temp -= 3;
-                logMsg("執行極速灑水降溫。");
-            } else if (type === 'lime') {
-                gameState.ph += 0.5;
-                logMsg("灑石灰粉調整酸鹼度。");
+                if (isVictory) {
+                    icon.innerHTML = '<i class="fa-solid fa-trophy text-amber-400"></i>';
+                    title.innerText = '🎉 通關大成功！黑金帝國霸主';
+                    desc.innerText = '您成功打造出極致優化的生態循環鏈結，達成最高 ESG 永續榮耀！';
+                } else {
+                    icon.innerHTML = '<i class="fa-solid fa-skull-crossbones text-rose-500"></i>';
+                    title.innerText = '任務失敗：黑金配額未達標';
+                    desc.innerText = '出牌次數已耗盡，未能在期限內達成該關卡所需的黑金得分配額。';
+                }
+
+                document.getElementById('end-stage').innerText = `${this.stageIndex + 1} / ${STAGES.length}`;
+                document.getElementById('end-coins').innerText = this.coins;
+                document.getElementById('end-deck-size').innerText = this.deck.length + this.hand.length;
+
+                modal.classList.remove('hidden');
             }
-            AudioEngine.playClick();
-            updateUI();
-        }
 
-        // --- GAME OVER & PODIUM ---
-        function triggerGameOver() {
-            const playerNet = gameState.cash + (gameState.esgScore * 5);
-            const allTeams = [
-                { name: '貴公司 (Your Company)', net: playerNet, esg: gameState.esgScore },
-                ...gameState.rivals.map(r => ({ name: r.name, net: r.cash + (r.esg * 5), esg: r.esg }))
-            ].sort((a, b) => b.net - a.net);
+            restartGame() {
+                document.getElementById('game-over-modal').classList.add('hidden');
+                this.stageIndex = 0;
+                this.coins = 15;
+                this.activeRelics = [];
+                this.initDefaultDeck();
+                this.startStage();
+            }
 
-            const container = document.getElementById('podium-content');
-            container.innerHTML = allTeams.map((t, idx) => `
-                <div class="flex justify-between items-center ${idx === 0 ? 'text-amber-400 font-bold text-base' : 'text-slate-300 text-xs'}">
-                    <span>#${idx + 1} ${t.name}</span>
-                    <span>綜合得分: ${t.net} (ESG: ${t.esg})</span>
-                </div>
-            `).join('');
+            updateUI() {
+                const stageData = STAGES[this.stageIndex];
 
-            document.getElementById('game-over-modal').classList.remove('hidden');
-        }
+                // Top Bar Info
+                document.getElementById('stage-num').innerText = `${stageData.id} / ${STAGES.length}`;
+                document.getElementById('stage-title').innerText = stageData.name;
+                document.getElementById('target-score').innerText = stageData.quota.toLocaleString();
+                document.getElementById('hands-left').innerText = this.handsLeft;
+                document.getElementById('discards-left').innerText = this.discardsLeft;
+                document.getElementById('btn-discard-count').innerText = this.discardsLeft;
+                document.getElementById('player-coins').innerText = this.coins;
 
-        // --- UPDATE HUD & UI STATE ---
-        function updateUI() {
-            document.getElementById('turn-display').innerText = gameState.turn;
-            document.getElementById('ap-display').innerText = gameState.ap;
-            document.getElementById('max-ap-display').innerText = gameState.maxAp;
-            document.getElementById('cash-display').innerText = `$${gameState.cash.toLocaleString()}`;
-            document.getElementById('esg-display').innerText = gameState.esgScore;
-            document.getElementById('rp-display').innerText = gameState.rp;
+                // Progress Bar
+                const pct = Math.min(100, Math.round((this.currentScore / stageData.quota) * 100));
+                document.getElementById('score-progress-text').innerText = `${this.currentScore.toLocaleString()} / ${stageData.quota.toLocaleString()} (${pct}%)`;
+                document.getElementById('score-bar').style.width = `${pct}%`;
 
-            // Pile Metrics Gauges
-            document.getElementById('cn-value').innerText = `${gameState.cnRatio.toFixed(1)}:1`;
-            document.getElementById('cn-bar').style.width = `${Math.min(100, (gameState.cnRatio / 40) * 100)}%`;
-            
-            document.getElementById('ph-value').innerText = gameState.ph.toFixed(1);
-            document.getElementById('ph-bar').style.width = `${Math.min(100, (gameState.ph / 14) * 100)}%`;
+                // Relics Display
+                const relicsContainer = document.getElementById('relics-container');
+                document.getElementById('relic-count').innerText = this.activeRelics.length;
+                if (this.activeRelics.length === 0) {
+                    relicsContainer.innerHTML = '<span class="text-xs text-slate-600 italic">尚無寶物（可在通關商店購買）</span>';
+                } else {
+                    relicsContainer.innerHTML = this.activeRelics.map(r => `
+                        <div class="bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1 flex items-center space-x-1.5 shadow-md" title="${r.desc}">
+                            <i class="fa-solid ${r.icon} text-amber-400 text-xs"></i>
+                            <span class="text-xs font-bold text-slate-200">${r.name}</span>
+                        </div>
+                    `).join('');
+                }
 
-            document.getElementById('moisture-value').innerText = `${gameState.moisture}%`;
-            document.getElementById('moisture-bar').style.width = `${gameState.moisture}%`;
+                // Render Hand Cards
+                const handContainer = document.getElementById('hand-container');
+                handContainer.innerHTML = '';
+                document.getElementById('hand-count').innerText = this.hand.length;
+                document.getElementById('deck-left-count').innerText = this.deck.length;
 
-            document.getElementById('odor-value').innerText = `${gameState.odor}%`;
-            document.getElementById('odor-bar').style.width = `${gameState.odor}%`;
+                this.hand.forEach((card, idx) => {
+                    const isSelected = this.selectedCardIndices.includes(idx);
+                    const typeConfig = CARD_TYPES[card.type];
 
-            document.getElementById('shield-count').innerText = gameState.complianceShields > 0 ? `${gameState.complianceShields} 層` : '未啟用';
+                    const cardEl = document.createElement('div');
+                    cardEl.className = `card-item relative w-28 sm:w-32 h-40 sm:h-44 rounded-2xl border-2 p-2.5 flex flex-col justify-between cursor-pointer shadow-xl ${typeConfig.color} ${isSelected ? 'card-selected' : 'border-slate-700'}`;
+                    cardEl.onclick = () => this.toggleSelectCard(idx);
 
-            // Worm UI
-            document.getElementById('worm-level').innerText = `Lv.${gameState.wormLevel} 養殖槽`;
-            document.getElementById('worm-pop').innerText = `${gameState.wormPop.toLocaleString()} 隻`;
+                    cardEl.innerHTML = `
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${typeConfig.badge}">${typeConfig.name}</span>
+                                ${isSelected ? '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>' : ''}
+                            </div>
+                            <div class="text-xs sm:text-sm font-black text-slate-100 flex items-center truncate mt-1">
+                                <i class="fa-solid ${card.icon} mr-1 text-slate-300"></i>${card.name}
+                            </div>
+                        </div>
 
-            renderNursery();
-            renderTechTree();
-            renderRivals();
-        }
+                        <div class="my-1 text-center">
+                            <div class="text-[10px] text-slate-400 font-bold">基本效能</div>
+                            <div class="flex justify-center space-x-2 text-xs font-black">
+                                ${card.mass ? `<span class="text-blue-400">+${card.mass} M</span>` : ''}
+                                ${card.mult ? `<span class="text-emerald-400">+${card.mult} X</span>` : ''}
+                            </div>
+                        </div>
 
-        // --- LOGGING ENGINE ---
-        function logMsg(msg) {
-            const console = document.getElementById('log-console');
-            const item = document.createElement('div');
-            item.className = 'text-slate-300';
-            item.innerHTML = `<span class="text-slate-500">[T${gameState.turn}]</span> ${msg}`;
-            console.appendChild(item);
-            console.scrollTop = console.scrollHeight;
-        }
-
-        function clearLogs() {
-            document.getElementById('log-console').innerHTML = '';
-        }
-
-        // --- ANIMATED CANVAS VISUALIZER ---
-        let canvas, ctx;
-        let worms = [];
-
-        function initCanvas() {
-            canvas = document.getElementById('compostCanvas');
-            ctx = canvas.getContext('2d');
-            resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
-
-            // Initialize Worm Entities
-            for (let i = 0; i < 20; i++) {
-                worms.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    length: 15 + Math.random() * 15,
-                    angle: Math.random() * Math.PI * 2,
-                    speed: 0.3 + Math.random() * 0.4
+                        <div>
+                            <div class="flex flex-wrap gap-1 mb-1">
+                                ${card.tags.map(t => `<span class="text-[8px] bg-slate-900/90 text-slate-300 px-1 rounded border border-slate-700">${t}</span>`).join('')}
+                            </div>
+                            <div class="text-[9px] text-slate-400 leading-tight line-clamp-2">${card.effectMsg || card.desc || ''}</div>
+                        </div>
+                    `;
+                    handContainer.appendChild(cardEl);
                 });
+
+                // Render Active Played Zone
+                const playedZone = document.getElementById('played-cards-zone');
+                const playedCards = this.selectedCardIndices.map(i => this.hand[i]);
+
+                if (playedCards.length === 0) {
+                    playedZone.innerHTML = '<span class="text-sm text-slate-500 italic">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>';
+                } else {
+                    playedZone.innerHTML = '';
+                    playedCards.forEach(card => {
+                        const typeConfig = CARD_TYPES[card.type];
+                        const mini = document.createElement('div');
+                        mini.className = `w-20 sm:w-24 h-28 sm:h-32 rounded-xl border p-2 flex flex-col justify-between ${typeConfig.color} border-emerald-400/80 shadow-lg animate-score-pop`;
+                        mini.innerHTML = `
+                            <div class="text-[9px] font-bold px-1 rounded ${typeConfig.badge} truncate">${card.name}</div>
+                            <div class="text-center text-xs font-black">
+                                ${card.mass ? `<div class="text-blue-300">+${card.mass} M</div>` : ''}
+                                ${card.mult ? `<div class="text-emerald-300">+${card.mult} X</div>` : ''}
+                            </div>
+                            <div class="text-[8px] text-slate-300 truncate">${card.tags.join(', ')}</div>
+                        `;
+                        playedZone.appendChild(mini);
+                    });
+                }
+
+                // Update Preview Calculations
+                const preview = this.calculateScorePreview();
+                document.getElementById('calc-mass').innerText = preview.baseMass;
+                document.getElementById('calc-mult').innerText = `+${preview.totalMult}`;
+                document.getElementById('calc-total').innerText = preview.totalScore.toLocaleString();
+
+                // Update Combo Triggers Log
+                const comboLog = document.getElementById('combo-log-container');
+                if (preview.triggers.length === 0) {
+                    comboLog.innerHTML = '';
+                } else {
+                    comboLog.innerHTML = preview.triggers.map(t => `
+                        <span class="bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-bold shadow-md animate-score-pop">
+                            <i class="fa-solid fa-bolt text-amber-400 mr-1"></i>${t}
+                        </span>
+                    `).join('');
+                }
             }
-
-            requestAnimationFrame(animateCanvas);
         }
 
-        function resizeCanvas() {
-            if (!canvas) return;
-            canvas.width = canvas.parentElement.clientWidth;
-            canvas.height = canvas.parentElement.clientHeight;
-        }
-
-        function animateCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Compost Background Texture
-            ctx.fillStyle = '#1e1b18';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw Organic Matter Flecks
-            ctx.fillStyle = '#3d2b1f';
-            for (let i = 0; i < 40; i++) {
-                ctx.beginPath();
-                ctx.arc((i * 37) % canvas.width, (i * 23) % canvas.height, 4, 0, Math.PI * 2);
-                ctx.fill();
-            }
-
-            // Draw Crawling Worms
-            ctx.strokeStyle = '#f43f5e';
-            ctx.lineWidth = 3;
-            ctx.lineCap = 'round';
-
-            worms.forEach(w => {
-                w.x += Math.cos(w.angle) * w.speed;
-                w.y += Math.sin(w.angle) * w.speed;
-
-                if (w.x < 0 || w.x > canvas.width) w.angle = Math.PI - w.angle;
-                if (w.y < 0 || w.y > canvas.height) w.angle = -w.angle;
-
-                ctx.beginPath();
-                ctx.moveTo(w.x, w.y);
-                ctx.lineTo(w.x - Math.cos(w.angle) * w.length, w.y - Math.sin(w.angle) * w.length);
-                ctx.stroke();
-            });
-
-            requestAnimationFrame(animateCanvas);
-        }
+        // Initialize Master Game Engine instance
+        let game;
+        window.onload = () => {
+            game = new VermiGame();
+            game.startStage();
+        };
     </script>
 </body>
 </html>
