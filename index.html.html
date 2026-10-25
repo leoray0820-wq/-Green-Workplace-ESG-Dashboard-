@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v11.1 終點站精準觸發版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v11.2 終點站絕對唯一觸發版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.1 終點站精準觸發版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.2 終點站絕對唯一觸發版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -929,20 +929,22 @@
 
             let logMsg = `${p.name} 擲出 ${dice} 點！`;
 
-            // Step-by-Step Animated Movement (純動畫過渡，不觸發中途格子事件)
+            // Step-by-Step Animated Movement (純視覺過渡動畫，絕不在此處觸發格子事件)
             for (let step = 1; step <= dice; step++) {
                 p.pos = (p.pos + 1) % BOARD_TILES.length;
                 if (p.pos === 0) {
                     p.coins += 20;
                     p.resources += 10;
-                    logMsg += ` (經過起點獲補給：碳幣+20、資材+10)`;
+                    logMsg += ` (經過起點領取補給：碳幣+20、資材+10)`;
                 }
-                broadcastState(); // Sync intermediate step visual animation
+                broadcastState(); // 同步中間過渡格子的視覺動畫位置
                 playSound('step');
                 await new Promise(r => setTimeout(r, 220));
             }
 
-            // 抵達最終落腳站點時，才觸發站點事件！
+            // ==========================================
+            // 完全抵達最終目標站點後，絕對唯一觸發一次事件！
+            // ==========================================
             const tile = BOARD_TILES[p.pos];
             logMsg += ` 最終抵達 [${tile.name}]`;
 
@@ -987,7 +989,7 @@
                                 logMsg += `，AI 購買了土地產權！`;
                             } else {
                                 broadcastState(logMsg);
-                                return; // Pause for User Input
+                                return; // 暫停等待玩家按鈕互動
                             }
                         }
                     } else if (prop.ownerPeerId === p.peerId) {
@@ -1004,7 +1006,7 @@
                                 }
                             } else {
                                 broadcastState(logMsg);
-                                return; // Pause for User Input
+                                return; // 暫停等待玩家按鈕互動
                             }
                         } else if (prop.level === 2) {
                             const fac = FACILITY_TYPES[prop.facilityType];
@@ -1017,7 +1019,7 @@
                                     logMsg += `，AI 升級了 [${fac.name}] 至最高極限！`;
                                 } else {
                                     broadcastState(logMsg);
-                                    return; // Pause for User Input
+                                    return; // 暫停等待玩家按鈕互動
                                 }
                             }
                         }
