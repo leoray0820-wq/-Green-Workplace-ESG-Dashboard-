@@ -3,35 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cyber-Worm Desktop Sanctuary & Farm | 賽博歐洲紅蚯蚓農場</title>
+  <title>黑金工坊：蚯蚓養殖場營運模擬器 | Bio-Vermicomposting Operations Simulator</title>
+  
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts for Retro/Cyberpunk Vibes -->
-  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts for Clean High-Legibility Typography -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            cyber: {
-              bg: '#020804',
-              panel: '#091f14',
-              border: '#00ff66',
-              text: '#33ff88',
-              dim: '#134e2e',
-              amber: '#ffaa00',
-              pink: '#ff0055',
-              blue: '#00e1ff',
-              purple: '#b026ff'
+            brand: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#15803d',
+              800: '#166534',
+              900: '#14532d',
+              950: '#052e16',
+            },
+            dark: {
+              bg: '#0f172a',
+              card: '#1e293b',
+              border: '#334155',
+              hover: '#334155'
             }
           },
           fontFamily: {
-            pixel: ['"Press Start 2P"', 'monospace'],
-            vt: ['VT323', 'monospace'],
-            sans: ['"Noto Sans TC"', 'sans-serif']
+            sans: ['Inter', '"Noto Sans TC"', 'sans-serif'],
           }
         }
       }
@@ -40,493 +44,563 @@
 
   <style>
     body {
-      background-color: #020804;
-      color: #33ff88;
-      font-family: 'VT323', 'Noto Sans TC', monospace;
+      background-color: #0b1329;
+      color: #f1f5f9;
+      font-family: 'Inter', 'Noto Sans TC', sans-serif;
       user-select: none;
       overflow-x: hidden;
     }
 
-    /* Pixelated Canvas Render */
-    canvas {
-      image-rendering: pixelated;
+    /* Crisp High-Contrast Border & Shadow System */
+    .panel-card {
+      background-color: #1e293b;
+      border: 1px solid #334155;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
     }
 
-    /* CRT Overlay Effect */
-    .crt-overlay {
-      background: linear-gradient(
-        rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.35) 50%
-      );
-      background-size: 100% 4px;
-      pointer-events: none;
+    .panel-card-accent {
+      background-color: #1e293b;
+      border: 2px solid #22c55e;
+      box-shadow: 0 0 15px rgba(34, 197, 94, 0.15);
     }
 
-    /* Cyber Glow & Borders */
-    .cyber-box {
-      background: rgba(9, 31, 20, 0.88);
-      border: 2px solid #00ff66;
-      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2), inset 0 0 10px rgba(0, 255, 102, 0.1);
+    .panel-card-danger {
+      background-color: #2a1215;
+      border: 2px solid #ef4444;
+      box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
     }
 
-    .cyber-box-amber {
-      background: rgba(35, 25, 5, 0.88);
-      border: 2px solid #ffaa00;
-      box-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
-    }
-
-    .cyber-btn {
-      background: #0d3820;
-      border: 2px solid #00ff66;
-      color: #00ff66;
-      transition: all 0.15s ease;
-      text-shadow: 0 0 5px rgba(0,255,102,0.8);
-    }
-
-    .cyber-btn:hover {
-      background: #00ff66;
-      color: #040d08;
-      box-shadow: 0 0 15px #00ff66;
-      text-shadow: none;
-    }
-
-    .cyber-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      box-shadow: none;
-      background: #091f14;
-      color: #134e2e;
-      border-color: #134e2e;
-    }
-
-    .cyber-btn:active:not(:disabled) {
-      transform: scale(0.96);
-    }
-
-    /* Custom Scrollbar */
+    /* Crisp Custom Scrollbar */
     ::-webkit-scrollbar {
-      width: 6px;
+      width: 8px;
+      height: 8px;
     }
     ::-webkit-scrollbar-track {
-      background: #040d08;
+      background: #0f172a;
     }
     ::-webkit-scrollbar-thumb {
-      background: #00ff66;
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+
+    /* Button Hover Polish */
+    .btn-action {
+      transition: all 0.15s ease-in-out;
+    }
+    .btn-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.1);
+    }
+    .btn-action:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    /* Canvas High DPI */
+    canvas {
+      display: block;
     }
   </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between relative p-2 md:p-4">
+<body class="min-h-screen flex flex-col justify-between p-2 md:p-4 text-slate-100">
 
-  <!-- CRT Screen Overlay -->
-  <div class="crt-overlay fixed inset-0 z-50 pointer-events-none"></div>
-
-  <!-- MAIN HUD WRAPPER -->
-  <div class="max-w-6xl mx-auto w-full flex flex-col gap-3 relative z-10">
-
-    <!-- HEADER / GAME STATUS -->
-    <header class="cyber-box rounded-lg p-3 flex flex-wrap justify-between items-center gap-2">
-      <div class="flex items-center gap-3">
-        <div class="text-3xl text-cyber-border animate-pulse">
-          <i class="fa-solid fa-worm"></i>
+  <!-- TOP HUD / SYSTEM HEADER -->
+  <header class="max-w-7xl mx-auto w-full mb-3 panel-card rounded-xl p-3 md:p-4 flex flex-wrap justify-between items-center gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-11 h-11 rounded-lg bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-2xl shadow-inner">
+        <i class="fa-solid fa-worm"></i>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-extrabold text-base md:text-xl tracking-tight text-white">黑金工坊：蚯蚓養殖場營運模擬器</h1>
+          <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">v3.5 高畫質營運版</span>
         </div>
+        <p class="text-xs text-slate-400 mt-0.5">專業有機廢棄物生物處理與循環農業控制台</p>
+      </div>
+    </div>
+
+    <!-- MAIN CURRENCY & HUD STATS -->
+    <div class="flex flex-wrap items-center gap-2 md:gap-3 text-xs md:text-sm">
+      <!-- Black Gold Credits -->
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-amber-500/40">
+        <i class="fa-solid fa-coins text-amber-400 text-base"></i>
         <div>
-          <h1 class="font-pixel text-sm md:text-base text-cyber-border tracking-wider">EISENIA FETIDA ECO-SIM</h1>
-          <p class="text-xs text-cyber-text font-vt">歐洲紅蚯蚓生態繁殖與植物栽培系統 v2.0.0</p>
+          <div class="text-[10px] text-slate-400 leading-none">黑金幣 (資金)</div>
+          <div id="hudCredits" class="text-amber-400 font-extrabold text-base leading-tight">500</div>
         </div>
       </div>
 
-      <!-- Currency & Key Stats Header Bar -->
-      <div class="flex flex-wrap items-center gap-3 text-xs md:text-sm font-vt">
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 border border-cyber-amber">
-          <i class="fa-solid fa-coins text-cyber-amber"></i>
-          <span class="text-gray-400">黑金幣:</span>
-          <span id="creditsTxt" class="text-cyber-amber font-bold text-base">50</span>
+      <!-- ESG Green Points -->
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-emerald-500/40">
+        <i class="fa-solid fa-leaf text-emerald-400 text-base"></i>
+        <div>
+          <div class="text-[10px] text-slate-400 leading-none">ESG綠色聲譽</div>
+          <div id="hudEsg" class="text-emerald-400 font-extrabold text-base leading-tight">100</div>
+        </div>
+      </div>
+
+      <!-- Facility Odor Level -->
+      <div id="odorBadge" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700">
+        <i id="odorIcon" class="fa-solid fa-wind text-sky-400 text-base"></i>
+        <div>
+          <div class="text-[10px] text-slate-400 leading-none">場區臭味濃度</div>
+          <div id="hudOdor" class="text-sky-400 font-bold text-sm leading-tight">0% (清新)</div>
+        </div>
+      </div>
+
+      <!-- Sound Toggle -->
+      <button onclick="toggleAudio()" id="soundBtn" class="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 text-xs font-semibold flex items-center gap-1.5 btn-action">
+        <i id="soundIcon" class="fa-solid fa-volume-high text-emerald-400"></i>
+        <span class="hidden sm:inline">音效</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN OPERATIONAL DASHBOARD -->
+  <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1">
+    
+    <!-- LEFT PANEL: VERMICOMPOSTING CHAMBER & VISUALIZER (7 COLS) -->
+    <section class="lg:col-span-7 flex flex-col gap-3">
+      
+      <!-- REAL-TIME 2D FACILITY CANVAS -->
+      <div class="panel-card rounded-xl p-3 flex flex-col gap-2 relative">
+        
+        <!-- Status Bar Header Overlay -->
+        <div class="flex flex-wrap justify-between items-center px-3 py-2 bg-slate-900/90 rounded-lg border border-slate-700 text-xs gap-2">
+          <div class="flex items-center gap-3">
+            <span class="font-bold text-emerald-400 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              養殖床運作中
+            </span>
+            <span class="text-slate-500">|</span>
+            <span class="text-slate-300">總蚯蚓量: <strong id="hudTotalWorms" class="text-white text-sm font-bold">1,200</strong> 尾</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-slate-300">床溫: <strong id="hudTemp" class="text-emerald-400 font-bold">24.5 °C</strong></span>
+            <span class="text-slate-300">酸鹼度: <strong id="hudPh" class="text-emerald-400 font-bold">pH 6.8</strong></span>
+          </div>
         </div>
 
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 border border-cyber-border">
-          <i class="fa-solid fa-globe text-cyber-border"></i>
-          <span class="text-gray-400">地球貢獻度:</span>
-          <span id="earthPointsTxt" class="text-cyber-border font-bold text-base">0</span>
+        <!-- Visual Canvas Container -->
+        <div class="relative w-full aspect-[16/10] bg-slate-950 rounded-lg border border-slate-700 overflow-hidden cursor-crosshair">
+          <canvas id="facilityCanvas" class="w-full h-full block"></canvas>
+          
+          <!-- Canvas Overlay Disaster Alerts -->
+          <div id="disasterBanner" class="hidden absolute top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-lg bg-red-600/90 border border-red-400 text-white font-bold text-xs shadow-lg flex items-center gap-2 animate-bounce">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span id="disasterMsg">發酵過熱告警！堆肥溫度超過 38°C</span>
+          </div>
+
+          <!-- Interaction Toast -->
+          <div id="canvasToast" class="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded bg-slate-900/90 border border-slate-600 text-xs text-emerald-400 font-medium pointer-events-none opacity-0 transition-opacity duration-300">
+            點擊養殖床撫摸或翻堆通氣
+          </div>
         </div>
 
-        <div class="flex items-center gap-1.5 px-2.5 py-1 rounded bg-black/60 border border-cyber-blue">
-          <i class="fa-solid fa-flask text-cyber-blue"></i>
-          <span class="text-gray-400">蚯蚓水:</span>
-          <span id="teaTxt" class="text-cyber-blue font-bold text-base">0 ml</span>
+        <!-- Quick Facility Action Controls -->
+        <div class="grid grid-cols-4 gap-2 text-xs font-semibold">
+          <button onclick="actionSprayWater()" class="btn-action py-2.5 rounded-lg bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-700 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-shower text-sky-400"></i> 噴水降溫濕潤
+          </button>
+          <button onclick="actionAddBiochar()" class="btn-action py-2.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-700/60 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-cubes text-amber-400"></i> 投放生物炭吸臭
+          </button>
+          <button onclick="actionHarvestCastings()" class="btn-action py-2.5 rounded-lg bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-bucket text-emerald-400"></i> 篩分採收蚓糞
+          </button>
+          <button onclick="actionDrainLiquid()" class="btn-action py-2.5 rounded-lg bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-700 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-faucet-drip text-cyan-400"></i> 收集蚓糞液肥
+          </button>
         </div>
 
-        <button onclick="toggleSound()" id="soundBtn" class="cyber-btn px-2 py-1 text-xs rounded flex items-center gap-1">
-          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
-          <span class="hidden md:inline">音效</span>
+      </div>
+
+      <!-- EISENIA FETIDA LIFECYCLE & BIOLOGICAL METRICS -->
+      <div class="panel-card rounded-xl p-3.5 space-y-3">
+        <div class="flex justify-between items-center text-xs border-b border-slate-700 pb-2">
+          <span class="font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-dna text-emerald-400"></i> 歐洲紅蚯蚓族群生態結構 (EISENIA FETIDA DYNAMICS)
+          </span>
+          <span id="reproStatus" class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+            繁殖狀態: 適宜交配產繭
+          </span>
+        </div>
+
+        <!-- Lifecycle Counts Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+          <!-- Cocoons -->
+          <div class="p-2.5 bg-slate-900/80 rounded-lg border border-amber-500/30 flex flex-col justify-between">
+            <div class="text-amber-400 font-semibold flex items-center justify-between">
+              <span><i class="fa-solid fa-egg mr-1"></i> 蚯蚓繭 (Cocoon)</span>
+            </div>
+            <div class="mt-2 flex justify-between items-baseline">
+              <span id="cntCocoons" class="text-xl font-black text-amber-400">150</span>
+              <span class="text-[10px] text-slate-400">孵化期 ~14天</span>
+            </div>
+          </div>
+
+          <!-- Hatchlings -->
+          <div class="p-2.5 bg-slate-900/80 rounded-lg border border-pink-500/30 flex flex-col justify-between">
+            <div class="text-pink-400 font-semibold flex items-center justify-between">
+              <span><i class="fa-solid fa-bug mr-1"></i> 幼蚓 (Hatchling)</span>
+            </div>
+            <div class="mt-2 flex justify-between items-baseline">
+              <span id="cntHatchlings" class="text-xl font-black text-pink-400">300</span>
+              <span class="text-[10px] text-slate-400">高敏感期</span>
+            </div>
+          </div>
+
+          <!-- Juveniles -->
+          <div class="p-2.5 bg-slate-900/80 rounded-lg border border-blue-500/30 flex flex-col justify-between">
+            <div class="text-blue-400 font-semibold flex items-center justify-between">
+              <span><i class="fa-solid fa-worm mr-1"></i> 亞成體 (Juvenile)</span>
+            </div>
+            <div class="mt-2 flex justify-between items-baseline">
+              <span id="cntJuveniles" class="text-xl font-black text-blue-400">400</span>
+              <span class="text-[10px] text-slate-400">食量快速增長</span>
+            </div>
+          </div>
+
+          <!-- Adults -->
+          <div class="p-2.5 bg-slate-900/80 rounded-lg border border-emerald-500/30 flex flex-col justify-between">
+            <div class="text-emerald-400 font-semibold flex items-center justify-between">
+              <span><i class="fa-solid fa-crown mr-1"></i> 成蚓 (Adult)</span>
+            </div>
+            <div class="mt-2 flex justify-between items-baseline">
+              <span id="cntAdults" class="text-xl font-black text-emerald-400">350</span>
+              <span class="text-[10px] text-slate-400">具鞍葉可繁殖</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Environmental Gauges Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 text-xs pt-1">
+          <!-- Moisture Bar -->
+          <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-700">
+            <div class="flex justify-between text-slate-300 mb-1">
+              <span><i class="fa-solid fa-droplet text-sky-400 mr-1"></i> 養殖床濕度</span>
+              <span id="valMoisture" class="font-bold text-sky-400">65%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="barMoisture" class="bg-sky-400 h-full w-[65%] transition-all duration-300"></div>
+            </div>
+          </div>
+
+          <!-- Carbon-Nitrogen Ratio Bar -->
+          <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-700">
+            <div class="flex justify-between text-slate-300 mb-1">
+              <span><i class="fa-solid fa-scale-balanced text-amber-400 mr-1"></i> 碳氮比 (C:N)</span>
+              <span id="valCN" class="font-bold text-amber-400">27:1 (最適)</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="barCN" class="bg-amber-400 h-full w-[70%] transition-all duration-300"></div>
+            </div>
+          </div>
+
+          <!-- Biochar Content Bar -->
+          <div class="p-2 bg-slate-900/60 rounded-lg border border-slate-700">
+            <div class="flex justify-between text-slate-300 mb-1">
+              <span><i class="fa-solid fa-cubes text-emerald-400 mr-1"></i> 生物炭比例</span>
+              <span id="valBiochar" class="font-bold text-emerald-400">8%</span>
+            </div>
+            <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div id="barBiochar" class="bg-emerald-400 h-full w-[40%] transition-all duration-300"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: OPERATIONAL CONTROL TABS (5 COLS) -->
+    <section class="lg:col-span-5 flex flex-col gap-3">
+      
+      <!-- NAVIGATION TAB BUTTONS -->
+      <div class="grid grid-cols-4 gap-1.5 bg-slate-900 p-1.5 rounded-xl border border-slate-700 text-xs font-bold">
+        <button onclick="switchTab('logistics')" id="tabBtnLogistics" class="py-2 rounded-lg text-center bg-emerald-600 text-white shadow">
+          <i class="fa-solid fa-truck-ramp-box mb-0.5 block"></i> 廢棄物物流
+        </button>
+        <button onclick="switchTab('blender')" id="tabBtnBlender" class="py-2 rounded-lg text-center text-slate-400 hover:text-white">
+          <i class="fa-solid fa-blender mb-0.5 block"></i> 廚餘配料箱
+        </button>
+        <button onclick="switchTab('nursery')" id="tabBtnNursery" class="py-2 rounded-lg text-center text-slate-400 hover:text-white">
+          <i class="fa-solid fa-seedling mb-0.5 block"></i> 育苗農場
+        </button>
+        <button onclick="switchTab('contracts')" id="tabBtnContracts" class="py-2 rounded-lg text-center text-slate-400 hover:text-white">
+          <i class="fa-solid fa-file-contract mb-0.5 block"></i> 訂單與升級
         </button>
       </div>
-    </header>
 
-    <!-- MAIN GAME LAYOUT -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-      
-      <!-- LEFT: WORM PET CANVAS & POPULATION METRICS (7 COLS) -->
-      <div class="lg:col-span-7 flex flex-col gap-3">
-        
-        <!-- CANVAS CONTAINER -->
-        <div class="cyber-box rounded-lg p-2 flex flex-col relative overflow-hidden">
-          
-          <!-- Environment HUD Overlay -->
-          <div class="flex flex-wrap justify-between items-center px-2 py-1 text-xs font-vt bg-black/70 rounded mb-2 border border-cyber-dim gap-2">
-            <div class="flex items-center gap-2">
-              <span id="dayNightBadge" class="text-cyber-amber"><i class="fa-solid fa-sun"></i> 白天模式</span>
-              <span class="text-gray-500">|</span>
-              <span>總蚯蚓數: <strong id="totalWormsTxt" class="text-cyber-border text-sm">12</strong> 尾</span>
-            </div>
-            <div class="flex items-center gap-3">
-              <span>消化速率: <strong id="digestRateTxt" class="text-cyber-amber">1.2 g/日</strong></span>
-              <span>蚯蚓糞累積: <strong id="castingStockTxt" class="text-cyber-text">0.0 g</strong></span>
-            </div>
+      <!-- TAB 1: INCOMING WASTE LOGISTICS & SHIPMENTS -->
+      <div id="tabLogistics" class="panel-card rounded-xl p-3.5 flex-1 flex flex-col justify-between space-y-3">
+        <div>
+          <div class="flex justify-between items-center text-xs border-b border-slate-700 pb-2 mb-3">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-truck-field text-emerald-400"></i> 各機構生熟廚餘與資材到場物流
+            </span>
+            <span class="text-xs text-amber-400 font-medium">不定期運輸車抵達</span>
           </div>
 
-          <!-- Interactive Sandbox Canvas -->
-          <div class="relative w-full aspect-[4/3] bg-black rounded border border-cyber-dim overflow-hidden cursor-crosshair">
-            <canvas id="sanctuaryCanvas" class="w-full h-full block"></canvas>
-            
-            <!-- Canvas Interaction Floating Message -->
-            <div id="canvasToast" class="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded bg-black/90 border border-cyber-border text-xs text-cyber-border font-vt pointer-events-none opacity-0 transition-opacity duration-300">
-              點擊餵食或撫摸蚯蚓！
-            </div>
-          </div>
+          <p class="text-xs text-slate-300 mb-3 leading-relaxed">
+            環保局、社區食堂、牧場與茶園會定時運來有機廢棄物。不同資材具有不同的碳氮比、水分與臭味風險，請及時簽收並整理入庫。
+          </p>
 
-          <!-- Canvas Controls Toolbar -->
-          <div class="grid grid-cols-4 gap-2 mt-2 text-xs font-vt">
-            <button onclick="collectOrganicScraps()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1 text-cyber-border">
-              <i class="fa-solid fa-dumpster"></i> 收集廚餘
-            </button>
-            <button onclick="sprayMister()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1">
-              <i class="fa-solid fa-spray-can"></i> 噴霧加濕
-            </button>
-            <button onclick="harvestCastingsManual()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1 text-cyber-amber border-cyber-amber">
-              <i class="fa-solid fa-bucket"></i> 手工採收蚓糞
-            </button>
-            <button onclick="harvestWormTea()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1 text-cyber-blue border-cyber-blue">
-              <i class="fa-solid fa-faucet-drip"></i> 收集蚓糞水
-            </button>
+          <!-- Incoming Shipments Queue -->
+          <div id="shipmentList" class="space-y-2 max-h-[320px] overflow-y-auto pr-1">
+            <!-- JS dynamic render -->
           </div>
-
         </div>
 
-        <!-- EISENIA FETIDA LIFECYCLE & POPULATION METRICS -->
-        <div class="cyber-box rounded-lg p-3 space-y-2">
-          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
-            <span class="text-cyber-border font-bold"><i class="fa-solid fa-dna"></i> 歐洲紅蚯蚓族群生態結構 (POPULATION DYNAMICS)</span>
-            <span id="reproStatusTxt" class="text-cyber-text font-bold">繁殖狀態: 適宜交配中</span>
+        <!-- Inventory Summary Footer -->
+        <div class="bg-slate-900/90 p-3 rounded-lg border border-slate-700 text-xs space-y-1.5">
+          <div class="flex justify-between font-bold text-white">
+            <span><i class="fa-solid fa-warehouse text-emerald-400 mr-1"></i> 廠區庫存廢棄物總計:</span>
+            <span id="txtTotalRawInventory" class="text-amber-400">180 kg</span>
           </div>
-
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-vt">
-            <!-- Cocoons -->
-            <div class="p-2 bg-black/50 rounded border border-amber-600/50 flex flex-col justify-between">
-              <div class="flex justify-between items-center text-amber-400">
-                <span><i class="fa-solid fa-egg"></i> 蚯蚓繭 (Cocoon)</span>
-              </div>
-              <div class="mt-1 flex justify-between items-baseline">
-                <span id="cocoonCountTxt" class="text-lg font-bold text-cyber-amber">5</span>
-                <span class="text-[10px] text-gray-400">孵化中...</span>
-              </div>
-            </div>
-
-            <!-- Hatchlings -->
-            <div class="p-2 bg-black/50 rounded border border-pink-600/50 flex flex-col justify-between">
-              <div class="flex justify-between items-center text-pink-400">
-                <span><i class="fa-solid fa-bug"></i> 幼蚓 (Hatchling)</span>
-              </div>
-              <div class="mt-1 flex justify-between items-baseline">
-                <span id="hatchlingCountTxt" class="text-lg font-bold text-cyber-pink">4</span>
-                <span class="text-[10px] text-gray-400">成長中</span>
-              </div>
-            </div>
-
-            <!-- Juveniles -->
-            <div class="p-2 bg-black/50 rounded border border-cyan-600/50 flex flex-col justify-between">
-              <div class="flex justify-between items-center text-cyan-400">
-                <span><i class="fa-solid fa-worm"></i> 成幼體 (Juvenile)</span>
-              </div>
-              <div class="mt-1 flex justify-between items-baseline">
-                <span id="juvenileCountTxt" class="text-lg font-bold text-cyber-blue">3</span>
-                <span class="text-[10px] text-gray-400">發育中</span>
-              </div>
-            </div>
-
-            <!-- Adults -->
-            <div class="p-2 bg-black/50 rounded border border-green-600/50 flex flex-col justify-between">
-              <div class="flex justify-between items-center text-green-400">
-                <span><i class="fa-solid fa-crown"></i> 成蚓 (Adult)</span>
-              </div>
-              <div class="mt-1 flex justify-between items-baseline">
-                <span id="adultCountTxt" class="text-lg font-bold text-cyber-border">5</span>
-                <span class="text-[10px] text-gray-400">可交配產繭</span>
-              </div>
-            </div>
+          <div class="grid grid-cols-2 gap-x-2 gap-y-1 text-[11px] text-slate-300">
+            <div>• 生廚餘: <span id="invRawGreen" class="text-white font-semibold">40kg</span></div>
+            <div>• 熟廚餘 (含鹽): <span id="invRawSalty" class="text-white font-semibold">20kg</span></div>
+            <div>• 乾落葉/木屑: <span id="invRawBrown" class="text-white font-semibold">80kg</span></div>
+            <div>• 畜禽糞便: <span id="invRawManure" class="text-white font-semibold">40kg</span></div>
           </div>
-
-          <!-- Environmental Gauges -->
-          <div class="grid grid-cols-3 gap-2 text-xs font-vt pt-1">
-            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
-              <div class="flex justify-between text-gray-400 mb-0.5">
-                <span><i class="fa-solid fa-droplet text-cyber-blue"></i> 土壤濕度</span>
-                <span id="hydrationVal">65%</span>
-              </div>
-              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
-                <div id="hydrationBar" class="bg-cyber-blue h-full w-[65%] transition-all"></div>
-              </div>
-            </div>
-
-            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
-              <div class="flex justify-between text-gray-400 mb-0.5">
-                <span><i class="fa-solid fa-utensils text-cyber-amber"></i> 箱內廚餘資材</span>
-                <span id="scrapsVal">80g</span>
-              </div>
-              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
-                <div id="scrapsBar" class="bg-cyber-amber h-full w-[80%] transition-all"></div>
-              </div>
-            </div>
-
-            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
-              <div class="flex justify-between text-gray-400 mb-0.5">
-                <span><i class="fa-solid fa-scale-balanced text-cyber-border"></i> 碳氮比 (C:N)</span>
-                <span id="cnVal">28:1</span>
-              </div>
-              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
-                <div id="cnBar" class="bg-cyber-border h-full w-[70%] transition-all"></div>
-              </div>
-            </div>
-          </div>
-
         </div>
-
       </div>
 
-      <!-- RIGHT: TABS (FEEDING, PLANT FARM, SHOP) (5 COLS) -->
-      <div class="lg:col-span-5 flex flex-col gap-3">
-        
-        <!-- NAVIGATION TABS -->
-        <div class="grid grid-cols-3 gap-1 font-vt text-sm">
-          <button onclick="switchTab('feed')" id="tabFeedBtn" class="cyber-btn py-1.5 rounded text-center font-bold bg-cyber-border text-cyber-bg">
-            <i class="fa-solid fa-apple-whole"></i> 投餵廚餘
-          </button>
-          <button onclick="switchTab('farm')" id="tabFarmBtn" class="cyber-btn py-1.5 rounded text-center font-bold">
-            <i class="fa-solid fa-seedling"></i> 植物農場
-          </button>
-          <button onclick="switchTab('shop')" id="tabShopBtn" class="cyber-btn py-1.5 rounded text-center font-bold">
-            <i class="fa-solid fa-store"></i> 自動化/商店
-          </button>
+      <!-- TAB 2: RECIPE BLENDER & FEEDING CHAMBER -->
+      <div id="tabBlender" class="panel-card rounded-xl p-3.5 flex-1 flex-col justify-between hidden space-y-3">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-xs border-b border-slate-700 pb-2">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-sliders text-emerald-400"></i> 廢棄物配比調製與投餵 (C:N RECIPE BLENDER)
+            </span>
+          </div>
+
+          <p class="text-xs text-slate-300 leading-relaxed">
+            過多的氮源（熟廚餘、生廚餘）會引發微生物劇烈發酵致使<strong class="text-red-400">堆肥高溫 ( >38°C ) 殺死蚯蚓</strong>；適當調配高碳資材（乾葉、木屑）能維持 C:N 在 25~30:1 黃金比例！
+          </p>
+
+          <!-- Recipe Mixer Controls -->
+          <div class="space-y-2 text-xs">
+            
+            <!-- Ingredient 1: Greens -->
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-emerald-400">綠色生廚餘 (高氮/含水)</div>
+                <div class="text-[10px] text-slate-400">C:N 15:1 | 庫存: <span id="mixQtyGreen">40</span>kg</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="range" id="sliderGreen" min="0" max="30" value="10" oninput="updateMixerPreview()" class="w-24 accent-emerald-500">
+                <span id="lblGreen" class="w-8 text-right font-bold text-white">10kg</span>
+              </div>
+            </div>
+
+            <!-- Ingredient 2: Browns -->
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-amber-400">乾落葉/鋸木屑 (高碳)</div>
+                <div class="text-[10px] text-slate-400">C:N 60:1 | 庫存: <span id="mixQtyBrown">80</span>kg</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="range" id="sliderBrown" min="0" max="30" value="15" oninput="updateMixerPreview()" class="w-24 accent-amber-500">
+                <span id="lblBrown" class="w-8 text-right font-bold text-white">15kg</span>
+              </div>
+            </div>
+
+            <!-- Ingredient 3: Salty Cooked -->
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-red-400">熟廚餘/殘羹 (高鹽高油脂)</div>
+                <div class="text-[10px] text-slate-400">易引發酸化與惡臭 | 庫存: <span id="mixQtySalty">20</span>kg</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="range" id="sliderSalty" min="0" max="20" value="0" oninput="updateMixerPreview()" class="w-24 accent-red-500">
+                <span id="lblSalty" class="w-8 text-right font-bold text-white">0kg</span>
+              </div>
+            </div>
+
+            <!-- Ingredient 4: Livestock Manure -->
+            <div class="p-2 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+              <div>
+                <div class="font-bold text-purple-400">畜禽牛羊糞便 (高有機質)</div>
+                <div class="text-[10px] text-slate-400">C:N 20:1 | 庫存: <span id="mixQtyManure">40</span>kg</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="range" id="sliderManure" min="0" max="20" value="5" oninput="updateMixerPreview()" class="w-24 accent-purple-500">
+                <span id="lblManure" class="w-8 text-right font-bold text-white">5kg</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recipe Preview Calculation Box -->
+          <div class="p-3 bg-slate-950 rounded-lg border border-emerald-500/40 text-xs space-y-1">
+            <div class="flex justify-between font-bold">
+              <span>預估調製總重: <strong id="prevTotalWeight" class="text-white">30 kg</strong></span>
+              <span>預估混合 C:N 比: <strong id="prevCnRatio" class="text-emerald-400">27.5 : 1</strong></span>
+            </div>
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>發酵發熱風險: <strong id="prevHeatRisk" class="text-emerald-400">極低 (安全)</strong></span>
+              <span>臭味增加估計: <strong id="prevOdorRisk" class="text-slate-300">+2%</strong></span>
+            </div>
+          </div>
         </div>
 
-        <!-- TAB CONTENT 1: FEEDING & EARTH CONTRIBUTION -->
-        <div id="tabFeed" class="cyber-box rounded-lg p-3 flex-1 flex flex-col justify-between gap-3">
-          
-          <div class="space-y-2">
-            <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
-              <span class="text-cyber-border font-bold"><i class="fa-solid fa-recycle"></i> 廚餘收集與地球貢獻 (EARTH CONTRIBUTION)</span>
-              <span id="scrapsInventoryTxt" class="text-cyber-amber font-bold">庫存廚餘: 0 g</span>
-            </div>
+        <button onclick="feedMixToBin()" class="w-full btn-action py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-lg flex items-center justify-center gap-2">
+          <i class="fa-solid fa-dumpster-fire text-base"></i> 投放調製資材至養殖床
+        </button>
+      </div>
 
-            <p class="text-xs text-gray-300 font-vt">
-              收集日常有機廚餘投餵歐洲紅蚯蚓，可顯著減少碳排放。每收集投餵 10g 廚餘，增加 <strong class="text-cyber-border">+10 地球貢獻度</strong>！
-            </p>
-
-            <button onclick="collectOrganicScraps()" class="w-full cyber-btn py-2.5 rounded text-xs font-vt flex items-center justify-center gap-2 text-cyber-amber border-cyber-amber">
-              <i class="fa-solid fa-hand-holding-hand text-base"></i> 前往社區收集廚餘 (+50g 廚餘, +50 地球貢獻)
-            </button>
+      <!-- TAB 3: PRECISION PLANT NURSERY & POTTING -->
+      <div id="tabNursery" class="panel-card rounded-xl p-3.5 flex-1 flex-col justify-between hidden space-y-3">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-xs border-b border-slate-700 pb-2">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-plant-wilt text-emerald-400"></i> 精密栽培溫室與配土 (POTTING & BOTANY)
+            </span>
+            <span class="text-xs text-amber-400">注意肥傷與燒根風險！</span>
           </div>
 
-          <!-- Feed Stock Options -->
-          <div class="space-y-2">
-            <span class="text-xs font-vt text-cyber-border font-bold block"><i class="fa-solid fa-box-open"></i> 選擇投餵資材至養殖箱:</span>
-
-            <div class="grid grid-cols-2 gap-2 text-xs font-vt">
-              <!-- Greens Feed -->
-              <button onclick="feedFood('greens')" class="p-2 rounded bg-green-950/60 border border-green-600 hover:bg-green-900 transition text-left space-y-1">
-                <div class="flex justify-between text-green-300 font-bold">
-                  <span><i class="fa-solid fa-leaf"></i> 綠色廚餘 (高氮)</span>
-                  <span class="text-cyber-amber">-10g 廚餘</span>
-                </div>
-                <p class="text-[10px] text-gray-400">富含蛋白質與水分，降低 C:N 比，加快蚯蚓交配。</p>
-              </button>
-
-              <!-- Browns Feed -->
-              <button onclick="feedFood('browns')" class="p-2 rounded bg-amber-950/60 border border-amber-600 hover:bg-amber-900 transition text-left space-y-1">
-                <div class="flex justify-between text-amber-300 font-bold">
-                  <span><i class="fa-solid fa-newspaper"></i> 棕色乾葉/碎紙 (高碳)</span>
-                  <span class="text-cyber-amber">+碳 (C)</span>
-                </div>
-                <p class="text-[10px] text-gray-400">提高 C:N 比，吸收多餘水分，調控養殖箱結構。</p>
-              </button>
-
-              <!-- Biochar Supplement -->
-              <button onclick="feedFood('biochar')" class="p-2 rounded bg-gray-900 border border-gray-600 hover:bg-gray-800 transition text-left space-y-1">
-                <div class="flex justify-between text-gray-300 font-bold">
-                  <span><i class="fa-solid fa-cubes"></i> 生物炭調理劑</span>
-                  <span class="text-cyber-blue">孔隙+</span>
-                </div>
-                <p class="text-[10px] text-gray-400">吸附異味，固定碳素，大幅促進蚯蚓幼體存活率。</p>
-              </button>
-
-              <!-- Eggshells -->
-              <button onclick="feedFood('eggshells')" class="p-2 rounded bg-amber-900/40 border border-yellow-600 hover:bg-amber-800 transition text-left space-y-1">
-                <div class="flex justify-between text-yellow-200 font-bold">
-                  <span><i class="fa-solid fa-egg"></i> 研磨蛋殼粉</span>
-                  <span class="text-yellow-400">pH 調節</span>
-                </div>
-                <p class="text-[10px] text-gray-400">提供蚯蚓砂囊所需微粒與鈣質，促進繭的生成。</p>
-              </button>
-            </div>
-          </div>
-
-          <!-- Frequency Sound Player -->
-          <div class="bg-black/40 p-2 rounded border border-cyber-dim text-xs font-vt space-y-1.5">
-            <div class="flex justify-between items-center">
-              <span class="text-cyber-border font-bold"><i class="fa-solid fa-wave-square"></i> 528Hz 舒緩共振頻率</span>
-              <button onclick="playCalmFrequency()" class="cyber-btn px-2 py-0.5 rounded text-[10px]">
-                <i class="fa-solid fa-music"></i> 播放/停止
-              </button>
-            </div>
-            <p class="text-[10px] text-gray-400">播放特定赫茲聲波可舒緩蚯蚓緊張，提升鑽穴速率與消化效率。</p>
-          </div>
-
-        </div>
-
-        <!-- TAB CONTENT 2: PLANT CULTIVATION & GREENHOUSE -->
-        <div id="tabFarm" class="cyber-box rounded-lg p-3 flex-1 flex-col justify-between hidden space-y-3">
-          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
-            <span class="text-cyber-border font-bold"><i class="fa-solid fa-seedling"></i> 頂層有機植物種植床 (PLANT BEDS)</span>
-            <span class="text-cyber-amber">蚓糞/蚓水施肥加速</span>
-          </div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            使用採收的<strong class="text-emerald-400">熟成蚓糞</strong>配土可促成植物快速生長！若直接將未腐熟生廚餘或未處理糞便施入盆栽，會引發<strong class="text-red-400">發酵燒根死亡</strong>。
+          </p>
 
           <!-- Plant Slots Grid (2 Slots) -->
           <div class="grid grid-cols-2 gap-2">
-            
-            <!-- Slot 1 -->
-            <div id="plantSlot0" class="p-2.5 rounded bg-black/60 border border-cyber-dim flex flex-col justify-between space-y-2 text-xs font-vt">
+            <div id="plantSlot0" class="p-3 bg-slate-900 rounded-lg border border-slate-700 flex flex-col justify-between space-y-2 text-xs">
               <!-- JS rendered -->
             </div>
-
-            <!-- Slot 2 -->
-            <div id="plantSlot1" class="p-2.5 rounded bg-black/60 border border-cyber-dim flex flex-col justify-between space-y-2 text-xs font-vt">
+            <div id="plantSlot1" class="p-3 bg-slate-900 rounded-lg border border-slate-700 flex flex-col justify-between space-y-2 text-xs">
               <!-- JS rendered -->
             </div>
-
           </div>
 
-          <!-- Seed Shop Quick Buy -->
-          <div class="space-y-1.5 font-vt text-xs pt-1 border-t border-cyber-dim">
-            <span class="text-cyber-border font-bold block"><i class="fa-solid fa-store"></i> 購買植物種子 (種植於箱頂):</span>
+          <!-- Seed Buying Quick Shop -->
+          <div class="space-y-1.5 text-xs pt-1 border-t border-slate-700">
+            <span class="font-bold text-white block">播種新作物:</span>
             <div class="grid grid-cols-2 gap-1.5">
-              <button onclick="buyAndPlantSeed('basil')" class="cyber-btn p-1.5 rounded text-left flex justify-between items-center">
-                <span>🌿 九層塔種子</span>
-                <span class="text-cyber-amber">15 幣</span>
+              <button onclick="plantSeed(0, 'basil')" class="btn-action p-2 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex justify-between items-center">
+                <span>🌿 甜九層塔</span>
+                <span class="text-amber-400 font-bold">50 幣</span>
               </button>
-              <button onclick="buyAndPlantSeed('tomato')" class="cyber-btn p-1.5 rounded text-left flex justify-between items-center">
-                <span>🍅 聖女番茄種子</span>
-                <span class="text-cyber-amber">30 幣</span>
+              <button onclick="plantSeed(0, 'tomato')" class="btn-action p-2 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex justify-between items-center">
+                <span>🍅 聖女小番茄</span>
+                <span class="text-amber-400 font-bold">120 幣</span>
               </button>
-              <button onclick="buyAndPlantSeed('strawberry')" class="cyber-btn p-1.5 rounded text-left flex justify-between items-center">
-                <span>🍓 鮮紅草莓種子</span>
-                <span class="text-cyber-amber">50 幣</span>
+              <button onclick="plantSeed(1, 'mint')" class="btn-action p-2 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex justify-between items-center">
+                <span>🌱 歐薄荷</span>
+                <span class="text-amber-400 font-bold">80 幣</span>
               </button>
-              <button onclick="buyAndPlantSeed('mint')" class="cyber-btn p-1.5 rounded text-left flex justify-between items-center">
-                <span>🌱 涼爽薄荷種子</span>
-                <span class="text-cyber-amber">25 幣</span>
+              <button onclick="plantSeed(1, 'ginseng')" class="btn-action p-2 rounded bg-slate-900 hover:bg-slate-800 border border-slate-700 text-left flex justify-between items-center">
+                <span>🌸 珍稀金線蓮</span>
+                <span class="text-amber-400 font-bold">250 幣</span>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- TAB CONTENT 3: AUTOMATION & SHOP -->
-        <div id="tabShop" class="cyber-box rounded-lg p-3 flex-1 flex-col hidden space-y-3">
-          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
-            <span class="text-cyber-border font-bold"><i class="fa-solid fa-robot"></i> 賽博自動化設備 & 升級商店</span>
-            <span class="text-cyber-amber">黑金幣專賣店</span>
+        <!-- Potting Soil Balance Indicator -->
+        <div class="p-2.5 bg-slate-950 rounded-lg border border-slate-700 text-[11px] flex justify-between items-center text-slate-300">
+          <span>蚓糞庫存: <strong id="nurseryCastingsStock" class="text-emerald-400 font-bold">0.0 kg</strong></span>
+          <span>蚓糞液肥: <strong id="nurseryTeaStock" class="text-sky-400 font-bold">0 ml</strong></span>
+        </div>
+      </div>
+
+      <!-- TAB 4: CONTRACTS, ESG ORDERS & AUTOMATION UPGRADES -->
+      <div id="tabContracts" class="panel-card rounded-xl p-3.5 flex-1 flex-col justify-between hidden space-y-3">
+        <div class="space-y-3">
+          <div class="flex justify-between items-center text-xs border-b border-slate-700 pb-2">
+            <span class="font-bold text-white flex items-center gap-1.5">
+              <i class="fa-solid fa-file-contract text-emerald-400"></i> B2B ESG 訂單與自動化升級
+            </span>
           </div>
 
-          <div class="space-y-2 overflow-y-auto max-h-[260px] pr-1">
+          <!-- B2B Order Contracts -->
+          <div class="space-y-2">
+            <span class="text-xs font-bold text-slate-300 block">商業合約與合作案:</span>
             
-            <!-- Upgrade 1: AI Auto Casting Collector -->
-            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-amber text-sm">
-                  <i class="fa-solid fa-robot"></i>
-                </div>
-                <div>
-                  <div class="text-cyber-border font-bold">AI 自動採集蚓糞設備</div>
-                  <div class="text-[10px] text-gray-400">自動將積累的蚓糞直接轉化為黑金幣</div>
-                </div>
-              </div>
-              <button onclick="buyUpgrade('autoCastingCollector', 100)" id="btnAutoCollector" class="cyber-btn px-2.5 py-1 text-xs rounded">
-                100 幣
-              </button>
+            <div id="contractList" class="space-y-2 max-h-[160px] overflow-y-auto pr-1 text-xs">
+              <!-- JS rendered contracts -->
             </div>
+          </div>
 
-            <!-- Upgrade 2: Smart Mister -->
-            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-blue text-sm">
-                  <i class="fa-solid fa-shower"></i>
-                </div>
+          <!-- Facility Upgrades Shop -->
+          <div class="space-y-2 pt-2 border-t border-slate-700">
+            <span class="text-xs font-bold text-slate-300 block">養殖場自動化設備升級:</span>
+
+            <div class="space-y-2 max-h-[170px] overflow-y-auto pr-1 text-xs">
+              <!-- Upgrade 1: Auto Harvester -->
+              <div class="p-2 rounded-lg bg-slate-900 border border-slate-700 flex justify-between items-center">
                 <div>
-                  <div class="text-cyber-border font-bold">智能自動恆濕噴霧器</div>
-                  <div class="text-[10px] text-gray-400">自動維持養殖箱最佳繁殖濕度(65%)</div>
+                  <div class="font-bold text-white">AI 自動滾筒篩分採集機</div>
+                  <div class="text-[10px] text-slate-400">自動採集熟成蚓糞變現，節省大量人力</div>
                 </div>
+                <button onclick="buyUpgrade('autoHarvester', 300)" id="btnUpgHarvester" class="btn-action px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+                  300 幣
+                </button>
               </div>
-              <button onclick="buyUpgrade('autoMister', 80)" id="btnAutoMister" class="cyber-btn px-2.5 py-1 text-xs rounded">
-                80 幣
-              </button>
-            </div>
 
-            <!-- Upgrade 3: Worm Bin Expansion -->
-            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-purple text-sm">
-                  <i class="fa-solid fa-box-archive"></i>
-                </div>
+              <!-- Upgrade 2: Smart Mister -->
+              <div class="p-2 rounded-lg bg-slate-900 border border-slate-700 flex justify-between items-center">
                 <div>
-                  <div class="text-cyber-border font-bold">養殖箱立體擴建套件</div>
-                  <div class="text-[10px] text-gray-400">提高養殖箱容量上限與有機物處置速度</div>
+                  <div class="font-bold text-white">智慧自動恆濕噴霧系統</div>
+                  <div class="text-[10px] text-slate-400">自動維持養殖床最適濕度 (65%)</div>
                 </div>
+                <button onclick="buyUpgrade('autoMister', 200)" id="btnUpgMister" class="btn-action px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+                  200 幣
+                </button>
               </div>
-              <button onclick="buyUpgrade('binExpansion', 120)" id="btnBinExpansion" class="cyber-btn px-2.5 py-1 text-xs rounded">
-                120 幣
-              </button>
-            </div>
 
-            <!-- Item 4: Wizard Hat -->
-            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-amber text-sm">
-                  <i class="fa-solid fa-hat-wizard"></i>
-                </div>
+              <!-- Upgrade 3: Industrial Biochar Scrubber -->
+              <div class="p-2 rounded-lg bg-slate-900 border border-slate-700 flex justify-between items-center">
                 <div>
-                  <div class="text-cyber-border font-bold">派對巫師帽 (裝飾)</div>
-                  <div class="text-[10px] text-gray-400">成蚓穿戴後顯著提升孵化速率</div>
+                  <div class="font-bold text-white">生物炭負壓除臭風機</div>
+                  <div class="text-[10px] text-slate-400">持續降低場區臭味濃度，防止環保局開罰</div>
                 </div>
+                <button onclick="buyUpgrade('scrubber', 250)" id="btnUpgScrubber" class="btn-action px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold">
+                  250 幣
+                </button>
               </div>
-              <button onclick="buyCosmetic('wizardHat', 50)" id="btnHatWizard" class="cyber-btn px-2.5 py-1 text-xs rounded">
-                50 幣
-              </button>
             </div>
-
           </div>
         </div>
 
       </div>
 
+    </section>
+
+  </main>
+
+  <!-- FOOTER CONSOLE & LOG SYSTEM -->
+  <footer class="max-w-7xl mx-auto w-full mt-3 panel-card rounded-xl p-3 flex flex-wrap justify-between items-center text-xs text-slate-400 gap-2">
+    <div class="flex items-center gap-2">
+      <span class="text-emerald-400 font-bold flex items-center gap-1">
+        <i class="fa-solid fa-terminal"></i> 系統日誌:
+      </span>
+      <span id="logConsole" class="text-slate-200">養殖場運作正常。請隨時注意資材 C:N 比與堆肥發酵溫度。</span>
     </div>
+    <div class="text-[11px]">BIO-VERMICOMPOSTING INDUSTRIAL SIMULATOR</div>
+  </footer>
 
-    <!-- FOOTER / CONSOLE LOG -->
-    <footer class="cyber-box rounded-lg p-2 flex flex-wrap justify-between items-center text-xs font-vt text-gray-400 gap-2">
-      <div class="flex items-center gap-2">
-        <span class="text-cyber-border"><i class="fa-solid fa-terminal"></i> 系統日誌:</span>
-        <span id="systemConsoleLog" class="text-cyber-text">歡迎來到賽博歐洲紅蚯蚓生態農場！請定時收集廚餘與噴水維持生態。</span>
+  <!-- MODAL / EPA FINE ALERT DIALOG -->
+  <div id="epaModal" class="hidden fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4">
+    <div class="panel-card-danger max-w-md w-full rounded-xl p-5 space-y-4 text-center">
+      <div class="w-14 h-14 rounded-full bg-red-500/20 text-red-500 border border-red-500/40 flex items-center justify-center text-3xl mx-auto">
+        <i class="fa-solid fa-building-circle-exclamation"></i>
       </div>
-      <div>EISENIA FETIDA TAMAGOTCHI SIMULATOR</div>
-    </footer>
-
+      <div>
+        <h3 class="text-xl font-black text-red-400">環保局稽查開罰告警！</h3>
+        <p id="epaModalMsg" class="text-xs text-slate-300 mt-2 leading-relaxed">
+          場區臭味濃度過高，附近居民檢舉！經環保局實地稽查確定違規，處以罰款 <strong class="text-amber-400">150 黑金幣</strong> 並扣除 <strong class="text-red-400">30 ESG綠色聲譽</strong>。
+        </p>
+      </div>
+      <button onclick="closeEpaModal()" class="w-full btn-action py-2.5 rounded-lg bg-red-600 hover:bg-red-500 text-white font-bold text-xs">
+        確認並改善場區衛生
+      </button>
+    </div>
   </div>
 
   <!-- JAVASCRIPT GAME ENGINE -->
@@ -534,73 +608,79 @@
     /* ===================================================================
        1. GAME STATE & LOCALSTORAGE PERSISTENCE
        =================================================================== */
-    const defaultState = {
-      credits: 50,
-      earthPoints: 0, // Earth Contribution Points
-      wormTea: 0,     // Liquid Fertilizer (ml)
-      stockCastings: 0, // Uncollected Worm Castings (g)
-      kitchenScraps: 30, // Kitchen Scraps inventory (g)
-      scrapsInBin: 50,    // Scraps currently inside soil bin (g)
-      hydration: 65,      // Soil moisture %
-      cnRatio: 28,        // Target C:N ~25-30
-      isDaytime: true,
-      soundEnabled: true,
+    const DEFAULT_STATE = {
+      credits: 500,
+      esgPoints: 100,
+      odorLevel: 0, // 0 to 100%
+      stockCastings: 15.0, // Kg
+      stockTea: 120, // ml
 
-      // Eisenia Fetida Lifecycle Dynamics
-      cocoons: 5,
-      hatchlings: 4,
-      juveniles: 3,
-      adults: 5,
+      // Facility Soil & Bin Chemistry
+      moisture: 65, // %
+      temperature: 24.5, // °C
+      ph: 6.8, // pH level
+      cnRatio: 27.0, // Target ~25-30
+      biocharRatio: 8, // %
+      scrapsInBin: 30, // kg active decomposing matter
 
-      // Upgrades & Automation
-      inventory: {
-        autoCastingCollector: false,
+      // Eisenia fetida lifecycle counts
+      cocoons: 150,
+      hatchlings: 300,
+      juveniles: 400,
+      adults: 350,
+
+      // Raw Material Inventories (kg)
+      rawGreen: 40,
+      rawBrown: 80,
+      rawSalty: 20,
+      rawManure: 40,
+
+      // Upgrades
+      upgrades: {
+        autoHarvester: false,
         autoMister: false,
-        binExpansion: false,
-        wizardHat: false
+        scrubber: false
       },
-      equippedHat: null,
 
-      // Plant Slots (Top Hydroponic / Compost Bed)
+      // Plant Nursery Slots
       plants: [
-        { id: 0, seed: 'basil', name: '九層塔', stage: 1, progress: 20, maxProgress: 100, yield: 25 }, // Stage: 0-empty, 1-seed, 2-sprout, 3-seedling, 4-mature
-        { id: 1, seed: null, name: null, stage: 0, progress: 0, maxProgress: 100, yield: 0 }
-      ]
+        { id: 0, seed: 'basil', name: '甜九層塔', stage: 2, progress: 40, maxProgress: 100, yield: 120, burned: false },
+        { id: 1, seed: null, name: null, stage: 0, progress: 0, maxProgress: 100, yield: 0, burned: false }
+      ],
+
+      // Incoming Shipments Queue
+      shipments: []
     };
 
-    const SEED_DATA = {
-      basil: { name: '九層塔', cost: 15, maxProgress: 100, yieldCoins: 35, icon: 'fa-leaf' },
-      tomato: { name: '聖女小番茄', cost: 30, maxProgress: 160, yieldCoins: 75, icon: 'fa-apple-whole' },
-      strawberry: { name: '鮮紅草莓', cost: 50, maxProgress: 220, yieldCoins: 130, icon: 'fa-stroopwafel' },
-      mint: { name: '涼爽薄荷', cost: 25, maxProgress: 120, yieldCoins: 60, icon: 'fa-seedling' }
+    const SEED_CONFIG = {
+      basil: { name: '甜九層塔', cost: 50, maxProgress: 100, yieldCoins: 120 },
+      tomato: { name: '聖女小番茄', cost: 120, maxProgress: 180, yieldCoins: 300 },
+      mint: { name: '歐薄荷', cost: 80, maxProgress: 120, yieldCoins: 200 },
+      ginseng: { name: '珍稀金線蓮', cost: 250, maxProgress: 240, yieldCoins: 650 }
     };
 
-    let gameState = { ...defaultState };
+    let state = { ...DEFAULT_STATE };
 
     function saveGame() {
       try {
-        localStorage.setItem('cyberRedWigglerState', JSON.stringify(gameState));
-      } catch (e) {
-        console.error("Storage error:", e);
-      }
+        localStorage.setItem('bioVermicompostingSimulatorState_v3', JSON.stringify(state));
+      } catch (e) { console.error("Save error", e); }
     }
 
     function loadGame() {
-      const saved = localStorage.getItem('cyberRedWigglerState');
+      const saved = localStorage.getItem('bioVermicompostingSimulatorState_v3');
       if (saved) {
         try {
-          gameState = { ...defaultState, ...JSON.parse(saved) };
-        } catch (e) {
-          gameState = { ...defaultState };
-        }
+          state = { ...DEFAULT_STATE, ...JSON.parse(saved) };
+        } catch (e) { state = { ...DEFAULT_STATE }; }
       }
     }
 
     /* ===================================================================
-       2. WEB AUDIO SYNTHESIZER
+       2. SYNTHESIZED AUDIO ENGINE (WEB AUDIO API)
        =================================================================== */
     let audioCtx = null;
-    let calmOsc = null;
+    let audioEnabled = true;
 
     function initAudio() {
       if (!audioCtx) {
@@ -609,7 +689,7 @@
     }
 
     function playSound(type) {
-      if (!gameState.soundEnabled) return;
+      if (!audioEnabled) return;
       initAudio();
       if (!audioCtx) return;
 
@@ -619,115 +699,88 @@
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
-      if (type === 'eat') {
-        osc.type = 'square';
-        osc.frequency.setValueAtTime(150, now);
-        osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
-        gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+      if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.08);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.start(now);
-        osc.stop(now + 0.12);
+        osc.stop(now + 0.25);
       } else if (type === 'spray') {
         const bufferSize = audioCtx.sampleRate * 0.15;
         const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
         const data = buffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) {
-          data[i] = Math.random() * 2 - 1;
-        }
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
         const noise = audioCtx.createBufferSource();
         noise.buffer = buffer;
         const filter = audioCtx.createBiquadFilter();
         filter.type = 'bandpass';
-        filter.frequency.value = 1000;
+        filter.frequency.value = 1200;
         noise.connect(filter);
         filter.connect(gain);
-        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.setValueAtTime(0.1, now);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
         noise.start(now);
-      } else if (type === 'happy' || type === 'hatch') {
+      } else if (type === 'alert') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(440, now);
+        osc.frequency.setValueAtTime(220, now + 0.15);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        osc.start(now);
+        osc.stop(now + 0.3);
+      } else if (type === 'feed') {
         osc.type = 'triangle';
-        osc.frequency.setValueAtTime(523.25, now);
-        osc.frequency.setValueAtTime(659.25, now + 0.08);
-        osc.frequency.setValueAtTime(783.99, now + 0.16);
-        gain.gain.setValueAtTime(0.12, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-        osc.start(now);
-        osc.stop(now + 0.25);
-      } else if (type === 'coin') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(987.77, now);
-        osc.frequency.setValueAtTime(1318.51, now + 0.08);
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.setValueAtTime(500, now + 0.1);
         gain.gain.setValueAtTime(0.1, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
         osc.start(now);
-        osc.stop(now + 0.25);
+        osc.stop(now + 0.18);
       }
     }
 
-    function toggleSound() {
-      gameState.soundEnabled = !gameState.soundEnabled;
+    function toggleAudio() {
+      audioEnabled = !audioEnabled;
       const icon = document.getElementById('soundIcon');
-      if (gameState.soundEnabled) {
-        icon.className = "fa-solid fa-volume-high";
-        playSound('happy');
+      if (audioEnabled) {
+        icon.className = "fa-solid fa-volume-high text-emerald-400";
+        playSound('coin');
       } else {
-        icon.className = "fa-solid fa-volume-xmark";
+        icon.className = "fa-solid fa-volume-xmark text-slate-500";
       }
-      saveGame();
-    }
-
-    function playCalmFrequency() {
-      initAudio();
-      if (!audioCtx) return;
-
-      if (calmOsc) {
-        calmOsc.stop();
-        calmOsc = null;
-        logConsole("已停止舒緩頻率播放。");
-        return;
-      }
-
-      calmOsc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      calmOsc.type = 'sine';
-      calmOsc.frequency.setValueAtTime(528, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
-      calmOsc.connect(gain);
-      gain.connect(audioCtx.destination);
-      calmOsc.start();
-
-      logConsole("正在播放 528Hz 舒緩諧振音波... 蚯蚓感到平靜！");
     }
 
     /* ===================================================================
-       3. CANVAS 2D WORM PHYSICS & ANIMATION ENGINE
+       3. HIGH-DPI CANVAS 2D VERMICOMPOSTING SIMULATOR
        =================================================================== */
-    const canvas = document.getElementById('sanctuaryCanvas');
+    const canvas = document.getElementById('facilityCanvas');
     const ctx = canvas.getContext('2d');
 
-    const maxVisualWorms = 18;
-    let visualWorms = [];
-    let foodItems = [];
+    let worms = [];
+    const maxRenderWorms = 35;
 
-    function initVisualWorms() {
-      visualWorms = [];
-      const totalCount = Math.min(maxVisualWorms, gameState.adults + gameState.juveniles + gameState.hatchlings);
-      for (let w = 0; w < totalCount; w++) {
+    function initCanvasWorms() {
+      worms = [];
+      const totalCount = Math.min(maxRenderWorms, state.adults + state.juveniles + state.hatchlings);
+      for (let i = 0; i < totalCount; i++) {
         const segs = [];
-        const numSegs = w < gameState.hatchlings ? 8 : (w < gameState.hatchlings + gameState.juveniles ? 12 : 16);
-        const startX = Math.random() * (canvas.width || 300);
-        const startY = (canvas.height || 200) * 0.4 + Math.random() * ((canvas.height || 200) * 0.5);
+        const isAdult = i < state.adults;
+        const numSegs = isAdult ? 14 : 9;
+        const startX = Math.random() * (canvas.width || 400);
+        const startY = (canvas.height || 250) * 0.45 + Math.random() * ((canvas.height || 250) * 0.45);
 
-        for (let i = 0; i < numSegs; i++) {
-          segs.push({ x: startX - i * 5, y: startY });
+        for (let j = 0; j < numSegs; j++) {
+          segs.push({ x: startX - j * 4, y: startY });
         }
 
-        visualWorms.push({
+        worms.push({
           segments: segs,
-          targetPos: { x: startX, y: startY },
-          headAngle: 0,
-          isAdult: w >= (gameState.hatchlings + gameState.juveniles),
-          sizeFactor: numSegs === 8 ? 0.6 : (numSegs === 12 ? 0.85 : 1.0)
+          target: { x: startX, y: startY },
+          isAdult: isAdult,
+          speed: isAdult ? 1.2 : 0.8,
+          escaping: false
         });
       }
     }
@@ -738,151 +791,124 @@
       canvas.height = rect.height;
     }
 
-    function updateWormsPhysics() {
-      visualWorms.forEach((worm, idx) => {
+    function updatePhysics() {
+      const isEscaping = state.ph < 5.8 || state.temperature > 37;
+
+      worms.forEach((worm, idx) => {
+        worm.escaping = isEscaping;
         const segs = worm.segments;
-        const dx = worm.targetPos.x - segs[0].x;
-        const dy = worm.targetPos.y - segs[0].y;
+        const head = segs[0];
+
+        // If escaping, move towards top walls
+        if (isEscaping) {
+          worm.target.y = Math.max(10, worm.target.y - 0.5);
+        }
+
+        const dx = worm.target.x - head.x;
+        const dy = worm.target.y - head.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
 
-        const speed = 1.2 * worm.sizeFactor;
-
-        if (dist > 5) {
+        if (dist > 4) {
           const angle = Math.atan2(dy, dx);
-          segs[0].x += Math.cos(angle) * speed;
-          segs[0].y += Math.sin(angle) * speed;
-          worm.headAngle = angle;
+          head.x += Math.cos(angle) * worm.speed;
+          head.y += Math.sin(angle) * worm.speed;
         } else {
-          if (Math.random() < 0.03) {
-            worm.targetPos.x = Math.random() * (canvas.width - 40) + 20;
-            const soilTop = canvas.height * 0.35;
-            worm.targetPos.y = soilTop + Math.random() * (canvas.height - soilTop - 30);
+          if (Math.random() < 0.04) {
+            worm.target.x = Math.random() * (canvas.width - 40) + 20;
+            const minY = isEscaping ? 10 : canvas.height * 0.4;
+            worm.target.y = minY + Math.random() * (canvas.height - minY - 20);
           }
         }
 
-        const segLen = 6 * worm.sizeFactor;
-        for (let i = 1; i < segs.length; i++) {
-          const segA = segs[i - 1];
-          const segB = segs[i];
-          const segDx = segA.x - segB.x;
-          const segDy = segA.y - segB.y;
+        // Segment follower kinematic animation
+        for (let j = 1; j < segs.length; j++) {
+          const prev = segs[j - 1];
+          const curr = segs[j];
+          const segDx = prev.x - curr.x;
+          const segDy = prev.y - curr.y;
           const segAngle = Math.atan2(segDy, segDx);
-          const wriggle = Math.sin(Date.now() * 0.008 + i * 0.4 + idx) * 1.2;
+          const wriggle = Math.sin(Date.now() * 0.006 + j * 0.5 + idx) * 1.1;
 
-          segB.x = segA.x - Math.cos(segAngle + wriggle * 0.1) * segLen;
-          segB.y = segA.y - Math.sin(segAngle + wriggle * 0.1) * segLen;
-        }
-
-        // Check if worm eats food
-        for (let fIdx = foodItems.length - 1; fIdx >= 0; fIdx--) {
-          const f = foodItems[fIdx];
-          const fDx = segs[0].x - f.x;
-          const fDy = segs[0].y - f.y;
-          if (Math.sqrt(fDx * fDx + fDy * fDy) < 12) {
-            playSound('eat');
-            foodItems.splice(fIdx, 1);
-            showToast("歐洲紅蚯蚓吞食有機資材！");
-          }
+          curr.x = prev.x - Math.cos(segAngle + wriggle * 0.08) * 5;
+          curr.y = prev.y - Math.sin(segAngle + wriggle * 0.08) * 5;
         }
       });
     }
 
-    function renderSanctuary() {
+    function renderChamber() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const w = canvas.width;
+      const h = canvas.height;
+      const soilTop = h * 0.4;
 
-      const width = canvas.width;
-      const height = canvas.height;
-      const soilY = height * 0.35;
+      // 1. Air Chamber (Top)
+      ctx.fillStyle = '#0f172a';
+      ctx.fillRect(0, 0, w, soilTop);
 
-      // 1. Upper Air / Chamber
-      ctx.fillStyle = gameState.isDaytime ? '#0a2114' : '#020a05';
-      ctx.fillRect(0, 0, width, soilY);
+      // 2. Organic Compost Soil Matrix (Bottom)
+      const soilGrad = ctx.createLinearGradient(0, soilTop, 0, h);
+      soilGrad.addColorStop(0, '#2d1b0e');
+      soilGrad.addColorStop(1, '#1a0e07');
+      ctx.fillStyle = soilGrad;
+      ctx.fillRect(0, soilTop, w, h - soilTop);
 
-      if (gameState.isDaytime) {
-        const grad = ctx.createRadialGradient(width / 2, 0, 10, width / 2, 0, width * 0.6);
-        grad.addColorStop(0, 'rgba(0, 255, 102, 0.15)');
-        grad.addColorStop(1, 'transparent');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, width, soilY);
-      }
-
-      // 2. Compost Soil Matrix
-      const moistureFactor = gameState.hydration / 100;
-      const soilDarkness = Math.floor(20 - moistureFactor * 10);
-      ctx.fillStyle = `rgb(${soilDarkness}, ${soilDarkness + 15}, ${soilDarkness + 8})`;
-      ctx.fillRect(0, soilY, width, height - soilY);
-
-      // Soil Surface Line
-      ctx.strokeStyle = '#00ff66';
+      // Soil Surface Line & Texture
+      ctx.strokeStyle = '#22c55e';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(0, soilY);
-      for (let x = 0; x <= width; x += 20) {
-        ctx.lineTo(x, soilY + Math.sin(x * 0.05) * 3);
+      ctx.moveTo(0, soilTop);
+      for (let x = 0; x <= w; x += 30) {
+        ctx.lineTo(x, soilTop + Math.sin(x * 0.04) * 4);
       }
       ctx.stroke();
 
-      // Render Cocoons in Soil
-      ctx.fillStyle = '#ffaa00';
-      for (let c = 0; c < Math.min(15, gameState.cocoons); c++) {
-        const cx = (c * 43 + 25) % (width - 40) + 20;
-        const cy = soilY + ((c * 29 + 15) % (height - soilY - 30)) + 10;
+      // Render Biochar Particles in Soil
+      ctx.fillStyle = '#0f172a';
+      for (let b = 0; b < state.biocharRatio * 3; b++) {
+        const bx = (b * 37 + 12) % w;
+        const by = soilTop + 10 + ((b * 19) % (h - soilTop - 20));
+        ctx.fillRect(bx, by, 3, 3);
+      }
+
+      // Render Cocoons in Soil Matrix
+      ctx.fillStyle = '#f59e0b';
+      for (let c = 0; c < Math.min(20, state.cocoons); c++) {
+        const cx = (c * 53 + 20) % (w - 40) + 20;
+        const cy = soilTop + 15 + ((c * 31) % (h - soilTop - 30));
         ctx.beginPath();
         ctx.ellipse(cx, cy, 4, 3, Math.PI / 4, 0, Math.PI * 2);
         ctx.fill();
-        ctx.strokeStyle = '#ffeeaa';
+        ctx.strokeStyle = '#fef08a';
         ctx.lineWidth = 0.8;
         ctx.stroke();
       }
 
-      // Draw Food Items
-      foodItems.forEach(f => {
-        ctx.fillStyle = f.color;
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#00ff66';
-        ctx.lineWidth = 1;
-        ctx.stroke();
-      });
-
-      // 3. Render Red Wigglers (Eisenia fetida reddish-brown/pink segments)
-      visualWorms.forEach(worm => {
+      // 3. Render Worms (Eisenia fetida reddish pink with saddle)
+      worms.forEach(worm => {
         const segs = worm.segments;
-        for (let i = segs.length - 1; i >= 0; i--) {
-          const seg = segs[i];
-          let radius = 5 * worm.sizeFactor;
-          if (i === 0) radius = 6 * worm.sizeFactor;
-          else if ((i === 4 || i === 5) && worm.isAdult) radius = 7.5 * worm.sizeFactor; // Clitellum (鞍葉)
+        for (let j = segs.length - 1; j >= 0; j--) {
+          const seg = segs[j];
+          let r = worm.isAdult ? 4.5 : 3.0;
 
-          // Red Wiggler distinct coloration: reddish-purple-pink with light stripes
-          if ((i === 4 || i === 5) && worm.isAdult) {
-            ctx.fillStyle = '#ff0055'; // Clitellum
+          // Clitellum (鞍葉) on segment 4 & 5
+          if (worm.isAdult && (j === 3 || j === 4)) {
+            r = 6.0;
+            ctx.fillStyle = '#f43f5e'; // Bright Saddle Pink
           } else {
-            ctx.fillStyle = i % 2 === 0 ? '#b026ff' : '#ff4477';
+            ctx.fillStyle = j % 2 === 0 ? '#e11d48' : '#be123c';
           }
 
-          ctx.strokeStyle = '#1b0026';
-          ctx.lineWidth = 1;
-
           ctx.beginPath();
-          ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
-        }
-
-        // Draw Hat on first adult worm
-        if (worm.isAdult && gameState.equippedHat === 'wizardHat') {
-          const head = segs[0];
-          ctx.fillStyle = '#ffaa00';
-          ctx.beginPath();
-          ctx.moveTo(head.x, head.y - 8);
-          ctx.lineTo(head.x - 5, head.y - 2);
-          ctx.lineTo(head.x + 5, head.y - 2);
-          ctx.closePath();
+          ctx.arc(seg.x, seg.y, r, 0, Math.PI * 2);
           ctx.fill();
         }
       });
+
+      // 4. Overheating Heat Waves Effect
+      if (state.temperature > 35) {
+        ctx.fillStyle = 'rgba(239, 68, 68, 0.15)';
+        ctx.fillRect(0, soilTop, w, h - soilTop);
+      }
     }
 
     canvas.addEventListener('click', (e) => {
@@ -890,426 +916,636 @@
       const clickX = e.clientX - rect.left;
       const clickY = e.clientY - rect.top;
 
-      if (visualWorms.length > 0) {
-        visualWorms[0].targetPos.x = clickX;
-        visualWorms[0].targetPos.y = clickY;
+      if (worms.length > 0) {
+        worms[0].target.x = clickX;
+        worms[0].target.y = clickY;
       }
 
-      playSound('happy');
-      showToast("與養殖箱內的歐洲紅蚯蚓互動！");
+      playSound('feed');
+      showToast("翻動養殖床，增進通氣性！");
     });
 
     /* ===================================================================
-       4. LIFECYCLE & POPULATION ENGINE (EISENIA FETIDA)
+       4. SHIPMENTS, LOGISTICS & RECIPE BLENDER
        =================================================================== */
-    function processLifecycleTick() {
-      // 1. Cocoon Hatching: Ideal moisture (60-70%) hatches cocoons into Hatchlings
-      if (gameState.cocoons > 0 && gameState.hydration >= 50) {
-        if (Math.random() < 0.3) {
-          gameState.cocoons--;
-          const hatchedCount = Math.floor(Math.random() * 2) + 2; // Eisenia fetida hatches 2-4 per cocoon
-          gameState.hatchlings += hatchedCount;
-          playSound('hatch');
-          logConsole(`蚯蚓繭孵化！誕生了 ${hatchedCount} 尾歐洲紅蚯蚓幼蚓。`);
-        }
-      }
+    function generateShipment() {
+      const sources = [
+        { name: '環保局生廚餘專車', type: 'green', nameZh: '生廚餘', qty: 30, icon: 'fa-leaf', color: 'text-emerald-400' },
+        { name: '社區食堂殘羹', type: 'salty', nameZh: '熟廚餘', qty: 20, icon: 'fa-utensils', color: 'text-red-400' },
+        { name: '高山茶園有機廢落葉', type: 'brown', nameZh: '乾落葉/木屑', qty: 40, icon: 'fa-tree', color: 'text-amber-400' },
+        { name: '合作牧場牛羊糞便', type: 'manure', nameZh: '畜禽糞便', qty: 25, icon: 'fa-cow', color: 'text-purple-400' }
+      ];
 
-      // 2. Hatchling -> Juvenile
-      if (gameState.hatchlings > 0 && Math.random() < 0.25) {
-        gameState.hatchlings--;
-        gameState.juveniles++;
-      }
-
-      // 3. Juvenile -> Adult
-      if (gameState.juveniles > 0 && Math.random() < 0.2) {
-        gameState.juveniles--;
-        gameState.adults++;
-        logConsole("成幼體順利發育為具有繁殖能力的成蚓！");
-      }
-
-      // 4. Mating & Laying Cocoons: Requires adults, food scraps, ideal moisture & C:N
-      if (gameState.adults >= 2 && gameState.scrapsInBin > 10 && gameState.hydration >= 55) {
-        if (Math.random() < 0.35) {
-          gameState.cocoons += Math.floor(gameState.adults / 2);
-          logConsole("成蚓交配成功，於有機土中產下了新的蚯蚓繭！");
-        }
-      }
-
-      // Re-sync visual array if population grows
-      if (visualWorms.length < Math.min(maxVisualWorms, gameState.adults + gameState.juveniles + gameState.hatchlings)) {
-        initVisualWorms();
-      }
-    }
-
-    function processDigestionAndHarvest() {
-      // Processing / Digestion Speed based on active worm population
-      const totalActiveWorms = (gameState.adults * 1.0) + (gameState.juveniles * 0.5) + (gameState.hatchlings * 0.2);
-      const baseConsumptionGrams = totalActiveWorms * 0.2; // grams per tick
-
-      if (gameState.scrapsInBin > 0) {
-        const digested = Math.min(gameState.scrapsInBin, baseConsumptionGrams);
-        gameState.scrapsInBin -= digested;
-        
-        // Convert digested scraps to worm castings (蚓糞) & worm tea
-        const binMult = gameState.inventory.binExpansion ? 1.5 : 1.0;
-        const newCastings = digested * 0.8 * binMult;
-        gameState.stockCastings += newCastings;
-        gameState.wormTea += digested * 0.2;
-
-        // Auto Casting Collector Upgrade
-        if (gameState.inventory.autoCastingCollector && gameState.stockCastings >= 5) {
-          const autoEarned = Math.floor(gameState.stockCastings * 1.2);
-          gameState.credits += autoEarned;
-          gameState.stockCastings = 0;
-          playSound('coin');
-          logConsole(`[AI自動採集] 自動採集並銷售蚓糞，獲得 ${autoEarned} 黑金幣！`);
-        }
-      }
-
-      // Auto Mister Upgrade
-      if (gameState.inventory.autoMister && gameState.hydration < 60) {
-        gameState.hydration = 65;
-        playSound('spray');
-      } else {
-        // Natural moisture decay
-        gameState.hydration = Math.max(20, gameState.hydration - 0.2);
-      }
-
-      // Plant Growth Tick
-      processPlantGrowth();
-    }
-
-    /* ===================================================================
-       5. PLANT CULTIVATION ENGINE
-       =================================================================== */
-    function processPlantGrowth() {
-      gameState.plants.forEach(plant => {
-        if (plant.stage > 0 && plant.stage < 4) {
-          // Worm Tea or Worm Castings boost plant growth rate
-          plant.progress += 5;
-          if (plant.progress >= plant.maxProgress) {
-            plant.stage = 4; // Mature / Ready to Harvest
-            logConsole(`頂層種植床的 [${plant.name}] 已完全成熟，可供採收！`);
-          } else if (plant.progress >= plant.maxProgress * 0.6) {
-            plant.stage = 3; // Seedling / Growing
-          } else if (plant.progress >= plant.maxProgress * 0.3) {
-            plant.stage = 2; // Sprout
-          }
-        }
+      const item = sources[Math.floor(Math.random() * sources.length)];
+      state.shipments.push({
+        id: Date.now(),
+        source: item.name,
+        type: item.type,
+        typeName: item.nameZh,
+        qty: item.qty,
+        icon: item.icon,
+        color: item.color
       });
+
+      logConsole(`🚚 新運輸車抵達: ${item.source} 運來 ${item.qty}kg ${item.nameZh}。`);
+      renderShipmentsUI();
     }
 
-    function buyAndPlantSeed(seedKey) {
-      const seed = SEED_DATA[seedKey];
-      if (!seed) return;
+    function claimShipment(id) {
+      const idx = state.shipments.findIndex(s => s.id === id);
+      if (idx === -1) return;
 
-      if (gameState.credits < seed.cost) {
-        showToast("黑金幣不足，無法購買種子！");
+      const item = state.shipments[idx];
+      if (item.type === 'green') state.rawGreen += item.qty;
+      else if (item.type === 'brown') state.rawBrown += item.qty;
+      else if (item.type === 'salty') state.rawSalty += item.qty;
+      else if (item.type === 'manure') state.rawManure += item.qty;
+
+      state.shipments.splice(idx, 1);
+      playSound('coin');
+      showToast(`成功簽收 ${item.qty}kg ${item.typeName} 入庫！`);
+      updateHUD();
+      renderShipmentsUI();
+    }
+
+    function renderShipmentsUI() {
+      const listEl = document.getElementById('shipmentList');
+      if (!listEl) return;
+
+      if (state.shipments.length === 0) {
+        listEl.innerHTML = `
+          <div class="p-4 text-center text-slate-500 border border-dashed border-slate-700 rounded-lg">
+            目前無待簽收運輸車... 靜候物流抵達
+          </div>
+        `;
         return;
       }
 
-      // Find empty slot
-      const emptySlot = gameState.plants.find(p => p.stage === 0);
-      if (!emptySlot) {
-        showToast("種植床已滿！請先採收成熟作物。");
+      listEl.innerHTML = state.shipments.map(s => `
+        <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center text-xs">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center ${s.color} text-sm">
+              <i class="fa-solid ${s.icon}"></i>
+            </div>
+            <div>
+              <div class="font-bold text-white">${s.source}</div>
+              <div class="text-[10px] text-slate-400">資材: <span class="${s.color}">${s.typeName}</span> (${s.qty}kg)</div>
+            </div>
+          </div>
+          <button onclick="claimShipment(${s.id})" class="btn-action px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+            簽收驗收
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function updateMixerPreview() {
+      const g = parseInt(document.getElementById('sliderGreen').value);
+      const b = parseInt(document.getElementById('sliderBrown').value);
+      const s = parseInt(document.getElementById('sliderSalty').value);
+      const m = parseInt(document.getElementById('sliderManure').value);
+
+      document.getElementById('lblGreen').innerText = `${g}kg`;
+      document.getElementById('lblBrown').innerText = `${b}kg`;
+      document.getElementById('lblSalty').innerText = `${s}kg`;
+      document.getElementById('lblManure').innerText = `${m}kg`;
+
+      const totalWeight = g + b + s + m;
+      document.getElementById('prevTotalWeight').innerText = `${totalWeight} kg`;
+
+      if (totalWeight === 0) {
+        document.getElementById('prevCnRatio').innerText = `0 : 1`;
+        return;
+      }
+
+      // Weighted C:N Formula: Green=15, Brown=60, Salty=12, Manure=20
+      const weightedCN = ((g * 15) + (b * 60) + (s * 12) + (m * 20)) / totalWeight;
+      document.getElementById('prevCnRatio').innerText = `${weightedCN.toFixed(1)} : 1`;
+
+      const heatRisk = weightedCN < 20 ? "高 (過熱告警)" : (weightedCN < 24 ? "中度" : "極低 (安全)");
+      document.getElementById('prevHeatRisk').innerText = heatRisk;
+      document.getElementById('prevHeatRisk').className = weightedCN < 20 ? "text-red-400 font-bold" : "text-emerald-400";
+
+      const odorRisk = Math.floor(s * 2 + m * 1.5);
+      document.getElementById('prevOdorRisk').innerText = `+${odorRisk}%`;
+    }
+
+    function feedMixToBin() {
+      const g = parseInt(document.getElementById('sliderGreen').value);
+      const b = parseInt(document.getElementById('sliderBrown').value);
+      const s = parseInt(document.getElementById('sliderSalty').value);
+      const m = parseInt(document.getElementById('sliderManure').value);
+
+      if (g > state.rawGreen || b > state.rawBrown || s > state.rawSalty || m > state.rawManure) {
+        showToast("庫存資材不足，無法投餵！");
+        return;
+      }
+
+      const totalWeight = g + b + s + m;
+      if (totalWeight === 0) {
+        showToast("請先選擇至少一種資材投餵量！");
+        return;
+      }
+
+      playSound('feed');
+      state.rawGreen -= g;
+      state.rawBrown -= b;
+      state.rawSalty -= s;
+      state.rawManure -= m;
+
+      state.scrapsInBin += totalWeight;
+
+      // Update C:N
+      const weightedCN = ((g * 15) + (b * 60) + (s * 12) + (m * 20)) / totalWeight;
+      state.cnRatio = (state.cnRatio * 0.6) + (weightedCN * 0.4);
+
+      // Temp impact
+      if (weightedCN < 20) {
+        state.temperature += totalWeight * 0.3; // Temp spike
+      }
+
+      // pH impact (Salty/raw cooked lowers pH)
+      if (s > 0) {
+        state.ph = Math.max(4.5, state.ph - (s * 0.1));
+        state.odorLevel = Math.min(100, state.odorLevel + s * 3);
+      }
+
+      state.esgPoints += 10;
+      showToast(`成功投放 ${totalWeight}kg 調製資材至養殖床！`);
+      logConsole(`投放 ${totalWeight}kg 調製資材 (混合 C:N = ${weightedCN.toFixed(1)}:1)。`);
+
+      updateHUD();
+    }
+
+    /* ===================================================================
+       5. MAIN SIMULATION TICK & DISASTERS (HEAT, ESCAPE, EPA)
+       =================================================================== */
+    function gameSimulationTick() {
+      // 1. Biological Digestion
+      const totalCapacity = (state.adults * 0.02) + (state.juveniles * 0.01) + (state.hatchlings * 0.003); // kg digested per tick
+      if (state.scrapsInBin > 0) {
+        const digested = Math.min(state.scrapsInBin, totalCapacity);
+        state.scrapsInBin -= digested;
+        state.stockCastings += digested * 0.75;
+        state.stockTea += digested * 8; // ml
+      }
+
+      // 2. Temperature Dynamics (Overheating check)
+      if (state.cnRatio < 22 && state.scrapsInBin > 15) {
+        state.temperature = Math.min(45, state.temperature + 0.8);
+      } else {
+        state.temperature = Math.max(24, state.temperature - 0.4);
+      }
+
+      // Thermophilic Disaster (>38°C)
+      if (state.temperature > 38) {
+        const killed = Math.floor(state.adults * 0.08);
+        state.adults = Math.max(0, state.adults - killed);
+        playSound('alert');
+        triggerDisasterBanner(`發酵過熱告警！堆肥溫度 ${state.temperature.toFixed(1)}°C，熱死 ${killed} 尾成蚓！請速噴水降溫！`);
+      }
+
+      // 3. Acidification & Escape Check (pH < 5.8)
+      if (state.ph < 5.8) {
+        const escaped = Math.floor(state.adults * 0.05 + state.juveniles * 0.05);
+        state.adults = Math.max(0, state.adults - escaped);
+        state.juveniles = Math.max(0, state.juveniles - escaped);
+        state.odorLevel = Math.min(100, state.odorLevel + 4);
+        playSound('alert');
+        triggerDisasterBanner(`土壤酸化告警 (pH ${state.ph.toFixed(1)})！${escaped} 尾蚯蚓攀爬逃亡！請投放生物炭！`);
+      } else {
+        // Natural pH normalization towards 6.8
+        state.ph += (6.8 - state.ph) * 0.1;
+      }
+
+      if (state.temperature <= 38 && state.ph >= 5.8) {
+        hideDisasterBanner();
+      }
+
+      // 4. EPA Inspection & Odor Fine Check
+      if (state.odorLevel > 70) {
+        if (Math.random() < 0.3) {
+          triggerEpaInspection();
+        }
+      }
+
+      // Scrubber Upgrade Odor Reduction
+      if (state.upgrades.scrubber) {
+        state.odorLevel = Math.max(0, state.odorLevel - 5);
+      }
+
+      // Auto Mister Upgrade
+      if (state.upgrades.autoMister && state.moisture < 60) {
+        state.moisture = 65;
+        state.temperature = Math.max(24, state.temperature - 1.0);
+      }
+
+      // Auto Harvester Upgrade
+      if (state.upgrades.autoHarvester && state.stockCastings >= 10) {
+        const sold = Math.floor(state.stockCastings);
+        state.credits += sold * 15;
+        state.stockCastings -= sold;
+        playSound('coin');
+        logConsole(`🤖 [AI自動篩分] 自動採集變現 ${sold}kg 蚓糞，獲得 ${sold * 15} 黑金幣！`);
+      }
+
+      // 5. Reproduction
+      if (state.adults >= 100 && state.moisture >= 60 && state.ph >= 6.5 && state.temperature < 32) {
+        if (Math.random() < 0.4) {
+          state.cocoons += Math.floor(state.adults * 0.1);
+        }
+      }
+
+      // Hatching
+      if (state.cocoons > 0 && Math.random() < 0.3) {
+        state.cocoons--;
+        state.hatchlings += 3;
+      }
+
+      // Maturation
+      if (state.hatchlings > 0 && Math.random() < 0.2) {
+        state.hatchlings--;
+        state.juveniles++;
+      }
+      if (state.juveniles > 0 && Math.random() < 0.15) {
+        state.juveniles--;
+        state.adults++;
+      }
+
+      // Plant Growth Tick
+      processPlantGrowthTick();
+
+      // Random Shipment Arrival
+      if (Math.random() < 0.25 && state.shipments.length < 4) {
+        generateShipment();
+      }
+
+      updateHUD();
+      saveGame();
+    }
+
+    function triggerEpaInspection() {
+      const fine = 150;
+      state.credits = Math.max(0, state.credits - fine);
+      state.esgPoints = Math.max(0, state.esgPoints - 30);
+      state.odorLevel = 30; // Reset odor after fine
+
+      document.getElementById('epaModalMsg').innerText = `場區臭味濃度飆高，遭鄰近社區檢舉！經環保局實地稽查確定惡臭違規，處以罰款 ${fine} 黑金幣 並扣除 30 ESG綠色聲譽。`;
+      document.getElementById('epaModal').classList.remove('hidden');
+      playSound('alert');
+    }
+
+    function closeEpaModal() {
+      document.getElementById('epaModal').classList.add('hidden');
+    }
+
+    function triggerDisasterBanner(msg) {
+      const b = document.getElementById('disasterBanner');
+      document.getElementById('disasterMsg').innerText = msg;
+      b.classList.remove('hidden');
+    }
+
+    function hideDisasterBanner() {
+      document.getElementById('disasterBanner').classList.add('hidden');
+    }
+
+    /* ===================================================================
+       6. MANUAL ACTIONS & PLANT NURSERY
+       =================================================================== */
+    function actionSprayWater() {
+      playSound('spray');
+      state.moisture = Math.min(100, state.moisture + 15);
+      state.temperature = Math.max(20, state.temperature - 2.5);
+      showToast("噴水降溫濕潤成功！");
+      updateHUD();
+    }
+
+    function actionAddBiochar() {
+      if (state.credits < 30) {
+        showToast("資金不足無法購買生物炭！");
+        return;
+      }
+      playSound('feed');
+      state.credits -= 30;
+      state.biocharRatio = Math.min(25, state.biocharRatio + 5);
+      state.ph = Math.min(7.2, state.ph + 0.4);
+      state.odorLevel = Math.max(0, state.odorLevel - 25);
+      showToast("成功投放生物炭！除臭並中和酸鹼度。");
+      updateHUD();
+    }
+
+    function actionHarvestCastings() {
+      if (state.stockCastings < 2.0) {
+        showToast("熟成蚓糞不足 2kg，無法篩分！");
+        return;
+      }
+      playSound('coin');
+      const earned = Math.floor(state.stockCastings) * 15;
+      showToast(`篩分採收 ${Math.floor(state.stockCastings)}kg 熟成蚓糞！獲得 ${earned} 黑金幣`);
+      state.credits += earned;
+      state.stockCastings = 0;
+      updateHUD();
+    }
+
+    function actionDrainLiquid() {
+      if (state.stockTea < 50) {
+        showToast("蚓糞液肥不足 50ml！");
+        return;
+      }
+      playSound('coin');
+      const earned = Math.floor(state.stockTea / 50) * 20;
+      showToast(`收集 ${Math.floor(state.stockTea)}ml 蚓糞液肥！獲得 ${earned} 黑金幣`);
+      state.credits += earned;
+      state.stockTea = 0;
+      updateHUD();
+    }
+
+    /* Plant Nursery Logic */
+    function plantSeed(slotId, seedKey) {
+      const seed = SEED_CONFIG[seedKey];
+      if (!seed) return;
+
+      if (state.credits < seed.cost) {
+        showToast("黑金幣不足無法購買種子！");
+        return;
+      }
+
+      const slot = state.plants[slotId];
+      if (slot.stage !== 0) {
+        showToast("該種植槽已有作物！");
         return;
       }
 
       playSound('coin');
-      gameState.credits -= seed.cost;
-      emptySlot.seed = seedKey;
-      emptySlot.name = seed.name;
-      emptySlot.stage = 1; // Seed stage
-      emptySlot.progress = 0;
-      emptySlot.maxProgress = seed.maxProgress;
-      emptySlot.yield = seed.yieldCoins;
+      state.credits -= seed.cost;
+      slot.seed = seedKey;
+      slot.name = seed.name;
+      slot.stage = 1;
+      slot.progress = 0;
+      slot.maxProgress = seed.maxProgress;
+      slot.yield = seed.yieldCoins;
+      slot.burned = false;
 
-      showToast(`成功購買並種下 [${seed.name}] 種子！`);
-      logConsole(`於頂層箱播種了 ${seed.name}。`);
+      showToast(`播種 [${seed.name}] 成功！`);
+      renderPlantNurseryUI();
       updateHUD();
     }
 
     function fertilizePlant(slotId) {
-      const plant = gameState.plants.find(p => p.id === slotId);
-      if (!plant || plant.stage === 0 || plant.stage === 4) return;
+      const plant = state.plants[slotId];
+      if (!plant || plant.stage === 0) return;
 
-      if (gameState.wormTea < 20) {
-        showToast("蚯蚓水 (蚓糞水) 不足 20ml！");
+      if (state.stockTea < 30) {
+        showToast("蚓糞液肥不足 30ml！");
         return;
       }
 
       playSound('spray');
-      gameState.wormTea -= 20;
-      plant.progress = Math.min(plant.maxProgress, plant.progress + 30);
-      showToast(`使用 20ml 蚯蚓液肥！${plant.name} 生長大幅加速！`);
-      updateHUD();
+      state.stockTea -= 30;
+      plant.progress = Math.min(plant.maxProgress, plant.progress + 35);
+      showToast(`施用 30ml 熟成蚓糞液肥！${plant.name} 生長加速！`);
+      renderPlantNurseryUI();
     }
 
     function harvestPlant(slotId) {
-      const plant = gameState.plants.find(p => p.id === slotId);
+      const plant = state.plants[slotId];
       if (!plant || plant.stage !== 4) return;
 
       playSound('coin');
-      const earned = plant.yield;
-      gameState.credits += earned;
-      gameState.earthPoints += 15; // Earth contribution for organic farming
+      state.credits += plant.yield;
+      state.esgPoints += 20;
+      showToast(`採收 [${plant.name}]！獲得 ${plant.yield} 黑金幣 & +20 ESG點數`);
 
-      showToast(`採收有機 [${plant.name}]！獲得 ${earned} 黑金幣 & +15 地球貢獻`);
-      logConsole(`採收 ${plant.name}，賺取了 ${earned} 黑金幣！`);
-
-      // Reset slot
       plant.seed = null;
       plant.name = null;
       plant.stage = 0;
       plant.progress = 0;
 
+      renderPlantNurseryUI();
       updateHUD();
     }
 
-    /* ===================================================================
-       6. USER ACTIONS & HARVESTING
-       =================================================================== */
-    function collectOrganicScraps() {
-      playSound('happy');
-      gameState.kitchenScraps += 50;
-      gameState.earthPoints += 50;
-      showToast("前往社區收集廚餘成功！+50g 廚餘庫存, +50 地球貢獻");
-      logConsole("收集社區廚餘，有效減少都市碳足跡！(+50 地球貢獻度)");
-      updateHUD();
-    }
-
-    function feedFood(type) {
-      if (gameState.kitchenScraps < 10 && type === 'greens') {
-        showToast("廚餘庫存不足！請點擊『收集廚餘』");
-        return;
-      }
-
-      playSound('eat');
-
-      if (type === 'greens') {
-        gameState.kitchenScraps -= 10;
-        gameState.scrapsInBin += 10;
-        gameState.cnRatio = Math.max(15, gameState.cnRatio - 1.2);
-        showToast("投餵高氮廚餘！促進紅蚯蚓交配。");
-      } else if (type === 'browns') {
-        gameState.scrapsInBin += 8;
-        gameState.cnRatio = Math.min(45, gameState.cnRatio + 2.0);
-        showToast("加入棕色紙板/乾葉！調控碳氮比與土壤結構。");
-      } else if (type === 'biochar') {
-        gameState.hydration = Math.min(100, gameState.hydration + 5);
-        showToast("加入生物炭！吸附異味與提供微生物棲地。");
-      } else if (type === 'eggshells') {
-        gameState.cnRatio = 28; // Balance
-        showToast("加入研磨蛋殼粉！調節酸鹼值與補充鈣質。");
-      }
-
-      // Drop food visual onto soil
-      const soilTop = canvas.height * 0.35;
-      foodItems.push({
-        x: Math.random() * (canvas.width - 40) + 20,
-        y: soilTop + 5,
-        type: type,
-        size: 5,
-        color: type === 'greens' ? '#00ff66' : (type === 'browns' ? '#ffaa00' : '#888888')
+    function processPlantGrowthTick() {
+      state.plants.forEach(plant => {
+        if (plant.stage > 0 && plant.stage < 4 && !plant.burned) {
+          plant.progress += 4;
+          if (plant.progress >= plant.maxProgress) {
+            plant.stage = 4;
+            logConsole(`🌿 溫室作物 [${plant.name}] 完全成熟，可以採收！`);
+          } else if (plant.progress >= plant.maxProgress * 0.6) {
+            plant.stage = 3;
+          } else if (plant.progress >= plant.maxProgress * 0.3) {
+            plant.stage = 2;
+          }
+        }
       });
-
-      updateHUD();
+      renderPlantNurseryUI();
     }
 
-    function sprayMister() {
-      playSound('spray');
-      gameState.hydration = Math.min(100, gameState.hydration + 20);
-      showToast("手動噴霧加濕！濕度達標促進蚯蚓活躍。");
-      updateHUD();
-    }
-
-    function harvestCastingsManual() {
-      if (gameState.stockCastings < 1.0) {
-        showToast("累積的蚓糞不足，請稍後再採收！");
-        return;
-      }
-
-      playSound('coin');
-      const harvestedGrams = Math.floor(gameState.stockCastings);
-      const earned = harvestedGrams * 2; // $BG per gram
-      gameState.credits += earned;
-      gameState.stockCastings -= harvestedGrams;
-
-      showToast(`手工採收 ${harvestedGrams}g 黑金蚓糞！賣出獲得 ${earned} 黑金幣`);
-      logConsole(`採收高品質有機蚓糞，賺取 ${earned} 黑金幣！`);
-      updateHUD();
-    }
-
-    function harvestWormTea() {
-      if (gameState.wormTea < 10) {
-        showToast("蚯蚓水 (蚓糞水) 不足 10ml！");
-        return;
-      }
-
-      playSound('coin');
-      const earned = Math.floor(gameState.wormTea / 10) * 5;
-      showToast(`收集出售 ${Math.floor(gameState.wormTea)}ml 蚯蚓水！獲得 ${earned} 黑金幣`);
-      gameState.credits += earned;
-      gameState.wormTea = 0;
-      updateHUD();
-    }
-
-    /* ===================================================================
-       7. SHOP & UPGRADES
-       =================================================================== */
-    function buyUpgrade(itemKey, cost) {
-      if (gameState.credits < cost) {
-        showToast("黑金幣不足！");
-        return;
-      }
-
-      playSound('coin');
-      gameState.credits -= cost;
-      gameState.inventory[itemKey] = true;
-      showToast("成功購入設備升級！");
-      logConsole(`設備升級解鎖: ${itemKey}`);
-      updateHUD();
-    }
-
-    function buyCosmetic(itemKey, cost) {
-      if (gameState.credits < cost) {
-        showToast("黑金幣不足！");
-        return;
-      }
-
-      playSound('coin');
-      gameState.credits -= cost;
-      gameState.inventory[itemKey] = true;
-      gameState.equippedHat = itemKey;
-      showToast("解鎖並穿戴裝扮！");
-      updateHUD();
-    }
-
-    /* ===================================================================
-       8. UI RENDERING & HUD UPDATES
-       =================================================================== */
-    function updateHUD() {
-      document.getElementById('creditsTxt').innerText = gameState.credits;
-      document.getElementById('earthPointsTxt').innerText = gameState.earthPoints;
-      document.getElementById('teaTxt').innerText = `${Math.floor(gameState.wormTea)} ml`;
-      document.getElementById('scrapsInventoryTxt').innerText = `庫存廚餘: ${gameState.kitchenScraps} g`;
-
-      // Life Cycle Population
-      document.getElementById('cocoonCountTxt').innerText = gameState.cocoons;
-      document.getElementById('hatchlingCountTxt').innerText = gameState.hatchlings;
-      document.getElementById('juvenileCountTxt').innerText = gameState.juveniles;
-      document.getElementById('adultCountTxt').innerText = gameState.adults;
-
-      const totalWorms = gameState.hatchlings + gameState.juveniles + gameState.adults;
-      document.getElementById('totalWormsTxt').innerText = totalWorms;
-
-      // Digestion Rate Dynamic Metric
-      const totalActiveWorms = (gameState.adults * 1.0) + (gameState.juveniles * 0.5) + (gameState.hatchlings * 0.2);
-      const rateGrams = (totalActiveWorms * 0.4).toFixed(1);
-      document.getElementById('digestRateTxt').innerText = `${rateGrams} g/日`;
-      document.getElementById('castingStockTxt').innerText = `${gameState.stockCastings.toFixed(1)} g`;
-
-      // Gauges
-      document.getElementById('hydrationVal').innerText = `${Math.floor(gameState.hydration)}%`;
-      document.getElementById('hydrationBar').style.width = `${gameState.hydration}%`;
-
-      document.getElementById('scrapsVal').innerText = `${Math.floor(gameState.scrapsInBin)}g`;
-      document.getElementById('scrapsBar').style.width = `${Math.min(100, (gameState.scrapsInBin / 100) * 100)}%`;
-
-      document.getElementById('cnVal').innerText = `${gameState.cnRatio.toFixed(1)}:1`;
-      document.getElementById('cnBar').style.width = `${Math.min(100, (gameState.cnRatio / 40) * 100)}%`;
-
-      // Upgrade Buttons UI
-      if (gameState.inventory.autoCastingCollector) {
-        document.getElementById('btnAutoCollector').innerText = '已安裝';
-        document.getElementById('btnAutoCollector').disabled = true;
-      }
-      if (gameState.inventory.autoMister) {
-        document.getElementById('btnAutoMister').innerText = '已安裝';
-        document.getElementById('btnAutoMister').disabled = true;
-      }
-      if (gameState.inventory.binExpansion) {
-        document.getElementById('btnBinExpansion').innerText = '已升級';
-        document.getElementById('btnBinExpansion').disabled = true;
-      }
-      if (gameState.inventory.wizardHat) {
-        document.getElementById('btnHatWizard').innerText = gameState.equippedHat === 'wizardHat' ? '穿戴中' : '裝備';
-      }
-
-      // Render Plant Slots
-      renderPlantSlotsUI();
-    }
-
-    function renderPlantSlotsUI() {
-      gameState.plants.forEach((plant, idx) => {
+    function renderPlantNurseryUI() {
+      state.plants.forEach((plant, idx) => {
         const slotEl = document.getElementById(`plantSlot${idx}`);
         if (!slotEl) return;
 
         if (plant.stage === 0) {
           slotEl.innerHTML = `
-            <div class="flex flex-col items-center justify-center py-4 text-gray-500 border border-dashed border-cyber-dim rounded">
-              <i class="fa-solid fa-plus text-lg mb-1"></i>
-              <span>空置種植槽</span>
-              <span class="text-[10px] text-gray-600">於下方購買種子</span>
+            <div class="flex flex-col items-center justify-center py-5 text-slate-500 border border-dashed border-slate-700 rounded-lg">
+              <i class="fa-solid fa-plus text-xl mb-1"></i>
+              <span class="font-bold">空置種植槽 ${idx + 1}</span>
+              <span class="text-[10px] text-slate-600">請由下方選擇種子播種</span>
             </div>
           `;
         } else {
-          const stageNames = ['未種植', '🌱 種子期', '🌿 發芽期', '🌿 小苗成長', '🌸/🍅 成熟可採收'];
+          const stages = ['未播種', '🌱 發芽期', '🌿 幼苗期', '🌿 開花生長', '🌸 成熟可採收'];
           const pct = Math.floor((plant.progress / plant.maxProgress) * 100);
 
           slotEl.innerHTML = `
-            <div class="flex justify-between items-center text-cyber-border font-bold">
-              <span>${plant.name}</span>
-              <span class="text-cyber-amber text-[11px]">${stageNames[plant.stage]}</span>
+            <div class="flex justify-between items-center font-bold">
+              <span class="text-white">${plant.name}</span>
+              <span class="text-amber-400 text-[11px]">${stages[plant.stage]}</span>
             </div>
 
             <div class="space-y-1">
-              <div class="flex justify-between text-[10px] text-gray-400">
-                <span>生長進度:</span>
+              <div class="flex justify-between text-[10px] text-slate-400">
+                <span>成熟進度:</span>
                 <span>${pct}%</span>
               </div>
-              <div class="w-full bg-cyber-panel h-1.5 rounded overflow-hidden">
-                <div class="bg-cyber-border h-full transition-all" style="width: ${pct}%"></div>
+              <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div class="bg-emerald-500 h-full transition-all" style="width: ${pct}%"></div>
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-1 pt-1">
+            <div class="pt-1">
               ${plant.stage < 4 ? `
-                <button onclick="fertilizePlant(${plant.id})" class="cyber-btn py-1 px-1 rounded text-[10px] text-cyber-blue border-cyber-blue">
-                  <i class="fa-solid fa-flask"></i> 20ml 蚯蚓水施肥
+                <button onclick="fertilizePlant(${plant.id})" class="w-full btn-action py-1.5 rounded bg-sky-950 hover:bg-sky-900 border border-sky-700 text-sky-300 text-[11px] font-bold">
+                  <i class="fa-solid fa-flask text-sky-400"></i> 30ml 蚓糞液肥澆灌
                 </button>
               ` : `
-                <button onclick="harvestPlant(${plant.id})" class="cyber-btn py-1 px-1 rounded text-[10px] text-cyber-amber border-cyber-amber col-span-2 font-bold animate-pulse">
-                  <i class="fa-solid fa-basket-shopping"></i> 採收賣出 (+${plant.yield} 幣)
+                <button onclick="harvestPlant(${plant.id})" class="w-full btn-action py-1.5 rounded bg-amber-500 hover:bg-amber-400 text-slate-950 text-[11px] font-extrabold animate-pulse">
+                  <i class="fa-solid fa-basket-shopping"></i> 採收獲得 ${plant.yield} 黑金幣
                 </button>
               `}
             </div>
           `;
         }
       });
+
+      document.getElementById('nurseryCastingsStock').innerText = `${state.stockCastings.toFixed(1)} kg`;
+      document.getElementById('nurseryTeaStock').innerText = `${Math.floor(state.stockTea)} ml`;
     }
 
-    function switchTab(tabName) {
-      playSound('happy');
-      document.getElementById('tabFeed').classList.add('hidden');
-      document.getElementById('tabFarm').classList.add('hidden');
-      document.getElementById('tabShop').classList.add('hidden');
+    /* ===================================================================
+       7. UPGRADES & B2B CONTRACTS
+       =================================================================== */
+    function buyUpgrade(key, cost) {
+      if (state.credits < cost) {
+        showToast("黑金幣不足，無法升級！");
+        return;
+      }
 
-      document.getElementById('tabFeedBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
-      document.getElementById('tabFarmBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
-      document.getElementById('tabShopBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
+      playSound('coin');
+      state.credits -= cost;
+      state.upgrades[key] = true;
+      showToast("成功購入自動化升級設備！");
+      updateHUD();
+    }
 
-      if (tabName === 'feed') {
-        document.getElementById('tabFeed').classList.remove('hidden');
-        document.getElementById('tabFeedBtn').className += " bg-cyber-border text-cyber-bg";
-      } else if (tabName === 'farm') {
-        document.getElementById('tabFarm').classList.remove('hidden');
-        document.getElementById('tabFarm').classList.add('flex');
-        document.getElementById('tabFarmBtn').className += " bg-cyber-border text-cyber-bg";
-      } else if (tabName === 'shop') {
-        document.getElementById('tabShop').classList.remove('hidden');
-        document.getElementById('tabShop').classList.add('flex');
-        document.getElementById('tabShopBtn').className += " bg-cyber-border text-cyber-bg";
+    function renderContractsUI() {
+      const listEl = document.getElementById('contractList');
+      if (!listEl) return;
+
+      const contracts = [
+        { name: '有機高山茶園 ESG 養土專案', req: '交付 20kg 熟成蚓糞', reward: '350 黑金幣 + 50 ESG', key: 'c1' },
+        { name: '市立植物園 蚓糞液肥採購合約', req: '交付 300ml 蚓糞液肥', reward: '280 黑金幣 + 40 ESG', key: 'c2' }
+      ];
+
+      listEl.innerHTML = contracts.map(c => `
+        <div class="p-2.5 bg-slate-900 rounded-lg border border-slate-700 flex justify-between items-center">
+          <div>
+            <div class="font-bold text-white">${c.name}</div>
+            <div class="text-[10px] text-slate-400">需求: ${c.req} | 獎勵: <span class="text-amber-400">${c.reward}</span></div>
+          </div>
+          <button onclick="fulfillContract('${c.key}')" class="btn-action px-3 py-1.5 rounded bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs">
+            履約交付
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function fulfillContract(key) {
+      if (key === 'c1') {
+        if (state.stockCastings < 20) {
+          showToast("熟成蚓糞不足 20kg，無法履約！");
+          return;
+        }
+        state.stockCastings -= 20;
+        state.credits += 350;
+        state.esgPoints += 50;
+      } else if (key === 'c2') {
+        if (state.stockTea < 300) {
+          showToast("蚓糞液肥不足 300ml，無法履約！");
+          return;
+        }
+        state.stockTea -= 300;
+        state.credits += 280;
+        state.esgPoints += 40;
+      }
+
+      playSound('coin');
+      showToast("成功履行 B2B ESG 商業合約！獲得豐厚回報。");
+      updateHUD();
+    }
+
+    /* ===================================================================
+       8. UI DASHBOARD & HUD SYNCHRONIZATION
+       =================================================================== */
+    function updateHUD() {
+      document.getElementById('hudCredits').innerText = state.credits;
+      document.getElementById('hudEsg').innerText = state.esgPoints;
+
+      // Odor Gauge Display
+      document.getElementById('hudOdor').innerText = `${Math.floor(state.odorLevel)}% (${state.odorLevel > 50 ? '惡臭警告' : '良好'})`;
+      const odorBadge = document.getElementById('odorBadge');
+      if (state.odorLevel > 60) {
+        odorBadge.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-red-950 border border-red-500 animate-pulse";
+      } else {
+        odorBadge.className = "flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700";
+      }
+
+      // Worm Population
+      document.getElementById('cntCocoons').innerText = state.cocoons;
+      document.getElementById('cntHatchlings').innerText = state.hatchlings;
+      document.getElementById('cntJuveniles').innerText = state.juveniles;
+      document.getElementById('cntAdults').innerText = state.adults;
+
+      const totalWorms = state.adults + state.juveniles + state.hatchlings;
+      document.getElementById('hudTotalWorms').innerText = totalWorms.toLocaleString();
+
+      // Bin Physical Gauges
+      document.getElementById('hudTemp').innerText = `${state.temperature.toFixed(1)} °C`;
+      document.getElementById('hudTemp').className = state.temperature > 35 ? "text-red-400 font-bold" : "text-emerald-400 font-bold";
+
+      document.getElementById('hudPh').innerText = `pH ${state.ph.toFixed(1)}`;
+      document.getElementById('hudPh').className = state.ph < 5.8 ? "text-red-400 font-bold" : "text-emerald-400 font-bold";
+
+      document.getElementById('valMoisture').innerText = `${Math.floor(state.moisture)}%`;
+      document.getElementById('barMoisture').style.width = `${state.moisture}%`;
+
+      document.getElementById('valCN').innerText = `${state.cnRatio.toFixed(1)} : 1`;
+      document.getElementById('barCN').style.width = `${Math.min(100, (state.cnRatio / 45) * 100)}%`;
+
+      document.getElementById('valBiochar').innerText = `${Math.floor(state.biocharRatio)}%`;
+      document.getElementById('barBiochar').style.width = `${Math.min(100, (state.biocharRatio / 25) * 100)}%`;
+
+      // Inventories Breakdown
+      document.getElementById('invRawGreen').innerText = `${state.rawGreen}kg`;
+      document.getElementById('invRawSalty').innerText = `${state.rawSalty}kg`;
+      document.getElementById('invRawBrown').innerText = `${state.rawBrown}kg`;
+      document.getElementById('invRawManure').innerText = `${state.rawManure}kg`;
+      document.getElementById('txtTotalRawInventory').innerText = `${state.rawGreen + state.rawSalty + state.rawBrown + state.rawManure} kg`;
+
+      document.getElementById('mixQtyGreen').innerText = state.rawGreen;
+      document.getElementById('mixQtyBrown').innerText = state.rawBrown;
+      document.getElementById('mixQtySalty').innerText = state.rawSalty;
+      document.getElementById('mixQtyManure').innerText = state.rawManure;
+
+      // Upgrades UI
+      if (state.upgrades.autoHarvester) {
+        document.getElementById('btnUpgHarvester').innerText = "已安裝";
+        document.getElementById('btnUpgHarvester').disabled = true;
+      }
+      if (state.upgrades.autoMister) {
+        document.getElementById('btnUpgMister').innerText = "已安裝";
+        document.getElementById('btnUpgMister').disabled = true;
+      }
+      if (state.upgrades.scrubber) {
+        document.getElementById('btnUpgScrubber').innerText = "已安裝";
+        document.getElementById('btnUpgScrubber').disabled = true;
+      }
+
+      renderContractsUI();
+      updateMixerPreview();
+    }
+
+    function switchTab(tabKey) {
+      playSound('feed');
+      const tabs = ['logistics', 'blender', 'nursery', 'contracts'];
+      tabs.forEach(t => {
+        const contentEl = document.getElementById(`tab${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        const btnEl = document.getElementById(`tabBtn${t.charAt(0).toUpperCase() + t.slice(1)}`);
+        if (contentEl) contentEl.classList.add('hidden');
+        if (btnEl) btnEl.className = "py-2 rounded-lg text-center text-slate-400 hover:text-white";
+      });
+
+      const activeContent = document.getElementById(`tab${tabKey.charAt(0).toUpperCase() + tabKey.slice(1)}`);
+      const activeBtn = document.getElementById(`tabBtn${tabKey.charAt(0).toUpperCase() + tabKey.slice(1)}`);
+
+      if (activeContent) {
+        activeContent.classList.remove('hidden');
+        activeContent.classList.add('flex');
+      }
+      if (activeBtn) {
+        activeBtn.className = "py-2 rounded-lg text-center bg-emerald-600 text-white shadow";
       }
     }
 
@@ -1323,35 +1559,42 @@
     }
 
     function logConsole(msg) {
-      document.getElementById('systemConsoleLog').innerText = msg;
+      document.getElementById('logConsole').innerText = msg;
     }
 
     /* ===================================================================
-       9. MAIN INITIALIZATION & GAME LOOPS
+       9. INITIALIZATION & LOOPS
        =================================================================== */
     window.onload = function() {
       loadGame();
       resizeCanvas();
-      initVisualWorms();
+      initCanvasWorms();
+
+      if (state.shipments.length === 0) {
+        generateShipment();
+      }
+
       updateHUD();
+      renderShipmentsUI();
+      renderPlantNurseryUI();
 
-      window.addEventListener('resize', resizeCanvas);
+      window.addEventListener('resize', () => {
+        resizeCanvas();
+        initCanvasWorms();
+      });
 
-      // Render & Worm IK Animation Loop
+      // 60 FPS Render Loop
       function animate() {
-        updateWormsPhysics();
-        renderSanctuary();
+        updatePhysics();
+        renderChamber();
         requestAnimationFrame(animate);
       }
       animate();
 
-      // Lifecycle & Population Simulation Tick (Every 3.5 seconds)
+      // Main Game Simulation Engine Tick (Every 3.0 Seconds)
       setInterval(() => {
-        processLifecycleTick();
-        processDigestionAndHarvest();
-        updateHUD();
-        saveGame();
-      }, 3500);
+        gameSimulationTick();
+      }, 3000);
     };
   </script>
 </body>
