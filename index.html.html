@@ -3,31 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>地外觀測日誌：地球系統協定 | Exo-Observer</title>
+  <title>Cyber-Worm Desktop Sanctuary | 賽博蚯蚓生態養殖箱</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Font Awesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800;900&family=Noto+Sans+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- Google Fonts for Retro/Cyberpunk Vibes -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            xera: {
-              main: '#00f3ff',
-              dark: '#031927',
-              accent: '#39ff14',
-              warn: '#ff0055',
-              panel: 'rgba(6, 26, 43, 0.85)',
-              gold: '#ffd700'
+            cyber: {
+              bg: '#040d08',
+              panel: '#091f14',
+              border: '#00ff66',
+              text: '#33ff88',
+              dim: '#134e2e',
+              amber: '#ffaa00',
+              pink: '#ff0055',
+              blue: '#00e1ff'
             }
           },
           fontFamily: {
-            orbitron: ['Orbitron', 'sans-serif'],
-            sans: ['Noto Sans TC', 'sans-serif']
+            pixel: ['"Press Start 2P"', 'monospace'],
+            vt: ['VT323', 'monospace'],
+            sans: ['"Noto Sans TC"', 'sans-serif']
           }
         }
       }
@@ -35,107 +38,76 @@
   </script>
 
   <style>
-    /* Custom Styling & Sci-Fi Aesthetic */
     body {
-      background-color: #020b14;
-      color: #c0f6ff;
-      font-family: 'Noto Sans TC', sans-serif;
-      overflow-x: hidden;
+      background-color: #020804;
+      color: #33ff88;
+      font-family: 'VT323', 'Noto Sans TC', monospace;
       user-select: none;
+      overflow-x: hidden;
     }
 
-    .font-orbitron {
-      font-family: 'Orbitron', sans-serif;
+    /* Pixelated Canvas Render */
+    canvas {
+      image-rendering: pixelated;
     }
 
-    /* Holographic Border & Glow Effects */
-    .holo-card {
-      background: rgba(4, 21, 37, 0.82);
-      border: 1px solid rgba(0, 243, 255, 0.3);
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.15), inset 0 0 15px rgba(0, 243, 255, 0.08);
-      backdrop-filter: blur(8px);
-    }
-
-    .holo-card-active {
-      border-color: #00f3ff;
-      box-shadow: 0 0 25px rgba(0, 243, 255, 0.4), inset 0 0 20px rgba(0, 243, 255, 0.15);
-    }
-
-    .holo-btn {
-      background: linear-gradient(135deg, rgba(0, 243, 255, 0.15), rgba(0, 243, 255, 0.05));
-      border: 1px solid #00f3ff;
-      color: #00f3ff;
-      transition: all 0.25s ease;
-      text-shadow: 0 0 8px rgba(0,243,255,0.6);
-    }
-
-    .holo-btn:hover {
-      background: rgba(0, 243, 255, 0.35);
-      box-shadow: 0 0 20px rgba(0, 243, 255, 0.6);
-      transform: translateY(-1px);
-    }
-
-    .holo-btn:active {
-      transform: translateY(1px);
-    }
-
-    /* CRT Scanlines Overlay */
-    .scanlines {
+    /* CRT Overlay Effect */
+    .crt-overlay {
       background: linear-gradient(
         rgba(18, 16, 16, 0) 50%, 
-        rgba(0, 0, 0, 0.25) 50%
+        rgba(0, 0, 0, 0.35) 50%
       );
       background-size: 100% 4px;
       pointer-events: none;
     }
 
-    /* Sci-Fi Grid Overlay */
-    .bg-grid {
-      background-image: 
-        linear-gradient(to right, rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-      background-size: 30px 30px;
+    /* Cyber Glow & Borders */
+    .cyber-box {
+      background: rgba(9, 31, 20, 0.85);
+      border: 2px solid #00ff66;
+      box-shadow: 0 0 10px rgba(0, 255, 102, 0.2), inset 0 0 10px rgba(0, 255, 102, 0.1);
     }
 
-    /* Custom Range Input Styling */
+    .cyber-box-amber {
+      background: rgba(35, 25, 5, 0.85);
+      border: 2px solid #ffaa00;
+      box-shadow: 0 0 10px rgba(255, 170, 0, 0.2);
+    }
+
+    .cyber-btn {
+      background: #0d3820;
+      border: 2px solid #00ff66;
+      color: #00ff66;
+      transition: all 0.15s ease;
+      text-shadow: 0 0 5px rgba(0,255,102,0.8);
+    }
+
+    .cyber-btn:hover {
+      background: #00ff66;
+      color: #040d08;
+      box-shadow: 0 0 15px #00ff66;
+      text-shadow: none;
+    }
+
+    .cyber-btn:active {
+      transform: scale(0.96);
+    }
+
+    /* Custom Range Sliders */
     input[type=range] {
       -webkit-appearance: none;
-      background: rgba(0, 243, 255, 0.1);
-      border: 1px solid rgba(0, 243, 255, 0.4);
-      border-radius: 6px;
-      height: 8px;
+      background: #092415;
+      border: 1px solid #00ff66;
+      height: 10px;
+      border-radius: 2px;
     }
     input[type=range]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      height: 20px;
-      width: 20px;
-      border-radius: 50%;
-      background: #00f3ff;
-      box-shadow: 0 0 10px #00f3ff;
+      height: 18px;
+      width: 12px;
+      background: #00ff66;
+      box-shadow: 0 0 8px #00ff66;
       cursor: pointer;
-    }
-
-    /* HUD Animations */
-    @keyframes pulseGlow {
-      0%, 100% { opacity: 0.3; }
-      50% { opacity: 0.8; }
-    }
-    .pulse-glow {
-      animation: pulseGlow 2.5s infinite;
-    }
-
-    /* Radar / Scanner Line Animation */
-    @keyframes radarScan {
-      0% { top: 0%; }
-      100% { top: 100%; }
-    }
-    .scanner-line {
-      position: absolute;
-      left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, #39ff14, transparent);
-      box-shadow: 0 0 12px #39ff14;
-      animation: radarScan 2.5s linear infinite;
-      pointer-events: none;
     }
 
     /* Custom Scrollbar */
@@ -143,213 +115,419 @@
       width: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: rgba(2, 11, 20, 0.8);
+      background: #040d08;
     }
     ::-webkit-scrollbar-thumb {
-      background: rgba(0, 243, 255, 0.4);
-      border-radius: 3px;
+      background: #00ff66;
     }
   </style>
 </head>
-<body class="bg-grid min-h-screen flex flex-col justify-between relative overflow-x-hidden">
+<body class="min-h-screen flex flex-col justify-between relative p-2 md:p-4">
 
-  <!-- Background Animated Canvas (Energy / Particles) -->
-  <canvas id="bgCanvas" class="fixed inset-0 w-full h-full pointer-events-none z-0 opacity-40"></canvas>
-  
-  <!-- CRT Scanlines Overlay -->
-  <div class="scanlines fixed inset-0 w-full h-full z-10 pointer-events-none opacity-40"></div>
+  <!-- CRT Screen Overlay -->
+  <div class="crt-overlay fixed inset-0 z-50 pointer-events-none"></div>
 
-  <!-- MAIN HUD CONTAINER -->
-  <div id="gameContainer" class="relative z-20 flex flex-col min-h-screen p-3 md:p-6 max-w-7xl mx-auto w-full">
-    
-    <!-- HEADER / STATUS BAR -->
-    <header class="holo-card rounded-xl p-3 mb-4 flex flex-wrap justify-between items-center gap-3">
+  <!-- MAIN HUD WRAPPER -->
+  <div class="max-w-6xl mx-auto w-full flex flex-col gap-3 relative z-10">
+
+    <!-- HEADER / GAME STATUS -->
+    <header class="cyber-box rounded-lg p-3 flex flex-wrap justify-between items-center gap-2">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-lg bg-cyan-950/80 border border-cyan-400 flex items-center justify-center text-cyan-400 shadow-lg shadow-cyan-500/20">
-          <i class="fa-solid fa-atom text-xl pulse-glow"></i>
+        <div class="text-3xl text-cyber-border animate-pulse">
+          <i class="fa-solid fa-bug"></i>
         </div>
         <div>
-          <h1 class="font-orbitron font-extrabold text-lg md:text-xl text-cyan-300 tracking-wider">EXO-OBSERVER</h1>
-          <p class="text-xs text-cyan-500 font-mono tracking-widest">EARTH SYSTEM PROTOCOL // 瑟拉星生態系統監控</p>
+          <h1 class="font-pixel text-sm md:text-base text-cyber-border tracking-wider">CYBER-WORM SANCTUARY</h1>
+          <p class="text-xs text-cyber-text font-vt">賽博蚯蚓桌面生態養殖箱 v1.0.4 // VERMICOMPOSTING SIMULATOR</p>
         </div>
       </div>
 
-      <!-- Core Status & Audio Controls -->
-      <div class="flex items-center gap-4 md:gap-6 text-xs font-mono">
-        <!-- Energy Core Gauge -->
-        <div class="flex items-center gap-2">
-          <span class="text-gray-400">核心能量:</span>
-          <div class="w-24 md:w-36 bg-gray-900 border border-cyan-700/60 rounded-full h-3.5 p-0.5 relative overflow-hidden">
-            <div id="coreEnergyBar" class="bg-gradient-to-r from-cyan-500 to-green-400 h-full rounded-full transition-all duration-500 w-[15%]"></div>
-          </div>
-          <span id="coreEnergyTxt" class="text-cyan-300 font-bold min-w-[35px]">15%</span>
+      <!-- Currency & Inventory Status -->
+      <div class="flex items-center gap-4 text-sm font-vt">
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded bg-black/60 border border-cyber-border">
+          <i class="fa-solid fa-coins text-cyber-amber"></i>
+          <span class="text-gray-400">黑金幣:</span>
+          <span id="creditsTxt" class="text-cyber-amber font-bold text-base">0</span>
         </div>
 
-        <!-- Mute/Sound Toggle -->
-        <button id="audioToggleBtn" onclick="toggleAudio()" class="px-2.5 py-1.5 rounded bg-cyan-950 border border-cyan-500/40 text-cyan-400 hover:bg-cyan-900 transition flex items-center gap-1.5" title="切換音效">
-          <i id="audioIcon" class="fa-solid fa-volume-high"></i>
-          <span class="hidden md:inline">音效</span>
-        </button>
+        <div class="flex items-center gap-1.5 px-3 py-1 rounded bg-black/60 border border-cyber-blue">
+          <i class="fa-solid fa-flask text-cyber-blue"></i>
+          <span class="text-gray-400">蚯蚓水:</span>
+          <span id="teaTxt" class="text-cyber-blue font-bold text-base">0 ml</span>
+        </div>
 
-        <!-- Logbook Toggle -->
-        <button onclick="openLogbook()" class="px-3 py-1.5 rounded holo-btn font-orbitron text-xs flex items-center gap-1.5">
-          <i class="fa-solid fa-book-bookmark"></i>
-          <span>觀測日誌</span>
+        <button onclick="toggleSound()" id="soundBtn" class="cyber-btn px-2.5 py-1 text-xs rounded flex items-center gap-1">
+          <i id="soundIcon" class="fa-solid fa-volume-high"></i>
+          <span class="hidden md:inline">音效</span>
         </button>
       </div>
     </header>
 
-    <!-- CHAPTER PROGRESS TABS -->
-    <nav class="grid grid-cols-3 gap-2 mb-4 font-orbitron text-xs md:text-sm">
-      <div id="tab1" class="holo-card p-2.5 rounded-lg text-center font-bold border-cyan-400 text-cyan-300 flex items-center justify-center gap-2 transition-all">
-        <span class="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-xs">1</span>
-        <span class="hidden md:inline">第一章：</span>碳氮鏈重組
-      </div>
-      <div id="tab2" class="holo-card p-2.5 rounded-lg text-center text-gray-500 border-gray-800 opacity-60 flex items-center justify-center gap-2 transition-all">
-        <span class="w-5 h-5 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center text-xs">2</span>
-        <span class="hidden md:inline">第二章：</span>生物炭基矩陣
-      </div>
-      <div id="tab3" class="holo-card p-2.5 rounded-lg text-center text-gray-500 border-gray-800 opacity-60 flex items-center justify-center gap-2 transition-all">
-        <span class="w-5 h-5 rounded-full bg-gray-800 text-gray-400 flex items-center justify-center text-xs">3</span>
-        <span class="hidden md:inline">第三章：</span>低碳自然構築
-      </div>
-    </nav>
-
-    <!-- GAME MAIN WORKSPACE (DYNAMIC CONTENT) -->
-    <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 mb-4">
+    <!-- MAIN GAME LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
       
-      <!-- LEFT: STORY & TRANSMISSION DIALOGUE (4 cols) -->
-      <div class="lg:col-span-4 flex flex-col gap-4">
+      <!-- LEFT: WORM PET CANVAS & HABITAT DISPLAY (7 COLS) -->
+      <div class="lg:col-span-7 flex flex-col gap-3">
         
-        <!-- Avatar & Dialogue Box -->
-        <div class="holo-card rounded-xl p-4 flex flex-col justify-between flex-1 relative overflow-hidden">
-          <div class="scanner-line"></div>
-
-          <div>
-            <div class="flex items-center gap-3 border-b border-cyan-500/20 pb-3 mb-3">
-              <div class="relative">
-                <div class="w-14 h-14 rounded-full bg-gradient-to-tr from-cyan-900 to-indigo-900 border-2 border-cyan-400 flex items-center justify-center overflow-hidden shadow-md shadow-cyan-500/30">
-                  <i class="fa-solid fa-user-astronaut text-3xl text-cyan-300"></i>
-                </div>
-                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-green-400 border-2 border-gray-900 rounded-full"></span>
-              </div>
-              <div>
-                <h3 id="speakerName" class="font-orbitron font-bold text-cyan-300 text-base">開倫 (Kaelen)</h3>
-                <p id="speakerRole" class="text-xs text-cyan-500 font-mono">瑟拉星生態能量分析官</p>
-              </div>
+        <!-- CANVAS CONTAINER -->
+        <div class="cyber-box rounded-lg p-2 flex flex-col relative overflow-hidden">
+          
+          <!-- Environment HUD Overlay -->
+          <div class="flex justify-between items-center px-2 py-1 text-xs font-vt bg-black/70 rounded mb-2 border border-cyber-dim">
+            <div class="flex items-center gap-2">
+              <span id="dayNightBadge" class="text-cyber-amber"><i class="fa-solid fa-sun"></i> 白天模式</span>
+              <span class="text-gray-500">|</span>
+              <span>蚯蚓名稱: <strong id="wormNameTxt" class="text-cyber-border">皮皮 (Pipi)</strong></span>
             </div>
-
-            <!-- Dialogue Text Area -->
-            <div id="dialogueBox" class="text-sm leading-relaxed text-gray-200 min-h-[140px] space-y-2 font-sans">
-              <p>「墜毀警告！生物量子核心動能降至 15% ... 降落點：地球（Planetary ID: 003-Solar）。」</p>
-              <p class="text-cyan-400 text-xs">AURA AI: 『開倫分析官，修復核心需要高純度的生物熱能與碳循環動能。請啟動【微觀掃描儀】探查周圍的有機質組成。』</p>
+            <div class="flex items-center gap-3">
+              <span>等級: <strong id="wormLevelTxt" class="text-cyber-border">Lv.1</strong></span>
+              <span>壽命: <strong id="wormAgeTxt" class="text-cyber-text">1 天</strong></span>
             </div>
           </div>
 
-          <!-- Narrative Actions / Prompts -->
-          <div class="mt-4 pt-3 border-t border-cyan-500/20 flex flex-col gap-2">
-            <button id="loreBtn" onclick="readLore()" class="w-full py-2 px-3 rounded holo-btn text-xs font-mono flex items-center justify-center gap-2">
-              <i class="fa-solid fa-satellite-dish"></i> 讀取地球生態分析通訊
+          <!-- Interactive Sandbox Canvas -->
+          <div class="relative w-full aspect-[4/3] bg-black rounded border border-cyber-dim overflow-hidden cursor-crosshair">
+            <canvas id="sanctuaryCanvas" class="w-full h-full block"></canvas>
+            
+            <!-- Canvas Interaction Floating Message -->
+            <div id="canvasToast" class="absolute top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded bg-black/90 border border-cyber-border text-xs text-cyber-border font-vt pointer-events-none opacity-0 transition-opacity duration-300">
+              點擊餵食或撫摸蚯蚓！
+            </div>
+          </div>
+
+          <!-- Canvas Controls Toolbar -->
+          <div class="grid grid-cols-4 gap-2 mt-2 text-xs font-vt">
+            <button onclick="interactPoke()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1">
+              <i class="fa-solid fa-hand-pointer"></i> 輕戳/互動
+            </button>
+            <button onclick="toggleDayNight()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1">
+              <i class="fa-solid fa-lightbulb"></i> 光照切換
+            </button>
+            <button onclick="sprayMister()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1">
+              <i class="fa-solid fa-spray-can"></i> 噴霧加濕
+            </button>
+            <button onclick="harvestOutput()" class="cyber-btn py-1.5 rounded flex items-center justify-center gap-1 text-cyber-amber border-cyber-amber">
+              <i class="fa-solid fa-bucket"></i> 採收黑金
             </button>
           </div>
+
         </div>
 
-        <!-- Bio-Scanner HUD / Object Inspector -->
-        <div class="holo-card rounded-xl p-4 flex flex-col gap-2">
-          <div class="flex justify-between items-center border-b border-cyan-500/20 pb-2">
-            <h4 class="font-orbitron text-xs text-cyan-400 font-bold tracking-wider flex items-center gap-2">
-              <i class="fa-solid fa-microscope text-green-400"></i> 微觀掃描儀 (BIO-SCANNER)
-            </h4>
-            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-green-950 text-green-400 border border-green-500/30">SCANNING ACTIVE</span>
+        <!-- WORM MOOD & VITAL STATS -->
+        <div class="cyber-box rounded-lg p-3 space-y-2">
+          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
+            <span class="text-cyber-border font-bold"><i class="fa-solid fa-heart-pulse"></i> 蚯蚓生理狀態 (VITAL SIGNS)</span>
+            <span id="wormStatusMood" class="text-cyber-text font-bold">心情: 歡樂 ヾ(•ω•`)o</span>
           </div>
 
-          <div id="scannerDisplay" class="bg-black/50 rounded-lg p-3 text-xs space-y-1.5 font-mono min-h-[110px] border border-cyan-900">
-            <p class="text-gray-400 italic">點擊右側環境中的元件以進行微觀光譜分析...</p>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs font-vt">
+            <!-- Hunger -->
+            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
+              <div class="flex justify-between text-gray-400 mb-0.5">
+                <span><i class="fa-solid fa-utensils text-cyber-amber"></i> 飽足度</span>
+                <span id="hungerVal">80%</span>
+              </div>
+              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
+                <div id="hungerBar" class="bg-cyber-amber h-full w-[80%] transition-all"></div>
+              </div>
+            </div>
+
+            <!-- Hydration -->
+            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
+              <div class="flex justify-between text-gray-400 mb-0.5">
+                <span><i class="fa-solid fa-droplet text-cyber-blue"></i> 體濕度</span>
+                <span id="hydrationVal">65%</span>
+              </div>
+              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
+                <div id="hydrationBar" class="bg-cyber-blue h-full w-[65%] transition-all"></div>
+              </div>
+            </div>
+
+            <!-- Energy -->
+            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
+              <div class="flex justify-between text-gray-400 mb-0.5">
+                <span><i class="fa-solid fa-bolt text-yellow-400"></i> 活力值</span>
+                <span id="energyVal">90%</span>
+              </div>
+              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
+                <div id="energyBar" class="bg-yellow-400 h-full w-[90%] transition-all"></div>
+              </div>
+            </div>
+
+            <!-- Soil Health -->
+            <div class="p-1.5 bg-black/50 rounded border border-cyber-dim">
+              <div class="flex justify-between text-gray-400 mb-0.5">
+                <span><i class="fa-solid fa-seedling text-cyber-border"></i> 土質指數</span>
+                <span id="soilHealthVal">100</span>
+              </div>
+              <div class="w-full bg-cyber-panel h-2 rounded overflow-hidden">
+                <div id="soilHealthBar" class="bg-cyber-border h-full w-[100%] transition-all"></div>
+              </div>
+            </div>
           </div>
         </div>
 
       </div>
 
-      <!-- RIGHT: INTERACTIVE PUZZLE STAGE (8 cols) -->
-      <div class="lg:col-span-8 flex flex-col">
-        <div id="puzzleStage" class="holo-card rounded-xl p-4 md:p-6 flex-1 flex flex-col justify-between relative overflow-hidden">
-          <!-- Puzzle Area Rendered via JavaScript -->
+      <!-- RIGHT: FEEDING, ECO SYSTEM & STORE (5 COLS) -->
+      <div class="lg:col-span-5 flex flex-col gap-3">
+        
+        <!-- NAVIGATION TABS -->
+        <div class="grid grid-cols-3 gap-1 font-vt text-sm">
+          <button onclick="switchTab('feed')" id="tabFeedBtn" class="cyber-btn py-1.5 rounded text-center font-bold bg-cyber-border text-cyber-bg">
+            <i class="fa-solid fa-apple-whole"></i> 投餵廚餘
+          </button>
+          <button onclick="switchTab('microscope')" id="tabMicroBtn" class="cyber-btn py-1.5 rounded text-center font-bold">
+            <i class="fa-solid fa-microscope"></i> 微觀儀
+          </button>
+          <button onclick="switchTab('shop')" id="tabShopBtn" class="cyber-btn py-1.5 rounded text-center font-bold">
+            <i class="fa-solid fa-store"></i> 商店/裝扮
+          </button>
         </div>
+
+        <!-- TAB CONTENT 1: FEEDING & C:N MANAGEMENT -->
+        <div id="tabFeed" class="cyber-box rounded-lg p-3 flex-1 flex flex-col justify-between gap-3">
+          
+          <div>
+            <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1 mb-2">
+              <span class="text-cyber-border font-bold"><i class="fa-solid fa-scale-balanced"></i> 土壤碳氮比 (C:N RATIO) 監測</span>
+              <span id="cnStatusTxt" class="text-cyber-amber font-bold">理想 range: 25-30:1</span>
+            </div>
+
+            <!-- C:N Gauge -->
+            <div class="bg-black/60 p-2.5 rounded border border-cyber-dim text-xs font-vt space-y-2">
+              <div class="flex justify-between items-center">
+                <span>目前碳氮比 (C:N):</span>
+                <span id="cnRatioVal" class="text-cyber-border text-base font-bold">28 : 1</span>
+              </div>
+              <div class="w-full bg-gray-900 h-3 rounded relative overflow-hidden border border-cyber-dim">
+                <!-- Target Zone Highlight -->
+                <div class="absolute left-[50%] -translate-x-1/2 w-[30%] bg-cyber-border/30 h-full"></div>
+                <!-- Current Ratio Marker -->
+                <div id="cnPointer" class="absolute left-[55%] w-2 h-full bg-cyber-amber transition-all"></div>
+              </div>
+              <p id="cnTipTxt" class="text-[11px] text-gray-400 italic">
+                土質絕佳！適當投餵高氮（綠色廚餘）與高碳（乾葉/紙板）資材以維持平衡。
+              </p>
+            </div>
+          </div>
+
+          <!-- Organic Food Selector -->
+          <div class="space-y-2">
+            <span class="text-xs font-vt text-cyber-border font-bold block"><i class="fa-solid fa-box-open"></i> 選擇投餵資材:</span>
+
+            <div class="grid grid-cols-2 gap-2 text-xs font-vt">
+              <!-- Nitrogen Greens -->
+              <button onclick="feedFood('greens')" class="p-2 rounded bg-green-950/60 border border-green-600 hover:bg-green-900 transition text-left space-y-1">
+                <div class="flex justify-between text-green-300 font-bold">
+                  <span><i class="fa-solid fa-leaf"></i> 蔬菜果皮 (綠色)</span>
+                  <span class="text-cyber-amber">+氮 (N)</span>
+                </div>
+                <p class="text-[10px] text-gray-400">富含水份與氮素，降低 C:N 比，快速補充飽足度。</p>
+              </button>
+
+              <!-- Carbon Browns -->
+              <button onclick="feedFood('browns')" class="p-2 rounded bg-amber-950/60 border border-amber-600 hover:bg-amber-900 transition text-left space-y-1">
+                <div class="flex justify-between text-amber-300 font-bold">
+                  <span><i class="fa-solid fa-newspaper"></i> 碎紙板/乾葉 (棕色)</span>
+                  <span class="text-cyber-amber">+碳 (C)</span>
+                </div>
+                <p class="text-[10px] text-gray-400">高碳纖維，提高 C:N 比，吸收多餘水分，防臭翻堆。</p>
+              </button>
+
+              <!-- Biochar Supplement -->
+              <button onclick="feedFood('biochar')" class="p-2 rounded bg-gray-900 border border-gray-600 hover:bg-gray-800 transition text-left space-y-1">
+                <div class="flex justify-between text-gray-300 font-bold">
+                  <span><i class="fa-solid fa-cubes text-gray-400"></i> 生物炭微粒</span>
+                  <span class="text-cyber-blue">孔隙+</span>
+                </div>
+                <p class="text-[10px] text-gray-400">吸附臭味、固定碳素，提高土壤微生物棲息空間。</p>
+              </button>
+
+              <!-- Calcium / Eggshells -->
+              <button onclick="feedFood('eggshells')" class="p-2 rounded bg-amber-900/40 border border-yellow-600 hover:bg-amber-800 transition text-left space-y-1">
+                <div class="flex justify-between text-yellow-200 font-bold">
+                  <span><i class="fa-solid fa-egg"></i> 蛋殼粉 (鈣質)</span>
+                  <span class="text-yellow-400">pH 中和</span>
+                </div>
+                <p class="text-[10px] text-gray-400">補充蛋白質與鈣質，調節土壤酸鹼值防止過酸。</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- Web Audio Synth Frequency Player -->
+          <div class="bg-black/40 p-2 rounded border border-cyber-dim text-xs font-vt space-y-1.5">
+            <div class="flex justify-between items-center">
+              <span class="text-cyber-border font-bold"><i class="fa-solid fa-wave-square"></i> 低頻舒緩共振頻率 (528Hz)</span>
+              <button onclick="playCalmFrequency()" class="cyber-btn px-2 py-0.5 rounded text-[10px]">
+                <i class="fa-solid fa-music"></i> 播放/停止
+              </button>
+            </div>
+            <p class="text-[10px] text-gray-400">播放特定赫茲聲波可舒緩蚯蚓緊張情緒，促進鑽穴與消化速率。</p>
+          </div>
+
+        </div>
+
+        <!-- TAB CONTENT 2: MICROSCOPIC SOIL INSPECTOR -->
+        <div id="tabMicroscope" class="cyber-box rounded-lg p-3 flex-1 flex-col justify-between hidden space-y-3">
+          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
+            <span class="text-cyber-border font-bold"><i class="fa-solid fa-microscope"></i> 微觀土壤生物觀察儀</span>
+            <span class="text-cyber-text text-[10px]">1000x MAGNIFICATION</span>
+          </div>
+
+          <!-- Microscope View Canvas / Animation -->
+          <div class="relative w-full aspect-video bg-black rounded border border-cyber-border overflow-hidden flex items-center justify-center">
+            <canvas id="microscopeCanvas" class="w-full h-full block"></canvas>
+            <div class="absolute inset-0 pointer-events-none border-[12px] border-black/80 rounded-full my-auto h-[180px] w-[180px] mx-auto border-dashed border-cyber-border/40"></div>
+          </div>
+
+          <!-- Microbe Ecosystem Metrics -->
+          <div class="space-y-1.5 font-vt text-xs">
+            <div class="flex justify-between p-1.5 bg-black/60 rounded border border-cyber-dim">
+              <span class="text-gray-300"><i class="fa-solid fa-bacteria text-pink-400 mr-1"></i>放線菌與有益菌群:</span>
+              <span id="microbeCountTxt" class="text-pink-400 font-bold">1.2 x 10⁹ /g</span>
+            </div>
+
+            <div class="flex justify-between p-1.5 bg-black/60 rounded border border-cyber-dim">
+              <span class="text-gray-300"><i class="fa-solid fa-bug text-yellow-400 mr-1"></i>跳蟲與原蟲多樣性:</span>
+              <span id="protozoaStatusTxt" class="text-yellow-400 font-bold">豐富 (High)</span>
+            </div>
+
+            <div class="flex justify-between p-1.5 bg-black/60 rounded border border-cyber-dim">
+              <span class="text-gray-300"><i class="fa-solid fa-cloud-sun text-cyber-blue mr-1"></i>土壤有機碳 (SOC):</span>
+              <span id="socValTxt" class="text-cyber-blue font-bold">4.8% (極高)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB CONTENT 3: SHOP & COSMETICS -->
+        <div id="tabShop" class="cyber-box rounded-lg p-3 flex-1 flex-col hidden space-y-3">
+          <div class="flex justify-between items-center text-xs font-vt border-b border-cyber-dim pb-1">
+            <span class="text-cyber-border font-bold"><i class="fa-solid fa-store"></i> 賽博生態商店 & 帽子裝扮</span>
+            <span class="text-cyber-amber">黑金幣專賣店</span>
+          </div>
+
+          <div class="space-y-2 overflow-y-auto max-h-[220px] pr-1">
+            
+            <!-- Item 1: Party Hat -->
+            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-amber text-sm">
+                  <i class="fa-solid fa-hat-wizard"></i>
+                </div>
+                <div>
+                  <div class="text-cyber-border font-bold">派對巫師帽</div>
+                  <div class="text-[10px] text-gray-400">蚯蚓戴上後每秒活力+10%</div>
+                </div>
+              </div>
+              <button onclick="buyCosmetic('wizardHat', 50)" id="btnHatWizard" class="cyber-btn px-2.5 py-1 text-xs rounded">
+                50 幣
+              </button>
+            </div>
+
+            <!-- Item 2: Glasses -->
+            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyber-blue text-sm">
+                  <i class="fa-solid fa-glasses"></i>
+                </div>
+                <div>
+                  <div class="text-cyber-border font-bold">賽博黑墨鏡</div>
+                  <div class="text-[10px] text-gray-400">酷炫指數爆表，抵抗強光照射</div>
+                </div>
+              </div>
+              <button onclick="buyCosmetic('sunglasses', 80)" id="btnSunglasses" class="cyber-btn px-2.5 py-1 text-xs rounded">
+                80 幣
+              </button>
+            </div>
+
+            <!-- Item 3: Auto Mister Upgrade -->
+            <div class="flex items-center justify-between p-2 rounded bg-black/50 border border-cyber-dim text-xs font-vt">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded bg-cyber-panel border border-cyber-border flex items-center justify-center text-cyan-400 text-sm">
+                  <i class="fa-solid fa-robot"></i>
+                </div>
+                <div>
+                  <div class="text-cyber-border font-bold">智能自動噴霧器</div>
+                  <div class="text-[10px] text-gray-400">自動維持土壤最適濕度(60%)</div>
+                </div>
+              </div>
+              <button onclick="buyUpgrade('autoMister', 150)" id="btnAutoMister" class="cyber-btn px-2.5 py-1 text-xs rounded">
+                150 幣
+              </button>
+            </div>
+
+          </div>
+        </div>
+
       </div>
 
     </div>
 
-    <!-- FOOTER / CONTROLS -->
-    <footer class="holo-card rounded-xl p-3 flex flex-wrap justify-between items-center text-xs text-gray-400 font-mono gap-2">
-      <div>STATUS: <span class="text-green-400">ONLINE</span> | SYSTEM: <span class="text-cyan-400">XERA-OS v4.2</span></div>
-      <div>宜蘭綠色博覽會概念展示 - 地外生態觀測與循環解謎</div>
+    <!-- FOOTER / CONSOLE LOG -->
+    <footer class="cyber-box rounded-lg p-2 flex flex-wrap justify-between items-center text-xs font-vt text-gray-400 gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-cyber-border"><i class="fa-solid fa-terminal"></i> 系統日誌:</span>
+        <span id="systemConsoleLog" class="text-cyber-text">歡迎來到賽博蚯蚓生態養殖箱！請記得定時投餵與噴水。</span>
+      </div>
+      <div>宜蘭綠色博覽會概念展示 // TAMAGOTCHI SANCTUARY</div>
     </footer>
-  </div>
 
-  <!-- LOGBOOK MODAL -->
-  <div id="logbookModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-    <div class="holo-card w-full max-w-2xl rounded-2xl p-6 relative max-h-[85vh] flex flex-col border-cyan-400">
-      <button onclick="closeLogbook()" class="absolute top-4 right-4 text-cyan-400 hover:text-cyan-200 text-xl">
-        <i class="fa-solid fa-xmark"></i>
-      </button>
-      
-      <div class="flex items-center gap-3 border-b border-cyan-500/30 pb-3 mb-4">
-        <i class="fa-solid fa-journal-whills text-2xl text-cyan-400"></i>
-        <h2 class="font-orbitron font-bold text-lg text-cyan-300">地外觀測日誌 (XERA PROTOCOL LOG)</h2>
-      </div>
-
-      <div id="logEntries" class="flex-1 overflow-y-auto space-y-4 pr-2 text-xs md:text-sm leading-relaxed text-gray-300">
-        <!-- Log entries populated dynamically -->
-      </div>
-
-      <div class="mt-4 pt-3 border-t border-cyan-500/20 text-right">
-        <button onclick="closeLogbook()" class="px-4 py-2 rounded holo-btn font-orbitron text-xs">關閉日誌</button>
-      </div>
-    </div>
   </div>
 
   <!-- JAVASCRIPT GAME ENGINE -->
   <script>
     /* ===================================================================
-       1. GAME STATE & AUDIO SYNTHESIZER
+       1. GAME STATE & LOCALSTORAGE PERSISTENCE
        =================================================================== */
-    const gameState = {
-      chapter: 1,
-      coreEnergy: 15,
+    const defaultState = {
+      name: "皮皮 (Pipi)",
+      level: 1,
+      ageDays: 1,
+      credits: 20,
+      wormTea: 0,
+      hunger: 80,
+      hydration: 65,
+      energy: 90,
+      soilHealth: 100,
+      cnRatio: 28, // Target ~28
+      isDaytime: true,
       soundEnabled: true,
-      logs: [
-        {
-          title: "觀測紀錄 001：初抵地球（Earth-003）",
-          content: "飛船墜毀於宜蘭農村區域。地球的生物圈展現出極高的碳-氮化合物循環效率。當地有機廢棄物蘊含強大的微生物化學能，這是重啟生物量子核心的關鍵。"
-        }
-      ],
-      // Chapter 1 State
-      ch1: {
-        carbon: 50,      // Brown woody materials (high C)
-        nitrogen: 10,    // Green food scraps (high N)
-        moisture: 35,    // % moisture
-        oxygen: 20       // Aeration %
+      inventory: {
+        wizardHat: false,
+        sunglasses: false,
+        autoMister: false
       },
-      // Chapter 2 State
-      ch2: {
-        temp: 200,       // Pyrolysis temp (°C)
-        oxygen: 25,      // Chamber oxygen %
-        vinegarCollected: false,
-        biocharReady: false,
-        microbesAdded: false,
-        moistureAdded: false
-      },
-      // Chapter 3 State
-      ch3: {
-        soil: 40,
-        bamboo: 20,
-        lime: 20,
-        biochar: 20
-      }
+      equippedHat: null,
+      vermicompostReady: 5 // Ready to harvest units
     };
 
-    // Web Audio API Sound Synthesizer (No external assets required)
+    let gameState = { ...defaultState };
+
+    function saveGame() {
+      try {
+        localStorage.setItem('cyberWormState', JSON.stringify(gameState));
+      } catch (e) {
+        console.error("Storage error:", e);
+      }
+    }
+
+    function loadGame() {
+      const saved = localStorage.getItem('cyberWormState');
+      if (saved) {
+        try {
+          gameState = { ...defaultState, ...JSON.parse(saved) };
+        } catch (e) {
+          gameState = { ...defaultState };
+        }
+      }
+    }
+
+    /* ===================================================================
+       2. WEB AUDIO SYNTHESIZER (RETRO SOUND EFFECTS)
+       =================================================================== */
     let audioCtx = null;
+    let calmOsc = null;
 
     function initAudio() {
       if (!audioCtx) {
@@ -362,668 +540,585 @@
       initAudio();
       if (!audioCtx) return;
 
+      const now = audioCtx.currentTime;
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain);
       gain.connect(audioCtx.destination);
 
-      const now = audioCtx.currentTime;
-
-      if (type === 'scan') {
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(800, now);
-        osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-        osc.start(now);
-        osc.stop(now + 0.15);
-      } else if (type === 'success') {
-        osc.type = 'triangle';
-        osc.frequency.setValueAtTime(440, now);
-        osc.frequency.setValueAtTime(554.37, now + 0.1);
-        osc.frequency.setValueAtTime(659.25, now + 0.2);
-        osc.frequency.setValueAtTime(880, now + 0.3);
-        gain.gain.setValueAtTime(0.2, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
-        osc.start(now);
-        osc.stop(now + 0.5);
-      } else if (type === 'click') {
+      if (type === 'eat') {
         osc.type = 'square';
-        osc.frequency.setValueAtTime(300, now);
-        gain.gain.setValueAtTime(0.05, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
         osc.start(now);
-        osc.stop(now + 0.05);
-      } else if (type === 'warning') {
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(220, now);
-        osc.frequency.setValueAtTime(180, now + 0.15);
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+        osc.stop(now + 0.12);
+      } else if (type === 'spray') {
+        // White noise like mister
+        const bufferSize = audioCtx.sampleRate * 0.15;
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        const noise = audioCtx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1000;
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+        noise.start(now);
+      } else if (type === 'happy') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now); // C5
+        osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+        osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.25);
+      } else if (type === 'coin') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(987.77, now);
+        osc.frequency.setValueAtTime(1318.51, now + 0.08);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
       }
     }
 
-    function toggleAudio() {
+    function toggleSound() {
       gameState.soundEnabled = !gameState.soundEnabled;
-      const icon = document.getElementById('audioIcon');
+      const icon = document.getElementById('soundIcon');
       if (gameState.soundEnabled) {
         icon.className = "fa-solid fa-volume-high";
-        playSound('click');
+        playSound('happy');
       } else {
         icon.className = "fa-solid fa-volume-xmark";
       }
+      saveGame();
+    }
+
+    function playCalmFrequency() {
+      initAudio();
+      if (!audioCtx) return;
+
+      if (calmOsc) {
+        calmOsc.stop();
+        calmOsc = null;
+        logConsole("已停止舒緩頻率播放。");
+        return;
+      }
+
+      calmOsc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      calmOsc.type = 'sine';
+      calmOsc.frequency.setValueAtTime(528, audioCtx.currentTime); // 528 Hz Love/Calm freq
+      gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+      calmOsc.connect(gain);
+      gain.connect(audioCtx.destination);
+      calmOsc.start();
+
+      logConsole("正在播放 528Hz 舒緩諧振音波... 蚯蚓感到平靜！");
+      gameState.energy = Math.min(100, gameState.energy + 10);
+      updateHUD();
     }
 
     /* ===================================================================
-       2. UI & CHAPTER RENDERERS
+       3. CANVAS 2D WORM PHYSICS & ANIMATION ENGINE
        =================================================================== */
-    function updateHUD() {
-      document.getElementById('coreEnergyBar').style.width = `${gameState.coreEnergy}%`;
-      document.getElementById('coreEnergyTxt').innerText = `${gameState.coreEnergy}%`;
+    const canvas = document.getElementById('sanctuaryCanvas');
+    const ctx = canvas.getContext('2d');
 
-      // Update Tabs
-      for (let i = 1; i <= 3; i++) {
-        const tab = document.getElementById(`tab${i}`);
-        if (i === gameState.chapter) {
-          tab.className = "holo-card p-2.5 rounded-lg text-center font-bold border-cyan-400 text-cyan-300 flex items-center justify-center gap-2 holo-card-active";
-        } else if (i < gameState.chapter) {
-          tab.className = "holo-card p-2.5 rounded-lg text-center font-semibold text-green-400 border-green-500/40 flex items-center justify-center gap-2";
-        } else {
-          tab.className = "holo-card p-2.5 rounded-lg text-center text-gray-500 border-gray-800 opacity-60 flex items-center justify-center gap-2";
+    // Worm IK Segment Structure
+    const numSegments = 16;
+    const segmentLength = 7;
+    let wormSegments = [];
+    let targetPos = { x: 150, y: 100 };
+    let wormHead = { x: 150, y: 100, angle: 0 };
+    let foodItems = []; // Dropped food on soil surface
+
+    function initWorm() {
+      wormSegments = [];
+      for (let i = 0; i < numSegments; i++) {
+        wormSegments.push({ x: 150 - i * segmentLength, y: 100 });
+      }
+    }
+
+    // Resize Canvas to Container Width
+    function resizeCanvas() {
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+    }
+
+    function updateWormPhysics() {
+      // Move Worm Head towards target
+      const dx = targetPos.x - wormSegments[0].x;
+      const dy = targetPos.y - wormSegments[0].y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+
+      // Speed depends on energy
+      const speed = (gameState.energy / 100) * 1.8 + 0.4;
+
+      if (dist > 5) {
+        const angle = Math.atan2(dy, dx);
+        wormSegments[0].x += Math.cos(angle) * speed;
+        wormSegments[0].y += Math.sin(angle) * speed;
+        wormHead.angle = angle;
+      } else {
+        // Random wandering inside burrow or surface
+        if (Math.random() < 0.02) {
+          targetPos.x = Math.random() * (canvas.width - 40) + 20;
+          // Prefer burrowing under soil line (soil starts around 40% height)
+          const soilTop = canvas.height * 0.35;
+          targetPos.y = soilTop + Math.random() * (canvas.height - soilTop - 30);
+        }
+      }
+
+      // Inverse Kinematics for trailing segments
+      for (let i = 1; i < numSegments; i++) {
+        const segA = wormSegments[i - 1];
+        const segB = wormSegments[i];
+        const segDx = segA.x - segB.x;
+        const segDy = segA.y - segB.y;
+        const segAngle = Math.atan2(segDy, segDx);
+        
+        // Add subtle organic sine wave wriggling
+        const wriggle = Math.sin(Date.now() * 0.008 + i * 0.4) * 1.2;
+
+        segB.x = segA.x - Math.cos(segAngle + wriggle * 0.1) * segmentLength;
+        segB.y = segA.y - Math.sin(segAngle + wriggle * 0.1) * segmentLength;
+      }
+
+      // Check if food nearby head
+      for (let i = foodItems.length - 1; i >= 0; i--) {
+        const f = foodItems[i];
+        const fDx = wormSegments[0].x - f.x;
+        const fDy = wormSegments[0].y - f.y;
+        if (Math.sqrt(fDx * fDx + fDy * fDy) < 15) {
+          // Eat Food!
+          playSound('eat');
+          applyFoodEffect(f.type);
+          foodItems.splice(i, 1);
+          showToast("吃掉了一份資材！飽足度上升");
         }
       }
     }
 
-    function inspectItem(name, formula, desc, iconClass, colorClass) {
-      playSound('scan');
-      const scanner = document.getElementById('scannerDisplay');
-      scanner.innerHTML = `
-        <div class="flex items-center gap-2 ${colorClass} font-bold text-sm mb-1">
-          <i class="${iconClass}"></i> ${name}
-        </div>
-        <p class="text-cyan-300"><span class="text-gray-400">分子/化學特徵:</span> ${formula}</p>
-        <p class="text-gray-300 text-[11px] leading-relaxed mt-1">${desc}</p>
-      `;
+    function renderSanctuary() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const soilY = height * 0.35; // Soil line
+
+      // 1. Draw Sky / Upper Chamber
+      ctx.fillStyle = gameState.isDaytime ? '#0a2114' : '#020a05';
+      ctx.fillRect(0, 0, width, soilY);
+
+      // Sun / Ambient Light Glow
+      if (gameState.isDaytime) {
+        const grad = ctx.createRadialGradient(width / 2, 0, 10, width / 2, 0, width * 0.6);
+        grad.addColorStop(0, 'rgba(0, 255, 102, 0.2)');
+        grad.addColorStop(1, 'transparent');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, soilY);
+      }
+
+      // 2. Draw Soil Layer (Vermicompost matrix)
+      // Moisture alters soil darkness
+      const moistureFactor = gameState.hydration / 100;
+      const soilDarkness = Math.floor(20 - moistureFactor * 10);
+      ctx.fillStyle = `rgb(${soilDarkness}, ${soilDarkness + 15}, ${soilDarkness + 8})`;
+      ctx.fillRect(0, soilY, width, height - soilY);
+
+      // Soil Grass / Surface Line
+      ctx.strokeStyle = '#00ff66';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(0, soilY);
+      for (let x = 0; x <= width; x += 20) {
+        ctx.lineTo(x, soilY + Math.sin(x * 0.05) * 3);
+      }
+      ctx.stroke();
+
+      // Draw Soil Texture / Micro-Particles
+      ctx.fillStyle = 'rgba(0, 255, 102, 0.08)';
+      for (let i = 0; i < 40; i++) {
+        const px = (i * 37) % width;
+        const py = soilY + ((i * 23) % (height - soilY));
+        ctx.fillRect(px, py, 3, 3);
+      }
+
+      // Draw Dropped Food
+      foodItems.forEach(f => {
+        ctx.fillStyle = f.color;
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#00ff66';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+      });
+
+      // 3. Draw Worm Segments
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+
+      // Draw body segments back to head
+      for (let i = numSegments - 1; i >= 0; i--) {
+        const seg = wormSegments[i];
+        // Segment radius taper (Clitellum in middle)
+        let radius = 6;
+        if (i === 0) radius = 7; // Head
+        else if (i === 4 || i === 5) radius = 8.5; // Clitellum (鞍葉/生殖帶)
+        else radius = Math.max(3, 7 - i * 0.25);
+
+        // Cyber Pink/Green Organic Worm Skin
+        ctx.fillStyle = (i === 4 || i === 5) ? '#ff0055' : '#33ff88';
+        ctx.strokeStyle = '#040d08';
+        ctx.lineWidth = 1.5;
+
+        ctx.beginPath();
+        ctx.arc(seg.x, seg.y, radius, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // Draw Head Eyes / Cyber Visor
+      const head = wormSegments[0];
+      ctx.fillStyle = '#ffaa00';
+      ctx.beginPath();
+      ctx.arc(head.x + Math.cos(wormHead.angle) * 3, head.y + Math.sin(wormHead.angle) * 3, 2, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw Equipped Cosmetic (Hat)
+      if (gameState.equippedHat === 'wizardHat') {
+        ctx.fillStyle = '#ffaa00';
+        ctx.beginPath();
+        ctx.moveTo(head.x, head.y - 8);
+        ctx.lineTo(head.x - 6, head.y - 2);
+        ctx.lineTo(head.x + 6, head.y - 2);
+        ctx.closePath();
+        ctx.fill();
+      } else if (gameState.equippedHat === 'sunglasses') {
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(head.x - 5, head.y - 3, 10, 4);
+        ctx.strokeStyle = '#00e1ff';
+        ctx.strokeRect(head.x - 5, head.y - 3, 10, 4);
+      }
+    }
+
+    // Canvas Mouse Click -> Feed or Poke
+    canvas.addEventListener('click', (e) => {
+      const rect = canvas.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const clickY = e.clientY - rect.top;
+
+      // Direct target pos to click
+      targetPos.x = clickX;
+      targetPos.y = clickY;
+
+      const head = wormSegments[0];
+      const dx = clickX - head.x;
+      const dy = clickY - head.y;
+
+      if (Math.sqrt(dx * dx + dy * dy) < 25) {
+        // Poke worm directly
+        playSound('happy');
+        showToast("撫摸了蚯蚓！活力與心情大增 ヾ(•ω•`)o");
+        gameState.energy = Math.min(100, gameState.energy + 15);
+        gameState.hydration = Math.min(100, gameState.hydration + 5);
+        updateHUD();
+      }
+    });
+
+    /* ===================================================================
+       4. MICROSCOPE CANVAS ANIMATION (SOIL ECOLOGY)
+       =================================================================== */
+    const microCanvas = document.getElementById('microscopeCanvas');
+    const microCtx = microCanvas.getContext('2d');
+
+    let microMicrobes = Array.from({ length: 25 }, () => ({
+      x: Math.random() * 200,
+      y: Math.random() * 150,
+      vx: (Math.random() - 0.5) * 0.8,
+      vy: (Math.random() - 0.5) * 0.8,
+      size: Math.random() * 3 + 1,
+      color: Math.random() > 0.4 ? '#ff0055' : '#00ff66'
+    }));
+
+    function renderMicroscope() {
+      if (document.getElementById('tabMicroscope').classList.contains('hidden')) return;
+
+      microCanvas.width = microCanvas.clientWidth;
+      microCanvas.height = microCanvas.clientHeight;
+
+      microCtx.fillStyle = '#020a05';
+      microCtx.fillRect(0, 0, microCanvas.width, microCanvas.height);
+
+      // Draw moving microbes
+      microMicrobes.forEach(m => {
+        m.x += m.vx;
+        m.y += m.vy;
+
+        if (m.x < 0 || m.x > microCanvas.width) m.vx *= -1;
+        if (m.y < 0 || m.y > microCanvas.height) m.vy *= -1;
+
+        microCtx.fillStyle = m.color;
+        microCtx.beginPath();
+        microCtx.arc(m.x, m.y, m.size, 0, Math.PI * 2);
+        microCtx.fill();
+      });
     }
 
     /* ===================================================================
-       CHAPTER 1: THE CARBON-NITROGEN CIPHER (碳氮鏈重組)
+       5. GAME LOGIC & ECO-SIMULATION TICK
        =================================================================== */
-    function renderChapter1() {
-      const stage = document.getElementById('puzzleStage');
+    function gameTick() {
+      // Vital stat decay
+      gameState.hunger = Math.max(0, gameState.hunger - 0.15);
+      gameState.hydration = Math.max(0, gameState.hydration - 0.1);
+
+      // Auto mister check
+      if (gameState.inventory.autoMister && gameState.hydration < 55) {
+        gameState.hydration = 60;
+        playSound('spray');
+      }
+
+      // Energy calculation based on hunger/hydration
+      if (gameState.hunger < 20 || gameState.hydration < 20) {
+        gameState.energy = Math.max(10, gameState.energy - 0.3);
+      } else {
+        gameState.energy = Math.min(100, gameState.energy + 0.1);
+      }
+
+      // Vermicompost accumulation
+      if (gameState.hunger > 50 && gameState.hydration > 50) {
+        gameState.vermicompostReady += 0.05;
+        gameState.wormTea += 0.1;
+      }
+
+      updateHUD();
+      saveGame();
+    }
+
+    function applyFoodEffect(type) {
+      if (type === 'greens') {
+        gameState.hunger = Math.min(100, gameState.hunger + 30);
+        gameState.cnRatio = Math.max(15, gameState.cnRatio - 1.5); // Adds N, lowers ratio
+        logConsole("投餵蔬菜果皮：補充氮素與水分，降低 C:N 比例。");
+      } else if (type === 'browns') {
+        gameState.hunger = Math.min(100, gameState.hunger + 20);
+        gameState.cnRatio = Math.min(50, gameState.cnRatio + 2.5); // Adds C, raises ratio
+        logConsole("投餵碎紙板乾葉：補充碳素，提高 C:N 比例，改善結構。");
+      } else if (type === 'biochar') {
+        gameState.soilHealth = Math.min(100, gameState.soilHealth + 10);
+        logConsole("加入生物炭微粒：增加孔隙與微生物棲地！");
+      } else if (type === 'eggshells') {
+        gameState.soilHealth = Math.min(100, gameState.soilHealth + 5);
+        logConsole("加入蛋殼粉：補充鈣質，中和酸鹼值。");
+      }
+
+      updateHUD();
+    }
+
+    function feedFood(type) {
+      playSound('eat');
+      // Drop food onto soil surface
+      const soilTop = canvas.height * 0.35;
+      foodItems.push({
+        x: Math.random() * (canvas.width - 40) + 20,
+        y: soilTop + 5,
+        type: type,
+        size: 5,
+        color: type === 'greens' ? '#00ff66' : (type === 'browns' ? '#ffaa00' : '#888888')
+      });
+
+      // Direct worm to food
+      const lastFood = foodItems[foodItems.length - 1];
+      targetPos.x = lastFood.x;
+      targetPos.y = lastFood.y;
+    }
+
+    function interactPoke() {
+      playSound('happy');
+      targetPos.x = canvas.width / 2;
+      targetPos.y = canvas.height * 0.5;
+      gameState.energy = Math.min(100, gameState.energy + 10);
+      showToast("輕戳了養殖箱！蚯蚓開始活潑運動。");
+      updateHUD();
+    }
+
+    function toggleDayNight() {
+      gameState.isDaytime = !gameState.isDaytime;
+      playSound('spray');
+      updateHUD();
+      logConsole(gameState.isDaytime ? "切換至植物生長燈照射。" : "切換至黑暗休眠模式。");
+    }
+
+    function sprayMister() {
+      playSound('spray');
+      gameState.hydration = Math.min(100, gameState.hydration + 25);
+      showToast("噴霧加濕成功！體濕度上升");
+      updateHUD();
+    }
+
+    function harvestOutput() {
+      if (gameState.vermicompostReady < 1) {
+        showToast("蚯蚓糞尚在轉化中，請稍後採收！");
+        return;
+      }
+
+      playSound('coin');
+      const harvested = Math.floor(gameState.vermicompostReady);
+      const earned = harvested * 10;
+      gameState.credits += earned;
+      gameState.vermicompostReady -= harvested;
+
+      showToast(`採收了 ${harvested} 單位黑金堆肥！獲得 ${earned} 黑金幣`);
+      logConsole(`採收成功！獲得 ${earned} 黑金幣。`);
+      updateHUD();
+    }
+
+    /* ===================================================================
+       6. STORE & COSMETICS PURCHASING
+       =================================================================== */
+    function buyCosmetic(itemKey, cost) {
+      if (gameState.credits < cost) {
+        showToast("黑金幣不足！請先採收堆肥");
+        return;
+      }
+
+      playSound('coin');
+      gameState.credits -= cost;
+      gameState.inventory[itemKey] = true;
+      gameState.equippedHat = itemKey;
+      showToast("解鎖並穿戴了裝扮！");
+      updateHUD();
+    }
+
+    function buyUpgrade(itemKey, cost) {
+      if (gameState.credits < cost) {
+        showToast("黑金幣不足！");
+        return;
+      }
+
+      playSound('coin');
+      gameState.credits -= cost;
+      gameState.inventory[itemKey] = true;
+      showToast("成功升級設備！");
+      updateHUD();
+    }
+
+    /* ===================================================================
+       7. UI UPDATES & TAB NAVIGATION
+       =================================================================== */
+    function updateHUD() {
+      document.getElementById('creditsTxt').innerText = gameState.credits;
+      document.getElementById('teaTxt').innerText = `${Math.floor(gameState.wormTea)} ml`;
+      document.getElementById('hungerVal').innerText = `${Math.floor(gameState.hunger)}%`;
+      document.getElementById('hungerBar').style.width = `${gameState.hunger}%`;
+
+      document.getElementById('hydrationVal').innerText = `${Math.floor(gameState.hydration)}%`;
+      document.getElementById('hydrationBar').style.width = `${gameState.hydration}%`;
+
+      document.getElementById('energyVal').innerText = `${Math.floor(gameState.energy)}%`;
+      document.getElementById('energyBar').style.width = `${gameState.energy}%`;
+
+      document.getElementById('soilHealthVal').innerText = `${Math.floor(gameState.soilHealth)}`;
+      document.getElementById('soilHealthBar').style.width = `${gameState.soilHealth}%`;
+
+      // C:N Ratio HUD
+      const cn = gameState.cnRatio.toFixed(1);
+      document.getElementById('cnRatioVal').innerText = `${cn} : 1`;
       
-      // Calculate C:N Ratio
-      const c = gameState.ch1.carbon;
-      const n = gameState.ch1.nitrogen;
-      const cnRatio = n > 0 ? (c / n).toFixed(1) : "N/A";
-      const moisture = gameState.ch1.moisture;
-      const oxygen = gameState.ch1.oxygen;
-
-      // Check ideal conditions: C:N ~ 30 (range 25-35), Moisture 55-65%, Oxygen 50-80%
-      const isCnIdeal = (c / n) >= 27 && (c / n) <= 33;
-      const isMoistureIdeal = moisture >= 55 && moisture <= 65;
-      const isOxygenIdeal = oxygen >= 50 && oxygen <= 80;
-      const readyToDecompose = isCnIdeal && isMoistureIdeal && isOxygenIdeal;
-
-      stage.innerHTML = `
-        <div class="flex flex-col h-full justify-between gap-4">
-          <!-- Chapter Header -->
-          <div class="flex justify-between items-start border-b border-cyan-500/30 pb-3">
-            <div>
-              <span class="text-xs font-mono text-cyan-400 tracking-widest">CHAPTER 01</span>
-              <h2 class="font-orbitron font-extrabold text-xl text-cyan-200">碳氮鏈重組驗證 (Carbon-Nitrogen Cipher)</h2>
-              <p class="text-xs text-gray-300 mt-1">配比優質堆肥環境：調控 C:N 比例 (目標 30:1)、水分 (目標 60%) 與通氣翻堆率。</p>
-            </div>
-            <span class="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-400/40 text-cyan-300 text-xs font-mono">
-              <i class="fa-solid fa-temperature-arrow-up text-amber-400"></i> 熱高溫期轉化
-            </span>
-          </div>
-
-          <!-- Interactive Elements Grid (Scan items) -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 my-1">
-            <button onclick="inspectItem('棕色高碳剪枝', '高纖維素/木質素 (C:N 60~100:1)', '提供堆肥結構骨架與長期碳源，促進好氧菌附著。', 'fa-solid fa-tree', 'text-amber-400')" 
-                    class="p-2.5 rounded-lg bg-amber-950/30 border border-amber-600/40 hover:border-amber-400 flex flex-col items-center gap-1 text-center transition">
-              <i class="fa-solid fa-tree text-2xl text-amber-500"></i>
-              <span class="text-xs font-bold text-amber-200">高碳木質剪枝</span>
-              <span class="text-[10px] text-amber-400/80 font-mono">C:N ≈ 80:1</span>
-            </button>
-
-            <button onclick="inspectItem('綠色氮源資材', '蛋白質/胺基酸 (C:N 12~15:1)', '提供微生物快速繁殖所需的氮素與蛋白質來源。', 'fa-solid fa-seedling', 'text-green-400')" 
-                    class="p-2.5 rounded-lg bg-green-950/30 border border-green-600/40 hover:border-green-400 flex flex-col items-center gap-1 text-center transition">
-              <i class="fa-solid fa-seedling text-2xl text-green-400"></i>
-              <span class="text-xs font-bold text-green-200">綠色生鮮資材</span>
-              <span class="text-[10px] text-green-400/80 font-mono">C:N ≈ 15:1</span>
-            </button>
-
-            <button onclick="inspectItem('蚯蚓與分解菌相', 'Lumbricina & Actinobacteria', '蚯蚓消化道能將有機質與泥土混合，產生高效腐植質與酵素。', 'fa-solid fa-worm', 'text-pink-400')" 
-                    class="p-2.5 rounded-lg bg-pink-950/30 border border-pink-600/40 hover:border-pink-400 flex flex-col items-center gap-1 text-center transition">
-              <i class="fa-solid fa-worm text-2xl text-pink-400"></i>
-              <span class="text-xs font-bold text-pink-200">蚯蚓分解菌群</span>
-              <span class="text-[10px] text-pink-300/80 font-mono">生物化學催化劑</span>
-            </button>
-
-            <button onclick="inspectItem('水分與通氣孔隙', 'H2O & Oxygen Flow', '好氧分解需 55-65% 水分，並透過翻堆引入氧氣以避免厭氧臭味。', 'fa-solid fa-droplet', 'text-cyan-400')" 
-                    class="p-2.5 rounded-lg bg-cyan-950/30 border border-cyan-600/40 hover:border-cyan-400 flex flex-col items-center gap-1 text-center transition">
-              <i class="fa-solid fa-droplet text-2xl text-cyan-400"></i>
-              <span class="text-xs font-bold text-cyan-200">水分與好氧孔隙</span>
-              <span class="text-[10px] text-cyan-300/80 font-mono">好氧菌活化劑</span>
-            </button>
-          </div>
-
-          <!-- Controls & Sliders Panel -->
-          <div class="bg-cyan-950/30 border border-cyan-500/20 rounded-xl p-4 space-y-4">
-            
-            <!-- Carbon / Nitrogen Input Sliders -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-amber-300"><i class="fa-solid fa-cube"></i> 高碳棕色資材 (C):</span>
-                  <span class="font-bold text-amber-400" id="cVal">${gameState.ch1.carbon}</span>
-                </div>
-                <input type="range" min="10" max="100" value="${gameState.ch1.carbon}" class="w-full" oninput="updateCh1('carbon', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-green-300"><i class="fa-solid fa-leaf"></i> 高氮綠色資材 (N):</span>
-                  <span class="font-bold text-green-400" id="nVal">${gameState.ch1.nitrogen}</span>
-                </div>
-                <input type="range" min="1" max="20" value="${gameState.ch1.nitrogen}" class="w-full" oninput="updateCh1('nitrogen', this.value)">
-              </div>
-            </div>
-
-            <!-- Moisture & Oxygen Sliders -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-cyan-300"><i class="fa-solid fa-droplet"></i> 水分含量 (%):</span>
-                  <span class="font-bold ${isMoistureIdeal ? 'text-green-400' : 'text-cyan-400'}" id="mVal">${gameState.ch1.moisture}%</span>
-                </div>
-                <input type="range" min="10" max="90" value="${gameState.ch1.moisture}" class="w-full" oninput="updateCh1('moisture', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-indigo-300"><i class="fa-solid fa-wind"></i> 翻堆通氣率 (O₂):</span>
-                  <span class="font-bold ${isOxygenIdeal ? 'text-green-400' : 'text-indigo-400'}" id="oVal">${gameState.ch1.oxygen}%</span>
-                </div>
-                <input type="range" min="10" max="100" value="${gameState.ch1.oxygen}" class="w-full" oninput="updateCh1('oxygen', this.value)">
-              </div>
-            </div>
-
-            <!-- Dynamic Gauges -->
-            <div class="grid grid-cols-3 gap-2 text-center pt-2 border-t border-cyan-500/20 font-mono text-xs">
-              <div class="p-2 rounded bg-black/40 border ${isCnIdeal ? 'border-green-500 text-green-400' : 'border-cyan-800 text-gray-300'}">
-                <div class="text-[10px] text-gray-400">目前 C:N 比例</div>
-                <div class="text-base font-extrabold mt-0.5">${cnRatio} : 1</div>
-                <div class="text-[9px] ${isCnIdeal ? 'text-green-400' : 'text-amber-400'}">${isCnIdeal ? '✓ 黃金比例 (30:1)' : '目標 ~30:1'}</div>
-              </div>
-
-              <div class="p-2 rounded bg-black/40 border ${isMoistureIdeal ? 'border-green-500 text-green-400' : 'border-cyan-800 text-gray-300'}">
-                <div class="text-[10px] text-gray-400">水分狀態</div>
-                <div class="text-base font-extrabold mt-0.5">${moisture}%</div>
-                <div class="text-[9px] ${isMoistureIdeal ? 'text-green-400' : 'text-amber-400'}">${isMoistureIdeal ? '✓ 適宜 (55-65%)' : '目標 60%'}</div>
-              </div>
-
-              <div class="p-2 rounded bg-black/40 border ${isOxygenIdeal ? 'border-green-500 text-green-400' : 'border-cyan-800 text-gray-300'}">
-                <div class="text-[10px] text-gray-400">好氧環境</div>
-                <div class="text-base font-extrabold mt-0.5">${oxygen}%</div>
-                <div class="text-[9px] ${isOxygenIdeal ? 'text-green-400' : 'text-amber-400'}">${isOxygenIdeal ? '✓ 好氧菌活化' : '需要翻堆'}</div>
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Action Button -->
-          <button onclick="triggerCh1Reaction()" 
-                  class="w-full py-3 rounded-lg font-orbitron font-bold text-sm tracking-wider ${readyToDecompose ? 'holo-btn bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed'}"
-                  ${readyToDecompose ? '' : 'disabled'}>
-            <i class="fa-solid fa-bolt text-yellow-400 mr-2"></i> 啟動嗜熱好氧轉化反應 (SYNTHESIZE BIO-ENERGY)
-          </button>
-        </div>
-      `;
-    }
-
-    function updateCh1(key, val) {
-      gameState.ch1[key] = parseFloat(val);
-      playSound('click');
-      renderChapter1();
-    }
-
-    function triggerCh1Reaction() {
-      playSound('success');
-      gameState.coreEnergy = 45;
-      gameState.chapter = 2;
-
-      // Update Dialogue
-      document.getElementById('dialogueBox').innerHTML = `
-        <p class="text-green-400 font-bold">「成功觸發嗜熱分解反應！」</p>
-        <p>堆肥中心溫度上升至 65°C，釋放大量高純度生物熱能。飛船量子核心能量提升至 <strong>45%</strong>！</p>
-        <p class="text-cyan-400 text-xs">AURA AI: 『獲得數據記錄：[高碳氮比例平衡與微生物發酵熱能]。準備解鎖第二章：土壤生物炭基矩陣。』</p>
-      `;
-
-      // Add Log
-      gameState.logs.push({
-        title: "觀測紀錄 002：碳氮鏈黃金密碼 (C:N Cipher)",
-        content: "當 C:N 比例達到約 30:1，且水分控制於 60% 搭配好氧翻堆時，嗜熱菌（Thermophiles）迅速大量繁殖，產生高熱與豐富腐植質。這是地球生態系統最效率的物質循環模式之一。"
-      });
-
-      updateHUD();
-      renderChapter2();
-    }
-
-    /* ===================================================================
-       CHAPTER 2: THE BIOCHAR & SOIL MATRIX (土壤生物炭與電極迴路)
-       =================================================================== */
-    function renderChapter2() {
-      const stage = document.getElementById('puzzleStage');
-      const ch = gameState.ch2;
-
-      // Conditions: Temp 400-500°C, Oxygen < 10% for Pyrolysis
-      const isTempGood = ch.temp >= 400 && ch.temp <= 550;
-      const isOxygenLow = ch.oxygen <= 10;
-      const canPyrolyze = isTempGood && isOxygenLow;
-
-      stage.innerHTML = `
-        <div class="flex flex-col h-full justify-between gap-4">
-          <!-- Chapter Header -->
-          <div class="flex justify-between items-start border-b border-cyan-500/30 pb-3">
-            <div>
-              <span class="text-xs font-mono text-cyan-400 tracking-widest">CHAPTER 02</span>
-              <h2 class="font-orbitron font-extrabold text-xl text-cyan-200">生物炭基矩陣與微電池 (Biochar Matrix)</h2>
-              <p class="text-xs text-gray-300 mt-1">控制低氧高溫熱解 (Pyrolysis) 製造生物炭，並凝結竹醋液，構建土壤生物電池。</p>
-            </div>
-            <span class="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-400/40 text-cyan-300 text-xs font-mono">
-              <i class="fa-solid fa-fire text-orange-400"></i> 低氧熱解反應
-            </span>
-          </div>
-
-          <!-- Pyrolysis Reaction Station -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <!-- Pyrolysis Controls -->
-            <div class="bg-black/40 border border-cyan-800 rounded-xl p-4 space-y-3">
-              <h4 class="text-xs font-orbitron text-cyan-300 font-bold border-b border-cyan-900 pb-1 flex items-center gap-2">
-                <i class="fa-solid fa-smog text-amber-400"></i> 1. 生物質熱解爐設定
-              </h4>
-
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-orange-300">熱解溫度 (°C):</span>
-                  <span class="font-bold ${isTempGood ? 'text-green-400' : 'text-orange-400'}">${ch.temp} °C</span>
-                </div>
-                <input type="range" min="100" max="700" value="${ch.temp}" class="w-full" oninput="updateCh2('temp', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between text-xs font-mono mb-1">
-                  <span class="text-cyan-300">爐內氧氣濃度 (%):</span>
-                  <span class="font-bold ${isOxygenLow ? 'text-green-400' : 'text-red-400'}">${ch.oxygen}%</span>
-                </div>
-                <input type="range" min="1" max="40" value="${ch.oxygen}" class="w-full" oninput="updateCh2('oxygen', this.value)">
-              </div>
-
-              <div class="text-[11px] text-gray-400 font-mono bg-cyan-950/40 p-2 rounded">
-                目標：溫度 <span class="text-cyan-300">400~500°C</span> + 氧氣 <span class="text-cyan-300">&lt; 10%</span> (高溫隔氧成炭)。
-              </div>
-
-              <button onclick="pyrolyzeWood()" 
-                      class="w-full py-2 rounded text-xs font-bold font-orbitron ${canPyrolyze ? 'holo-btn' : 'bg-gray-800 text-gray-500 border border-gray-700 cursor-not-allowed'}"
-                      ${canPyrolyze ? '' : 'disabled'}>
-                <i class="fa-solid fa-fire-burner mr-1"></i> 執行熱解產炭與醋液收集
-              </button>
-            </div>
-
-            <!-- Bio-Battery Assembly Station -->
-            <div class="bg-black/40 border border-cyan-800 rounded-xl p-4 flex flex-col justify-between">
-              <div>
-                <h4 class="text-xs font-orbitron text-cyan-300 font-bold border-b border-cyan-900 pb-2 flex items-center gap-2">
-                  <i class="fa-solid fa-car-battery text-green-400"></i> 2. 土壤量子微電池組裝
-                </h4>
-
-                <div class="space-y-2 text-xs font-mono mt-3">
-                  <div class="flex items-center justify-between p-2 rounded bg-cyan-950/30 border border-cyan-900">
-                    <span><i class="fa-solid fa-cube text-gray-400 mr-2"></i>多孔隙生物炭結構</span>
-                    <span class="${ch.biocharReady ? 'text-green-400 font-bold' : 'text-gray-500'}">
-                      ${ch.biocharReady ? '✓ 已就緒' : '待熱解'}
-                    </span>
-                  </div>
-
-                  <div class="flex items-center justify-between p-2 rounded bg-cyan-950/30 border border-cyan-900">
-                    <span><i class="fa-solid fa-vial text-amber-400 mr-2"></i>凝結竹醋液 (抑菌/電解)</span>
-                    <span class="${ch.vinegarCollected ? 'text-green-400 font-bold' : 'text-gray-500'}">
-                      ${ch.vinegarCollected ? '✓ 已收集' : '待凝結'}
-                    </span>
-                  </div>
-
-                  <button onclick="toggleCh2Step('microbesAdded')" 
-                          class="w-full text-left p-2 rounded bg-cyan-950/30 border ${ch.microbesAdded ? 'border-green-500 text-green-300' : 'border-cyan-800 text-gray-300'} hover:border-cyan-400 transition">
-                    <i class="fa-solid fa-bacteria mr-2 text-pink-400"></i>注入土棲產電菌群 (Geobacter)
-                    <span class="float-right font-bold">${ch.microbesAdded ? '✓' : '+'}</span>
-                  </button>
-
-                  <button onclick="toggleCh2Step('moistureAdded')" 
-                          class="w-full text-left p-2 rounded bg-cyan-950/30 border ${ch.moistureAdded ? 'border-green-500 text-green-300' : 'border-cyan-800 text-gray-300'} hover:border-cyan-400 transition">
-                    <i class="fa-solid fa-glass-water mr-2 text-cyan-400"></i>調整濕度電解質基質
-                    <span class="float-right font-bold">${ch.moistureAdded ? '✓' : '+'}</span>
-                  </button>
-                </div>
-              </div>
-
-              <div class="text-[10px] text-cyan-400/80 font-mono mt-2">
-                *生物炭的高比表面積能固定土壤有機碳 (SOC)，並傳導微生物電子。
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Complete Chapter Button -->
-          <button onclick="triggerCh2Completion()" 
-                  class="w-full py-3 rounded-lg font-orbitron font-bold text-sm tracking-wider ${(ch.biocharReady && ch.vinegarCollected && ch.microbesAdded && ch.moistureAdded) ? 'holo-btn bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed'}"
-                  ${(ch.biocharReady && ch.vinegarCollected && ch.microbesAdded && ch.moistureAdded) ? '' : 'disabled'}>
-            <i class="fa-solid fa-plug-circle-bolt text-green-400 mr-2"></i> 連接量子發射器並充能 (ACTIVATE TRANSCEIVER)
-          </button>
-        </div>
-      `;
-    }
-
-    function updateCh2(key, val) {
-      gameState.ch2[key] = parseFloat(val);
-      playSound('click');
-      renderChapter2();
-    }
-
-    function pyrolyzeWood() {
-      playSound('scan');
-      gameState.ch2.biocharReady = true;
-      gameState.ch2.vinegarCollected = true;
-      renderChapter2();
-    }
-
-    function toggleCh2Step(stepKey) {
-      playSound('click');
-      gameState.ch2[stepKey] = !gameState.ch2[stepKey];
-      renderChapter2();
-    }
-
-    function triggerCh2Completion() {
-      playSound('success');
-      gameState.coreEnergy = 75;
-      gameState.chapter = 3;
-
-      document.getElementById('dialogueBox').innerHTML = `
-        <p class="text-green-400 font-bold">「生物炭微電池系統組裝完畢！」</p>
-        <p>多孔隙生物炭完美固定了土壤碳素，並透過產電菌（Geobacter）源源不絕傳輸微電流！量子通訊器發出亮光，能量達到 <strong>75%</strong>！</p>
-        <p class="text-cyan-400 text-xs">AURA AI: 『警報！偵測到大氣氣壓驟降，地球強烈對流風暴即將抵達。請利用在地低碳材料搭建防護構築！』</p>
-      `;
-
-      gameState.logs.push({
-        title: "觀測紀錄 003：生物炭與固碳電極 (Biochar Matrix)",
-        content: "生物炭（Biochar）在高溫隔氧下熱解而成，具有極高比表面積與穩定碳骨架，能封存碳長達數百年。其多孔結構可作為土壤微生物的棲地，並集結蒸餾出的竹醋液進行天然抗菌。"
-      });
-
-      updateHUD();
-      renderChapter3();
-    }
-
-    /* ===================================================================
-       CHAPTER 3: LOW-CARBON STRUCTURAL RESONANCE (低碳自然構築)
-       =================================================================== */
-    function renderChapter3() {
-      const stage = document.getElementById('puzzleStage');
-      const ch = gameState.ch3;
-
-      // Ratio Check: Soil 40%, Bamboo Fiber 20%, Quicklime 20%, Biochar 20% (Total must equal 100)
-      const total = ch.soil + ch.bamboo + ch.lime + ch.biochar;
-      const isPerfectBlend = ch.soil === 40 && ch.bamboo === 20 && ch.lime === 20 && ch.biochar === 20;
-
-      stage.innerHTML = `
-        <div class="flex flex-col h-full justify-between gap-4">
-          <!-- Chapter Header -->
-          <div class="flex justify-between items-start border-b border-cyan-500/30 pb-3">
-            <div>
-              <span class="text-xs font-mono text-cyan-400 tracking-widest">CHAPTER 03</span>
-              <h2 class="font-orbitron font-extrabold text-xl text-cyan-200">低碳自然構築解碼 (Eco-Rammed Wall)</h2>
-              <p class="text-xs text-gray-300 mt-1">混合在地黏土、竹纖維、熟石灰與生物炭，建構高韌性、低碳排的抗風暴防護堡壘。</p>
-            </div>
-            <span class="px-2.5 py-1 rounded bg-cyan-950 border border-cyan-400/40 text-cyan-300 text-xs font-mono">
-              <i class="fa-solid fa-shield-halved text-cyan-400"></i> 生態夯土構築
-            </span>
-          </div>
-
-          <!-- Interactive Material Scanner -->
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-2">
-            <button onclick="inspectItem('黏性土壤基質', 'Al2O3·2SiO2·2H2O', '提供強大的物理包裹力與天然熱容，作為夯土的主要骨材。', 'fa-solid fa-mound', 'text-amber-500')" 
-                    class="p-2 rounded bg-amber-950/20 border border-amber-800 text-center text-xs">
-              <i class="fa-solid fa-mound text-amber-500 text-xl mb-1"></i>
-              <div class="font-bold text-amber-200">黏性土壤</div>
-              <div class="text-[10px] text-gray-400 font-mono">目標 40%</div>
-            </button>
-
-            <button onclick="inspectItem('天然竹韌纖維', 'Cellulose Microfibrils', '高抗拉強度天然纖維，大幅提升牆體抗震與拉伸韌性。', 'fa-solid fa-bore-hole', 'text-green-400')" 
-                    class="p-2 rounded bg-green-950/20 border border-green-800 text-center text-xs">
-              <i class="fa-solid fa-bore-hole text-green-400 text-xl mb-1"></i>
-              <div class="font-bold text-green-200">竹纖維筋材</div>
-              <div class="text-[10px] text-gray-400 font-mono">目標 20%</div>
-            </button>
-
-            <button onclick="inspectItem('石灰固化劑', 'Ca(OH)2 + CO2 -> CaCO3', '氣硬性膠結材料，吸收大氣 CO2 漸進硬化，形成堅硬結晶。', 'fa-solid fa-cubes-stacked', 'text-cyan-300')" 
-                    class="p-2 rounded bg-cyan-950/20 border border-cyan-800 text-center text-xs">
-              <i class="fa-solid fa-cubes-stacked text-cyan-300 text-xl mb-1"></i>
-              <div class="font-bold text-cyan-200">熟石灰膠結</div>
-              <div class="text-[10px] text-gray-400 font-mono">目標 20%</div>
-            </button>
-
-            <button onclick="inspectItem('生物炭調濕骨材', 'Porosity Carbon Matrix', '調節室內溼度，增加材料質輕度與碳封存總量。', 'fa-solid fa-volcano', 'text-gray-300')" 
-                    class="p-2 rounded bg-gray-950/20 border border-gray-800 text-center text-xs">
-              <i class="fa-solid fa-volcano text-gray-300 text-xl mb-1"></i>
-              <div class="font-bold text-gray-200">生物炭輕骨材</div>
-              <div class="text-[10px] text-gray-400 font-mono">目標 20%</div>
-            </button>
-          </div>
-
-          <!-- Mixing Sliders -->
-          <div class="bg-black/40 border border-cyan-800 rounded-xl p-4 space-y-3 font-mono text-xs">
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span class="text-amber-300">黏性土壤 (%):</span>
-                  <span class="font-bold ${ch.soil === 40 ? 'text-green-400' : 'text-cyan-300'}">${ch.soil}%</span>
-                </div>
-                <input type="range" min="10" max="70" step="5" value="${ch.soil}" class="w-full" oninput="updateCh3('soil', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span class="text-green-300">竹纖維筋材 (%):</span>
-                  <span class="font-bold ${ch.bamboo === 20 ? 'text-green-400' : 'text-cyan-300'}">${ch.bamboo}%</span>
-                </div>
-                <input type="range" min="5" max="40" step="5" value="${ch.bamboo}" class="w-full" oninput="updateCh3('bamboo', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span class="text-cyan-300">石灰膠結劑 (%):</span>
-                  <span class="font-bold ${ch.lime === 20 ? 'text-green-400' : 'text-cyan-300'}">${ch.lime}%</span>
-                </div>
-                <input type="range" min="5" max="40" step="5" value="${ch.lime}" class="w-full" oninput="updateCh3('lime', this.value)">
-              </div>
-
-              <div>
-                <div class="flex justify-between mb-1">
-                  <span class="text-gray-300">生物炭調濕劑 (%):</span>
-                  <span class="font-bold ${ch.biochar === 20 ? 'text-green-400' : 'text-cyan-300'}">${ch.biochar}%</span>
-                </div>
-                <input type="range" min="5" max="40" step="5" value="${ch.biochar}" class="w-full" oninput="updateCh3('biochar', this.value)">
-              </div>
-            </div>
-
-            <div class="flex justify-between items-center pt-2 border-t border-cyan-900">
-              <div>配比總和: <span class="${total === 100 ? 'text-green-400 font-bold' : 'text-red-400'}">${total}% / 100%</span></div>
-              <div class="text-[10px] ${isPerfectBlend ? 'text-green-400' : 'text-amber-400'} font-bold">
-                ${isPerfectBlend ? '✓ 完美的黃金強度與碳封存配比！' : '請調整配比至 (40:20:20:20)'}
-              </div>
-            </div>
-
-          </div>
-
-          <!-- Build Button -->
-          <button onclick="triggerCh3Completion()" 
-                  class="w-full py-3 rounded-lg font-orbitron font-bold text-sm tracking-wider ${isPerfectBlend ? 'holo-btn bg-cyan-500/20 border-cyan-400 text-cyan-300' : 'bg-gray-800 border border-gray-700 text-gray-500 cursor-not-allowed'}"
-                  ${isPerfectBlend ? '' : 'disabled'}>
-            <i class="fa-solid fa-house-shield text-cyan-400 mr-2"></i> 執行夯土夯實與防護罩構築 (BUILD ECO-SHELTER)
-          </button>
-        </div>
-      `;
-    }
-
-    function updateCh3(key, val) {
-      gameState.ch3[key] = parseInt(val);
-      playSound('click');
-      renderChapter3();
-    }
-
-    function triggerCh3Completion() {
-      playSound('success');
-      gameState.coreEnergy = 100;
-
-      document.getElementById('dialogueBox').innerHTML = `
-        <p class="text-yellow-300 font-bold">「任務完全達成！瑟拉星協定順利啟動！」</p>
-        <p>低碳夯土防護堡壘成功抵禦了地球強烈風暴，且生物量子核心達到 <strong>100% 滿能量充能</strong>！飛船已具備返回瑟拉星的跳躍動力。</p>
-        <p class="text-cyan-400 text-xs">AURA AI: 『開倫分析官，這座地球農場展示了無與倫比的【永續循環邏輯】。這份觀測日誌將成為瑟拉星重要的生態資產！』</p>
-      `;
-
-      gameState.logs.push({
-        title: "觀測紀錄 004：低碳自然構築 (Eco-Rammed Wall)",
-        content: "結合黏土的熱容、竹子的高抗拉纖維、石灰吸收二氧化碳碳化的特性，以及生物炭的輕量化與調濕效果，能建造出極低碳足跡、可完全退役歸還土地的永續建築。"
-      });
-
-      updateHUD();
-
-      // Final Victory Screen
-      const stage = document.getElementById('puzzleStage');
-      stage.innerHTML = `
-        <div class="flex flex-col items-center justify-center text-center h-full space-y-5 p-4">
-          <div class="w-20 h-20 rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 text-4xl shadow-xl shadow-cyan-500/40 pulse-glow">
-            <i class="fa-solid fa-rocket"></i>
-          </div>
-
-          <div>
-            <span class="text-xs font-mono text-cyan-400 tracking-widest">MISSION COMPLETED</span>
-            <h2 class="font-orbitron font-black text-2xl md:text-3xl text-cyan-200 mt-1">地球系統協定：解碼成功</h2>
-            <p class="text-xs md:text-sm text-gray-300 max-w-lg mx-auto mt-2 leading-relaxed">
-              您成功運用了【碳氮平衡】、【生物炭矩陣】與【低碳自然構築】，幫助開倫完成任務。這項體驗展現了地球生態系中，資源並無「廢棄物」，只有「尚未被放對位置的循環能量」。
-            </p>
-          </div>
-
-          <div class="flex gap-3">
-            <button onclick="openLogbook()" class="px-5 py-2.5 rounded holo-btn font-orbitron text-xs">
-              <i class="fa-solid fa-journal-whills mr-1"></i> 查閱完整觀測日誌
-            </button>
-            <button onclick="resetGame()" class="px-5 py-2.5 rounded bg-cyan-950 border border-cyan-500/50 text-cyan-300 hover:bg-cyan-900 text-xs font-orbitron">
-              <i class="fa-solid fa-rotate-left mr-1"></i> 重新模擬體驗
-            </button>
-          </div>
-        </div>
-      `;
-    }
-
-    /* ===================================================================
-       3. LOGBOOK MODAL & LORE SYSTEM
-       =================================================================== */
-    function openLogbook() {
-      playSound('click');
-      const container = document.getElementById('logEntries');
-      container.innerHTML = gameState.logs.map((log, index) => `
-        <div class="bg-black/50 border border-cyan-800/80 rounded-lg p-3 space-y-1">
-          <div class="font-orbitron text-cyan-300 font-bold text-xs flex items-center justify-between">
-            <span>${log.title}</span>
-            <span class="text-[10px] text-gray-500 font-mono">RECORD #${index + 1}</span>
-          </div>
-          <p class="text-gray-300 text-xs leading-relaxed">${log.content}</p>
-        </div>
-      `).join('');
-
-      document.getElementById('logbookModal').classList.remove('hidden');
-    }
-
-    function closeLogbook() {
-      playSound('click');
-      document.getElementById('logbookModal').classList.add('hidden');
-    }
-
-    function readLore() {
-      openLogbook();
-    }
-
-    function resetGame() {
-      playSound('click');
-      gameState.chapter = 1;
-      gameState.coreEnergy = 15;
-      gameState.logs = [gameState.logs[0]];
-      updateHUD();
-      renderChapter1();
-    }
-
-    /* ===================================================================
-       4. BACKGROUND CANVAS ANIMATION
-       =================================================================== */
-    function initCanvasAnimation() {
-      const canvas = document.getElementById('bgCanvas');
-      const ctx = canvas.getContext('2d');
-
-      function resize() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      // Calculate pointer % (Range 10 to 50)
+      const pointerPct = Math.min(100, Math.max(0, ((gameState.cnRatio - 10) / 40) * 100));
+      document.getElementById('cnPointer').style.left = `${pointerPct}%`;
+
+      // Day / Night badge
+      const badge = document.getElementById('dayNightBadge');
+      badge.innerHTML = gameState.isDaytime ? `<i class="fa-solid fa-sun"></i> 白天光照` : `<i class="fa-solid fa-moon"></i> 夜間黑燈`;
+
+      // Update Store Buttons
+      if (gameState.inventory.wizardHat) {
+        document.getElementById('btnHatWizard').innerText = gameState.equippedHat === 'wizardHat' ? '穿戴中' : '裝備';
       }
-      window.addEventListener('resize', resize);
-      resize();
-
-      const particles = Array.from({ length: 40 }, () => ({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        radius: Math.random() * 2 + 0.5,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.4,
-        alpha: Math.random() * 0.5 + 0.2
-      }));
-
-      function animate() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-        particles.forEach(p => {
-          p.x += p.vx;
-          p.y += p.vy;
-
-          if (p.x < 0) p.x = canvas.width;
-          if (p.x > canvas.width) p.x = 0;
-          if (p.y < 0) p.y = canvas.height;
-          if (p.y > canvas.height) p.y = 0;
-
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(0, 243, 255, ${p.alpha})`;
-          ctx.shadowBlur = 8;
-          ctx.shadowColor = '#00f3ff';
-          ctx.fill();
-        });
-
-        requestAnimationFrame(animate);
+      if (gameState.inventory.sunglasses) {
+        document.getElementById('btnSunglasses').innerText = gameState.equippedHat === 'sunglasses' ? '穿戴中' : '裝備';
       }
+      if (gameState.inventory.autoMister) {
+        document.getElementById('btnAutoMister').innerText = '已升級';
+        document.getElementById('btnAutoMister').disabled = true;
+      }
+    }
 
-      animate();
+    function switchTab(tabName) {
+      playSound('happy');
+      document.getElementById('tabFeed').classList.add('hidden');
+      document.getElementById('tabMicroscope').classList.add('hidden');
+      document.getElementById('tabShop').classList.add('hidden');
+
+      document.getElementById('tabFeedBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
+      document.getElementById('tabMicroBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
+      document.getElementById('tabShopBtn').className = "cyber-btn py-1.5 rounded text-center font-bold";
+
+      if (tabName === 'feed') {
+        document.getElementById('tabFeed').classList.remove('hidden');
+        document.getElementById('tabFeedBtn').className += " bg-cyber-border text-cyber-bg";
+      } else if (tabName === 'microscope') {
+        document.getElementById('tabMicroscope').classList.remove('hidden');
+        document.getElementById('tabMicroscope').classList.add('flex');
+        document.getElementById('tabMicroBtn').className += " bg-cyber-border text-cyber-bg";
+      } else if (tabName === 'shop') {
+        document.getElementById('tabShop').classList.remove('hidden');
+        document.getElementById('tabShop').classList.add('flex');
+        document.getElementById('tabShopBtn').className += " bg-cyber-border text-cyber-bg";
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('canvasToast');
+      toast.innerText = msg;
+      toast.classList.remove('opacity-0');
+      setTimeout(() => {
+        toast.classList.add('opacity-0');
+      }, 2000);
+    }
+
+    function logConsole(msg) {
+      document.getElementById('systemConsoleLog').innerText = msg;
     }
 
     /* ===================================================================
-       5. GAME INITIALIZATION
+       8. INITIALIZATION & MAIN LOOP
        =================================================================== */
     window.onload = function() {
-      initCanvasAnimation();
+      loadGame();
+      resizeCanvas();
+      initWorm();
       updateHUD();
-      renderChapter1();
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // Main Render & Physics Loop
+      function animate() {
+        updateWormPhysics();
+        renderSanctuary();
+        renderMicroscope();
+        requestAnimationFrame(animate);
+      }
+      animate();
+
+      // Eco Simulation Tick every 2 seconds
+      setInterval(gameTick, 2000);
     };
   </script>
 </body>
