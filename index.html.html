@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v11.0 土地建設與農業循環版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v11.1 終點站精準觸發版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.0 土地與農業循環版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.1 終點站精準觸發版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
                 </div>
@@ -393,7 +393,6 @@
             { name: "SOC 固碳先鋒", desc: "基礎移動碳匯 +20%", bonusType: "move", value: 1.20 }
         ];
 
-        // Facilities Data Types
         const FACILITY_TYPES = {
             vermi_factory: { name: "蚯蚓堆肥工廠", icon: "🪱", cost: 40, carbonYield: 3.0, vermiYield: 1.5, coinYield: 5 },
             ai_coop: { name: "AI 雞舍", icon: "🐔", cost: 35, carbonYield: 2.0, vermiYield: 0, coinYield: 15 },
@@ -471,7 +470,6 @@
             }
         }
 
-        // 20 Ring Board Tiles with Increasing Land Prices
         const BOARD_TILES = [
             { id: 0, name: "起點站", icon: "🚩", type: "start", landPrice: 0, desc: "經過可領取補給：碳幣+20、資材+10" },
             { id: 1, name: "咖啡渣站", icon: "☕", type: "resource", landPrice: 0, resourceGain: 15, coinGain: 5 },
@@ -513,8 +511,7 @@
             maxRounds: 20,
             turnIndex: 0,
             players: [],
-            // Real Estate Management
-            propertyData: {} // tileId -> { ownerPeerId, level: 0(Unowned)/1(Land)/2(Facility)/3(Upgraded), facilityType: null, totalInvestment: number }
+            propertyData: {}
         };
 
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
@@ -586,7 +583,6 @@
                         inventory: []
                     }];
 
-                    // Initialize Property Data
                     BOARD_TILES.forEach(t => {
                         if (t.type === 'property') {
                             gameState.propertyData[t.id] = {
@@ -933,7 +929,7 @@
 
             let logMsg = `${p.name} 擲出 ${dice} 點！`;
 
-            // Step-by-Step Animated Movement
+            // Step-by-Step Animated Movement (純動畫過渡，不觸發中途格子事件)
             for (let step = 1; step <= dice; step++) {
                 p.pos = (p.pos + 1) % BOARD_TILES.length;
                 if (p.pos === 0) {
@@ -941,21 +937,20 @@
                     p.resources += 10;
                     logMsg += ` (經過起點獲補給：碳幣+20、資材+10)`;
                 }
-                broadcastState(); // Sync intermediate step
+                broadcastState(); // Sync intermediate step visual animation
                 playSound('step');
                 await new Promise(r => setTimeout(r, 220));
             }
 
+            // 抵達最終落腳站點時，才觸發站點事件！
             const tile = BOARD_TILES[p.pos];
-            logMsg += ` 移動至 [${tile.name}]`;
+            logMsg += ` 最終抵達 [${tile.name}]`;
 
-            // Execute Station Trigger
             if (tile.type === 'resource') {
                 p.resources += tile.resourceGain;
                 p.coins += tile.coinGain;
                 logMsg += `，獲得資材+${tile.resourceGain}，碳幣+${tile.coinGain}`;
             } else if (tile.type === 'esg') {
-                // Carbon Credit Purchase Trigger: Carbon converts into Coins!
                 let convertedCoins = 20;
                 if (p.carbon >= 3.0) {
                     const carbonSold = Math.min(p.carbon, 5.0);
@@ -984,7 +979,6 @@
                 const prop = gameState.propertyData[tile.id];
                 if (prop) {
                     if (prop.ownerPeerId === null) {
-                        // Unowned Land -> Prompt Purchase
                         if (p.coins >= tile.landPrice) {
                             if (p.isAi) {
                                 prop.ownerPeerId = p.peerId;
@@ -997,9 +991,7 @@
                             }
                         }
                     } else if (prop.ownerPeerId === p.peerId) {
-                        // Own Land -> Upgrade (Facility or High Level)
                         if (prop.level === 1) {
-                            // Can build facility
                             if (p.isAi) {
                                 const facKey = Object.keys(FACILITY_TYPES)[Math.floor(Math.random() * 5)];
                                 const fac = FACILITY_TYPES[facKey];
@@ -1015,7 +1007,6 @@
                                 return; // Pause for User Input
                             }
                         } else if (prop.level === 2) {
-                            // Can Upgrade facility
                             const fac = FACILITY_TYPES[prop.facilityType];
                             const upgradeCost = Math.floor(fac.cost * 1.2);
                             if (p.coins >= upgradeCost) {
@@ -1031,7 +1022,6 @@
                             }
                         }
                     } else {
-                        // Other Player's Land -> Toll / Visiting Fee!
                         const landOwner = gameState.players.find(x => x.peerId === prop.ownerPeerId);
                         if (landOwner && !landOwner.bankrupt) {
                             let toll = 0;
@@ -1302,12 +1292,10 @@
             finishTurn(logMsg);
         }
 
-        // End Turn & Agriculture Synergy Revenue Generation
         function finishTurn(logMsg) {
             gameState.players.forEach(p => {
                 if (p.bankrupt) return;
 
-                // Loop through properties to compute agricultural synergy yields
                 Object.keys(gameState.propertyData).forEach(tId => {
                     const prop = gameState.propertyData[tId];
                     if (prop.ownerPeerId === p.peerId && prop.level >= 2) {
@@ -1318,15 +1306,14 @@
                         let vYield = fac.vermiYield * multiplier;
                         let coinBonus = fac.coinYield * multiplier;
 
-                        // Synergy Adjustments
                         if (prop.facilityType === 'ai_coop' && p.vermiCasting >= 3.0) {
-                            coinBonus += 10; // Vermicompost deodorizing boosts egg yield!
+                            coinBonus += 10;
                         }
                         if (prop.facilityType === 'hydroponics' && p.vermiCasting >= 4.0) {
-                            cYield += 2.0; // Organic vermi liquid fertilizer boosts crop Growth!
+                            cYield += 2.0;
                         }
                         if (prop.facilityType === 'aquaculture' && p.resources >= 10) {
-                            coinBonus += 15; // Vermi feeding boosts fish yields!
+                            coinBonus += 15;
                         }
 
                         p.carbon += cYield;
