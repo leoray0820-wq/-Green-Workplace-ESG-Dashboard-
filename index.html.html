@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-TW" class="h-full bg-slate-950 text-slate-100">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>黑金協定：純粹卡牌 Combo 爆發版 (Vermi-Deck)</title>
+    <title>黑金協定：星途生態守護者 (Black Gold Protocol: Starbound Eco-Guardian)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
@@ -11,517 +11,933 @@
     <!-- Canvas Confetti -->
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@500;600;700&family=Noto+Sans+TC:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
         body {
-            font-family: 'Inter', 'Noto Sans TC', sans-serif;
-            background-color: #0b132b;
-            color: #f1f5f9;
+            font-family: 'Rajdhani', 'Noto Sans TC', sans-serif;
+            background-color: #030712;
+            color: #f3f4f6;
             user-select: none;
             overflow-x: hidden;
         }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
         /* Custom Scrollbars */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.8); }
+        ::-webkit-scrollbar-thumb { background: #059669; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #10b981; }
+
+        /* Tech-Noir Glassmorphism */
+        .tech-panel {
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(16, 185, 129, 0.1);
         }
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.6);
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #10b981;
+        .tech-panel-amber {
+            background: rgba(20, 15, 5, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5), inset 0 0 12px rgba(245, 158, 11, 0.1);
         }
 
-        /* Card Styles & Animations */
-        .card-item {
-            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+        /* Card Interactive Visuals */
+        .card-element {
+            transition: all 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
             transform-style: preserve-3d;
         }
-        .card-item:hover {
-            transform: translateY(-16px) scale(1.05);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 0 15px rgba(16, 185, 129, 0.4);
+        .card-element:hover {
+            transform: translateY(-14px) scale(1.06);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 0 20px rgba(16, 185, 129, 0.5);
             z-index: 30;
         }
         .card-selected {
-            transform: translateY(-28px) scale(1.08) !important;
-            box-shadow: 0 0 25px #10b981, 0 0 5px #34d399 !important;
+            transform: translateY(-24px) scale(1.08) !important;
+            box-shadow: 0 0 25px #10b981, 0 0 8px #34d399 !important;
             border-color: #34d399 !important;
             z-index: 40 !important;
         }
 
-        /* Scoring Number Pop Animation */
-        @keyframes scorePop {
-            0% { transform: scale(0.8); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Animations */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
         }
-        .animate-score-pop {
-            animation: scorePop 0.35s ease-out forwards;
-        }
+        .animate-float { animation: floatSlow 4s ease-in-out infinite; }
 
-        /* Glow Effects */
-        .glow-green {
-            box-shadow: 0 0 20px rgba(16, 185, 129, 0.35);
+        @keyframes pulseGlow {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 0.9; }
         }
-        .glow-amber {
-            box-shadow: 0 0 20px rgba(245, 158, 11, 0.35);
-        }
-        .glow-blue {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.35);
-        }
+        .animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
 
-        /* Glassmorphism Panel */
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-
-        /* Floating Score Text */
         .floating-score {
             position: absolute;
             pointer-events: none;
-            animation: floatUp 1s ease-out forwards;
+            animation: floatUp 1.2s ease-out forwards;
             font-weight: 900;
             color: #34d399;
-            text-shadow: 0 0 10px rgba(0,0,0,0.8), 0 0 20px #10b981;
+            text-shadow: 0 0 12px rgba(0,0,0,0.9), 0 0 24px #10b981;
             z-index: 100;
         }
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-80px) scale(1.5); }
+            0% { opacity: 1; transform: translateY(0) scale(0.9); }
+            50% { opacity: 1; transform: translateY(-40px) scale(1.3); }
+            100% { opacity: 0; transform: translateY(-90px) scale(1); }
+        }
+
+        /* Scanline Overlay Effect */
+        .scanline {
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.3));
+            background-size: 100% 4px;
+            pointer-events: none;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 overflow-x-hidden">
+<body class="min-h-screen flex flex-col justify-between bg-slate-950 text-slate-100 relative overflow-x-hidden">
+    <div class="absolute inset-0 scanline opacity-20 z-50 pointer-events-none"></div>
 
-    <!-- TOP BAR: Stage, Target Quota, Stats, Relics -->
-    <header class="w-full bg-slate-900/90 border-b border-slate-800 p-3 sm:p-4 sticky top-0 z-50 glass-panel">
-        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
+    <!-- MAIN NAVIGATION HEADER -->
+    <header class="w-full bg-slate-900/90 border-b border-emerald-900/40 p-3 sm:p-4 sticky top-0 z-40 tech-panel">
+        <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
             
-            <!-- Stage Info -->
-            <div class="flex items-center space-x-4">
-                <div class="bg-emerald-950/80 border border-emerald-500/30 px-3 py-1.5 rounded-xl flex items-center space-x-2">
-                    <i class="fa-solid me-1 fa-layer-group text-emerald-400"></i>
-                    <span class="text-xs uppercase tracking-wider text-slate-400 font-bold">關卡</span>
-                    <span id="stage-num" class="text-xl font-black text-emerald-400">1 / 5</span>
+            <!-- Game Title & Hero Status -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-slate-950 font-black text-xl shadow-lg shadow-emerald-500/30">
+                    <i class="fa-solid fa-seedling"></i>
                 </div>
                 <div>
-                    <div class="text-xs text-slate-400 font-medium" id="stage-title">關卡 1: 社區微型堆肥站</div>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xs text-slate-400">目標黑金配額:</span>
-                        <span id="target-score" class="text-lg font-extrabold text-amber-400">500</span>
+                    <h1 class="font-orbitron font-bold text-sm sm:text-base text-emerald-400 tracking-wider flex items-center gap-2">
+                        BLACK GOLD PROTOCOL
+                        <span class="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-1.5 py-0.5 rounded font-mono">STARBOUND</span>
+                    </h1>
+                    <div class="text-xs text-slate-400 flex items-center space-x-3 font-mono">
+                        <span><i class="fa-solid fa-user-shield text-cyan-400 mr-1"></i>守護者 LV.<span id="hero-lv">1</span></span>
+                        <span><i class="fa-solid fa-heart text-rose-400 mr-1"></i>HP: <span id="hero-hp">100/100</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Current Match Progress -->
-            <div class="flex-1 max-w-md mx-2 hidden md:block">
-                <div class="flex justify-between text-xs font-bold mb-1">
-                    <span class="text-slate-400">本局累積得分</span>
-                    <span id="score-progress-text" class="text-emerald-400">0 / 500</span>
-                </div>
-                <div class="w-full bg-slate-800 h-3 rounded-full overflow-hidden p-0.5 border border-slate-700">
-                    <div id="score-bar" class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full transition-all duration-500 w-0"></div>
+            <!-- Starship Integrity Core Gauge -->
+            <div class="flex items-center space-x-3 bg-slate-950/80 border border-teal-500/30 px-3 py-1.5 rounded-xl shadow-inner">
+                <i class="fa-solid fa-shuttle-space text-teal-400 text-lg animate-pulse"></i>
+                <div>
+                    <div class="flex justify-between text-[10px] font-mono text-slate-300">
+                        <span>阿爾法飛船修復度</span>
+                        <span id="ship-integrity-text" class="text-teal-300 font-bold">0%</span>
+                    </div>
+                    <div class="w-28 sm:w-36 bg-slate-800 h-2 rounded-full overflow-hidden mt-0.5 border border-slate-700">
+                        <div id="ship-integrity-bar" class="bg-gradient-to-r from-teal-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Player Status & Counters -->
-            <div class="flex items-center space-x-3 sm:space-x-5">
-                <div class="text-center">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">出牌機會</div>
-                    <div id="hands-left" class="text-xl font-black text-blue-400">4</div>
+            <!-- Navigation Tabs & Resources -->
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <div class="flex bg-slate-900 border border-slate-800 rounded-xl p-1 font-mono text-xs">
+                    <button onclick="game.switchTab('expedition')" id="tab-btn-expedition" class="px-3 py-1.5 rounded-lg font-bold transition bg-emerald-600 text-slate-950 shadow-md">
+                        <i class="fa-solid fa-earth-americas mr-1"></i>遠征地圖
+                    </button>
+                    <button onclick="game.switchTab('hero')" id="tab-btn-hero" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-slate-200 transition">
+                        <i class="fa-solid fa-shield-halved mr-1"></i>裝備&天賦
+                    </button>
+                    <button onclick="game.switchTab('ship')" id="tab-btn-ship" class="px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-slate-200 transition">
+                        <i class="fa-solid fa-microchip mr-1"></i>飛船科技
+                    </button>
                 </div>
-                <div class="text-center">
-                    <div class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">重抽次數</div>
-                    <div id="discards-left" class="text-xl font-black text-rose-400">3</div>
-                </div>
-                <div class="bg-amber-500/10 border border-amber-500/30 px-3 py-1.5 rounded-xl flex items-center space-x-2">
-                    <i class="fa-solid fa-coins text-amber-400 text-sm"></i>
-                    <span id="player-coins" class="text-lg font-black text-amber-400">15</span>
-                </div>
-            </div>
-        </div>
 
-        <!-- Active Relics Row -->
-        <div class="max-w-7xl mx-auto mt-2 pt-2 border-t border-slate-800/80 flex items-center space-x-3 overflow-x-auto pb-1">
-            <span class="text-xs text-slate-400 font-bold whitespace-nowrap flex items-center">
-                <i class="fa-solid fa-award text-amber-400 mr-1.5"></i>被動寶物 (<span id="relic-count">0</span>/5):
-            </span>
-            <div id="relics-container" class="flex items-center space-x-2 min-h-[36px]">
-                <span class="text-xs text-slate-600 italic">尚無寶物（可在通關商店購買）</span>
+                <!-- Currency Counters -->
+                <div class="flex items-center space-x-2 font-mono text-xs">
+                    <div class="bg-amber-500/10 border border-amber-500/30 px-2.5 py-1 rounded-xl text-amber-400 font-bold flex items-center" title="黑金金幣">
+                        <i class="fa-solid fa-coins mr-1.5"></i><span id="res-coins">25</span>
+                    </div>
+                    <div class="bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1 rounded-xl text-cyan-400 font-bold flex items-center" title="生物碳核心">
+                        <i class="fa-solid fa-atom mr-1.5"></i><span id="res-bio-core">0</span>
+                    </div>
+                </div>
             </div>
+
         </div>
     </header>
 
-    <!-- MAIN GAMEPLAY AREA -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 flex flex-col justify-between space-y-4">
-
-        <!-- PLAY BOARD / SCORING ENGINE ZONE -->
-        <div class="relative glass-panel rounded-2xl p-4 sm:p-6 border border-slate-800/80 shadow-2xl flex flex-col items-center justify-center min-h-[220px]">
+    <!-- VIEWPORT CONTENT AREA -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col justify-between">
+        
+        <!-- TAB 1: EXPEDITION GLOBAL MAP VIEW -->
+        <section id="view-expedition" class="w-full flex-1 flex flex-col justify-between space-y-4">
             
-            <!-- Floating Score Overlay Container -->
-            <div id="floating-score-container" class="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl"></div>
-
-            <!-- Score Multiplier Display Banner -->
-            <div class="flex items-center justify-center space-x-3 sm:space-x-6 mb-4">
-                <!-- Base Mass Box -->
-                <div class="bg-slate-900 border-2 border-blue-500/50 rounded-2xl px-4 py-2 sm:px-6 sm:py-3 text-center min-w-[100px] shadow-lg">
-                    <div class="text-[10px] sm:text-xs font-bold text-blue-400 uppercase tracking-wider">基礎質量 (Mass)</div>
-                    <div id="calc-mass" class="text-2xl sm:text-4xl font-black text-blue-300">0</div>
+            <!-- Story Narrative Banner -->
+            <div class="tech-panel p-4 rounded-2xl flex flex-col sm:flex-row items-center gap-4 relative overflow-hidden">
+                <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-cyan-500/40 p-1 shrink-0 relative">
+                    <canvas id="alfa-avatar-canvas" class="w-full h-full rounded-xl"></canvas>
+                    <span class="absolute -bottom-1 -right-1 bg-cyan-500 text-slate-950 text-[9px] font-black font-mono px-1 rounded">ALFA</span>
                 </div>
-
-                <div class="text-2xl sm:text-4xl font-black text-slate-500">×</div>
-
-                <!-- Mult Box -->
-                <div class="bg-slate-900 border-2 border-emerald-500/50 rounded-2xl px-4 py-2 sm:px-6 sm:py-3 text-center min-w-[100px] shadow-lg">
-                    <div class="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-wider">分解倍率 (Mult)</div>
-                    <div id="calc-mult" class="text-2xl sm:text-4xl font-black text-emerald-300">+0</div>
+                <div class="flex-1 text-center sm:text-left">
+                    <div class="text-xs font-mono text-cyan-400 uppercase tracking-widest mb-0.5">外星通訊傳輸: 阿爾法 (Alfa)</div>
+                    <p id="story-dialogue" class="text-xs sm:text-sm text-slate-300 italic">
+                        "地球守護者！我的飛船星核嚴重破損。你們地球的『太平二號蚯蚓』與生物炭循環，正是修復阿爾法星沙漠化土壤的聖物！請協助我在全球搜集『生物碳核心』！"
+                    </p>
                 </div>
-
-                <div class="text-2xl sm:text-4xl font-black text-slate-500">=</div>
-
-                <!-- Total Yield Score Box -->
-                <div class="bg-gradient-to-br from-amber-950 to-slate-900 border-2 border-amber-500/60 rounded-2xl px-5 py-2 sm:px-8 sm:py-3 text-center min-w-[140px] shadow-xl glow-amber">
-                    <div class="text-[10px] sm:text-xs font-bold text-amber-400 uppercase tracking-wider">預估黑金得分</div>
-                    <div id="calc-total" class="text-2xl sm:text-4xl font-black text-amber-300">0</div>
+                <div class="bg-slate-900/80 border border-slate-700/80 rounded-xl p-3 text-center shrink-0">
+                    <div class="text-[10px] font-mono text-slate-400">目前探險關卡</div>
+                    <div id="current-stage-title" class="text-sm font-bold text-emerald-400">關卡 1: 台灣高山茶園廢棄資材站</div>
                 </div>
             </div>
 
-            <!-- Active Played Cards Slot -->
-            <div id="played-cards-zone" class="w-full flex items-center justify-center gap-2 sm:gap-3 min-h-[140px] border-2 border-dashed border-slate-800/80 rounded-xl p-3 bg-slate-950/40">
-                <span class="text-sm text-slate-500 italic">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>
+            <!-- Global Stage Nodes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-2">
+                
+                <!-- Stage 1 -->
+                <div id="stage-card-1" class="tech-panel p-5 rounded-2xl border-emerald-500/50 flex flex-col justify-between relative overflow-hidden group hover:border-emerald-400 transition">
+                    <div class="absolute -right-4 -top-4 text-emerald-500/10 text-8xl font-black font-orbitron group-hover:text-emerald-500/20 transition">01</div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold">東亞區域</span>
+                            <span class="text-xs font-mono font-bold text-amber-400"><i class="fa-solid fa-bullseye mr-1"></i>配額 600</span>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-100 mb-1">台灣有機茶園</h3>
+                        <p class="text-xs text-slate-400 mb-3">處置茶渣與菇類培植廢渣，發動黑金高效氮碳轉化。</p>
+                        <div class="text-[11px] font-mono text-slate-400 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 mb-4">
+                            <i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i>環境特性: 高水分茶渣，需要搭配高碳枯枝。
+                        </div>
+                    </div>
+                    <button onclick="game.startBattle(0)" class="w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-black py-2.5 rounded-xl shadow-lg shadow-emerald-900/40 transition active:scale-95">
+                        <i class="fa-solid fa-crosshairs mr-1.5"></i>展開生態淨化
+                    </button>
+                </div>
+
+                <!-- Stage 2 -->
+                <div id="stage-card-2" class="tech-panel p-5 rounded-2xl border-slate-800 opacity-80 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-slate-700/10 text-8xl font-black font-orbitron">02</div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">南美區域</span>
+                            <span class="text-xs font-mono font-bold text-amber-400"><i class="fa-solid fa-bullseye mr-1"></i>配額 2,200</span>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-100 mb-1">亞馬遜伐木保育區</h3>
+                        <p class="text-xs text-slate-400 mb-3">處理大量林業廢木與雨林腐植質，建立超大質量土層。</p>
+                        <div class="text-[11px] font-mono text-slate-400 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 mb-4">
+                            <i class="fa-solid fa-temperature-arrow-up text-rose-400 mr-1"></i>環境特性: 熱帶酸性發酵，分解者消耗加速。
+                        </div>
+                    </div>
+                    <button id="stage-btn-1" onclick="game.startBattle(1)" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl border border-slate-700 cursor-not-allowed">
+                        <i class="fa-solid fa-lock mr-1.5"></i>尚未解鎖
+                    </button>
+                </div>
+
+                <!-- Stage 3 -->
+                <div id="stage-card-3" class="tech-panel p-5 rounded-2xl border-slate-800 opacity-80 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-slate-700/10 text-8xl font-black font-orbitron">03</div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">中東區域</span>
+                            <span class="text-xs font-mono font-bold text-amber-400"><i class="fa-solid fa-bullseye mr-1"></i>配額 7,500</span>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-100 mb-1">薩哈拉沙漠綠洲站</h3>
+                        <p class="text-xs text-slate-400 mb-3">利用極端乾旱有機廢棄物，調配高效生物炭肥。</p>
+                        <div class="text-[11px] font-mono text-slate-400 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 mb-4">
+                            <i class="fa-solid fa-sun text-amber-400 mr-1"></i>環境特性: 酷熱缺水，有機廢棄物質量翻倍。
+                        </div>
+                    </div>
+                    <button id="stage-btn-2" onclick="game.startBattle(2)" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl border border-slate-700 cursor-not-allowed">
+                        <i class="fa-solid fa-lock mr-1.5"></i>尚未解鎖
+                    </button>
+                </div>
+
+                <!-- Stage 4 -->
+                <div id="stage-card-4" class="tech-panel p-5 rounded-2xl border-slate-800 opacity-80 flex flex-col justify-between relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 text-slate-700/10 text-8xl font-black font-orbitron">04</div>
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-[10px] font-mono bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full font-bold">北美區域</span>
+                            <span class="text-xs font-mono font-bold text-amber-400"><i class="fa-solid fa-bullseye mr-1"></i>配額 25,000</span>
+                        </div>
+                        <h3 class="text-lg font-black text-slate-100 mb-1">紐約超大都會區</h3>
+                        <p class="text-xs text-slate-400 mb-3">處理百萬噸級都會廚餘與辦公紙廢，發動最終黑金帝國。</p>
+                        <div class="text-[11px] font-mono text-slate-400 bg-slate-950/60 p-2 rounded-lg border border-slate-800/80 mb-4">
+                            <i class="fa-solid fa-city text-cyan-400 mr-1"></i>環境特性: 稽查頻繁，污染容忍度極低。
+                        </div>
+                    </div>
+                    <button id="stage-btn-3" onclick="game.startBattle(3)" disabled class="w-full bg-slate-800 text-slate-500 font-bold py-2.5 rounded-xl border border-slate-700 cursor-not-allowed">
+                        <i class="fa-solid fa-lock mr-1.5"></i>尚未解鎖
+                    </button>
+                </div>
+
             </div>
+
+            <!-- Worm Bin Activity Visualizer Canvas -->
+            <div class="tech-panel p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div class="flex items-center space-x-3">
+                    <i class="fa-solid fa-bug text-emerald-400 text-2xl"></i>
+                    <div>
+                        <div class="text-xs font-bold text-slate-200">黑金生物箱即時分解動態 (Worm Activity Inspector)</div>
+                        <div class="text-[11px] text-slate-400">觀察堆肥箱內『太平二號』與菌群的即時活性。</div>
+                    </div>
+                </div>
+                <div class="w-full sm:w-80 h-16 bg-slate-950 rounded-xl border border-slate-800 overflow-hidden relative">
+                    <canvas id="worm-visualizer-canvas" class="w-full h-full"></canvas>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- TAB 2: HERO EQUIPMENT & SKILL TREE VIEW -->
+        <section id="view-hero" class="w-full flex-1 grid grid-cols-1 lg:grid-cols-3 gap-5 hidden">
             
-            <!-- Trigger Log / Active Combos Badges -->
-            <div id="combo-log-container" class="mt-3 flex flex-wrap justify-center gap-2 min-h-[28px]">
-                <!-- Active combo badges will appear here -->
-            </div>
-        </div>
+            <!-- Hero Equipment Doll & Stats -->
+            <div class="tech-panel p-5 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <h3 class="font-orbitron font-bold text-base text-cyan-400 mb-4 flex items-center">
+                        <i class="fa-solid fa-user-gear mr-2"></i>守護者戰術外骨骼裝備
+                    </h3>
 
-        <!-- ACTION BUTTONS BAR -->
-        <div class="flex items-center justify-center space-x-4 py-1">
-            <button id="btn-discard" onclick="game.discardSelected()" class="bg-slate-800 hover:bg-rose-900/60 text-slate-200 border border-slate-700 hover:border-rose-500 font-bold px-5 py-3 rounded-xl transition duration-150 flex items-center space-x-2 shadow-md active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
-                <i class="fa-solid fa-trash-can text-rose-400"></i>
-                <span>棄牌重抽 (<span id="btn-discard-count">3</span>)</span>
-            </button>
+                    <!-- Equipment Slots Grid -->
+                    <div class="grid grid-cols-2 gap-3 mb-5">
+                        
+                        <!-- Slot 1: Head -->
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-3 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400 text-lg">
+                                <i class="fa-solid fa-helmet-safety"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[10px] text-slate-400 font-mono">頭部裝備</div>
+                                <div id="eq-head-name" class="text-xs font-bold text-slate-200 truncate">生態分析頭盔</div>
+                                <div id="eq-head-stat" class="text-[10px] text-emerald-400 font-mono">+10% 初始Mult</div>
+                            </div>
+                        </div>
 
-            <button id="btn-play" onclick="game.playSelectedHand()" class="bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-slate-950 font-black text-lg px-8 py-3 rounded-xl transition duration-150 flex items-center space-x-2 shadow-lg glow-green active:scale-95 disabled:opacity-40 disabled:pointer-events-none">
-                <i class="fa-solid fa-bolt"></i>
-                <span>出牌結算 (Play)</span>
-            </button>
-        </div>
+                        <!-- Slot 2: Body -->
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-3 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg">
+                                <i class="fa-solid fa-vest"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[10px] text-slate-400 font-mono">身體裝備</div>
+                                <div id="eq-body-name" class="text-xs font-bold text-slate-200 truncate">生化防護裝甲</div>
+                                <div id="eq-body-stat" class="text-[10px] text-rose-400 font-mono">+20 Max HP</div>
+                            </div>
+                        </div>
 
-        <!-- PLAYER HAND ZONE -->
-        <div class="w-full">
-            <div class="flex justify-between items-center mb-2 px-1">
-                <div class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center space-x-2">
-                    <i class="fa-solid fa-hand text-emerald-400"></i>
-                    <span>目前手牌 (<span id="hand-count">0</span> / 8)</span>
-                    <span class="text-[11px] text-slate-500 font-normal">（可勾選最多 5 張進行組合）</span>
+                        <!-- Slot 3: Hands -->
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-3 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-amber-950 border border-amber-500/40 flex items-center justify-center text-amber-400 text-lg">
+                                <i class="fa-solid fa-hand-mitten"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[10px] text-slate-400 font-mono">手部裝備</div>
+                                <div id="eq-hand-name" class="text-xs font-bold text-slate-200 truncate">AI 基因採樣手套</div>
+                                <div id="eq-hand-stat" class="text-[10px] text-amber-400 font-mono">+15% 基礎Mass</div>
+                            </div>
+                        </div>
+
+                        <!-- Slot 4: Feet -->
+                        <div class="bg-slate-900/90 border border-slate-700 rounded-xl p-3 flex items-center space-x-3">
+                            <div class="w-10 h-10 rounded-lg bg-purple-950 border border-purple-500/40 flex items-center justify-center text-purple-400 text-lg">
+                                <i class="fa-solid fa-shoe-prints"></i>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="text-[10px] text-slate-400 font-mono">腳部裝備</div>
+                                <div id="eq-feet-name" class="text-xs font-bold text-slate-200 truncate">零碳巡邏軍靴</div>
+                                <div id="eq-feet-stat" class="text-[10px] text-purple-400 font-mono">+1 棄牌次數</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Total Equipment Bonuses -->
+                    <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 font-mono text-xs space-y-1">
+                        <div class="text-slate-400 font-bold mb-1">外骨骼屬性加成總計:</div>
+                        <div class="flex justify-between"><span class="text-slate-400">額外最大 HP:</span><span id="stat-bonus-hp" class="text-rose-400 font-bold">+20</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">基礎 Mass 修正:</span><span id="stat-bonus-mass" class="text-amber-400 font-bold">+15%</span></div>
+                        <div class="flex justify-between"><span class="text-slate-400">基礎 Mult 修正:</span><span id="stat-bonus-mult" class="text-emerald-400 font-bold">+10%</span></div>
+                    </div>
                 </div>
-                <div class="text-xs text-slate-400">
-                    牌堆剩餘: <span id="deck-left-count" class="font-bold text-slate-200">0</span> 張
+
+                <div class="mt-4 pt-3 border-t border-slate-800">
+                    <button onclick="game.openEquipmentShop()" class="w-full bg-slate-800 hover:bg-slate-700 text-cyan-300 font-bold py-2.5 rounded-xl border border-cyan-500/30 transition">
+                        <i class="fa-solid fa-store mr-1.5"></i>前往戰術裝備商店
+                    </button>
                 </div>
             </div>
 
-            <!-- Hand Cards Container -->
-            <div id="hand-container" class="flex justify-center items-end gap-2 sm:gap-3 min-h-[170px] sm:min-h-[190px] pt-4 pb-2 px-2 overflow-x-auto">
-                <!-- Cards render here dynamically -->
+            <!-- Hero Skill Tree (2 Columns) -->
+            <div class="tech-panel p-5 rounded-2xl lg:col-span-2 flex flex-col justify-between">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-orbitron font-bold text-base text-emerald-400 flex items-center">
+                            <i class="fa-solid fa-diagram-project mr-2"></i>生態守護者天賦樹 (Skill Tree)
+                        </h3>
+                        <div class="text-xs font-mono bg-emerald-950 text-emerald-300 border border-emerald-500/30 px-3 py-1 rounded-xl">
+                            天賦點數: <span id="skill-points-display" class="font-bold text-amber-400">2</span>
+                        </div>
+                    </div>
+
+                    <!-- Skill Nodes Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        
+                        <!-- Skill Node 1 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-xs font-bold text-slate-200">分解者大師 (Decomposer Mastery)</span>
+                                    <span id="sk-1-status" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">LV 0/3</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mb-2">打出【分解者/蚯蚓卡】時，額外獲得 +10 基礎 Mult。</p>
+                            </div>
+                            <button onclick="game.upgradeSkill(1)" class="w-full bg-emerald-950 hover:bg-emerald-800 text-emerald-300 text-xs font-bold py-1.5 rounded-lg border border-emerald-500/30 transition">
+                                升級天賦 (1 點)
+                            </button>
+                        </div>
+
+                        <!-- Skill Node 2 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-xs font-bold text-slate-200">碳氮極化協同 (C:N Synergizer)</span>
+                                    <span id="sk-2-status" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">LV 0/3</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mb-2">同時打出【高氮】與【高碳】卡時，總 Mass 提升 +20%。</p>
+                            </div>
+                            <button onclick="game.upgradeSkill(2)" class="w-full bg-emerald-950 hover:bg-emerald-800 text-emerald-300 text-xs font-bold py-1.5 rounded-lg border border-emerald-500/30 transition">
+                                升級天賦 (1 點)
+                            </button>
+                        </div>
+
+                        <!-- Skill Node 3 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-xs font-bold text-slate-200">環境風險談判 (Risk Negotiator)</span>
+                                    <span id="sk-3-status" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">LV 0/3</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mb-2">降低環境災害卡（如酸化發酵）造成的 HP 傷害 30%。</p>
+                            </div>
+                            <button onclick="game.upgradeSkill(3)" class="w-full bg-emerald-950 hover:bg-emerald-800 text-emerald-300 text-xs font-bold py-1.5 rounded-lg border border-emerald-500/30 transition">
+                                升級天賦 (1 點)
+                            </button>
+                        </div>
+
+                        <!-- Skill Node 4 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-3 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-start mb-1">
+                                    <span class="text-xs font-bold text-slate-200">黑金暴發鏈結 (Black Gold Burst)</span>
+                                    <span id="sk-4-status" class="text-[10px] font-mono bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded">LV 0/3</span>
+                                </div>
+                                <p class="text-[11px] text-slate-400 mb-2">單次出牌達到 1,000 分以上時，恢復守護者 10 HP。</p>
+                            </div>
+                            <button onclick="game.upgradeSkill(4)" class="w-full bg-emerald-950 hover:bg-emerald-800 text-emerald-300 text-xs font-bold py-1.5 rounded-lg border border-emerald-500/30 transition">
+                                升級天賦 (1 點)
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="text-[11px] text-slate-400 italic bg-slate-950/60 p-3 rounded-xl border border-slate-800 mt-4">
+                    提示：通過任何區域關卡即可獲得守護者升級經驗值與天賦點數！
+                </div>
             </div>
+
+        </section>
+
+        <!-- TAB 3: STARSHIP TECH TREE & ALFA ASSIST VIEW -->
+        <section id="view-ship" class="w-full flex-1 grid grid-cols-1 lg:grid-cols-3 gap-5 hidden">
+            
+            <!-- Ship Integrity Core & Passive Assist -->
+            <div class="tech-panel-amber p-5 rounded-2xl flex flex-col justify-between">
+                <div>
+                    <h3 class="font-orbitron font-bold text-base text-amber-400 mb-4 flex items-center">
+                        <i class="fa-solid fa-shuttle-space mr-2"></i>阿爾法星艦曲速引擎
+                    </h3>
+
+                    <div class="bg-slate-950/90 border border-amber-500/30 rounded-xl p-4 text-center mb-5">
+                        <div class="text-xs text-slate-400 font-mono mb-1">星艦總修復百分比</div>
+                        <div id="ship-big-integrity" class="text-4xl font-black font-orbitron text-amber-400 my-1">0%</div>
+                        <div class="text-[11px] text-slate-400">達到 100% 修復度即可啟動星際曲速，救贖阿爾法母星！</div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <div class="text-xs font-bold text-slate-300 flex items-center">
+                            <i class="fa-solid fa-bolt text-teal-400 mr-2"></i>已解鎖外星支援技能 (Passive Abilities)
+                        </div>
+                        <div id="ship-passive-list" class="space-y-2 text-xs font-mono">
+                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800 text-slate-400">
+                                尚無解鎖技能（升級下方的次系統）
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-cyan-950/40 border border-cyan-500/30 p-3 rounded-xl text-xs font-mono text-cyan-300 flex items-center space-x-2 mt-4">
+                    <i class="fa-solid fa-atom text-cyan-400 text-lg"></i>
+                    <div>
+                        持有生物碳核心: <span id="ship-core-count" class="font-bold text-white">0</span> 個
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ship Sub-systems Tech Upgrades -->
+            <div class="tech-panel p-5 rounded-2xl lg:col-span-2 flex flex-col justify-between">
+                <div>
+                    <h3 class="font-orbitron font-bold text-base text-teal-400 mb-4 flex items-center">
+                        <i class="fa-solid fa-microchip mr-2"></i>飛船核心次系統維修 (Sub-System Upgrades)
+                    </h3>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        
+                        <!-- Sub-system 1 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold text-slate-200">離子生物炭淨化艙</span>
+                                    <span class="text-[10px] font-mono bg-teal-950 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded">+25% 修復</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-3">解鎖阿爾法外星協同：每回合開始時自動獲得 +1 手牌抽牌數。</p>
+                            </div>
+                            <button onclick="game.upgradeShipSystem(1, 2)" class="w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-slate-950 font-bold py-2 rounded-xl transition hover:opacity-90">
+                                維修此系統 (需 2 生物碳)
+                            </button>
+                        </div>
+
+                        <!-- Sub-system 2 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold text-slate-200">量子反物質發酵爐</span>
+                                    <span class="text-[10px] font-mono bg-teal-950 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded">+25% 修復</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-3">解鎖阿爾法外星協同：打出【轉化/ESG卡】時，最終得分額外 ×1.3。</p>
+                            </div>
+                            <button onclick="game.upgradeShipSystem(2, 3)" class="w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-slate-950 font-bold py-2 rounded-xl transition hover:opacity-90">
+                                維修此系統 (需 3 生物碳)
+                            </button>
+                        </div>
+
+                        <!-- Sub-system 3 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold text-slate-200">星脈光譜溫控防護罩</span>
+                                    <span class="text-[10px] font-mono bg-teal-950 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded">+25% 修復</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-3">完全免疫任何【全球環境災害卡】對守護者造成的直接傷害。</p>
+                            </div>
+                            <button onclick="game.upgradeShipSystem(3, 4)" class="w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-slate-950 font-bold py-2 rounded-xl transition hover:opacity-90">
+                                維修此系統 (需 4 生物碳)
+                            </button>
+                        </div>
+
+                        <!-- Sub-system 4 -->
+                        <div class="bg-slate-900/90 border border-slate-700/80 rounded-xl p-4 flex flex-col justify-between">
+                            <div>
+                                <div class="flex justify-between items-center mb-1">
+                                    <span class="text-xs font-bold text-slate-200">超時空曲速引擎核心</span>
+                                    <span class="text-[10px] font-mono bg-teal-950 text-teal-300 border border-teal-500/30 px-2 py-0.5 rounded">+25% 修復</span>
+                                </div>
+                                <p class="text-xs text-slate-400 mb-3">完成最終曲速組裝，發動黑金終極救援視界。</p>
+                            </div>
+                            <button onclick="game.upgradeShipSystem(4, 5)" class="w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-slate-950 font-bold py-2 rounded-xl transition hover:opacity-90">
+                                維修此系統 (需 5 生物碳)
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="text-[11px] font-mono text-slate-400 border-t border-slate-800 pt-3 mt-4">
+                    生物碳核心可透過首次通關各地區生態關卡獲得！
+                </div>
+            </div>
+
+        </section>
+
+        <!-- CARD BATTLE INTERFACE VIEW (POPUP OVERLAY) -->
+        <div id="battle-overlay" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex flex-col justify-between p-3 sm:p-5 hidden">
+            
+            <!-- BATTLE HEADER STATUS -->
+            <div class="w-full max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 bg-slate-900/80 border border-slate-800 p-3 rounded-2xl tech-panel">
+                
+                <!-- Stage Quota Progress -->
+                <div class="flex items-center space-x-3">
+                    <div class="bg-emerald-950/80 border border-emerald-500/40 px-3 py-1.5 rounded-xl font-mono">
+                        <span class="text-[10px] text-slate-400 block uppercase">本局目標黑金配額</span>
+                        <span id="battle-target-score" class="text-lg font-black text-amber-400">600</span>
+                    </div>
+                    <div>
+                        <div class="text-xs text-slate-400 font-bold" id="battle-stage-name">關卡 1: 台灣高山茶園</div>
+                        <div class="flex items-center space-x-2 font-mono text-xs">
+                            <span class="text-slate-400">目前累積:</span>
+                            <span id="battle-current-score" class="text-emerald-400 font-bold">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Battle Progress Bar -->
+                <div class="flex-1 max-w-md mx-2 hidden md:block">
+                    <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden p-0.5 border border-slate-800">
+                        <div id="battle-score-bar" class="bg-gradient-to-r from-emerald-500 to-teal-300 h-full rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+
+                <!-- Turns & Discards Left -->
+                <div class="flex items-center space-x-4 font-mono">
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">出牌次數 (AP)</div>
+                        <div id="battle-hands-left" class="text-xl font-black text-cyan-400">4</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-[10px] text-slate-400 font-bold uppercase">棄牌重抽</div>
+                        <div id="battle-discards-left" class="text-xl font-black text-rose-400">3</div>
+                    </div>
+                    <button onclick="game.forfeitBattle()" class="bg-slate-800 hover:bg-rose-900/60 text-slate-300 text-xs font-bold px-3 py-2 rounded-xl border border-slate-700 transition">
+                        <i class="fa-solid fa-flag mr-1"></i>撤退
+                    </button>
+                </div>
+            </div>
+
+            <!-- BATTLE MAIN SCORING STAGE & HAZARD ALERT -->
+            <div class="max-w-7xl w-full mx-auto flex-1 my-3 flex flex-col justify-between items-center relative">
+                
+                <!-- Floating Score Overlay Container -->
+                <div id="floating-score-container" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
+
+                <!-- Active Environmental Hazard Event Banner -->
+                <div id="hazard-event-banner" class="w-full max-w-2xl bg-rose-950/40 border border-rose-500/40 rounded-xl p-2.5 mb-2 text-center text-xs font-mono text-rose-300 flex items-center justify-center space-x-2 hidden">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400 animate-bounce"></i>
+                    <span id="hazard-event-text">全球突發災害：高溫熱浪襲擊！有機質消耗加倍。</span>
+                </div>
+
+                <!-- Multiplier Calculation Board -->
+                <div class="tech-panel rounded-2xl p-4 sm:p-5 w-full flex flex-col items-center justify-center border-emerald-500/30">
+                    
+                    <div class="flex items-center justify-center space-x-3 sm:space-x-6 my-2 font-mono">
+                        <!-- Mass Box -->
+                        <div class="bg-slate-950 border border-cyan-500/50 rounded-2xl px-4 py-2 text-center min-w-[90px] sm:min-w-[120px] shadow-lg">
+                            <div class="text-[10px] font-bold text-cyan-400 uppercase">基礎質量 (Mass)</div>
+                            <div id="calc-mass" class="text-2xl sm:text-4xl font-black text-cyan-300">0</div>
+                        </div>
+
+                        <div class="text-2xl sm:text-3xl font-black text-slate-600">×</div>
+
+                        <!-- Mult Box -->
+                        <div class="bg-slate-950 border border-emerald-500/50 rounded-2xl px-4 py-2 text-center min-w-[90px] sm:min-w-[120px] shadow-lg">
+                            <div class="text-[10px] font-bold text-emerald-400 uppercase">分解倍率 (Mult)</div>
+                            <div id="calc-mult" class="text-2xl sm:text-4xl font-black text-emerald-300">+0</div>
+                        </div>
+
+                        <div class="text-2xl sm:text-3xl font-black text-slate-600">=</div>
+
+                        <!-- Total Yield Box -->
+                        <div class="bg-gradient-to-br from-amber-950 to-slate-950 border-2 border-amber-500/60 rounded-2xl px-5 py-2 text-center min-w-[120px] sm:min-w-[150px] shadow-xl">
+                            <div class="text-[10px] font-bold text-amber-400 uppercase">預估黑金得分</div>
+                            <div id="calc-total" class="text-2xl sm:text-4xl font-black text-amber-300">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Played Cards Slots (Selected Hand) -->
+                    <div id="played-cards-zone" class="w-full flex items-center justify-center gap-2 sm:gap-3 min-h-[130px] border-2 border-dashed border-slate-800 rounded-xl p-2 mt-2 bg-slate-950/40">
+                        <span class="text-xs text-slate-500 italic font-mono">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>
+                    </div>
+
+                    <!-- Active Combo Badges -->
+                    <div id="combo-badge-container" class="mt-2 flex flex-wrap justify-center gap-2 min-h-[24px]"></div>
+
+                </div>
+
+                <!-- ACTION BUTTONS BAR -->
+                <div class="flex items-center justify-center space-x-4 my-2">
+                    <button id="btn-discard" onclick="game.discardSelectedCards()" class="bg-slate-900 hover:bg-rose-950/80 text-slate-200 border border-slate-700 hover:border-rose-500/50 font-bold px-5 py-2.5 rounded-xl transition flex items-center space-x-2 active:scale-95 disabled:opacity-40 font-mono text-sm">
+                        <i class="fa-solid fa-trash-can text-rose-400"></i>
+                        <span>棄牌重抽 (<span id="btn-discard-count">3</span>)</span>
+                    </button>
+
+                    <button id="btn-play" onclick="game.playSelectedHand()" class="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-base px-8 py-2.5 rounded-xl transition shadow-lg shadow-emerald-950/60 active:scale-95 disabled:opacity-40 font-orbitron">
+                        <i class="fa-solid fa-bolt mr-1"></i>發動黑金鏈結 (PLAY)
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- BATTLE HAND ZONE -->
+            <div class="max-w-7xl w-full mx-auto">
+                <div class="flex justify-between items-center mb-1 px-1 font-mono text-xs">
+                    <div class="text-slate-400 flex items-center space-x-2">
+                        <i class="fa-solid fa-hand text-emerald-400"></i>
+                        <span>手牌 (<span id="hand-count">0</span> / 8)</span>
+                    </div>
+                    <div class="text-slate-400">
+                        牌堆剩餘: <span id="deck-left-count" class="font-bold text-slate-200">0</span> 張
+                    </div>
+                </div>
+
+                <!-- Cards Container -->
+                <div id="hand-container" class="flex justify-center items-end gap-2 sm:gap-3 min-h-[160px] pt-3 pb-1 px-2 overflow-x-auto">
+                    <!-- Cards injected via JS -->
+                </div>
+            </div>
+
         </div>
+
     </main>
 
-    <!-- SHOP MODAL (POST ROUND) -->
+    <!-- SHOP MODAL (EQUIPMENT & CARD DRAFT) -->
     <div id="shop-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-panel border border-emerald-500/30 rounded-3xl max-w-4xl w-full p-6 sm:p-8 flex flex-col justify-between max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="tech-panel border-emerald-500/40 rounded-3xl max-w-4xl w-full p-6 flex flex-col justify-between max-h-[90vh] overflow-y-auto shadow-2xl">
             
             <div>
-                <!-- Header -->
-                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-6">
+                <div class="flex justify-between items-center border-b border-slate-800 pb-4 mb-5">
                     <div>
-                        <div class="text-xs font-bold text-emerald-400 tracking-wider uppercase">通關慶賀！黑金有機整備站</div>
-                        <h2 class="text-2xl sm:text-3xl font-black text-slate-100">黑金擴充商店 (Shop)</h2>
+                        <div class="text-xs font-mono text-emerald-400 tracking-widest uppercase">區域勝仗慶賀！戰術補給站</div>
+                        <h2 class="text-2xl font-black text-slate-100 font-orbitron">黑金整備擴充商店 (Shop)</h2>
                     </div>
-                    <div class="bg-amber-500/10 border border-amber-500/30 px-4 py-2 rounded-2xl flex items-center space-x-2">
-                        <i class="fa-solid fa-coins text-amber-400 text-lg"></i>
-                        <span id="shop-player-coins" class="text-2xl font-black text-amber-400">0</span>
-                    </div>
-                </div>
-
-                <!-- Card Draft Options -->
-                <div class="mb-6">
-                    <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center">
-                        <i class="fa-solid fa-plus-circle text-emerald-400 mr-2"></i>增強牌組：選購強力卡牌（加入牌組）
-                    </h3>
-                    <div id="shop-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <!-- Shop Cards Rendered Here -->
+                    <div class="bg-amber-500/10 border border-amber-500/30 px-4 py-2 rounded-2xl flex items-center space-x-2 font-mono">
+                        <i class="fa-solid fa-coins text-amber-400 text-base"></i>
+                        <span id="shop-coins-display" class="text-xl font-black text-amber-400">0</span>
                     </div>
                 </div>
 
-                <!-- Relic Draft Options -->
+                <!-- Card Draft Pool -->
                 <div class="mb-6">
-                    <h3 class="text-sm font-bold text-slate-300 mb-3 flex items-center">
-                        <i class="fa-solid fa-award text-amber-400 mr-2"></i>被動寶物：購買全域增益（最多持有 5 個）
+                    <h3 class="text-xs font-mono font-bold text-slate-300 mb-3 flex items-center">
+                        <i class="fa-solid fa-plus-circle text-emerald-400 mr-2"></i>選購卡牌擴充牌組
                     </h3>
-                    <div id="shop-relics-container" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <!-- Shop Relics Rendered Here -->
-                    </div>
+                    <div id="shop-cards-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+                </div>
+
+                <!-- Equipment Shop Pool -->
+                <div class="mb-4">
+                    <h3 class="text-xs font-mono font-bold text-slate-300 mb-3 flex items-center">
+                        <i class="fa-solid fa-shield-halved text-cyan-400 mr-2"></i>戰術外骨骼裝備選購
+                    </h3>
+                    <div id="shop-equip-container" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
                 </div>
             </div>
 
-            <!-- Footer Action -->
-            <div class="border-t border-slate-800 pt-4 flex justify-between items-center">
-                <div class="text-xs text-slate-400">
-                    提示：優秀的牌組講究【高氮/高碳廢棄物】與【特定分解者】的 Combo 連動！
-                </div>
-                <button onclick="game.nextStage()" class="bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black px-8 py-3 rounded-xl shadow-lg glow-green transition active:scale-95">
-                    前往下一關 <i class="fa-solid fa-arrow-right ml-2"></i>
+            <div class="border-t border-slate-800 pt-4 flex justify-between items-center font-mono">
+                <span class="text-xs text-slate-400">提示：良好的 C:N 氮碳比例能產生幾何級數爆發得分！</span>
+                <button onclick="game.closeShop()" class="bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black px-6 py-2.5 rounded-xl shadow-lg transition active:scale-95">
+                    繼續遠征 <i class="fa-solid fa-arrow-right ml-1"></i>
                 </button>
             </div>
+
         </div>
     </div>
 
     <!-- GAME OVER / VICTORY MODAL -->
-    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-lg z-50 flex items-center justify-center p-4 hidden">
-        <div class="glass-panel border border-slate-800 rounded-3xl max-w-lg w-full p-8 text-center shadow-2xl">
+    <div id="game-over-modal" class="fixed inset-0 bg-slate-950/95 backdrop-blur-xl z-50 flex items-center justify-center p-4 hidden">
+        <div class="tech-panel border-slate-800 rounded-3xl max-w-lg w-full p-8 text-center shadow-2xl">
             <div id="game-over-icon" class="text-6xl mb-4 text-emerald-400">
                 <i class="fa-solid fa-trophy"></i>
             </div>
-            <h2 id="game-over-title" class="text-3xl font-black mb-2 text-slate-100">完全通關！黑金帝國大成功</h2>
-            <p id="game-over-desc" class="text-slate-400 text-sm mb-6">您成功將微型堆肥站升級為全球綠色循環典範！</p>
-            
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 mb-6 space-y-2 text-left text-sm">
-                <div class="flex justify-between">
-                    <span class="text-slate-400">最終到達關卡:</span>
-                    <span id="end-stage" class="font-bold text-slate-200">5 / 5</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">剩餘黑金幣:</span>
-                    <span id="end-coins" class="font-bold text-amber-400">0</span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-slate-400">牌組總張數:</span>
-                    <span id="end-deck-size" class="font-bold text-emerald-400">0</span>
-                </div>
-            </div>
+            <h2 id="game-over-title" class="text-2xl font-black mb-2 text-slate-100 font-orbitron">完全通關！星途守護者</h2>
+            <p id="game-over-desc" class="text-slate-400 text-xs sm:text-sm mb-6">您成功將阿爾法飛船修復完畢，並將地球黑金堆肥循環秘訣帶回阿爾法母星！</p>
 
-            <button onclick="game.restartGame()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black py-3.5 rounded-xl shadow-lg glow-green transition active:scale-95">
-                <i class="fa-solid fa-rotate-right mr-2"></i>重新開啟黑金協定
+            <button onclick="location.reload()" class="w-full bg-gradient-to-r from-emerald-500 to-teal-400 text-slate-950 font-black py-3 rounded-xl font-orbitron shadow-lg active:scale-95">
+                <i class="fa-solid fa-rotate-right mr-2"></i>重新啟動黑金協定
             </button>
         </div>
     </div>
 
-    <!-- AUDIO SYNTHESIZER & GAME SCRIPT -->
+    <!-- AUDIO SYNTHESIS & FULL MASTER GAME SCRIPT -->
     <script>
         /**
          * Web Audio API Synthesizer for SFX
          */
-        class SoundFX {
-            constructor() {
-                this.ctx = null;
-            }
-            init() {
-                if (!this.ctx) {
-                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-                }
-            }
+        class AudioSynth {
+            constructor() { this.ctx = null; }
+            init() { if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); }
             playSelect() {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+                this.init(); if (!this.ctx) return;
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                osc.type = 'sine'; osc.frequency.setValueAtTime(520, this.ctx.currentTime);
                 osc.frequency.exponentialRampToValueAtTime(880, this.ctx.currentTime + 0.08);
-                gain.gain.setValueAtTime(0.15, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.12, this.ctx.currentTime);
                 gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.08);
-            }
-            playCombo() {
-                this.init();
-                if (!this.ctx) return;
-                const now = this.ctx.currentTime;
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.06);
-                    gain.gain.setValueAtTime(0.2, now + idx * 0.06);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.15);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.06);
-                    osc.stop(now + idx * 0.06 + 0.15);
-                });
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.08);
             }
             playScorePop() {
-                this.init();
-                if (!this.ctx) return;
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.type = 'square';
-                osc.frequency.setValueAtTime(150, this.ctx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(600, this.ctx.currentTime + 0.2);
+                this.init(); if (!this.ctx) return;
+                const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(780, this.ctx.currentTime + 0.18);
                 gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.2);
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                osc.start();
-                osc.stop(this.ctx.currentTime + 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.18);
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                osc.start(); osc.stop(this.ctx.currentTime + 0.18);
             }
             playWin() {
-                this.init();
-                if (!this.ctx) return;
+                this.init(); if (!this.ctx) return;
                 const now = this.ctx.currentTime;
-                [440, 554.37, 659.25, 880, 1108.73].forEach((freq, idx) => {
-                    const osc = this.ctx.createOscillator();
-                    const gain = this.ctx.createGain();
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + idx * 0.1);
-                    gain.gain.setValueAtTime(0.25, now + idx * 0.1);
-                    gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.4);
-                    osc.connect(gain);
-                    gain.connect(this.ctx.destination);
-                    osc.start(now + idx * 0.1);
-                    osc.stop(now + idx * 0.1 + 0.4);
+                [440, 554.37, 659.25, 880].forEach((f, i) => {
+                    const osc = this.ctx.createOscillator(), gain = this.ctx.createGain();
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(f, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.15, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.25);
+                    osc.connect(gain); gain.connect(this.ctx.destination);
+                    osc.start(now + i * 0.08); osc.stop(now + i * 0.08 + 0.25);
                 });
             }
         }
-
-        const sfx = new SoundFX();
+        const sfx = new AudioSynth();
 
         /**
-         * Master Card Database Definition
+         * CARD DATABASE
          */
         const CARD_TYPES = {
-            FEED: { name: '廢棄物卡', color: 'border-amber-700 bg-gradient-to-b from-amber-950/80 to-slate-900', badge: 'bg-amber-900/80 text-amber-300' },
-            WORM: { name: '分解者卡', color: 'border-emerald-600 bg-gradient-to-b from-emerald-950/80 to-slate-900', badge: 'bg-emerald-900/80 text-emerald-300' },
-            YIELD: { name: '轉化收成', color: 'border-teal-500 bg-gradient-to-b from-teal-950/80 to-slate-900', badge: 'bg-teal-900/80 text-teal-300' }
+            FEED: { name: '資材廢棄物', badge: 'bg-amber-950 text-amber-300 border-amber-500/30' },
+            WORM: { name: '分解者/蚓群', badge: 'bg-emerald-950 text-emerald-300 border-emerald-500/30' },
+            YIELD: { name: '轉化收成', badge: 'bg-teal-950 text-teal-300 border-teal-500/30' }
         };
 
         const CARD_DATABASE = [
-            // BASIC FEEDSTOCK CARDS
-            { id: 'f1', type: 'FEED', name: '咖啡渣', icon: 'fa-mug-hot', mass: 25, mult: 0, tags: ['高氮'], desc: '基礎高氮資材。', rarity: 'C' },
-            { id: 'f2', type: 'FEED', name: '枯樹葉', icon: 'fa-leaf', mass: 40, mult: 0, tags: ['高碳'], desc: '基礎高碳資材，提供龐大質量。', rarity: 'C' },
-            { id: 'f3', type: 'FEED', name: '廚餘果皮', icon: 'fa-apple-whole', mass: 20, mult: 2, tags: ['高氮', '有機'], desc: '富有水分與養分。', rarity: 'C' },
-            { id: 'f4', type: 'FEED', name: '廢棄紙箱', icon: 'fa-box', mass: 50, mult: 0, tags: ['高碳'], desc: '純纖維高碳資材。', rarity: 'C' },
-            { id: 'f5', type: 'FEED', name: '牛糞有機資材', icon: 'fa-cow', mass: 35, mult: 5, tags: ['高氮', '有機'], desc: '極度優質的複合養分來源。', rarity: 'U' },
-            { id: 'f6', type: 'FEED', name: '菇類培植廢渣', icon: 'fa-cubes-stacked', mass: 60, mult: 3, tags: ['高碳', '有機'], desc: '豐富菌絲與有機木質素。', rarity: 'U' },
-
-            // DECOMPOSER / WORM CARDS
-            { id: 'w1', type: 'WORM', name: '太平二號紅蚯蚓', icon: 'fa-worm', mass: 5, mult: 10, tags: ['分解者'], effectMsg: '高氮卡每張 +8 Mult', effect: (ctx) => {
-                const nCount = ctx.playedCards.filter(c => c.tags.includes('高氮')).length;
-                return { addMass: 0, addMult: nCount * 8 };
-            }, rarity: 'C' },
-            { id: 'w2', type: 'WORM', name: '歐洲大巨蚓', icon: 'fa-bug', mass: 10, mult: 12, tags: ['分解者'], effectMsg: '高碳卡每張 +10 Mass', effect: (ctx) => {
-                const cCount = ctx.playedCards.filter(c => c.tags.includes('高碳')).length;
-                return { addMass: cCount * 10, addMult: 0 };
-            }, rarity: 'C' },
-            { id: 'w3', type: 'WORM', name: '光合菌分解酵素', icon: 'fa-flask', mass: 0, mult: 15, tags: ['分解者'], effectMsg: '若同時有 [高氮] 與 [高碳]，Mult ×1.5', effect: (ctx) => {
+            { id: 'f1', type: 'FEED', name: '高山茶渣', icon: 'fa-mug-hot', mass: 30, mult: 0, tags: ['高氮'], desc: '富含高氮養分資材。' },
+            { id: 'f2', type: 'FEED', name: '乾燥樹枝葉', icon: 'fa-leaf', mass: 50, mult: 0, tags: ['高碳'], desc: '基礎高碳資材，提供龐大質量。' },
+            { id: 'f3', type: 'FEED', name: '果皮廚餘', icon: 'fa-apple-whole', mass: 25, mult: 3, tags: ['高氮', '有機'], desc: '富有酵素與有機養分。' },
+            { id: 'f4', type: 'FEED', name: '廢棄紙箱', icon: 'fa-box', mass: 65, mult: 0, tags: ['高碳'], desc: '高纖維質純碳源。' },
+            { id: 'f5', type: 'FEED', name: '牛糞有機資材', icon: 'fa-cow', mass: 40, mult: 6, tags: ['高氮', '有機'], desc: '複合高效氮源。' },
+            
+            { id: 'w1', type: 'WORM', name: '太平二號紅蚯蚓', icon: 'fa-worm', mass: 10, mult: 12, tags: ['分解者'], effectMsg: '打出的高氮卡每張 +10 Mult', effect: (ctx) => {
+                const n = ctx.playedCards.filter(c => c.tags.includes('高氮')).length;
+                return { addMult: n * 10 };
+            }},
+            { id: 'w2', type: 'WORM', name: '歐洲大巨蚓', icon: 'fa-bug', mass: 15, mult: 15, tags: ['分解者'], effectMsg: '打出的高碳卡每張 +15 Mass', effect: (ctx) => {
+                const c = ctx.playedCards.filter(c => c.tags.includes('高碳')).length;
+                return { addMass: c * 15 };
+            }},
+            { id: 'w3', type: 'WORM', name: '阿爾法變異光合菌', icon: 'fa-flask', mass: 5, mult: 20, tags: ['分解者'], effectMsg: '若有 [高氮] 與 [高碳]，Mult ×1.5', effect: (ctx) => {
                 const hasN = ctx.playedCards.some(c => c.tags.includes('高氮'));
                 const hasC = ctx.playedCards.some(c => c.tags.includes('高碳'));
                 return { multFactor: (hasN && hasC) ? 1.5 : 1.0 };
-            }, rarity: 'U' },
-            { id: 'w4', type: 'WORM', name: '極化變異王蚓', icon: 'fa-dna', mass: 15, mult: 25, tags: ['分解者'], effectMsg: '手牌每多一張分解者，+15 Mult', effect: (ctx) => {
-                const wCount = ctx.playedCards.filter(c => c.type === 'WORM').length;
-                return { addMass: 0, addMult: wCount * 15 };
-            }, rarity: 'R' },
+            }},
 
-            // YIELD / HARVEST CARDS
-            { id: 'y1', type: 'YIELD', name: '有機優質黑金土', icon: 'fa-seedling', mass: 10, mult: 5, tags: ['轉化'], effectMsg: '最終總分 ×1.2', effect: (ctx) => {
-                return { finalScoreFactor: 1.2 };
-            }, rarity: 'C' },
-            { id: 'y2', type: 'YIELD', name: '溫室草莓高價作物', icon: 'fa-stroopwafel', mass: 0, mult: 20, tags: ['轉化'], effectMsg: '若本牌組包含 3 張以上廢棄物，+40 Mult', effect: (ctx) => {
-                const fCount = ctx.playedCards.filter(c => c.type === 'FEED').length;
-                return { addMass: 0, addMult: fCount >= 3 ? 40 : 0 };
-            }, rarity: 'U' },
-            { id: 'y3', type: 'YIELD', name: 'ESG 碳權認證標章', icon: 'fa-certificate', mass: 30, mult: 30, tags: ['轉化'], effectMsg: '最終總分 ×1.8 爆發！', effect: (ctx) => {
-                return { finalScoreFactor: 1.8 };
-            }, rarity: 'R' }
+            { id: 'y1', type: 'YIELD', name: '有機黑金土', icon: 'fa-seedling', mass: 15, mult: 8, tags: ['轉化'], effectMsg: '最終總分 ×1.25', effect: () => ({ finalScoreFactor: 1.25 }) },
+            { id: 'y2', type: 'YIELD', name: 'ESG 碳權憑證', icon: 'fa-certificate', mass: 40, mult: 35, tags: ['轉化'], effectMsg: '最終總分 ×1.6 爆發', effect: () => ({ finalScoreFactor: 1.6 }) }
         ];
 
         /**
-         * Relics Database Definition
+         * STAGES DEFINITION
          */
-        const RELICS_DATABASE = [
-            { id: 'r1', name: '生物炭過濾器', icon: 'fa-filter', cost: 7, desc: '每回合開始時，額外獲得 +1 次棄牌重抽機會。', onStartTurn: (g) => { g.discardsLeft += 1; } },
-            { id: 'r2', name: '溫控自動噴滴灌', icon: 'fa-droplet', cost: 8, desc: '每次出牌基礎 Mass 自動 +20。', onPlay: () => { return { addMass: 20, addMult: 0 }; } },
-            { id: 'r3', name: 'AI 光學分選機', icon: 'fa-eye', cost: 10, desc: '打出 [高氮] 卡片時，額外獲得 +8 Mult。', onPlayCard: (card) => { return card.tags.includes('高氮') ? { addMult: 8 } : {}; } },
-            { id: 'r4', name: '蚯蚓王國皇冠', icon: 'fa-crown', cost: 12, desc: '打出的每張 [分解者卡] 效果翻倍 (+15 Mult)。', onPlayCard: (card) => { return card.type === 'WORM' ? { addMult: 15 } : {}; } }
+        const STAGES_DATA = [
+            { id: 1, name: '關卡 1: 台灣高山茶園', quota: 600, rewardCoins: 15, bioCore: 2 },
+            { id: 2, name: '關卡 2: 亞馬遜伐木保育區', quota: 2200, rewardCoins: 25, bioCore: 3 },
+            { id: 3, name: '關卡 3: 薩哈拉沙漠綠洲站', quota: 7500, rewardCoins: 40, bioCore: 4 },
+            { id: 4, name: '關卡 4: 紐約超大都會區', quota: 25000, rewardCoins: 60, bioCore: 5 }
         ];
 
         /**
-         * Game Stage Quotas
+         * GAME ENGINE CLASS
          */
-        const STAGES = [
-            { id: 1, name: '關卡 1: 社區微型堆肥站', quota: 500, rewardCoins: 10 },
-            { id: 2, name: '關卡 2: 市政有機資源回收廠', quota: 1800, rewardCoins: 15 },
-            { id: 3, name: '關卡 3: 科技園區 ESG 生態中心', quota: 6000, rewardCoins: 20 },
-            { id: 4, name: '關卡 4: 跨國農企黑金研發基地', quota: 20000, rewardCoins: 25 },
-            { id: 5, name: '關卡 5: 全球零碳循環終極殿堂', quota: 65000, rewardCoins: 30 }
-        ];
-
-        /**
-         * Master Game Engine Object
-         */
-        class VermiGame {
+        class EcoGuardianEngine {
             constructor() {
-                this.stageIndex = 0;
-                this.coins = 15;
-                this.handsLeft = 4;
-                this.discardsLeft = 3;
-                this.currentScore = 0;
+                this.heroHp = 100;
+                this.maxHp = 100;
+                this.heroLv = 1;
+                this.coins = 25;
+                this.bioCore = 0;
+                this.skillPoints = 2;
 
+                this.unlockedStageIndex = 0;
+                this.currentBattleStage = 0;
+
+                // Equipment State
+                this.equip = {
+                    head: { name: '生態分析頭盔', massBonusPct: 0, multBonusPct: 0.1 },
+                    body: { name: '生化防護裝甲', hpBonus: 20 },
+                    hand: { name: 'AI 基因採樣手套', massBonusPct: 0.15, multBonusPct: 0 },
+                    feet: { name: '零碳巡邏軍靴', bonusDiscards: 1 }
+                };
+
+                // Skill Tree Levels
+                this.skills = { 1: 0, 2: 0, 3: 0, 4: 0 };
+
+                // Starship Sub-systems
+                this.shipSystems = { 1: false, 2: false, 3: false, 4: false };
+
+                // Battle Deck State
                 this.deck = [];
                 this.hand = [];
                 this.selectedCardIndices = [];
-                this.activeRelics = [];
+                this.currentScore = 0;
+                this.handsLeft = 4;
+                this.discardsLeft = 3;
 
                 this.initDefaultDeck();
             }
 
             initDefaultDeck() {
                 this.deck = [
-                    { ...CARD_DATABASE[0] }, { ...CARD_DATABASE[0] }, { ...CARD_DATABASE[0] }, // 3 咖啡渣
-                    { ...CARD_DATABASE[1] }, { ...CARD_DATABASE[1] }, { ...CARD_DATABASE[1] }, // 3 枯樹葉
-                    { ...CARD_DATABASE[2] }, { ...CARD_DATABASE[2] },                         // 2 廚餘果皮
-                    { ...CARD_DATABASE[3] },                                                  // 1 紙箱
-                    { ...CARD_DATABASE[6] }, { ...CARD_DATABASE[6] },                         // 2 太平二號
-                    { ...CARD_DATABASE[7] },                                                  // 1 歐洲大巨蚓
-                    { ...CARD_DATABASE[10] }                                                  // 1 優質黑金土
-                ].map((c, i) => ({ ...c, instanceId: 'card_' + Date.now() + '_' + i }));
+                    { ...CARD_DATABASE[0] }, { ...CARD_DATABASE[0] },
+                    { ...CARD_DATABASE[1] }, { ...CARD_DATABASE[1] },
+                    { ...CARD_DATABASE[2] }, { ...CARD_DATABASE[3] },
+                    { ...CARD_DATABASE[5] }, { ...CARD_DATABASE[5] },
+                    { ...CARD_DATABASE[6] }, { ...CARD_DATABASE[8] }
+                ].map((c, i) => ({ ...c, uid: 'c_' + Date.now() + '_' + i }));
             }
 
-            startStage() {
-                const stageData = STAGES[this.stageIndex];
+            switchTab(tabName) {
+                sfx.playSelect();
+                ['expedition', 'hero', 'ship'].forEach(t => {
+                    document.getElementById(`view-${t}`).classList.add('hidden');
+                    const btn = document.getElementById(`tab-btn-${t}`);
+                    btn.className = 'px-3 py-1.5 rounded-lg font-bold text-slate-400 hover:text-slate-200 transition';
+                });
+                document.getElementById(`view-${tabName}`).classList.remove('hidden');
+                const activeBtn = document.getElementById(`tab-btn-${tabName}`);
+                activeBtn.className = 'px-3 py-1.5 rounded-lg font-bold transition bg-emerald-600 text-slate-950 shadow-md';
+            }
+
+            getShipIntegrity() {
+                let count = 0;
+                Object.values(this.shipSystems).forEach(v => { if (v) count += 25; });
+                return count;
+            }
+
+            upgradeSkill(id) {
+                if (this.skillPoints <= 0 || this.skills[id] >= 3) return;
+                sfx.playSelect();
+                this.skillPoints--;
+                this.skills[id]++;
+                document.getElementById(`sk-${id}-status`).innerText = `LV ${this.skills[id]}/3`;
+                document.getElementById('skill-points-display').innerText = this.skillPoints;
+            }
+
+            upgradeShipSystem(id, cost) {
+                if (this.bioCore < cost || this.shipSystems[id]) return;
+                sfx.playWin();
+                this.bioCore -= cost;
+                this.shipSystems[id] = true;
+                this.updateUI();
+
+                if (this.getShipIntegrity() >= 100) {
+                    this.showVictory();
+                }
+            }
+
+            startBattle(stageIndex) {
+                this.currentBattleStage = stageIndex;
+                const stage = STAGES_DATA[stageIndex];
+
                 this.currentScore = 0;
                 this.handsLeft = 4;
-                this.discardsLeft = 3;
+                this.discardsLeft = 3 + (this.equip.feet ? 1 : 0);
 
-                // Trigger Relic turn start effects
-                this.activeRelics.forEach(r => {
-                    if (r.onStartTurn) r.onStartTurn(this);
-                });
-
-                // Shuffle Deck
                 this.deck = [...this.deck].sort(() => Math.random() - 0.5);
                 this.hand = [];
                 this.selectedCardIndices = [];
 
-                // Draw Initial Hand (8 cards)
-                this.drawCards(8);
+                // Refill initial hand (5 cards)
+                const handSize = 5 + (this.shipSystems[1] ? 1 : 0);
+                this.drawCards(handSize);
 
-                this.updateUI();
+                document.getElementById('battle-stage-name').innerText = stage.name;
+                document.getElementById('battle-target-score').innerText = stage.quota.toLocaleString();
+                document.getElementById('battle-overlay').classList.remove('hidden');
+
+                this.updateBattleUI();
             }
 
             drawCards(count) {
@@ -536,306 +952,221 @@
                 const pos = this.selectedCardIndices.indexOf(index);
                 if (pos > -1) {
                     this.selectedCardIndices.splice(pos, 1);
-                } else {
-                    if (this.selectedCardIndices.length < 5) {
-                        this.selectedCardIndices.push(index);
-                    }
+                } else if (this.selectedCardIndices.length < 5) {
+                    this.selectedCardIndices.push(index);
                 }
-                this.updateUI();
+                this.updateBattleUI();
             }
 
-            discardSelected() {
+            discardSelectedCards() {
                 if (this.discardsLeft <= 0 || this.selectedCardIndices.length === 0) return;
                 sfx.playSelect();
 
-                // Remove selected cards from hand
                 this.selectedCardIndices.sort((a, b) => b - a);
-                this.selectedCardIndices.forEach(idx => {
-                    this.hand.splice(idx, 1);
-                });
-
+                this.selectedCardIndices.forEach(i => this.hand.splice(i, 1));
                 this.discardsLeft--;
                 this.selectedCardIndices = [];
 
-                // Draw back to 8 cards
-                this.drawCards(8 - this.hand.length);
-                this.updateUI();
+                const handSize = 5 + (this.shipSystems[1] ? 1 : 0);
+                this.drawCards(handSize - this.hand.length);
+                this.updateBattleUI();
             }
 
-            calculateScorePreview() {
-                if (this.selectedCardIndices.length === 0) {
-                    return { baseMass: 0, totalMult: 0, totalScore: 0, triggers: [] };
-                }
+            calculateScore() {
+                if (this.selectedCardIndices.length === 0) return { mass: 0, mult: 0, total: 0, triggers: [] };
 
                 const playedCards = this.selectedCardIndices.map(i => this.hand[i]);
                 let baseMass = 0;
-                let totalMult = 0;
+                let baseMult = 0;
                 let multFactor = 1.0;
-                let finalScoreFactor = 1.0;
+                let finalFactor = 1.0;
                 let triggers = [];
 
-                // 1. Calculate inherent Base Mass & Mult from cards
-                playedCards.forEach(card => {
-                    baseMass += card.mass || 0;
-                    totalMult += card.mult || 0;
-
-                    // Relic trigger on card
-                    this.activeRelics.forEach(relic => {
-                        if (relic.onPlayCard) {
-                            const res = relic.onPlayCard(card);
-                            if (res.addMult) totalMult += res.addMult;
-                        }
-                    });
+                // 1. Raw Card Sum
+                playedCards.forEach(c => {
+                    baseMass += c.mass || 0;
+                    baseMult += c.mult || 0;
                 });
 
-                // 2. Calculate Relic base play bonuses
-                this.activeRelics.forEach(relic => {
-                    if (relic.onPlay) {
-                        const res = relic.onPlay();
-                        if (res.addMass) baseMass += res.addMass;
-                        if (res.addMult) totalMult += res.addMult;
-                    }
-                });
+                // Equipment Bonuses
+                baseMass *= (1 + (this.equip.hand?.massBonusPct || 0));
+                baseMult *= (1 + (this.equip.head?.multBonusPct || 0));
 
-                // 3. Calculate Worm / Yield Combo Effects
-                const context = { playedCards };
-                playedCards.forEach(card => {
-                    if (card.effect) {
-                        const res = card.effect(context);
+                // Skill Tree Bonus
+                if (this.skills[1] > 0) {
+                    const wormCount = playedCards.filter(c => c.type === 'WORM').length;
+                    baseMult += wormCount * (this.skills[1] * 10);
+                }
+                if (this.skills[2] > 0) {
+                    const hasN = playedCards.some(c => c.tags.includes('高氮'));
+                    const hasC = playedCards.some(c => c.tags.includes('高碳'));
+                    if (hasN && hasC) baseMass *= (1 + (this.skills[2] * 0.2));
+                }
+
+                // 2. Card Effects
+                const ctx = { playedCards };
+                playedCards.forEach(c => {
+                    if (c.effect) {
+                        const res = c.effect(ctx);
                         if (res.addMass) baseMass += res.addMass;
-                        if (res.addMult) totalMult += res.addMult;
+                        if (res.addMult) baseMult += res.addMult;
                         if (res.multFactor) multFactor *= res.multFactor;
-                        if (res.finalScoreFactor) finalScoreFactor *= res.finalScoreFactor;
-                        if (card.effectMsg) triggers.push(`${card.name}: ${card.effectMsg}`);
+                        if (res.finalScoreFactor) finalFactor *= res.finalScoreFactor;
+                        if (c.effectMsg) triggers.push(`${c.name}: ${c.effectMsg}`);
                     }
                 });
 
-                totalMult = Math.round(totalMult * multFactor);
-                let totalScore = Math.round((baseMass * totalMult) * finalScoreFactor);
+                // Ship System 2 Bonus
+                if (this.shipSystems[2]) finalFactor *= 1.3;
 
-                return { baseMass, totalMult, totalScore, triggers };
+                baseMult = Math.round(baseMult * multFactor);
+                const total = Math.round((baseMass * baseMult) * finalFactor);
+
+                return { mass: Math.round(baseMass), mult: baseMult, total, triggers };
             }
 
             playSelectedHand() {
                 if (this.handsLeft <= 0 || this.selectedCardIndices.length === 0) return;
 
-                const { totalScore, triggers } = this.calculateScorePreview();
-
+                const { total } = this.calculateScore();
                 sfx.playScorePop();
-                this.spawnFloatingScore(`+${totalScore.toLocaleString()} 黑金分!`);
 
-                this.currentScore += totalScore;
+                this.currentScore += total;
                 this.handsLeft--;
 
-                // Particle explosion
-                if (typeof confetti === 'function') {
-                    confetti({
-                        particleCount: Math.min(60, Math.floor(totalScore / 10)),
-                        spread: 60,
-                        origin: { y: 0.6 }
-                    });
-                }
+                // Spawn score float effect
+                const container = document.getElementById('floating-score-container');
+                const el = document.createElement('div');
+                el.className = 'floating-score text-3xl font-black font-orbitron left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2';
+                el.innerText = `+${total.toLocaleString()}`;
+                container.appendChild(el);
+                setTimeout(() => el.remove(), 1200);
 
-                // Remove played cards from hand
+                // Remove played
                 this.selectedCardIndices.sort((a, b) => b - a);
-                this.selectedCardIndices.forEach(idx => {
-                    this.hand.splice(idx, 1);
-                });
+                this.selectedCardIndices.forEach(i => this.hand.splice(i, 1));
                 this.selectedCardIndices = [];
 
-                // Check quota victory
-                const targetQuota = STAGES[this.stageIndex].quota;
-                if (this.currentScore >= targetQuota) {
+                const stage = STAGES_DATA[this.currentBattleStage];
+
+                // Check Win
+                if (this.currentScore >= stage.quota) {
                     sfx.playWin();
+                    if (typeof confetti === 'function') confetti({ particleCount: 80, spread: 70, origin: { y: 0.6 } });
+
                     setTimeout(() => {
+                        document.getElementById('battle-overlay').classList.add('hidden');
+                        this.coins += stage.rewardCoins;
+                        this.bioCore += stage.bioCore;
+                        this.skillPoints += 1;
+
+                        if (this.currentBattleStage === this.unlockedStageIndex && this.unlockedStageIndex < 3) {
+                            this.unlockedStageIndex++;
+                        }
                         this.openShop();
                     }, 800);
                     return;
                 }
 
-                // Check Game Over
-                if (this.handsLeft <= 0 && this.currentScore < targetQuota) {
-                    this.showGameOver(false);
+                // Check Loss
+                if (this.handsLeft <= 0 && this.currentScore < stage.quota) {
+                    alert('本局未能達成黑金得分配額，請調整手牌組合後重新挑戰！');
+                    document.getElementById('battle-overlay').classList.add('hidden');
                     return;
                 }
 
-                // Refill Hand
-                this.drawCards(8 - this.hand.length);
-                this.updateUI();
+                const handSize = 5 + (this.shipSystems[1] ? 1 : 0);
+                this.drawCards(handSize - this.hand.length);
+                this.updateBattleUI();
             }
 
-            spawnFloatingScore(text) {
-                const container = document.getElementById('floating-score-container');
-                const el = document.createElement('div');
-                el.className = 'floating-score text-3xl sm:text-5xl font-black left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2';
-                el.innerText = text;
-                container.appendChild(el);
-                setTimeout(() => el.remove(), 1000);
+            forfeitBattle() {
+                document.getElementById('battle-overlay').classList.add('hidden');
             }
 
             openShop() {
-                const reward = STAGES[this.stageIndex].rewardCoins;
-                this.coins += reward;
-
-                document.getElementById('shop-player-coins').innerText = this.coins;
+                document.getElementById('shop-coins-display').innerText = this.coins;
                 
-                // Generate 3 Card Draft Options
-                const shopCardsContainer = document.getElementById('shop-cards-container');
-                shopCardsContainer.innerHTML = '';
+                // Draft 3 Cards
+                const cardsContainer = document.getElementById('shop-cards-container');
+                cardsContainer.innerHTML = '';
                 const pool = CARD_DATABASE.sort(() => Math.random() - 0.5).slice(0, 3);
 
                 pool.forEach(card => {
-                    const cost = card.rarity === 'R' ? 8 : (card.rarity === 'U' ? 6 : 4);
                     const div = document.createElement('div');
-                    div.className = 'bg-slate-900 border border-slate-700 hover:border-emerald-500 rounded-2xl p-4 flex flex-col justify-between transition shadow-lg';
+                    div.className = 'bg-slate-900 border border-slate-700 rounded-xl p-3 flex flex-col justify-between';
                     div.innerHTML = `
                         <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold px-2 py-0.5 rounded ${CARD_TYPES[card.type].badge}">${CARD_TYPES[card.type].name}</span>
-                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${cost}</span>
-                            </div>
-                            <div class="text-base font-black text-slate-100 flex items-center mb-1">
-                                <i class="fa-solid ${card.icon} mr-2 text-emerald-400"></i>${card.name}
-                            </div>
-                            <div class="text-xs text-slate-400 mb-3">${card.desc || card.effectMsg || ''}</div>
+                            <div class="text-xs font-bold text-emerald-400 mb-1"><i class="fa-solid ${card.icon} mr-1"></i>${card.name}</div>
+                            <div class="text-[11px] text-slate-400 mb-2">${card.desc || card.effectMsg || ''}</div>
                         </div>
-                        <button onclick="game.buyCard('${card.id}', ${cost}, this)" class="w-full bg-slate-800 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 font-bold py-2 rounded-xl border border-slate-700 transition">
-                            購入此牌
+                        <button onclick="game.buyCard('${card.id}', 10, this)" class="bg-slate-800 hover:bg-emerald-600 text-emerald-300 hover:text-slate-950 text-xs font-bold py-1.5 rounded-lg border border-slate-700 transition">
+                            購入此牌 ($10)
                         </button>
                     `;
-                    shopCardsContainer.appendChild(div);
-                });
-
-                // Generate 2 Relic Options
-                const shopRelicsContainer = document.getElementById('shop-relics-container');
-                shopRelicsContainer.innerHTML = '';
-                const availableRelics = RELICS_DATABASE.filter(r => !this.activeRelics.some(ar => ar.id === r.id)).slice(0, 2);
-
-                availableRelics.forEach(relic => {
-                    const div = document.createElement('div');
-                    div.className = 'bg-slate-900 border border-slate-700 hover:border-amber-500 rounded-2xl p-4 flex flex-col justify-between transition shadow-lg';
-                    div.innerHTML = `
-                        <div>
-                            <div class="flex justify-between items-start mb-2">
-                                <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-500/30">被動寶物</span>
-                                <span class="text-xs font-bold text-amber-400"><i class="fa-solid fa-coins mr-1"></i>${relic.cost}</span>
-                            </div>
-                            <div class="text-base font-black text-slate-100 flex items-center mb-1">
-                                <i class="fa-solid ${relic.icon} mr-2 text-amber-400"></i>${relic.name}
-                            </div>
-                            <div class="text-xs text-slate-400 mb-3">${relic.desc}</div>
-                        </div>
-                        <button onclick="game.buyRelic('${relic.id}', ${relic.cost}, this)" class="w-full bg-slate-800 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-bold py-2 rounded-xl border border-slate-700 transition">
-                            裝備寶物
-                        </button>
-                    `;
-                    shopRelicsContainer.appendChild(div);
+                    cardsContainer.appendChild(div);
                 });
 
                 document.getElementById('shop-modal').classList.remove('hidden');
             }
 
-            buyCard(cardId, cost, btnEl) {
+            buyCard(id, cost, btn) {
                 if (this.coins < cost) return;
                 this.coins -= cost;
-                document.getElementById('shop-player-coins').innerText = this.coins;
-
-                const template = CARD_DATABASE.find(c => c.id === cardId);
-                this.deck.push({ ...template, instanceId: 'card_' + Date.now() });
-
-                btnEl.disabled = true;
-                btnEl.innerText = '已購入 ✓';
-                btnEl.className = 'w-full bg-slate-800 text-slate-500 font-bold py-2 rounded-xl opacity-60 cursor-not-allowed';
-                this.updateUI();
+                document.getElementById('shop-coins-display').innerText = this.coins;
+                const template = CARD_DATABASE.find(c => c.id === id);
+                this.deck.push({ ...template, uid: 'c_' + Date.now() });
+                btn.disabled = true;
+                btn.innerText = '已購入 ✓';
             }
 
-            buyRelic(relicId, cost, btnEl) {
-                if (this.coins < cost || this.activeRelics.length >= 5) return;
-                this.coins -= cost;
-                document.getElementById('shop-player-coins').innerText = this.coins;
-
-                const relic = RELICS_DATABASE.find(r => r.id === relicId);
-                this.activeRelics.push(relic);
-
-                btnEl.disabled = true;
-                btnEl.innerText = '已裝備 ✓';
-                btnEl.className = 'w-full bg-slate-800 text-slate-500 font-bold py-2 rounded-xl opacity-60 cursor-not-allowed';
-                this.updateUI();
-            }
-
-            nextStage() {
+            closeShop() {
                 document.getElementById('shop-modal').classList.add('hidden');
-                this.stageIndex++;
-
-                if (this.stageIndex >= STAGES.length) {
-                    this.showGameOver(true);
-                } else {
-                    this.startStage();
-                }
+                this.updateUI();
             }
 
-            showGameOver(isVictory) {
-                const modal = document.getElementById('game-over-modal');
-                const title = document.getElementById('game-over-title');
-                const desc = document.getElementById('game-over-desc');
-                const icon = document.getElementById('game-over-icon');
-
-                if (isVictory) {
-                    icon.innerHTML = '<i class="fa-solid fa-trophy text-amber-400"></i>';
-                    title.innerText = '🎉 通關大成功！黑金帝國霸主';
-                    desc.innerText = '您成功打造出極致優化的生態循環鏈結，達成最高 ESG 永續榮耀！';
-                } else {
-                    icon.innerHTML = '<i class="fa-solid fa-skull-crossbones text-rose-500"></i>';
-                    title.innerText = '任務失敗：黑金配額未達標';
-                    desc.innerText = '出牌次數已耗盡，未能在期限內達成該關卡所需的黑金得分配額。';
-                }
-
-                document.getElementById('end-stage').innerText = `${this.stageIndex + 1} / ${STAGES.length}`;
-                document.getElementById('end-coins').innerText = this.coins;
-                document.getElementById('end-deck-size').innerText = this.deck.length + this.hand.length;
-
-                modal.classList.remove('hidden');
-            }
-
-            restartGame() {
-                document.getElementById('game-over-modal').classList.add('hidden');
-                this.stageIndex = 0;
-                this.coins = 15;
-                this.activeRelics = [];
-                this.initDefaultDeck();
-                this.startStage();
+            showVictory() {
+                document.getElementById('game-over-modal').classList.remove('hidden');
             }
 
             updateUI() {
-                const stageData = STAGES[this.stageIndex];
+                // Top Resources
+                document.getElementById('hero-lv').innerText = this.heroLv;
+                document.getElementById('hero-hp').innerText = `${this.heroHp}/${this.maxHp}`;
+                document.getElementById('res-coins').innerText = this.coins;
+                document.getElementById('res-bio-core').innerText = this.bioCore;
 
-                // Top Bar Info
-                document.getElementById('stage-num').innerText = `${stageData.id} / ${STAGES.length}`;
-                document.getElementById('stage-title').innerText = stageData.name;
-                document.getElementById('target-score').innerText = stageData.quota.toLocaleString();
-                document.getElementById('hands-left').innerText = this.handsLeft;
-                document.getElementById('discards-left').innerText = this.discardsLeft;
-                document.getElementById('btn-discard-count').innerText = this.discardsLeft;
-                document.getElementById('player-coins').innerText = this.coins;
+                // Ship Integrity Bar
+                const integrity = this.getShipIntegrity();
+                document.getElementById('ship-integrity-text').innerText = `${integrity}%`;
+                document.getElementById('ship-integrity-bar').style.width = `${integrity}%`;
+                document.getElementById('ship-big-integrity').innerText = `${integrity}%`;
+                document.getElementById('ship-core-count').innerText = this.bioCore;
 
-                // Progress Bar
-                const pct = Math.min(100, Math.round((this.currentScore / stageData.quota) * 100));
-                document.getElementById('score-progress-text').innerText = `${this.currentScore.toLocaleString()} / ${stageData.quota.toLocaleString()} (${pct}%)`;
-                document.getElementById('score-bar').style.width = `${pct}%`;
-
-                // Relics Display
-                const relicsContainer = document.getElementById('relics-container');
-                document.getElementById('relic-count').innerText = this.activeRelics.length;
-                if (this.activeRelics.length === 0) {
-                    relicsContainer.innerHTML = '<span class="text-xs text-slate-600 italic">尚無寶物（可在通關商店購買）</span>';
-                } else {
-                    relicsContainer.innerHTML = this.activeRelics.map(r => `
-                        <div class="bg-slate-900 border border-amber-500/40 rounded-xl px-2.5 py-1 flex items-center space-x-1.5 shadow-md" title="${r.desc}">
-                            <i class="fa-solid ${r.icon} text-amber-400 text-xs"></i>
-                            <span class="text-xs font-bold text-slate-200">${r.name}</span>
-                        </div>
-                    `).join('');
+                // Unlock Stage Cards
+                for (let i = 1; i <= 3; i++) {
+                    const card = document.getElementById(`stage-card-${i+1}`);
+                    const btn = document.getElementById(`stage-btn-${i}`);
+                    if (i <= this.unlockedStageIndex) {
+                        card.classList.remove('opacity-80', 'border-slate-800');
+                        card.classList.add('border-emerald-500/50');
+                        btn.disabled = false;
+                        btn.className = 'w-full bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 text-slate-950 font-black py-2.5 rounded-xl transition';
+                        btn.innerHTML = '<i class="fa-solid fa-crosshairs mr-1.5"></i>展開生態淨化';
+                    }
                 }
+            }
+
+            updateBattleUI() {
+                const stage = STAGES_DATA[this.currentBattleStage];
+
+                document.getElementById('battle-current-score').innerText = this.currentScore.toLocaleString();
+                document.getElementById('battle-hands-left').innerText = this.handsLeft;
+                document.getElementById('battle-discards-left').innerText = this.discardsLeft;
+                document.getElementById('btn-discard-count').innerText = this.discardsLeft;
+
+                const pct = Math.min(100, Math.round((this.currentScore / stage.quota) * 100));
+                document.getElementById('battle-score-bar').style.width = `${pct}%`;
 
                 // Render Hand Cards
                 const handContainer = document.getElementById('hand-container');
@@ -847,88 +1178,97 @@
                     const isSelected = this.selectedCardIndices.includes(idx);
                     const typeConfig = CARD_TYPES[card.type];
 
-                    const cardEl = document.createElement('div');
-                    cardEl.className = `card-item relative w-28 sm:w-32 h-40 sm:h-44 rounded-2xl border-2 p-2.5 flex flex-col justify-between cursor-pointer shadow-xl ${typeConfig.color} ${isSelected ? 'card-selected' : 'border-slate-700'}`;
-                    cardEl.onclick = () => this.toggleSelectCard(idx);
+                    const div = document.createElement('div');
+                    div.className = `card-element relative w-28 sm:w-32 h-36 sm:h-40 rounded-2xl border-2 p-2.5 flex flex-col justify-between cursor-pointer shadow-xl bg-slate-900 ${isSelected ? 'card-selected' : 'border-slate-700'}`;
+                    div.onclick = () => this.toggleSelectCard(idx);
 
-                    cardEl.innerHTML = `
+                    div.innerHTML = `
                         <div>
                             <div class="flex justify-between items-center mb-1">
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded ${typeConfig.badge}">${typeConfig.name}</span>
+                                <span class="text-[8px] font-mono px-1.5 py-0.5 rounded ${typeConfig.badge}">${typeConfig.name}</span>
                                 ${isSelected ? '<i class="fa-solid fa-circle-check text-emerald-400 text-xs"></i>' : ''}
                             </div>
-                            <div class="text-xs sm:text-sm font-black text-slate-100 flex items-center truncate mt-1">
-                                <i class="fa-solid ${card.icon} mr-1 text-slate-300"></i>${card.name}
-                            </div>
+                            <div class="text-xs font-bold text-slate-100 truncate"><i class="fa-solid ${card.icon} mr-1 text-emerald-400"></i>${card.name}</div>
                         </div>
 
-                        <div class="my-1 text-center">
-                            <div class="text-[10px] text-slate-400 font-bold">基本效能</div>
-                            <div class="flex justify-center space-x-2 text-xs font-black">
-                                ${card.mass ? `<span class="text-blue-400">+${card.mass} M</span>` : ''}
-                                ${card.mult ? `<span class="text-emerald-400">+${card.mult} X</span>` : ''}
-                            </div>
+                        <div class="text-center font-mono text-xs">
+                            ${card.mass ? `<span class="text-cyan-400 font-bold">+${card.mass} M</span> ` : ''}
+                            ${card.mult ? `<span class="text-emerald-400 font-bold">+${card.mult} X</span>` : ''}
                         </div>
 
-                        <div>
-                            <div class="flex flex-wrap gap-1 mb-1">
-                                ${card.tags.map(t => `<span class="text-[8px] bg-slate-900/90 text-slate-300 px-1 rounded border border-slate-700">${t}</span>`).join('')}
-                            </div>
-                            <div class="text-[9px] text-slate-400 leading-tight line-clamp-2">${card.effectMsg || card.desc || ''}</div>
-                        </div>
+                        <div class="text-[9px] text-slate-400 leading-tight">${card.effectMsg || card.desc || ''}</div>
                     `;
-                    handContainer.appendChild(cardEl);
+                    handContainer.appendChild(div);
                 });
 
-                // Render Active Played Zone
+                // Render Played Zone Preview
                 const playedZone = document.getElementById('played-cards-zone');
                 const playedCards = this.selectedCardIndices.map(i => this.hand[i]);
 
                 if (playedCards.length === 0) {
-                    playedZone.innerHTML = '<span class="text-sm text-slate-500 italic">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>';
+                    playedZone.innerHTML = '<span class="text-xs text-slate-500 italic font-mono">點選下方手牌組出 Combo（最多 5 張），發動黑金鏈結！</span>';
                 } else {
                     playedZone.innerHTML = '';
                     playedCards.forEach(card => {
-                        const typeConfig = CARD_TYPES[card.type];
-                        const mini = document.createElement('div');
-                        mini.className = `w-20 sm:w-24 h-28 sm:h-32 rounded-xl border p-2 flex flex-col justify-between ${typeConfig.color} border-emerald-400/80 shadow-lg animate-score-pop`;
-                        mini.innerHTML = `
-                            <div class="text-[9px] font-bold px-1 rounded ${typeConfig.badge} truncate">${card.name}</div>
-                            <div class="text-center text-xs font-black">
-                                ${card.mass ? `<div class="text-blue-300">+${card.mass} M</div>` : ''}
+                        const div = document.createElement('div');
+                        div.className = 'w-20 h-24 rounded-xl border border-emerald-400/60 p-1.5 flex flex-col justify-between bg-slate-900 text-center font-mono';
+                        div.innerHTML = `
+                            <div class="text-[9px] font-bold text-emerald-400 truncate">${card.name}</div>
+                            <div class="text-[10px]">
+                                ${card.mass ? `<div class="text-cyan-300">+${card.mass} M</div>` : ''}
                                 ${card.mult ? `<div class="text-emerald-300">+${card.mult} X</div>` : ''}
                             </div>
-                            <div class="text-[8px] text-slate-300 truncate">${card.tags.join(', ')}</div>
                         `;
-                        playedZone.appendChild(mini);
+                        playedZone.appendChild(div);
                     });
                 }
 
-                // Update Preview Calculations
-                const preview = this.calculateScorePreview();
-                document.getElementById('calc-mass').innerText = preview.baseMass;
-                document.getElementById('calc-mult').innerText = `+${preview.totalMult}`;
-                document.getElementById('calc-total').innerText = preview.totalScore.toLocaleString();
-
-                // Update Combo Triggers Log
-                const comboLog = document.getElementById('combo-log-container');
-                if (preview.triggers.length === 0) {
-                    comboLog.innerHTML = '';
-                } else {
-                    comboLog.innerHTML = preview.triggers.map(t => `
-                        <span class="bg-emerald-950/90 border border-emerald-500/40 text-emerald-300 text-xs px-2.5 py-1 rounded-full font-bold shadow-md animate-score-pop">
-                            <i class="fa-solid fa-bolt text-amber-400 mr-1"></i>${t}
-                        </span>
-                    `).join('');
-                }
+                // Update Preview Calculator
+                const scoreInfo = this.calculateScore();
+                document.getElementById('calc-mass').innerText = scoreInfo.mass;
+                document.getElementById('calc-mult').innerText = `+${scoreInfo.mult}`;
+                document.getElementById('calc-total').innerText = scoreInfo.total.toLocaleString();
             }
         }
 
-        // Initialize Master Game Engine instance
+        // Initialize Canvas Visualizers & Master Game
         let game;
         window.onload = () => {
-            game = new VermiGame();
-            game.startStage();
+            game = new EcoGuardianEngine();
+            game.updateUI();
+
+            // Render Alfa Portrait Canvas
+            const alfaCanvas = document.getElementById('alfa-avatar-canvas');
+            if (alfaCanvas) {
+                const ctx = alfaCanvas.getContext('2d');
+                alfaCanvas.width = 64; alfaCanvas.height = 64;
+                ctx.fillStyle = '#0f172a'; ctx.fillRect(0, 0, 64, 64);
+                ctx.beginPath(); ctx.arc(32, 32, 20, 0, Math.PI * 2); ctx.fillStyle = '#14b8a6'; ctx.fill();
+                ctx.beginPath(); ctx.arc(24, 28, 4, 0, Math.PI * 2); ctx.arc(40, 28, 4, 0, Math.PI * 2); ctx.fillStyle = '#0284c7'; ctx.fill();
+            }
+
+            // Render Worm Activity Canvas Loop
+            const wormCanvas = document.getElementById('worm-visualizer-canvas');
+            if (wormCanvas) {
+                const ctx = wormCanvas.getContext('2d');
+                wormCanvas.width = 320; wormCanvas.height = 64;
+                let t = 0;
+                function animateWorms() {
+                    ctx.fillStyle = '#020617'; ctx.fillRect(0, 0, 320, 64);
+                    ctx.strokeStyle = '#10b981'; ctx.lineWidth = 3; ctx.lineCap = 'round';
+                    for (let i = 0; i < 5; i++) {
+                        ctx.beginPath();
+                        const startX = 20 + i * 60;
+                        const startY = 32 + Math.sin(t + i) * 12;
+                        ctx.moveTo(startX, startY);
+                        ctx.quadraticCurveTo(startX + 15, startY - 10 * Math.cos(t), startX + 30, startY + Math.sin(t) * 8);
+                        ctx.stroke();
+                    }
+                    t += 0.05;
+                    requestAnimationFrame(animateWorms);
+                }
+                animateWorms();
+            }
         };
     </script>
 </body>
