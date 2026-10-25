@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v12.0 橫山科技樹與多元建設版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v13.0 橫山完美終極版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,7 +83,7 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v12.0 橫山科技樹版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v13.0 橫山終極版</span>
                     </h1>
                     <p class="text-xs text-slate-300 hidden sm:block">橫山低碳循環農業 × 科技樹研發 × P2P 大富翁</p>
                 </div>
@@ -284,7 +284,7 @@
 
         <!-- Right Sidebar: Chatroom & Live Game Log -->
         <div class="lg:col-span-3 space-y-4 flex flex-col justify-between">
-            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3.5 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96">
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3.5 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96 relative">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
                     <h4 class="text-xs sm:text-sm font-bold text-emerald-400 flex items-center gap-2">
                         <i class="fa-solid fa-comments"></i> 雲端即時聊天室
@@ -292,11 +292,31 @@
                     <span class="text-xs text-slate-400 font-mono">P2P Live</span>
                 </div>
                 
-                <div id="chat-messages" class="text-xs sm:text-sm space-y-2.5 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
-                    <div class="text-xs text-slate-400 italic text-center">聊天室已啟動，傳送訊息給房間內的玩家吧！</div>
+                <!-- Collapsible / Expandable Chat Box Component -->
+                <div class="relative flex-1 flex flex-col overflow-hidden my-2">
+                    <!-- Default Latest Message Preview Banner (Clickable Toggle) -->
+                    <div id="chat-preview-banner" onclick="toggleChatExpand()" class="bg-slate-950 hover:bg-slate-800 border border-slate-800 p-2.5 rounded-xl cursor-pointer flex justify-between items-center shadow transition">
+                        <div id="latest-chat-snippet" class="text-xs text-slate-300 truncate pr-2">
+                            <span class="text-emerald-400 font-bold">[系統]</span> 聊天室已啟動，點擊展開完整紀錄...
+                        </div>
+                        <button class="text-emerald-400 text-xs font-bold px-1.5 py-0.5 rounded bg-emerald-950 border border-emerald-800 flex items-center gap-1 shrink-0">
+                            <span id="chat-toggle-text">展開</span> <i id="chat-toggle-icon" class="fa-solid fa-chevron-down text-[10px]"></i>
+                        </button>
+                    </div>
+
+                    <!-- Expanded Full Chat Box Overlay / Drawer -->
+                    <div id="chat-expanded-box" class="hidden absolute inset-0 bg-slate-950/95 border border-slate-800 rounded-2xl p-3 flex flex-col z-20 backdrop-blur-md shadow-2xl">
+                        <div class="flex justify-between items-center pb-2 border-b border-slate-800 text-xs font-bold text-emerald-400">
+                            <span><i class="fa-solid fa-comments"></i> 完整對話紀錄</span>
+                            <button onclick="toggleChatExpand()" class="text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-xs">收合 ▲</button>
+                        </div>
+                        <div id="chat-messages" class="text-xs sm:text-sm space-y-2 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
+                            <div class="text-xs text-slate-400 italic text-center">目前尚無對話紀錄</div>
+                        </div>
+                    </div>
                 </div>
 
-                <form onsubmit="handleSendChat(event)" class="mt-2 flex gap-2 pt-2 border-t border-slate-800/80">
+                <form onsubmit="handleSendChat(event)" class="mt-auto flex gap-2 pt-2 border-t border-slate-800/80">
                     <input type="text" id="input-chat-msg" placeholder="輸入對話訊息..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-slate-200 w-full focus:outline-none focus:border-emerald-500 font-bold" />
                     <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold shadow transition"><i class="fa-solid fa-paper-plane"></i></button>
                 </form>
@@ -489,28 +509,28 @@
             }
         }
 
-        // 改版：橫山低碳循環農業試驗地圖 (整合資材至起點站，各保留一個機會卡與命運卡站點)
+        // 改版：嚴格僅保留 1個起點站、1個機會卡站點、1個命運卡站點，其餘非土地站點改造為機會/命運卡，其餘皆為土地
         const BOARD_TILES = [
             { id: 0, name: "起點站(資源站)", icon: "🚩", type: "start", landPrice: 0, desc: "經過/抵達領取綜合資材與補給：碳幣+35、資材+35" },
             { id: 1, name: "橫山一號地", icon: "🏞️", type: "property", landPrice: 20 },
             { id: 2, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
             { id: 3, name: "橫山二號地", icon: "🏞️", type: "property", landPrice: 25 },
-            { id: 4, name: "ESG 碳權採購", icon: "💼", type: "esg", landPrice: 0, bonusCoins: 25 },
+            { id: 4, name: "綠色永續機會", icon: "🎰", type: "chance_card", landPrice: 0 },
             { id: 5, name: "橫山三號地", icon: "🏞️", type: "property", landPrice: 35 },
             { id: 6, name: "橫山四號地", icon: "🏞️", type: "property", landPrice: 40 },
             { id: 7, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 8, name: "蚓糞採收站", icon: "🪱", type: "vermi_harvest", landPrice: 0, vermiGain: 3.0, coinGain: 10 },
+            { id: 8, name: "氣候變遷命運", icon: "🌩️", type: "destiny_card", landPrice: 0 },
             { id: 9, name: "橫山五號地", icon: "🏞️", type: "property", landPrice: 50 },
-            { id: 10, name: "社區WORKSHOP", icon: "🤝", type: "esg", landPrice: 0, bonusCoins: 20 },
+            { id: 10, name: "綠能機遇站", icon: "🎰", type: "chance_card", landPrice: 0 },
             { id: 11, name: "橫山六號地", icon: "🏞️", type: "property", landPrice: 60 },
-            { id: 12, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
+            { id: 12, name: "生態考驗站", icon: "🌩️", type: "destiny_card", landPrice: 0 },
             { id: 13, name: "橫山七號地", icon: "🌱", type: "property", landPrice: 70 },
-            { id: 14, name: "範疇三盤查站", icon: "📊", type: "esg", landPrice: 0, bonusCoins: 30 },
+            { id: 14, name: "永續投資機會", icon: "🎰", type: "chance_card", landPrice: 0 },
             { id: 15, name: "橫山八號地", icon: "📦", type: "property", landPrice: 85 },
             { id: 16, name: "橫山九號地", icon: "🏞️", type: "property", landPrice: 90 },
-            { id: 17, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
+            { id: 17, name: "環境稽查命運", icon: "🌩️", type: "destiny_card", landPrice: 0 },
             { id: 18, name: "橫山十號地", icon: "🏞️", type: "property", landPrice: 100 },
-            { id: 19, name: "生態示範廣場", icon: "🌟", type: "esg", landPrice: 0, bonusCoins: 40 }
+            { id: 19, name: "低碳政策機遇", icon: "🎰", type: "chance_card", landPrice: 0 }
         ];
 
         /* ================= P2P & GAME STATE ================= */
@@ -532,7 +552,7 @@
             turnIndex: 0,
             players: [],
             propertyData: {},
-            techUnlocks: {} // peerId -> { vermi_factory: true, ai_coop: false, ... }
+            techUnlocks: {} 
         };
 
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
@@ -688,7 +708,7 @@
                             gameState.propertyData[t.id] = {
                                 ownerPeerId: null,
                                 level: 0,
-                                facilities: [], // 改版：支援多重設施建設陣列
+                                facilities: [],
                                 totalInvestment: t.landPrice
                             };
                         }
@@ -1034,7 +1054,6 @@
 
             let logMsg = `${p.name} 擲出 ${dice} 點！`;
 
-            // 1. 動畫步步移動 (絕對不觸發中途格子事件)
             for (let step = 1; step <= dice; step++) {
                 p.pos = (p.pos + 1) % BOARD_TILES.length;
                 if (p.pos === 0) {
@@ -1042,12 +1061,11 @@
                     p.resources += 35;
                     logMsg += ` (經過起點領取綜合資材與補給：碳幣+35、資材+35)`;
                 }
-                broadcastState(); // 同步畫面移動位置
+                broadcastState();
                 playSound('step');
                 await new Promise(r => setTimeout(r, 220));
             }
 
-            // 2. 移動結束，精準抵達最終目標站點！唯一觸發一次事件！
             const tile = BOARD_TILES[p.pos];
             logMsg += ` 最終抵達 [${tile.name}]`;
 
@@ -1055,21 +1073,6 @@
                 p.coins += 35;
                 p.resources += 35;
                 logMsg += `，獲得綜合補給：碳幣+35、資材+35`;
-            } else if (tile.type === 'esg') {
-                let convertedCoins = tile.bonusCoins || 25;
-                if (p.carbon >= 3.0) {
-                    const carbonSold = Math.min(p.carbon, 5.0);
-                    p.carbon -= carbonSold;
-                    convertedCoins += Math.floor(carbonSold * 8);
-                    logMsg += `，觸發碳權採購！售出固碳量 ${carbonSold.toFixed(1)}kg 換取碳幣+${convertedCoins}`;
-                } else {
-                    logMsg += `，獲專案獎勵碳幣+${convertedCoins}`;
-                }
-                p.coins += convertedCoins;
-            } else if (tile.type === 'vermi_harvest') {
-                p.vermiCasting += tile.vermiGain;
-                p.coins += tile.coinGain;
-                logMsg += `，採收優質蚓糞+${tile.vermiGain}kg，碳幣+${tile.coinGain}`;
             } else if (tile.type === 'chance_card') {
                 const drawnCard = CHANCE_CARDS[Math.floor(Math.random() * CHANCE_CARDS.length)];
                 logMsg += `，抽到機會卡 [${drawnCard.name}]！`;
@@ -1093,7 +1096,7 @@
                                 logMsg += `，AI 購買了土地產權並建置蚯蚓堆肥廠！`;
                             } else {
                                 broadcastState(logMsg);
-                                showLandOrFacilityPrompt(tile, prop, p); // 彈出土地與建設選單
+                                showLandOrFacilityPrompt(tile, prop, p);
                                 return; 
                             }
                         }
@@ -1114,13 +1117,14 @@
                             }
                         } else {
                             broadcastState(logMsg);
-                            showLandOrFacilityPrompt(tile, prop, p); // 彈出設施增建選單
+                            showLandOrFacilityPrompt(tile, prop, p);
                             return; 
                         }
                     } else {
                         const landOwner = gameState.players.find(x => x.peerId === prop.ownerPeerId);
                         if (landOwner && !landOwner.bankrupt) {
-                            let toll = Math.floor(tile.landPrice * 0.4) + (prop.facilities.length * 10);
+                            // 過路費隨總投資額動態計算
+                            let toll = Math.floor(prop.totalInvestment * 0.5);
                             logMsg += `，支付土地過路費與體驗費 ${toll} 碳幣給 ${landOwner.name}`;
                             const actualPay = Math.min(p.coins, toll);
                             p.coins -= actualPay;
@@ -1356,6 +1360,7 @@
                 if (prop.ownerPeerId === null && p.coins >= tile.landPrice) {
                     prop.ownerPeerId = p.peerId;
                     prop.level = 1;
+                    prop.totalInvestment = tile.landPrice;
                     p.coins -= tile.landPrice;
                     logMsg = `${p.name} 購買了 [${tile.name}] 土地產權！`;
                 }
@@ -1373,12 +1378,12 @@
                         selectedFacs.forEach(fKey => {
                             if (!prop.facilities.includes(fKey)) {
                                 prop.facilities.push(fKey);
-                                prop.totalInvestment += FACILITY_TYPES[fKey].cost;
+                                prop.totalInvestment += FACILITY_TYPES[fKey].cost; // 動態累積投資額
                             }
                         });
                         prop.level = Math.max(prop.level, prop.facilities.length);
                         playSound('buy');
-                        logMsg = `${p.name} 在 [${tile.name}] 成功建置/增建了多項永續設施！`;
+                        logMsg = `${p.name} 在 [${tile.name}] 成功增建設施，總投資額提升至 ${prop.totalInvestment} 碳幣！`;
                     }
                 }
             } else {
@@ -1393,7 +1398,6 @@
             document.getElementById('card-action-box').classList.add('hidden');
             document.getElementById('target-selection-box').classList.add('hidden');
 
-            // 結算每回合土地多重設施產值
             gameState.players.forEach(p => {
                 if (p.bankrupt) return;
 
@@ -1454,10 +1458,10 @@
 
             if (prop.level === 0) {
                 titleEl.innerText = `購買土地產權：${tile.name}`;
-                descEl.innerText = `地價：${tile.landPrice} 碳幣。購買後可進一步解鎖科技樹並在土地上同時建置多種循環農業設施！`;
+                descEl.innerText = `地價：${tile.landPrice} 碳幣。購買後總投資額將以地價起算，並可逐步擴充設施來提高過路費！`;
             } else {
-                titleEl.innerText = `土地多重設施增建：${tile.name}`;
-                descEl.innerText = `您已擁有此地，可勾選下列已解鎖研發的設施進行同步增建（可複選）：`;
+                titleEl.innerText = `土地多重設施增建：${tile.name} (目前總投資: ${prop.totalInvestment}🪙)`;
+                descEl.innerText = `您已擁有此地，可勾選下列已解鎖研發的設施進行同步增建（過路費將隨投資額增加而提高）：`;
                 
                 const unlocks = gameState.techUnlocks[p.peerId] || { vermi_factory: true };
                 Object.keys(FACILITY_TYPES).forEach(fKey => {
@@ -1505,9 +1509,12 @@
 
                 let icon = tile.icon;
                 let levelTag = '';
+                let displayPrice = tile.landPrice > 0 ? `${tile.landPrice}🪙` : '';
+
                 if (prop && prop.facilities && prop.facilities.length > 0) {
                     icon = FACILITY_TYPES[prop.facilities[0]].icon;
                     levelTag = prop.facilities.length > 1 ? `+${prop.facilities.length-1}` : '🏭';
+                    displayPrice = `<span class="text-amber-300 font-bold">投:${prop.totalInvestment}🪙</span>`; // 動態更新投資額與過路費基準
                 }
 
                 let tokens = '';
@@ -1520,7 +1527,7 @@
                     <div class="text-xs flex gap-0.5 min-h-[18px]">${tokens}</div>
                     <div class="text-xl sm:text-2xl">${icon} <span class="text-xs text-amber-300 font-bold">${levelTag}</span></div>
                     <span class="text-[10px] sm:text-xs text-slate-200 font-bold truncate w-full">${tile.name}</span>
-                    ${tile.landPrice > 0 ? `<span class="text-[9px] text-amber-400 font-mono">${tile.landPrice}🪙</span>` : ''}
+                    <span class="text-[9px] text-amber-400 font-mono">${displayPrice}</span>
                 `;
                 container.appendChild(el);
             });
@@ -1613,7 +1620,26 @@
             renderBoard();
         }
 
-        /* ================= CHATROOM & LOGS ================= */
+        /* ================= CHATROOM & LOGS (WITH TOGGLE EXPAND/COLLAPSE) ================= */
+
+        let isChatExpanded = false;
+
+        function toggleChatExpand() {
+            isChatExpanded = !isChatExpanded;
+            const expandedBox = document.getElementById('chat-expanded-box');
+            const toggleText = document.getElementById('chat-toggle-text');
+            const toggleIcon = document.getElementById('chat-toggle-icon');
+
+            if (isChatExpanded) {
+                expandedBox.classList.remove('hidden');
+                toggleText.innerText = "收合";
+                toggleIcon.className = "fa-solid fa-chevron-up text-[10px]";
+            } else {
+                expandedBox.classList.add('hidden');
+                toggleText.innerText = "展開";
+                toggleIcon.className = "fa-solid fa-chevron-down text-[10px]";
+            }
+        }
 
         function handleSendChat(e) {
             e.preventDefault();
@@ -1628,16 +1654,26 @@
 
         function renderChatMessage(sender, msg, avatar, time) {
             const box = document.getElementById('chat-messages');
+            
+            // 若原本是初始提示，清空它
+            if (box.innerHTML.includes("目前尚無對話紀錄")) {
+                box.innerHTML = '';
+            }
+
             box.innerHTML += `
-                <div class="bg-slate-950 p-3 rounded-2xl border border-slate-800/80 space-y-1 shadow-sm">
-                    <div class="flex justify-between items-center text-xs text-slate-400">
-                        <span class="font-bold text-emerald-400 flex items-center gap-1.5 text-xs sm:text-sm">${avatar} ${sender}</span>
-                        <span class="font-mono text-[10px] text-slate-500">${time}</span>
+                <div class="bg-slate-900 p-2.5 rounded-xl border border-slate-800 space-y-1 shadow-sm">
+                    <div class="flex justify-between items-center text-[11px] text-slate-400">
+                        <span class="font-bold text-emerald-400 flex items-center gap-1">${avatar} ${sender}</span>
+                        <span class="font-mono text-[9px] text-slate-500">${time}</span>
                     </div>
-                    <div class="text-slate-200 text-xs sm:text-sm leading-relaxed break-words">${msg}</div>
+                    <div class="text-slate-200 text-xs leading-relaxed break-words">${msg}</div>
                 </div>
             `;
             box.scrollTop = box.scrollHeight;
+
+            // 同步更新預覽橫幅為最新一則對話
+            const snippetEl = document.getElementById('latest-chat-snippet');
+            snippetEl.innerHTML = `<span class="text-emerald-400 font-bold">${avatar} ${sender}:</span> ${msg}`;
         }
 
         function addLog(text) {
