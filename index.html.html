@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v9.1 P2P 修正版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v15.0 台灣全縣市20格完美環狀版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -181,10 +181,10 @@
                 </div>
             </div>
 
-            <!-- Player Inventory Section -->
-            <div class="bg-slate-900/90 rounded-2xl p-4 border border-slate-800 space-y-2.5 shadow-xl">
+            <!-- Player Inventory Section (Collapsible Dropdown) -->
+            <div class="bg-slate-900/90 rounded-2xl p-3.5 border border-slate-800 space-y-2.5 shadow-xl">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800 cursor-pointer" onclick="toggleInventoryDropdown()">
-                    <span class="text-sm font-black text-emerald-400 flex items-center gap-2">
+                    <span class="text-xs font-black text-emerald-400 flex items-center gap-1.5">
                         <i class="fa-solid fa-briefcase text-amber-400"></i> 我的卡片背包 (<span id="inv-count">0</span>/3張)
                     </span>
                     <button class="text-xs text-emerald-400 font-bold flex items-center gap-1 bg-slate-950 px-2 py-1 rounded-lg border border-slate-800">
@@ -232,8 +232,8 @@
                         <p class="text-[11px] text-slate-300" id="center-event-text">經過起點站隨機抽取%數效果卡！投資全台 19 縣市永續設施！</p>
                     </div>
 
-                    <!-- Initial Order Determination Box -->
-                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-2.5 rounded-xl border border-emerald-500/50 space-y-2">
+                    <!-- Facility Action Modal -->
+                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-2.5 rounded-xl border border-emerald-500/50 space-y-2 shadow-xl">
                         <div class="text-xs font-bold text-amber-300" id="facility-title">可建造設施！</div>
                         <div class="text-[10px] text-slate-300" id="facility-desc">消耗資源獲取每回合固碳產值</div>
                         <div class="flex gap-2 justify-center">
@@ -242,14 +242,24 @@
                         </div>
                     </div>
 
+                    <!-- Target Selection Banner for Cards (Must choose target) -->
+                    <div id="target-selection-box" class="hidden z-30 w-full bg-slate-900/95 p-3 rounded-xl border-2 border-rose-500/80 space-y-2 shadow-2xl">
+                        <div class="text-xs font-black text-rose-400 flex items-center justify-center gap-1.5">
+                            🎯 <span id="target-selection-title">請選擇卡片指定作用對象</span>
+                        </div>
+                        <div id="target-buttons-list" class="grid grid-cols-2 gap-1.5">
+                            <!-- Target buttons generated dynamically -->
+                        </div>
+                    </div>
+
                     <!-- Chance / Destiny Card Drawn Banner -->
-                    <div id="card-action-box" class="hidden z-10 w-full bg-slate-900 p-3 rounded-xl border border-amber-500/50 space-y-2 text-center">
+                    <div id="card-action-box" class="hidden z-20 w-full bg-slate-900 p-3 rounded-xl border border-amber-500/50 space-y-2 text-center shadow-xl">
                         <div class="text-xs font-bold text-amber-300 flex items-center justify-center gap-1" id="card-drawn-title">
                             🎴 抽到卡片！
                         </div>
                         <div class="text-[11px] text-slate-200" id="card-drawn-desc">卡片效果描述...</div>
                         <div class="flex gap-2 justify-center pt-1" id="card-drawn-buttons">
-                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">⚡ 立即使用</button>
+                            <button onclick="applyCardAction('use_now')" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3 py-1.5 rounded-lg text-xs shadow">⚡ 選擇目標發動</button>
                             <button onclick="applyCardAction('save')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold px-3 py-1.5 rounded-lg text-xs shadow">🎒 放入背包收藏</button>
                         </div>
                     </div>
@@ -261,9 +271,8 @@
             </div>
         </div>
 
-        <!-- Right Sidebar: Expanded & Enhanced Chatroom & Live Game Log -->
+        <!-- Right Sidebar: Chatroom & Live Game Log -->
         <div class="lg:col-span-3 space-y-3 flex flex-col justify-between">
-            <!-- Enhanced Chatroom Module -->
             <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner flex flex-col flex-1 h-72 sm:h-80 lg:h-96">
                 <div class="flex justify-between items-center pb-2 border-b border-slate-800">
                     <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
@@ -272,7 +281,82 @@
                     <span class="text-[10px] text-slate-500 font-mono">P2P Live</span>
                 </div>
                 
-                <!-- Expanded Chat Messages Container with Auto-Scroll -->
+                <div id="chat-messages" class="text-xs space-y-2 py-2 overflow-y-auto custom-scroll flex-1 font-sans">
+                    <div class="text-xs text-slate-500 italic text-center">目前尚無對話紀錄</div>
+                </div>
+
+                <form onsubmit="handleSendChat(event)" class="mt-auto flex gap-1.5 pt-2 border-t border-slate-800">
+                    <input type="text" id="input-chat-msg" placeholder="輸入聊天內容..." autocomplete="off" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 w-full focus:outline-none focus:border-emerald-500 font-bold" />
+                    <button type="submit" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-2 rounded-xl text-xs font-bold shadow"><i class="fa-solid fa-paper-plane"></i></button>
+                </form>
+            </div>
+
+            <div class="bg-slate-900/90 rounded-2xl border border-slate-800 p-3 shadow-inner space-y-1 h-32 flex flex-col">
+                <h4 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">即時比賽日誌</h4>
+                <div id="game-log" class="text-[11px] text-slate-300 space-y-1 overflow-y-auto custom-scroll font-mono flex-1">
+                    <div>[系統] 台灣全縣市20格大富翁準備就緒。</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- STEP 3: GAME OVER MODAL -->
+    <main id="modal-gameover" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-slate-900/95 border-2 border-emerald-500/60 rounded-3xl p-6 shadow-2xl max-w-md w-full space-y-5 text-center">
+            <div class="text-5xl animate-bounce">🏆</div>
+            <div class="space-y-1">
+                <h2 class="text-2xl font-black text-emerald-400 text-glow">永續農業大對決 圓滿結束！</h2>
+                <p class="text-xs text-slate-300" id="winner-announcement">冠軍誕生！</p>
+            </div>
+            
+            <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-2 text-left shadow-inner" id="final-stats-list">
+                <!-- Populated dynamically -->
+            </div>
+
+            <button onclick="location.reload()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-black py-3 rounded-2xl text-xs shadow-xl transition">
+                返回大廳 / 重啟新局
+            </button>
+        </div>
+    </main>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        /* ================= AUDIO SYNTHESIZER ================= */
+        let soundEnabled = true;
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'dice') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(300, audioCtx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.15);
+                } else if (type === 'step') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(200, audioCtx.currentTime);
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 0.05);
+                }
+            } catch(e) {}
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-emerald-400 text-sm' : 'fa-solid fa-volume-xmark text-slate-500 text-sm';
+        }
+
         /* ================= GAME DATA & TECH TREE ================= */
         const ECO_SKILLS = [
             { name: "蚯蚓分解專家", desc: "蚯蚓箱產值 +25%", bonusType: "vermi", value: 1.25 },
@@ -341,8 +425,8 @@
                     break;
                 }
                 case "p7": {
-                    const bonus = target.vermiCasting * 0.30;
-                    target.vermiCasting += bonus;
+                    const bonus = (target.vermiCasting || 0) * 0.30;
+                    target.vermiCasting = (target.vermiCasting || 0) + bonus;
                     break;
                 }
                 case "p8": {
@@ -411,13 +495,24 @@
             maxRounds: 20,
             turnIndex: 0,
             players: [],
-            ownedFacilities: {}
+            propertyData: {}
         };
 
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
         const COLORS = ["#10b981", "#38bdf8", "#f59e0b", "#a855f7"];
 
         window.addEventListener('DOMContentLoaded', () => {
+            BOARD_TILES.forEach(t => {
+                if (t.type === 'property') {
+                    gameState.propertyData[t.id] = {
+                        ownerPeerId: null,
+                        facilities: [],
+                        totalInvestment: t.landPrice,
+                        level: 0
+                    };
+                }
+            });
+
             const urlParams = new URLSearchParams(window.location.search);
             const autoRoom = urlParams.get('room');
             if (autoRoom) {
@@ -453,6 +548,7 @@
                     avatar: AVATARS[0],
                     color: COLORS[0],
                     pos: 0,
+                    coins: 100,
                     carbon: 0,
                     resources: 30,
                     skill: skill,
@@ -525,6 +621,58 @@
             });
         }
 
+        function updateLobbyPlayersList() {
+            const list = document.getElementById('room-players-list');
+            list.innerHTML = '';
+            gameState.players.forEach((p, idx) => {
+                list.innerHTML += `<li>${p.avatar} Player ${idx+1}: ${p.name} ${p.peerId === myPeerId ? '(您)' : ''}</li>`;
+            });
+            document.getElementById('room-player-count').innerText = gameState.players.length;
+        }
+
+        function startGameAsHost() {
+            if (!isHost) return;
+
+            const aiNames = ["AI-綠能先鋒", "AI-碳匯大使", "AI-極速農夫"];
+            let idx = gameState.players.length;
+            while (gameState.players.length < 4) {
+                const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
+                gameState.players.push({
+                    peerId: `ai-${idx}`,
+                    name: aiNames[idx - 1] || `AI-${idx}`,
+                    isAi: true,
+                    avatar: AVATARS[idx],
+                    color: COLORS[idx],
+                    pos: 0,
+                    coins: 100,
+                    carbon: 0,
+                    resources: 30,
+                    skill: skill,
+                    inventory: []
+                });
+                idx++;
+            }
+
+            gameState.started = true;
+            broadcastState('遊戲正式開始！');
+        }
+
+        function broadcastState(logMsg = null) {
+            if (!isHost) return;
+
+            const stateData = {
+                type: 'STATE_UPDATE',
+                gameState: gameState,
+                logMsg: logMsg
+            };
+
+            Object.values(connections).forEach(conn => {
+                if (conn.open) conn.send(stateData);
+            });
+
+            handleStateUpdate(gameState, logMsg);
+        }
+
         function handleHostReceiveData(conn, data) {
             if (data.type === 'JOIN_REQ') {
                 const pIdx = gameState.players.length;
@@ -536,6 +684,7 @@
                     avatar: AVATARS[pIdx],
                     color: COLORS[pIdx],
                     pos: 0,
+                    coins: 100,
                     carbon: 0,
                     resources: 30,
                     skill: skill,
@@ -547,8 +696,74 @@
                 processRollDice(data.peerId);
             } else if (data.type === 'ACTION_BUY_FACILITY') {
                 processBuyFacility(data.peerId, data.buy);
+            } else if (data.type === 'ACTION_CARD_PROCESSED') {
+                processCardProcessed(data.peerId, data.card, data.choice, data.targetPeerId, data.updatedInventory, data.tileIdToAcquire);
+            } else if (data.type === 'ACTION_USE_INVENTORY') {
+                processUseInventoryCard(data.peerId, data.cardIndex, data.targetPeerId, data.tileIdToAcquire);
+            } else if (data.type === 'CHAT_MSG') {
+                broadcastChat(data.sender, data.msg, data.avatar);
+            }
+        }
+
+        function handleClientReceiveData(data) {
+            if (data.type === 'STATE_UPDATE') {
+                handleStateUpdate(data.gameState, data.logMsg);
+            } else if (data.type === 'CHAT_MSG') {
+                renderChatMessage(data.sender, data.msg, data.avatar, data.time);
+            }
+        }
+
+        function broadcastChat(sender, msg, avatar) {
+            const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const chatPayload = { type: 'CHAT_MSG', sender, msg, avatar, time: timeStr };
+
+            if (isHost) {
+                Object.values(connections).forEach(conn => { if (conn.open) conn.send(chatPayload); });
+                renderChatMessage(sender, msg, avatar, timeStr);
+            } else {
+                hostConn.send(chatPayload);
+            }
+        }
+
+        function handleStateUpdate(newState, logMsg) {
+            gameState = newState;
+
+            if (gameState.started) {
+                document.getElementById('screen-lobby').classList.add('hidden');
+                document.getElementById('screen-game').classList.remove('hidden');
+            }
+
+            if (logMsg) {
+                addLog(logMsg);
+            }
+
+            updateUI();
+            checkAndTriggerAiTurn();
+        }
+
+        function checkAndTriggerAiTurn() {
+            if (!isHost || !gameState.started) return;
+            const currP = gameState.players[gameState.turnIndex];
+            if (currP && currP.isAi && !currP.bankrupt) {
+                setTimeout(() => processRollDice(currP.peerId), 1200);
+            }
+        }
+
+        /* ================= GAME ACTION HANDLERS ================= */
+
+        function requestRollDice() {
+            const currP = gameState.players[gameState.turnIndex];
+            if (!currP || currP.peerId !== myPeerId) return;
+
+            if (isHost) {
+                processRollDice(myPeerId);
+            } else {
+                hostConn.send({ type: 'ACTION_ROLL_DICE', peerId: myPeerId });
+            }
+        }
+
         async function processRollDice(peerId) {
-            if (!isHost || gameState.initialRollPhase) return;
+            if (!isHost) return;
             const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
             if (!p || p.bankrupt) return;
 
@@ -610,8 +825,7 @@
                         }
                     } else if (prop.ownerPeerId === p.peerId) {
                         if (p.isAi) {
-                            const unlocks = gameState.techUnlocks[p.peerId] || { vermi_factory: true };
-                            const availableFacs = Object.keys(FACILITY_TYPES).filter(fKey => (unlocks[fKey] || FACILITY_TYPES[fKey].unlockedByDefault) && !prop.facilities.includes(fKey));
+                            const availableFacs = Object.keys(FACILITY_TYPES).filter(fKey => !prop.facilities.includes(fKey));
                             if (availableFacs.length > 0) {
                                 const facKey = availableFacs[Math.floor(Math.random() * availableFacs.length)];
                                 const fac = FACILITY_TYPES[facKey];
@@ -639,6 +853,66 @@
                         }
                     }
                 }
+            }
+
+            finishTurn(logMsg);
+        }
+
+        function showLandOrFacilityPrompt(tile, prop, p) {
+            const facBox = document.getElementById('facility-action-box');
+            const facTitle = document.getElementById('facility-title');
+            const facDesc = document.getElementById('facility-desc');
+
+            if (prop.ownerPeerId === null) {
+                facTitle.innerText = `購買 [${tile.name}] 土地`;
+                facDesc.innerText = `地價: ${tile.landPrice} 碳幣。購買後自動附帶建造首座「蚯蚓堆肥工廠」！`;
+            } else {
+                facTitle.innerText = `擴建 [${tile.name}] 永續設施`;
+                facDesc.innerText = `目前已建置 ${prop.facilities.length} 座設施。點擊投資升級設施產值！`;
+            }
+
+            facBox.classList.remove('hidden');
+        }
+
+        function requestBuyFacility(buy) {
+            document.getElementById('facility-action-box').classList.add('hidden');
+            if (isHost) {
+                processBuyFacility(myPeerId, buy);
+            } else {
+                hostConn.send({ type: 'ACTION_BUY_FACILITY', peerId: myPeerId, buy: buy });
+            }
+        }
+
+        function processBuyFacility(peerId, buy) {
+            if (!isHost) return;
+            const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
+            const tile = BOARD_TILES[p.pos];
+            const prop = gameState.propertyData[tile.id];
+
+            let logMsg = "";
+            if (buy && prop) {
+                if (prop.ownerPeerId === null && p.coins >= tile.landPrice) {
+                    p.coins -= tile.landPrice;
+                    prop.ownerPeerId = p.peerId;
+                    prop.level = 1;
+                    prop.facilities.push('vermi_factory');
+                    logMsg = `${p.name} 購買了 [${tile.name}] 產權！`;
+                } else if (prop.ownerPeerId === p.peerId) {
+                    const availableFacs = Object.keys(FACILITY_TYPES).filter(fKey => !prop.facilities.includes(fKey));
+                    if (availableFacs.length > 0) {
+                        const facKey = availableFacs[0];
+                        const fac = FACILITY_TYPES[facKey];
+                        if (p.coins >= fac.cost) {
+                            p.coins -= fac.cost;
+                            prop.facilities.push(facKey);
+                            prop.totalInvestment += fac.cost;
+                            prop.level = Math.max(prop.level, prop.facilities.length);
+                            logMsg = `${p.name} 在 [${tile.name}] 擴建了 [${fac.name}]！`;
+                        }
+                    }
+                }
+            } else {
+                logMsg = `${p.name} 選擇略過建設操作。`;
             }
 
             finishTurn(logMsg);
@@ -814,7 +1088,7 @@
         function useInventoryCard(idx) {
             const p = gameState.players.find(x => x.peerId === myPeerId);
             const currP = gameState.players[gameState.turnIndex];
-            if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
+            if (!currP || currP.peerId !== myPeerId) {
                 alert("只有在您的回合時才能發動背包卡片！");
                 return;
             }
@@ -870,6 +1144,37 @@
             }
         }
 
+        function finishTurn(logMsg) {
+            if (!isHost) return;
+
+            const currP = gameState.players[gameState.turnIndex];
+            Object.keys(gameState.propertyData).forEach(tId => {
+                const prop = gameState.propertyData[tId];
+                if (prop.ownerPeerId === currP.peerId) {
+                    prop.facilities.forEach(fKey => {
+                        const fac = FACILITY_TYPES[fKey];
+                        if (fac) {
+                            currP.carbon += fac.carbonYield;
+                            currP.coins += fac.coinYield;
+                        }
+                    });
+                }
+            });
+
+            let nextIdx = (gameState.turnIndex + 1) % gameState.players.length;
+            if (nextIdx === 0) {
+                gameState.round++;
+            }
+            gameState.turnIndex = nextIdx;
+
+            if (gameState.round > gameState.maxRounds) {
+                broadcastState("遊戲結束！正在結算最終成果...");
+                setTimeout(showGameOverModal, 1000);
+            } else {
+                broadcastState(logMsg);
+            }
+        }
+
         /* ================= UI RENDERING (20 TILES PERFECT RING GRID 6x6) ================= */
 
         function renderBoard() {
@@ -878,9 +1183,9 @@
             
             // 20格 6x6 完美外環座標對應表 (0~19)
             // 頂部 (0-5): Row 1, Col 1~6
-            // 右側 (6-8): Row 2~4, Col 6
-            // 底部 (9-14): Row 6, Col 6 down to 1
-            // 左側 (15-19): Row 5 down to 2, Col 1
+            // 右側 (6-9): Row 2~5, Col 6
+            // 底部 (10-15): Row 6, Col 6 down to 1
+            // 左側 (16-19): Row 5 down to 2, Col 1
             const ringCoords = [
                 { r: 1, c: 1 }, { r: 1, c: 2 }, { r: 1, c: 3 }, { r: 1, c: 4 }, { r: 1, c: 5 }, { r: 1, c: 6 }, // 頂部 (0-5)
                 { r: 2, c: 6 }, { r: 3, c: 6 }, { r: 4, c: 6 }, { r: 5, c: 6 },                                // 右邊 (6-9)
@@ -908,14 +1213,17 @@
                     displayPrice = `<span class="text-amber-300 font-bold">投:${prop.totalInvestment}🪙</span>`;
                 }
 
+                // 放大棋盤上的人偶 Token (text-base sm:text-lg)
                 let tokens = '';
                 gameState.players.forEach(p => {
-                    if (p.pos === idx && !p.bankrupt) tokens += `<span class="text-xs sm:text-sm font-bold" title="${p.name}">${p.avatar}</span>`;
+                    if (p.pos === idx && !p.bankrupt) {
+                        tokens += `<span class="text-base sm:text-lg font-black transition-transform transform scale-110 drop-shadow" title="${p.name}">${p.avatar}</span>`;
+                    }
                 });
 
                 el.className = `bg-slate-900/90 rounded-xl p-1.5 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden shadow-md`;
                 el.innerHTML = `
-                    <div class="text-[10px] flex gap-0.5 min-h-[14px]">${tokens}</div>
+                    <div class="text-xs flex gap-1 min-h-[18px] items-center justify-center">${tokens}</div>
                     <div class="text-base sm:text-xl">${icon} <span class="text-[10px] text-amber-300 font-bold">${levelTag}</span></div>
                     <span class="text-[9px] sm:text-[10px] text-slate-200 font-bold truncate w-full">${tile.name}</span>
                     <span class="text-[8px] text-amber-400 font-mono">${displayPrice}</span>
@@ -936,7 +1244,7 @@
             const btnRoll = document.getElementById('btn-roll-dice');
             btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi;
 
-            // FIX: Hide action overlays automatically if it is no longer my turn
+            // Hide action overlays automatically if it is no longer my turn
             if (!currP || currP.peerId !== myPeerId) {
                 document.getElementById('card-action-box').classList.add('hidden');
                 document.getElementById('facility-action-box').classList.add('hidden');
@@ -948,14 +1256,14 @@
                     <div class="p-2.5 rounded-xl border flex justify-between items-center text-xs ${isMyTurn ? 'bg-emerald-950/80 border-emerald-500 shadow-md ring-1 ring-emerald-500/50' : 'bg-slate-950/70 border-slate-800'}">
                         <div class="space-y-0.5">
                             <div class="font-bold flex items-center gap-1.5" style="color: ${p.color}">
-                                <span>${p.avatar}</span>
+                                <span class="text-base">${p.avatar}</span>
                                 <span class="truncate max-w-[100px]">${p.name}</span>
                             </div>
                             <div class="text-[9px] text-slate-400"><i class="fa-solid fa-bolt text-amber-400"></i> ${p.skill.name}</div>
                         </div>
                         <div class="text-right">
                             <div class="font-black text-emerald-400 font-pixel text-sm">${p.carbon.toFixed(1)} kg</div>
-                            <div class="text-[9px] text-slate-400">資材: ${p.resources}</div>
+                            <div class="text-[9px] text-slate-400">碳幣: ${p.coins} | 資材: ${p.resources}</div>
                         </div>
                     </div>
                 `;
@@ -987,7 +1295,7 @@
             renderBoard();
         }
 
-        /* ================= ENHANCED CHATROOM LOGIC ================= */
+        /* ================= CHATROOM LOGIC ================= */
 
         function handleSendChat(e) {
             e.preventDefault();
@@ -1002,6 +1310,9 @@
 
         function renderChatMessage(sender, msg, avatar, time) {
             const box = document.getElementById('chat-messages');
+            if (box.innerHTML.includes("目前尚無對話紀錄")) {
+                box.innerHTML = '';
+            }
             box.innerHTML += `
                 <div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800/80 space-y-1 shadow-sm">
                     <div class="flex justify-between items-center text-[10px] text-slate-400">
@@ -1011,7 +1322,6 @@
                     <div class="text-slate-200 text-xs leading-relaxed break-words">${msg}</div>
                 </div>
             `;
-            // Auto-scroll to bottom of chat
             box.scrollTop = box.scrollHeight;
         }
 
@@ -1030,7 +1340,7 @@
         function showGameOverModal() {
             const sorted = [...gameState.players].sort((a,b) => b.carbon - a.carbon);
             const winner = sorted[0];
-            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-bold">${winner.avatar} ${winner.name}</span> 榮獲峨眉永續碳匯冠軍！`;
+            document.getElementById('winner-announcement').innerHTML = `恭喜 <span class="text-emerald-400 font-bold">${winner.avatar} ${winner.name}</span> 榮獲台灣永續農業競賽冠軍！`;
             
             const statsList = document.getElementById('final-stats-list');
             statsList.innerHTML = '';
