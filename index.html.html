@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：永續大地冒險 (v11.3 嚴格擲骰觸發與狀態重置版)</title>
+    <title>歸蚓酷客：永續大地冒險 (v12.0 橫山科技樹與多元建設版)</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -83,13 +83,16 @@
                 <div>
                     <h1 class="font-black text-base sm:text-xl text-emerald-400 text-glow flex items-center gap-2">
                         歸蚓酷客：永續大地冒險
-                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v11.3 嚴格擲骰觸發版</span>
+                        <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-500/40">v12.0 橫山科技樹版</span>
                     </h1>
-                    <p class="text-xs text-slate-300 hidden sm:block">峨眉低碳循環農業 × P2P 碳幣大富翁桌遊</p>
+                    <p class="text-xs text-slate-300 hidden sm:block">橫山低碳循環農業 × 科技樹研發 × P2P 大富翁</p>
                 </div>
             </div>
             
             <div class="flex items-center space-x-3">
+                <button id="btn-tech-tree" onclick="openTechTreeModal()" class="px-3.5 py-2 rounded-xl bg-emerald-900/80 border border-emerald-700 text-xs font-bold text-emerald-200 hover:bg-emerald-800 transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-network-wired"></i> 科技樹研發
+                </button>
                 <button id="btn-quit-game" onclick="quitGame()" class="hidden px-3.5 py-2 rounded-xl bg-rose-950/80 border border-rose-800 text-xs font-bold text-rose-300 hover:bg-rose-900 transition flex items-center gap-1.5 shadow">
                     <i class="fa-solid fa-right-from-bracket"></i> 退出遊戲
                 </button>
@@ -217,8 +220,8 @@
                     <div class="absolute -right-12 -bottom-12 w-32 h-32 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none"></div>
                     <div class="space-y-1.5 z-10">
                         <span class="text-4xl sm:text-5xl inline-block animate-bounce">🌱</span>
-                        <h3 class="font-black text-sm sm:text-base text-emerald-400">峨眉低碳循環農業試驗地圖</h3>
-                        <p class="text-xs text-slate-300" id="center-event-text">歡迎來到峨眉鄉！積累碳幣、資材與蚯蚓收成！</p>
+                        <h3 class="font-black text-sm sm:text-base text-emerald-400">橫山低碳循環農業試驗地圖</h3>
+                        <p class="text-xs text-slate-300" id="center-event-text">歡迎來到橫山鄉！積累碳幣、資材與蚯蚓收成！</p>
                     </div>
 
                     <!-- Initial Order Determination Box -->
@@ -231,25 +234,21 @@
                         </div>
                     </div>
 
-                    <!-- Land & Facility Action Modal -->
-                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-3.5 rounded-xl border border-emerald-500/50 space-y-2.5 shadow-xl">
-                        <div class="text-xs sm:text-sm font-bold text-amber-300" id="facility-title">土地與建設選單</div>
+                    <!-- Land & Multi-Facility Action Modal -->
+                    <div id="facility-action-box" class="hidden z-10 w-full bg-slate-900 p-3.5 rounded-xl border border-emerald-500/50 space-y-2.5 shadow-xl max-h-[280px] overflow-y-auto custom-scroll">
+                        <div class="text-xs sm:text-sm font-bold text-amber-300" id="facility-title">土地與設施建設選單</div>
                         <div class="text-xs text-slate-300" id="facility-desc">說明資訊...</div>
                         
-                        <!-- Choice list for facility construction -->
+                        <!-- Choice list for multiple facility construction -->
                         <div id="facility-choice-container" class="hidden space-y-2 text-left my-2">
-                            <label class="block text-xs font-bold text-emerald-400">請選擇要興建的永續設施：</label>
-                            <select id="select-facility-type" class="w-full bg-slate-950 border border-slate-700 rounded-lg p-2 text-xs text-slate-200">
-                                <option value="vermi_factory">🪱 蚯蚓堆肥工廠 (碳幣-40, 每回合 固碳+3, 蚓糞+1.5)</option>
-                                <option value="ai_coop">🐔 AI 雞舍 (碳幣-35, 享蚓糞除臭加成, 每回合 碳幣+15, 雞蛋+2)</option>
-                                <option value="hydroponics">🌱 AI 水耕植物工廠 (碳幣-50, 享有機液肥加成, 每回合 固碳+5, 蔬菜+2)</option>
-                                <option value="aquaculture">🐟 水產養殖場 (碳幣-45, 享蚯蚓餵養加成, 每回合 碳幣+20)</option>
-                                <option value="pyrolysis">🔥 熱裂解工場 (碳幣-60, 每回合 固碳+7.5, 生物炭+3)</option>
-                            </select>
+                            <label class="block text-xs font-bold text-emerald-400">請選擇要增建/興建的永續設施 (可同時建設多種)：</label>
+                            <div id="available-facilities-checkboxes" class="space-y-1.5 bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs">
+                                <!-- Generated dynamically based on tech tree -->
+                            </div>
                         </div>
 
                         <div class="flex gap-3 justify-center pt-1">
-                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm shadow">確認投資</button>
+                            <button id="btn-buy-facility" onclick="requestBuyFacility(true)" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm shadow">確認投資建設</button>
                             <button onclick="requestBuyFacility(false)" class="bg-slate-700 hover:bg-slate-600 text-slate-300 font-bold px-4 py-1.5 rounded-lg text-xs sm:text-sm">結束回合</button>
                         </div>
                     </div>
@@ -257,7 +256,7 @@
                     <!-- Target Selection Banner for Cards -->
                     <div id="target-selection-box" class="hidden z-20 w-full bg-slate-900/95 p-4 rounded-2xl border-2 border-amber-500/80 space-y-3 shadow-2xl">
                         <div class="text-xs sm:text-sm font-bold text-amber-400 flex items-center justify-center gap-1.5">
-                            🎯 請選擇卡片施放或強制收購目標
+                            🎯 請選擇卡片施放或對象目標
                         </div>
                         <div id="target-buttons-list" class="grid grid-cols-2 gap-2">
                             <!-- Target buttons generated dynamically -->
@@ -311,6 +310,25 @@
             </div>
         </div>
     </main>
+
+    <!-- TECH TREE MODAL -->
+    <div id="modal-tech-tree" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex justify-center items-center p-4">
+        <div class="bg-slate-900 border-2 border-emerald-500/60 rounded-3xl p-6 max-w-xl w-full space-y-5 shadow-2xl relative">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="text-lg font-black text-emerald-400 flex items-center gap-2">
+                    <i class="fa-solid fa-network-wired text-amber-400"></i> 循環農業技術樹研發中心
+                </h3>
+                <button onclick="closeTechTreeModal()" class="text-slate-400 hover:text-white text-lg font-bold px-2.5 py-1 rounded-lg bg-slate-800">✕</button>
+            </div>
+            <p class="text-xs text-slate-300">您可以在擲骰前進行無限次研發操作，解鎖更多高級永續建設項目！</p>
+            <div id="tech-tree-list" class="space-y-3 max-h-[360px] overflow-y-auto custom-scroll pr-1">
+                <!-- Tech items populated dynamically -->
+            </div>
+            <div class="text-right pt-2">
+                <button onclick="closeTechTreeModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2 rounded-xl text-xs font-bold shadow">完成研發</button>
+            </div>
+        </div>
+    </div>
 
     <!-- STEP 3: GAME OVER / LEADERBOARD FULL-SCREEN MODAL -->
     <main id="screen-gameover" class="hidden max-w-3xl mx-auto px-4 py-8 w-full flex-1 flex flex-col justify-center items-center">
@@ -385,7 +403,7 @@
             document.getElementById('sound-icon').className = soundEnabled ? 'fa-solid fa-volume-high text-emerald-400 text-sm' : 'fa-solid fa-volume-xmark text-slate-500 text-sm';
         }
 
-        /* ================= GAME DATA ================= */
+        /* ================= GAME DATA & TECH TREE ================= */
         const ECO_SKILLS = [
             { name: "蚯蚓分解專家", desc: "蚯蚓箱產值 +25%", bonusType: "vermi", value: 1.25 },
             { name: "生物炭大師", desc: "生物炭固碳 +30%", bonusType: "char", value: 1.30 },
@@ -394,11 +412,12 @@
         ];
 
         const FACILITY_TYPES = {
-            vermi_factory: { name: "蚯蚓堆肥工廠", icon: "🪱", cost: 40, carbonYield: 3.0, vermiYield: 1.5, coinYield: 5 },
-            ai_coop: { name: "AI 雞舍", icon: "🐔", cost: 35, carbonYield: 2.0, vermiYield: 0, coinYield: 15 },
-            hydroponics: { name: "AI 水耕植物工廠", icon: "🌱", cost: 50, carbonYield: 5.0, vermiYield: 0, coinYield: 20 },
-            aquaculture: { name: "水產養殖場", icon: "🐟", cost: 45, carbonYield: 3.5, vermiYield: 0, coinYield: 25 },
-            pyrolysis: { name: "熱裂解工場", icon: "🔥", cost: 60, carbonYield: 7.5, vermiYield: 0, coinYield: 10 }
+            vermi_factory: { name: "蚯蚓堆肥工廠", icon: "🪱", cost: 40, carbonYield: 3.0, vermiYield: 1.5, coinYield: 5, techCost: 0, unlockedByDefault: true },
+            ai_coop: { name: "AI 雞舍", icon: "🐔", cost: 35, carbonYield: 2.0, vermiYield: 0, coinYield: 15, techCost: 30, unlockedByDefault: false },
+            hydroponics: { name: "AI 水耕植物工廠", icon: "🌱", cost: 50, carbonYield: 5.0, vermiYield: 0, coinYield: 20, techCost: 45, unlockedByDefault: false },
+            aquaculture: { name: "水產養殖場", icon: "🐟", cost: 45, carbonYield: 3.5, vermiYield: 0, coinYield: 25, techCost: 40, unlockedByDefault: false },
+            pyrolysis: { name: "熱裂解工場", icon: "🔥", cost: 60, carbonYield: 7.5, vermiYield: 0, coinYield: 10, techCost: 60, unlockedByDefault: false },
+            black_soldier_fly: { name: "黑水虻養殖場", icon: "🪰", cost: 45, carbonYield: 4.0, vermiYield: 1.0, coinYield: 18, techCost: 35, unlockedByDefault: false }
         };
 
         const CHANCE_CARDS = [
@@ -470,27 +489,28 @@
             }
         }
 
+        // 改版：橫山低碳循環農業試驗地圖 (整合資材至起點站，各保留一個機會卡與命運卡站點)
         const BOARD_TILES = [
-            { id: 0, name: "起點站", icon: "🚩", type: "start", landPrice: 0, desc: "經過可領取補給：碳幣+20、資材+10" },
-            { id: 1, name: "咖啡渣站", icon: "☕", type: "resource", landPrice: 0, resourceGain: 15, coinGain: 5 },
-            { id: 2, name: "峨眉一號地", icon: "🏞️", type: "property", landPrice: 20 },
-            { id: 3, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 4, name: "峨眉二號地", icon: "🏞️", type: "property", landPrice: 25 },
-            { id: 5, name: "茶葉廢渣站", icon: "🍵", type: "resource", landPrice: 0, resourceGain: 20, coinGain: 5 },
-            { id: 6, name: "ESG 碳權採購", icon: "💼", type: "esg", landPrice: 0, bonusCoins: 25 },
-            { id: 7, name: "峨眉三號地", icon: "🏞️", type: "property", landPrice: 35 },
-            { id: 8, name: "廚餘回收站", icon: "🍎", type: "resource", landPrice: 0, resourceGain: 20, coinGain: 5 },
-            { id: 9, name: "峨眉四號地", icon: "🏞️", type: "property", landPrice: 40 },
-            { id: 10, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
-            { id: 11, name: "蚓糞採收站", icon: "🪱", type: "vermi_harvest", landPrice: 0, vermiGain: 3.0, coinGain: 10 },
-            { id: 12, name: "峨眉五號地", icon: "🏞️", type: "property", landPrice: 50 },
-            { id: 13, name: "社區WORKSHOP", icon: "🤝", type: "esg", landPrice: 0, bonusCoins: 20 },
-            { id: 14, name: "峨眉六號地", icon: "🏞️", type: "property", landPrice: 60 },
-            { id: 15, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
-            { id: 16, name: "峨眉七號地", icon: "🌱", type: "property", landPrice: 70 },
-            { id: 17, name: "範疇三盤查站", icon: "📊", type: "esg", landPrice: 0, bonusCoins: 30 },
-            { id: 18, name: "峨眉八號地", icon: "📦", type: "property", landPrice: 85 },
-            { id: 19, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 }
+            { id: 0, name: "起點站(資源站)", icon: "🚩", type: "start", landPrice: 0, desc: "經過/抵達領取綜合資材與補給：碳幣+35、資材+35" },
+            { id: 1, name: "橫山一號地", icon: "🏞️", type: "property", landPrice: 20 },
+            { id: 2, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
+            { id: 3, name: "橫山二號地", icon: "🏞️", type: "property", landPrice: 25 },
+            { id: 4, name: "ESG 碳權採購", icon: "💼", type: "esg", landPrice: 0, bonusCoins: 25 },
+            { id: 5, name: "橫山三號地", icon: "🏞️", type: "property", landPrice: 35 },
+            { id: 6, name: "橫山四號地", icon: "🏞️", type: "property", landPrice: 40 },
+            { id: 7, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
+            { id: 8, name: "蚓糞採收站", icon: "🪱", type: "vermi_harvest", landPrice: 0, vermiGain: 3.0, coinGain: 10 },
+            { id: 9, name: "橫山五號地", icon: "🏞️", type: "property", landPrice: 50 },
+            { id: 10, name: "社區WORKSHOP", icon: "🤝", type: "esg", landPrice: 0, bonusCoins: 20 },
+            { id: 11, name: "橫山六號地", icon: "🏞️", type: "property", landPrice: 60 },
+            { id: 12, name: "機會卡", icon: "🎰", type: "chance_card", landPrice: 0 },
+            { id: 13, name: "橫山七號地", icon: "🌱", type: "property", landPrice: 70 },
+            { id: 14, name: "範疇三盤查站", icon: "📊", type: "esg", landPrice: 0, bonusCoins: 30 },
+            { id: 15, name: "橫山八號地", icon: "📦", type: "property", landPrice: 85 },
+            { id: 16, name: "橫山九號地", icon: "🏞️", type: "property", landPrice: 90 },
+            { id: 17, name: "命運卡", icon: "🌩️", type: "destiny_card", landPrice: 0 },
+            { id: 18, name: "橫山十號地", icon: "🏞️", type: "property", landPrice: 100 },
+            { id: 19, name: "生態示範廣場", icon: "🌟", type: "esg", landPrice: 0, bonusCoins: 40 }
         ];
 
         /* ================= P2P & GAME STATE ================= */
@@ -511,7 +531,8 @@
             maxRounds: 20,
             turnIndex: 0,
             players: [],
-            propertyData: {}
+            propertyData: {},
+            techUnlocks: {} // peerId -> { vermi_factory: true, ai_coop: false, ... }
         };
 
         const AVATARS = ["🧑‍🌾", "👩‍🔬", "👷‍♂️", "👩‍🌾"];
@@ -524,6 +545,84 @@
                 return null;
             }
             return name;
+        }
+
+        /* ================= TECH TREE FUNCTIONS ================= */
+
+        function openTechTreeModal() {
+            renderTechTree();
+            document.getElementById('modal-tech-tree').classList.remove('hidden');
+        }
+
+        function closeTechTreeModal() {
+            document.getElementById('modal-tech-tree').classList.add('hidden');
+        }
+
+        function renderTechTree() {
+            const listEl = document.getElementById('tech-tree-list');
+            listEl.innerHTML = '';
+
+            const myPlayer = gameState.players.find(p => p.peerId === myPeerId);
+            if (!myPlayer) return;
+
+            if (!gameState.techUnlocks[myPeerId]) {
+                gameState.techUnlocks[myPeerId] = { vermi_factory: true };
+            }
+            const myTechs = gameState.techUnlocks[myPeerId];
+
+            Object.keys(FACILITY_TYPES).forEach(key => {
+                const fac = FACILITY_TYPES[key];
+                const isUnlocked = myTechs[key] || fac.unlockedByDefault;
+
+                listEl.innerHTML += `
+                    <div class="bg-slate-950 p-3.5 rounded-2xl border ${isUnlocked ? 'border-emerald-500/60' : 'border-slate-800'} flex justify-between items-center shadow">
+                        <div class="space-y-0.5">
+                            <div class="font-bold text-emerald-300 text-sm flex items-center gap-2">
+                                <span>${fac.icon} ${fac.name}</span>
+                                ${isUnlocked ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded border border-emerald-500/40">已解鎖研發</span>' : ''}
+                            </div>
+                            <div class="text-[11px] text-slate-400">造價: ${fac.cost}🪙 | 固碳: +${fac.carbonYield}kg | 收益: +${fac.coinYield}🪙</div>
+                        </div>
+                        <div>
+                            ${isUnlocked ? '<span class="text-xs text-emerald-400 font-bold">已掌握</span>' : `<button onclick="requestUnlockTech('${key}')" class="bg-amber-600 hover:bg-amber-500 text-slate-950 font-black px-3 py-1.5 rounded-xl text-xs shadow">研發 (${fac.techCost}🪙)</button>`}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function requestUnlockTech(techKey) {
+            const fac = FACILITY_TYPES[techKey];
+            const myPlayer = gameState.players.find(p => p.peerId === myPeerId);
+            if (!myPlayer) return;
+
+            if (myPlayer.coins < fac.techCost) {
+                alert("碳幣不足，無法研發此項技術！");
+                return;
+            }
+
+            if (isHost) {
+                processUnlockTech(myPeerId, techKey);
+            } else {
+                hostConn.send({ type: 'ACTION_UNLOCK_TECH', peerId: myPeerId, techKey: techKey });
+            }
+        }
+
+        function processUnlockTech(peerId, techKey) {
+            if (!isHost) return;
+            const p = gameState.players.find(x => x.peerId === peerId);
+            const fac = FACILITY_TYPES[techKey];
+
+            if (!gameState.techUnlocks[peerId]) {
+                gameState.techUnlocks[peerId] = { vermi_factory: true };
+            }
+
+            if (!gameState.techUnlocks[peerId][techKey] && p.coins >= fac.techCost) {
+                p.coins -= fac.techCost;
+                gameState.techUnlocks[peerId][techKey] = true;
+                broadcastState(`${p.name} 成功研發並解鎖了新設施技術：[${fac.name}]！`);
+            }
+            renderTechTree();
         }
 
         /* ================= AUTO-ROOM NETWORKING ================= */
@@ -582,13 +681,14 @@
                         skill: skill,
                         inventory: []
                     }];
+                    gameState.techUnlocks[id] = { vermi_factory: true };
 
                     BOARD_TILES.forEach(t => {
                         if (t.type === 'property') {
                             gameState.propertyData[t.id] = {
                                 ownerPeerId: null,
                                 level: 0,
-                                facilityType: null,
+                                facilities: [], // 改版：支援多重設施建設陣列
                                 totalInvestment: t.landPrice
                             };
                         }
@@ -721,6 +821,7 @@
                     skill: skill,
                     inventory: []
                 });
+                gameState.techUnlocks[conn.peer] = { vermi_factory: true };
                 
                 document.getElementById('invite-section').classList.remove('hidden');
                 document.getElementById('action-buttons-box').classList.add('hidden');
@@ -730,7 +831,9 @@
             } else if (data.type === 'ACTION_ROLL_DICE') {
                 processRollDice(data.peerId);
             } else if (data.type === 'ACTION_BUY_FACILITY') {
-                processBuyFacility(data.peerId, data.buy, data.facilityType);
+                processBuyFacility(data.peerId, data.buy, data.selectedFacilityTypes);
+            } else if (data.type === 'ACTION_UNLOCK_TECH') {
+                processUnlockTech(data.peerId, data.techKey);
             } else if (data.type === 'ACTION_CARD_PROCESSED') {
                 processCardProcessed(data.peerId, data.card, data.choice, data.targetPeerId, data.updatedInventory, data.tileIdToAcquire);
             } else if (data.type === 'ACTION_USE_INVENTORY') {
@@ -836,9 +939,10 @@
 
             const currentCount = gameState.players.length;
             for (let i = currentCount; i < 4; i++) {
+                const aiPeerId = `AI-${i}`;
                 const skill = ECO_SKILLS[Math.floor(Math.random() * ECO_SKILLS.length)];
                 gameState.players.push({
-                    peerId: `AI-${i}`,
+                    peerId: aiPeerId,
                     name: `永續 AI Robot ${i}`,
                     isAi: true,
                     bankrupt: false,
@@ -852,6 +956,7 @@
                     skill: skill,
                     inventory: []
                 });
+                gameState.techUnlocks[aiPeerId] = { vermi_factory: true, ai_coop: true, hydroponics: true };
             }
 
             gameState.started = true;
@@ -933,9 +1038,9 @@
             for (let step = 1; step <= dice; step++) {
                 p.pos = (p.pos + 1) % BOARD_TILES.length;
                 if (p.pos === 0) {
-                    p.coins += 20;
-                    p.resources += 10;
-                    logMsg += ` (經過起點領取補給：碳幣+20、資材+10)`;
+                    p.coins += 35;
+                    p.resources += 35;
+                    logMsg += ` (經過起點領取綜合資材與補給：碳幣+35、資材+35)`;
                 }
                 broadcastState(); // 同步畫面移動位置
                 playSound('step');
@@ -946,19 +1051,19 @@
             const tile = BOARD_TILES[p.pos];
             logMsg += ` 最終抵達 [${tile.name}]`;
 
-            if (tile.type === 'resource') {
-                p.resources += tile.resourceGain;
-                p.coins += tile.coinGain;
-                logMsg += `，獲得資材+${tile.resourceGain}，碳幣+${tile.coinGain}`;
+            if (tile.type === 'start') {
+                p.coins += 35;
+                p.resources += 35;
+                logMsg += `，獲得綜合補給：碳幣+35、資材+35`;
             } else if (tile.type === 'esg') {
-                let convertedCoins = 20;
+                let convertedCoins = tile.bonusCoins || 25;
                 if (p.carbon >= 3.0) {
                     const carbonSold = Math.min(p.carbon, 5.0);
                     p.carbon -= carbonSold;
                     convertedCoins += Math.floor(carbonSold * 8);
-                    logMsg += `，觸發企業碳權採購！售出固碳量 ${carbonSold.toFixed(1)}kg 換取碳幣+${convertedCoins}`;
+                    logMsg += `，觸發碳權採購！售出固碳量 ${carbonSold.toFixed(1)}kg 換取碳幣+${convertedCoins}`;
                 } else {
-                    logMsg += `，獲企業贊助碳幣+${convertedCoins}`;
+                    logMsg += `，獲專案獎勵碳幣+${convertedCoins}`;
                 }
                 p.coins += convertedCoins;
             } else if (tile.type === 'vermi_harvest') {
@@ -983,58 +1088,40 @@
                             if (p.isAi) {
                                 prop.ownerPeerId = p.peerId;
                                 prop.level = 1;
+                                prop.facilities.push('vermi_factory');
                                 p.coins -= tile.landPrice;
-                                logMsg += `，AI 購買了土地產權！`;
+                                logMsg += `，AI 購買了土地產權並建置蚯蚓堆肥廠！`;
                             } else {
                                 broadcastState(logMsg);
-                                showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
+                                showLandOrFacilityPrompt(tile, prop, p); // 彈出土地與建設選單
                                 return; 
                             }
                         }
                     } else if (prop.ownerPeerId === p.peerId) {
-                        if (prop.level === 1) {
-                            if (p.isAi) {
-                                const facKey = Object.keys(FACILITY_TYPES)[Math.floor(Math.random() * 5)];
+                        if (p.isAi) {
+                            const unlocks = gameState.techUnlocks[p.peerId] || { vermi_factory: true };
+                            const availableFacs = Object.keys(FACILITY_TYPES).filter(fKey => (unlocks[fKey] || FACILITY_TYPES[fKey].unlockedByDefault) && !prop.facilities.includes(fKey));
+                            if (availableFacs.length > 0) {
+                                const facKey = availableFacs[Math.floor(Math.random() * availableFacs.length)];
                                 const fac = FACILITY_TYPES[facKey];
                                 if (p.coins >= fac.cost) {
                                     p.coins -= fac.cost;
-                                    prop.level = 2;
-                                    prop.facilityType = facKey;
+                                    prop.facilities.push(facKey);
                                     prop.totalInvestment += fac.cost;
-                                    logMsg += `，AI 在土地上興建了 [${fac.name}]！`;
-                                }
-                            } else {
-                                broadcastState(logMsg);
-                                showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
-                                return; 
-                            }
-                        } else if (prop.level === 2) {
-                            const fac = FACILITY_TYPES[prop.facilityType];
-                            const upgradeCost = Math.floor(fac.cost * 1.2);
-                            if (p.coins >= upgradeCost) {
-                                if (p.isAi) {
-                                    p.coins -= upgradeCost;
-                                    prop.level = 3;
-                                    prop.totalInvestment += upgradeCost;
-                                    logMsg += `，AI 升級了 [${fac.name}] 至最高極限！`;
-                                } else {
-                                    broadcastState(logMsg);
-                                    showLandOrFacilityPrompt(tile, prop, p); // 僅在此最終站點彈出選單
-                                    return; 
+                                    prop.level = Math.max(prop.level, prop.facilities.length);
+                                    logMsg += `，AI 在土地上增建了 [${fac.name}]！`;
                                 }
                             }
+                        } else {
+                            broadcastState(logMsg);
+                            showLandOrFacilityPrompt(tile, prop, p); // 彈出設施增建選單
+                            return; 
                         }
                     } else {
                         const landOwner = gameState.players.find(x => x.peerId === prop.ownerPeerId);
                         if (landOwner && !landOwner.bankrupt) {
-                            let toll = 0;
-                            if (prop.level === 1) {
-                                toll = Math.floor(tile.landPrice * 0.4);
-                                logMsg += `，支付土地過路費 ${toll} 碳幣給 ${landOwner.name}`;
-                            } else if (prop.level >= 2) {
-                                toll = Math.floor(prop.totalInvestment * 0.5);
-                                logMsg += `，支付觀摩學習體驗費 ${toll} 碳幣給 ${landOwner.name}`;
-                            }
+                            let toll = Math.floor(tile.landPrice * 0.4) + (prop.facilities.length * 10);
+                            logMsg += `，支付土地過路費與體驗費 ${toll} 碳幣給 ${landOwner.name}`;
                             const actualPay = Math.min(p.coins, toll);
                             p.coins -= actualPay;
                             landOwner.coins += actualPay;
@@ -1244,16 +1331,21 @@
 
         function requestBuyFacility(buy) {
             document.getElementById('facility-action-box').classList.add('hidden');
-            const facType = document.getElementById('select-facility-type').value;
+            
+            const selectedFacs = [];
+            if (buy) {
+                const checkboxes = document.querySelectorAll('.facility-checkbox:checked');
+                checkboxes.forEach(cb => selectedFacs.push(cb.value));
+            }
 
             if (isHost) {
-                processBuyFacility(myPeerId, buy, facType);
+                processBuyFacility(myPeerId, buy, selectedFacs);
             } else {
-                hostConn.send({ type: 'ACTION_BUY_FACILITY', peerId: myPeerId, buy: buy, facilityType: facType });
+                hostConn.send({ type: 'ACTION_BUY_FACILITY', peerId: myPeerId, buy: buy, selectedFacilityTypes: selectedFacs });
             }
         }
 
-        function processBuyFacility(peerId, buy, selectedFacType) {
+        function processBuyFacility(peerId, buy, selectedFacs) {
             if (!isHost) return;
             const p = gameState.players.find(x => x.peerId === peerId) || gameState.players[gameState.turnIndex];
             const tile = BOARD_TILES[p.pos];
@@ -1261,31 +1353,32 @@
             let logMsg = "";
 
             if (buy && prop) {
-                if (prop.level === 0 && p.coins >= tile.landPrice) {
+                if (prop.ownerPeerId === null && p.coins >= tile.landPrice) {
                     prop.ownerPeerId = p.peerId;
                     prop.level = 1;
                     p.coins -= tile.landPrice;
-                    playSound('buy');
-                    logMsg = `${p.name} 花費 ${tile.landPrice} 碳幣購買了 [${tile.name}] 土地產權！`;
-                } else if (prop.level === 1) {
-                    const fac = FACILITY_TYPES[selectedFacType];
-                    if (fac && p.coins >= fac.cost) {
-                        prop.level = 2;
-                        prop.facilityType = selectedFacType;
-                        prop.totalInvestment += fac.cost;
-                        p.coins -= fac.cost;
+                    logMsg = `${p.name} 購買了 [${tile.name}] 土地產權！`;
+                }
+
+                if (prop.ownerPeerId === p.peerId && selectedFacs && selectedFacs.length > 0) {
+                    let totalCost = 0;
+                    selectedFacs.forEach(fKey => {
+                        if (!prop.facilities.includes(fKey)) {
+                            totalCost += FACILITY_TYPES[fKey].cost;
+                        }
+                    });
+
+                    if (p.coins >= totalCost) {
+                        p.coins -= totalCost;
+                        selectedFacs.forEach(fKey => {
+                            if (!prop.facilities.includes(fKey)) {
+                                prop.facilities.push(fKey);
+                                prop.totalInvestment += FACILITY_TYPES[fKey].cost;
+                            }
+                        });
+                        prop.level = Math.max(prop.level, prop.facilities.length);
                         playSound('buy');
-                        logMsg = `${p.name} 在 [${tile.name}] 興建了 [${fac.name}]！`;
-                    }
-                } else if (prop.level === 2) {
-                    const fac = FACILITY_TYPES[prop.facilityType];
-                    const upCost = Math.floor(fac.cost * 1.2);
-                    if (p.coins >= upCost) {
-                        prop.level = 3;
-                        prop.totalInvestment += upCost;
-                        p.coins -= upCost;
-                        playSound('buy');
-                        logMsg = `${p.name} 將 [${tile.name}] 的 [${fac.name}] 升級至極限最高階！`;
+                        logMsg = `${p.name} 在 [${tile.name}] 成功建置/增建了多項永續設施！`;
                     }
                 }
             } else {
@@ -1296,37 +1389,25 @@
         }
 
         function finishTurn(logMsg) {
-            // 每次結束回合時，強制將所有彈出對話框與選單隱藏歸零！
             document.getElementById('facility-action-box').classList.add('hidden');
             document.getElementById('card-action-box').classList.add('hidden');
             document.getElementById('target-selection-box').classList.add('hidden');
 
+            // 結算每回合土地多重設施產值
             gameState.players.forEach(p => {
                 if (p.bankrupt) return;
 
                 Object.keys(gameState.propertyData).forEach(tId => {
                     const prop = gameState.propertyData[tId];
-                    if (prop.ownerPeerId === p.peerId && prop.level >= 2) {
-                        const fac = FACILITY_TYPES[prop.facilityType];
-                        const multiplier = prop.level === 3 ? 1.8 : 1.0;
-
-                        let cYield = fac.carbonYield * multiplier;
-                        let vYield = fac.vermiYield * multiplier;
-                        let coinBonus = fac.coinYield * multiplier;
-
-                        if (prop.facilityType === 'ai_coop' && p.vermiCasting >= 3.0) {
-                            coinBonus += 10;
-                        }
-                        if (prop.facilityType === 'hydroponics' && p.vermiCasting >= 4.0) {
-                            cYield += 2.0;
-                        }
-                        if (prop.facilityType === 'aquaculture' && p.resources >= 10) {
-                            coinBonus += 15;
-                        }
-
-                        p.carbon += cYield;
-                        p.vermiCasting += vYield;
-                        p.coins += Math.floor(coinBonus);
+                    if (prop.ownerPeerId === p.peerId && prop.facilities && prop.facilities.length > 0) {
+                        prop.facilities.forEach(fKey => {
+                            const fac = FACILITY_TYPES[fKey];
+                            if (fac) {
+                                p.carbon += fac.carbonYield;
+                                p.vermiCasting += fac.vermiYield;
+                                p.coins += fac.coinYield;
+                            }
+                        });
                     }
                 });
             });
@@ -1366,21 +1447,34 @@
             const titleEl = document.getElementById('facility-title');
             const descEl = document.getElementById('facility-desc');
             const choiceBox = document.getElementById('facility-choice-container');
+            const checkboxesContainer = document.getElementById('available-facilities-checkboxes');
 
             choiceBox.classList.add('hidden');
+            checkboxesContainer.innerHTML = '';
 
             if (prop.level === 0) {
                 titleEl.innerText = `購買土地產權：${tile.name}`;
-                descEl.innerText = `地價：${tile.landPrice} 碳幣。購買後其他玩家行經需支付土地過路費！`;
-            } else if (prop.level === 1) {
-                titleEl.innerText = `建設永續設施：${tile.name}`;
-                descEl.innerText = `請選擇要建置的循環農業設施，建置後可大幅提升固碳量與生產收益！`;
+                descEl.innerText = `地價：${tile.landPrice} 碳幣。購買後可進一步解鎖科技樹並在土地上同時建置多種循環農業設施！`;
+            } else {
+                titleEl.innerText = `土地多重設施增建：${tile.name}`;
+                descEl.innerText = `您已擁有此地，可勾選下列已解鎖研發的設施進行同步增建（可複選）：`;
+                
+                const unlocks = gameState.techUnlocks[p.peerId] || { vermi_factory: true };
+                Object.keys(FACILITY_TYPES).forEach(fKey => {
+                    const fac = FACILITY_TYPES[fKey];
+                    const isUnlocked = unlocks[fKey] || fac.unlockedByDefault;
+                    const alreadyBuilt = prop.facilities.includes(fKey);
+
+                    if (isUnlocked && !alreadyBuilt) {
+                        checkboxesContainer.innerHTML += `
+                            <label class="flex items-center gap-2 p-1.5 bg-slate-900 rounded border border-slate-800 cursor-pointer hover:border-emerald-500">
+                                <input type="checkbox" value="${fKey}" class="facility-checkbox accent-emerald-500" />
+                                <span>${fac.icon} ${fac.name} (造價: ${fac.cost}🪙, 固碳: +${fac.carbonYield}kg)</span>
+                            </label>
+                        `;
+                    }
+                });
                 choiceBox.classList.remove('hidden');
-            } else if (prop.level === 2) {
-                const fac = FACILITY_TYPES[prop.facilityType];
-                const upCost = Math.floor(fac.cost * 1.2);
-                titleEl.innerText = `升級設施：${fac.name}`;
-                descEl.innerText = `花費 ${upCost} 碳幣提升至最高等級，產能與觀摩過路費大幅翻倍！`;
             }
 
             document.getElementById('facility-action-box').classList.remove('hidden');
@@ -1411,12 +1505,9 @@
 
                 let icon = tile.icon;
                 let levelTag = '';
-                if (prop && prop.level > 0) {
-                    if (prop.level === 1) levelTag = '🚩';
-                    if (prop.level >= 2 && prop.facilityType) {
-                        icon = FACILITY_TYPES[prop.facilityType].icon;
-                        levelTag = prop.level === 3 ? '⭐' : '🏭';
-                    }
+                if (prop && prop.facilities && prop.facilities.length > 0) {
+                    icon = FACILITY_TYPES[prop.facilities[0]].icon;
+                    levelTag = prop.facilities.length > 1 ? `+${prop.facilities.length-1}` : '🏭';
                 }
 
                 let tokens = '';
@@ -1427,7 +1518,7 @@
                 el.className = `bg-slate-900/90 rounded-xl p-2 ${ownerBorder} flex flex-col justify-between items-center text-center relative overflow-hidden shadow-md`;
                 el.innerHTML = `
                     <div class="text-xs flex gap-0.5 min-h-[18px]">${tokens}</div>
-                    <div class="text-xl sm:text-2xl">${icon} <span class="text-xs">${levelTag}</span></div>
+                    <div class="text-xl sm:text-2xl">${icon} <span class="text-xs text-amber-300 font-bold">${levelTag}</span></div>
                     <span class="text-[10px] sm:text-xs text-slate-200 font-bold truncate w-full">${tile.name}</span>
                     ${tile.landPrice > 0 ? `<span class="text-[9px] text-amber-400 font-mono">${tile.landPrice}🪙</span>` : ''}
                 `;
@@ -1451,12 +1542,6 @@
 
             const btnRoll = document.getElementById('btn-roll-dice');
             btnRoll.disabled = !currP || currP.peerId !== myPeerId || currP.isAi || gameState.initialRollPhase || currP.bankrupt;
-
-            // ⚠️ 關鍵修復：在更新介面時，絕不自動彈出土地或卡片視窗！
-            // 只有在玩家主動擲骰並確實停留在該格子時，才會呼叫 prompt 函數。
-            if (!currP || currP.peerId !== myPeerId || gameState.initialRollPhase) {
-                // 非本人回合或比大小階段，確保面板隱藏
-            }
 
             const orderBox = document.getElementById('order-determination-box');
             if (gameState.initialRollPhase) {
