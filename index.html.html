@@ -1,1261 +1,1169 @@
 <!DOCTYPE html>
-<html lang="zh-TW" class="dark">
+<html lang="zh-TW" class="h-full bg-slate-950 text-slate-100">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>歸蚓酷客：生態循環大亨 (Vermicook: Eco Tycoon)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Font Inter -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        eco: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            400: '#4ade80',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            800: '#166534',
-                            900: '#14532d',
-                            dark: '#0a0f0d',
-                            card: '#121a16',
-                            border: '#1e2e26'
-                        },
-                        cyber: {
-                            neon: '#00ffcc',
-                            gold: '#fbbf24',
-                            alert: '#f43f5e',
-                            purple: '#a855f7'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace']
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #060908;
-            color: #e2e8f0;
-            user-select: none;
-        }
-        .cyber-border {
-            border: 1px solid #1e3a2b;
-            box-shadow: 0 0 10px rgba(0, 255, 204, 0.05);
-        }
-        .cyber-border:hover {
-            border-color: #00ffcc;
-            box-shadow: 0 0 15px rgba(0, 255, 204, 0.2);
-        }
-        .glow-neon {
-            box-shadow: 0 0 12px rgba(0, 255, 204, 0.4);
-        }
-        .glow-alert {
-            box-shadow: 0 0 12px rgba(244, 63, 94, 0.4);
-        }
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0d1410;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e3a2b;
-            border-radius: 3px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #00ffcc;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>歸蚓酷客：生態循環大亨 (Vermicompost Guardian)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts: Noto Sans TC & Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet" />
+  
+  <style>
+    body {
+      font-family: 'Noto Sans TC', 'Inter', sans-serif;
+      user-select: none;
+    }
+    
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 5px;
+      height: 5px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(15, 23, 42, 0.8);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(16, 185, 129, 0.4);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(16, 185, 129, 0.8);
+    }
+
+    /* Card Glows & Animations */
+    .glow-green { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
+    .glow-amber { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
+    .glow-purple { box-shadow: 0 0 12px rgba(168, 85, 247, 0.3); }
+
+    .card-item {
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .card-item:hover:not(.disabled) {
+      transform: translateY(-6px) scale(1.02);
+      z-index: 20;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(239, 68, 68, 0.9); }
+      50% { border-color: rgba(239, 68, 68, 0.2); }
+    }
+    .pulse-danger {
+      animation: pulse-border 1.5s infinite;
+    }
+  </style>
 </head>
-<body class="font-sans antialiased text-slate-200 min-h-screen flex flex-col justify-between overflow-x-hidden">
+<body class="h-full overflow-hidden flex flex-col bg-slate-950 text-slate-100">
 
-    <!-- Toast / Notification Floating Modal -->
-    <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
-
-    <!-- MAIN APP WRAPPER -->
-    <div id="app" class="flex-grow flex flex-col min-h-screen">
-
-        <!-- SCREEN 1: LOGIN & LOBBY -->
-        <section id="screen-login" class="flex-grow flex items-center justify-center p-4 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-eco-900/40 via-eco-dark to-black">
-            <div class="max-w-md w-full bg-eco-card p-8 rounded-2xl border border-eco-border shadow-2xl relative overflow-hidden backdrop-blur-md">
-                <div class="absolute -top-12 -right-12 w-32 h-32 bg-cyber-neon/10 rounded-full blur-2xl"></div>
-                <div class="text-center mb-8">
-                    <div class="inline-flex items-center justify-center p-3 bg-eco-800/40 text-cyber-neon rounded-2xl mb-3 border border-cyber-neon/30 glow-neon">
-                        <i class="fa-solid fa-worm text-3xl"></i>
-                    </div>
-                    <h1 class="text-2xl font-extrabold tracking-tight text-white flex items-center justify-center gap-2">
-                        歸蚓酷客 <span class="text-xs px-2 py-0.5 rounded bg-cyber-neon/20 text-cyber-neon font-mono">v2.5 ESG</span>
-                    </h1>
-                    <p class="text-xs text-slate-400 mt-1">生態循環大亨：10分鐘多人連線競賽</p>
-                </div>
-
-                <form id="form-login" class="space-y-5" onsubmit="event.preventDefault(); startLobbyJoin();">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">玩家代號 / 廠牌名稱</label>
-                        <div class="relative">
-                            <i class="fa-solid fa-user-astronaut absolute left-3.5 top-3.5 text-slate-500"></i>
-                            <input type="text" id="input-player-name" required maxlength="12" placeholder="請輸入名字 (例: 綠能酷客01)" 
-                                class="w-full bg-slate-900/80 border border-slate-700 focus:border-cyber-neon focus:ring-1 focus:ring-cyber-neon text-white text-sm rounded-xl pl-10 pr-4 py-3 outline-none transition-all">
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">競賽大廳房間選擇</label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <button type="button" onclick="selectRoomMode('create')" id="btn-mode-create" class="py-2.5 px-4 rounded-xl border border-cyber-neon/50 bg-cyber-neon/10 text-cyber-neon font-semibold text-xs flex items-center justify-center gap-2 hover:bg-cyber-neon/20 transition-all">
-                                <i class="fa-solid fa-plus-circle"></i> 創建房間 (#01~99)
-                            </button>
-                            <button type="button" onclick="selectRoomMode('join')" id="btn-mode-join" class="py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 font-semibold text-xs flex items-center justify-center gap-2 hover:border-slate-500 transition-all">
-                                <i class="fa-solid fa-right-to-bracket"></i> 加入指定房間
-                            </button>
-                        </div>
-                    </div>
-
-                    <div id="room-input-container" class="hidden">
-                        <input type="number" id="input-room-id" min="1" max="99" placeholder="輸入房號 (01 ~ 99)" 
-                            class="w-full bg-slate-900/80 border border-slate-700 text-white text-sm rounded-xl px-4 py-2.5 outline-none focus:border-cyber-neon">
-                    </div>
-
-                    <button type="submit" id="btn-start-game" class="w-full py-3.5 bg-gradient-to-r from-eco-600 to-eco-500 hover:from-eco-500 hover:to-eco-400 text-white font-bold rounded-xl shadow-lg shadow-eco-900/50 flex items-center justify-center gap-2 transition-all transform active:scale-95">
-                        <i class="fa-solid fa-play"></i> 進入賽場準備
-                    </button>
-                </form>
-
-                <div id="lobby-waiting" class="hidden mt-6 text-center border-t border-slate-800 pt-6">
-                    <div class="inline-block animate-spin text-cyber-neon text-2xl mb-2"><i class="fa-solid fa-circle-notch"></i></div>
-                    <p class="text-sm font-semibold text-cyber-neon">競賽準備中... 正在匹配 AI 對手與聯網數據</p>
-                    <p class="text-xs text-slate-500 mt-1">10 分鐘限時 ESG 積分戰即將開打</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- SCREEN 2: MAIN GAME DASHBOARD -->
-        <section id="screen-game" class="hidden flex-grow flex flex-col max-w-[1600px] w-full mx-auto p-2 sm:p-4 gap-3">
-            
-            <!-- TOP BAR: Tournament Header & Status -->
-            <header class="bg-eco-card border border-eco-border rounded-xl p-3 flex flex-wrap items-center justify-between gap-4 shadow-lg">
-                <div class="flex items-center gap-3">
-                    <div class="bg-eco-800/50 p-2 rounded-lg text-cyber-neon border border-eco-600/30">
-                        <i class="fa-solid fa-vial-circle-check text-xl"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h2 class="font-bold text-white text-base tracking-wide" id="display-player-name">酷客隊長</h2>
-                            <span class="text-xs font-mono bg-slate-800 border border-slate-700 px-2 py-0.5 rounded text-slate-300" id="display-room-tag">房號 #01</span>
-                            <span class="text-xs font-bold px-2 py-0.5 rounded bg-eco-900 text-eco-400 border border-eco-700" id="display-player-level">Lv.1 生態初學者</span>
-                        </div>
-                        <p class="text-xs text-slate-400">研發點數: <span id="display-tech-pts" class="text-cyber-neon font-mono font-bold">0</span> | 技能點數: <span id="display-talent-pts" class="text-cyber-gold font-mono font-bold">0</span></p>
-                    </div>
-                </div>
-
-                <!-- Match Countdown Timer -->
-                <div class="flex items-center gap-6 bg-slate-900/80 border border-slate-800 px-4 py-2 rounded-xl">
-                    <div class="text-center">
-                        <span class="block text-[10px] text-slate-400 uppercase tracking-widest">賽事倒數</span>
-                        <span class="font-mono text-xl font-extrabold text-cyber-neon" id="display-match-timer">10:00</span>
-                    </div>
-                    <div class="h-8 w-px bg-slate-800"></div>
-                    <div class="text-center">
-                        <span class="block text-[10px] text-slate-400 uppercase tracking-widest">ESG 影響力</span>
-                        <span class="font-mono text-xl font-extrabold text-cyber-gold" id="display-esg-score">0</span>
-                    </div>
-                    <div class="h-8 w-px bg-slate-800"></div>
-                    <div class="text-center">
-                        <span class="block text-[10px] text-slate-400 uppercase tracking-widest">資金 (NT$)</span>
-                        <span class="font-mono text-xl font-extrabold text-emerald-400" id="display-money">$10,000</span>
-                    </div>
-                </div>
-
-                <!-- Action Modals Triggers -->
-                <div class="flex items-center gap-2 flex-wrap">
-                    <button onclick="openModal('modal-tree')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-diagram-project text-cyber-neon"></i> 科技/天賦樹
-                    </button>
-                    <button onclick="openModal('modal-gear')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-shirt text-cyber-gold"></i> 裝備 (4部位)
-                    </button>
-                    <button onclick="openModal('modal-leaderboard')" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-xs font-semibold text-slate-200 flex items-center gap-1.5">
-                        <i class="fa-solid fa-trophy text-amber-400"></i> 即時榜單
-                    </button>
-                </div>
-            </header>
-
-            <!-- MAIN WORKSPACE: 3 COLUMNS -->
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-grow">
-                
-                <!-- LEFT COLUMN: Physical Compost Bin & Earthworm Ecology (4 Cols) -->
-                <div class="lg:col-col-span-1 lg:col-span-4 flex flex-col gap-3">
-                    <!-- Physical Monitor Dashboard -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg relative">
-                        <div class="flex justify-between items-center mb-3 border-b border-slate-800 pb-2">
-                            <h3 class="font-bold text-white text-sm flex items-center gap-2">
-                                <i class="fa-solid fa-gauge-high text-cyber-neon"></i> 堆肥反應爐物性即時動態
-                            </h3>
-                            <span id="epa-status-badge" class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800">
-                                環保局檢測：合規
-                            </span>
-                        </div>
-
-                        <!-- Physics Gauges Grid -->
-                        <div class="grid grid-cols-2 gap-2.5 text-xs">
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">堆體溫度 (°C)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold" id="val-temp">35.0 °C</span>
-                                    <span class="text-[10px] text-slate-500" id="target-temp">適溫 20-38°</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-temp" class="bg-amber-500 h-1.5 rounded-full" style="width: 50%"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">含水率 (%)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold" id="val-moisture">60.0 %</span>
-                                    <span class="text-[10px] text-slate-500">最佳 55-65%</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-moisture" class="bg-blue-500 h-1.5 rounded-full" style="width: 60%"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">酸鹼值 (pH)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold" id="val-ph">7.0</span>
-                                    <span class="text-[10px] text-slate-500">最佳 6.5-7.5</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-ph" class="bg-emerald-500 h-1.5 rounded-full" style="width: 70%"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">碳氮比 (C/N)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold" id="val-cn">25.0 : 1</span>
-                                    <span class="text-[10px] text-slate-500">標準 ≥ 30 消臭</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-cn" class="bg-purple-500 h-1.5 rounded-full" style="width: 50%"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">通氣量 (%)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold" id="val-aeration">50.0 %</span>
-                                    <span class="text-[10px] text-slate-500">翻堆增加</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-aeration" class="bg-teal-400 h-1.5 rounded-full" style="width: 50%"></div>
-                                </div>
-                            </div>
-
-                            <div class="bg-slate-900/80 p-2.5 rounded-lg border border-slate-800/80">
-                                <span class="text-slate-400 block mb-1">異味/蒼蠅 (PPM)</span>
-                                <div class="flex items-baseline justify-between">
-                                    <span class="font-mono text-lg font-bold text-amber-400" id="val-odor">12 PPM</span>
-                                    <span class="text-[10px] text-rose-400 font-bold">≥ 50 警告開罰</span>
-                                </div>
-                                <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1.5 overflow-hidden">
-                                    <div id="bar-odor" class="bg-rose-500 h-1.5 rounded-full" style="width: 12%"></div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- EPA Fine Warning Alert Box -->
-                        <div id="epa-fine-alert" class="hidden mt-3 p-2.5 rounded-lg bg-rose-950/80 border border-rose-600/50 text-rose-200 text-xs flex items-start gap-2 animate-pulse">
-                            <i class="fa-solid fa-triangle-exclamation text-rose-400 text-base mt-0.5"></i>
-                            <div>
-                                <strong class="block font-bold">台灣環保局 (EPA) 開罰警告！</strong>
-                                <span id="epa-alert-text">異味過高！請速使用高碳資材調高 C/N 比或翻堆通氣！</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Organic Waste & Vermi-Ecology Status -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg flex-grow flex flex-col justify-between">
-                        <div class="space-y-3">
-                            <h3 class="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800 pb-2">
-                                <i class="fa-solid fa-worm text-cyber-neon"></i> 太平二號蚯蚓族群生態
-                            </h3>
-
-                            <div class="space-y-2 text-xs">
-                                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded">
-                                    <span class="text-slate-400">蚯蚓數量 / 上限:</span>
-                                    <span class="font-mono font-bold text-white" id="val-worm-count">10,000 / 50,000 條</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded">
-                                    <span class="text-slate-400">總生物量 (Biomass):</span>
-                                    <span class="font-mono font-bold text-cyber-neon" id="val-worm-biomass">5.00 kg</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded">
-                                    <span class="text-slate-400">有機廢棄物堆積:</span>
-                                    <span class="font-mono font-bold text-amber-400" id="val-waste-stock">20.0 kg</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded">
-                                    <span class="text-slate-400">每日解化消化速率:</span>
-                                    <span class="font-mono font-bold text-emerald-400" id="val-digest-rate">2.5 kg/s</span>
-                                </div>
-                                <div class="flex justify-between items-center bg-slate-900/60 p-2 rounded">
-                                    <span class="text-slate-400">已產出優質蚓糞:</span>
-                                    <span class="font-mono font-bold text-yellow-400" id="val-castings">0.0 kg</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Carbon Credit Harvesting Buttons -->
-                        <div class="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-slate-800">
-                            <button onclick="harvestCastings('sell')" class="py-2 px-3 bg-emerald-900/40 hover:bg-emerald-800/60 border border-emerald-700/60 text-emerald-300 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition-all">
-                                <span><i class="fa-solid fa-hand-holding-dollar"></i> 販售蚓糞肥料</span>
-                                <span class="text-[10px] text-emerald-400/80 font-mono">變現 NT$</span>
-                            </button>
-                            <button onclick="harvestCastings('carbon')" class="py-2 px-3 bg-purple-900/40 hover:bg-purple-800/60 border border-purple-700/60 text-purple-300 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition-all">
-                                <span><i class="fa-solid fa-leaf"></i> 封存土壤碳匯</span>
-                                <span class="text-[10px] text-purple-300/80 font-mono">+ESG & 碳權</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- CENTER COLUMN: Card Hand Deck & Rogue-like Shop (5 Cols) -->
-                <div class="lg:col-span-5 flex flex-col gap-3">
-                    
-                    <!-- Active Hand Cards Container -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg flex flex-col justify-between min-h-[320px]">
-                        <div>
-                            <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
-                                <h3 class="font-bold text-white text-sm flex items-center gap-2">
-                                    <i class="fa-solid fa-cards text-cyber-neon"></i> 庫存手牌區域 
-                                    <span class="text-xs text-slate-400 font-normal">(容量上限: <span id="val-hand-limit" class="text-cyber-neon font-bold">3</span>/10)</span>
-                                </h3>
-                                <button onclick="drawHandCards()" class="px-2.5 py-1 bg-cyber-neon/10 hover:bg-cyber-neon/20 border border-cyber-neon/40 text-cyber-neon text-xs font-bold rounded-lg transition-all">
-                                    <i class="fa-solid fa-rotate-right"></i> 整理手牌
-                                </button>
-                            </div>
-                            
-                            <!-- Cards Grid Container -->
-                            <div id="hand-cards-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
-                                <!-- Dynamic Rendered Hand Cards -->
-                            </div>
-                        </div>
-
-                        <p class="text-[11px] text-slate-500 text-center mt-3">
-                            💡 提示：所有資材卡牌皆為一次性消耗品，使用後直接觸發物理反應；提升等級可增加手牌攜帶上限。
-                        </p>
-                    </div>
-
-                    <!-- Rogue-like Material Shop (30 Cards) -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg flex-grow flex flex-col">
-                        <div class="flex justify-between items-center border-b border-slate-800 pb-2 mb-3">
-                            <h3 class="font-bold text-white text-sm flex items-center gap-2">
-                                <i class="fa-solid fa-store text-cyber-gold"></i> 循環資材與裝備補充站 (商店)
-                            </h3>
-                            <button onclick="refreshShop()" class="text-xs text-slate-400 hover:text-white transition-all">
-                                <i class="fa-solid fa-arrows-rotate"></i> 刷新卡池
-                            </button>
-                        </div>
-
-                        <!-- Shop Filter Tabs -->
-                        <div class="flex gap-1.5 mb-3">
-                            <button onclick="filterShop('all')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-white font-medium">全部</button>
-                            <button onclick="filterShop('carbon')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-purple-300 font-medium">高碳資材</button>
-                            <button onclick="filterShop('nitrogen')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-amber-300 font-medium">高氮資材</button>
-                            <button onclick="filterShop('tech')" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-xs text-teal-300 font-medium">菌劑與設備</button>
-                        </div>
-
-                        <!-- Shop Items Container -->
-                        <div id="shop-cards-container" class="grid grid-cols-1 sm:grid-cols-2 gap-2 overflow-y-auto max-h-[380px] pr-1">
-                            <!-- Dynamic Rendered Shop Cards -->
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- RIGHT COLUMN: ESG Event Logs & AI Competitors (3 Cols) -->
-                <div class="lg:col-span-3 flex flex-col gap-3">
-                    
-                    <!-- AI Real-Time Competition Monitor -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg">
-                        <h3 class="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800 pb-2 mb-3">
-                            <i class="fa-solid fa-users text-cyber-neon"></i> 房間玩家動態 (10分鐘限時)
-                        </h3>
-                        <div id="competitor-list-container" class="space-y-2">
-                            <!-- Dynamic AI/Competitors list -->
-                        </div>
-                    </div>
-
-                    <!-- Real-Time Event & EPA Log Feed -->
-                    <div class="bg-eco-card border border-eco-border rounded-xl p-4 shadow-lg flex-grow flex flex-col justify-between">
-                        <h3 class="font-bold text-white text-sm flex items-center gap-2 border-b border-slate-800 pb-2 mb-2">
-                            <i class="fa-solid fa-terminal text-slate-400"></i> 生態系統與開罰動態日誌
-                        </h3>
-                        <div id="game-logs" class="font-mono text-[11px] space-y-1.5 overflow-y-auto max-h-[300px] text-slate-300 pr-1 flex-grow">
-                            <p class="text-slate-500">[系統] 《歸蚓酷客》賽事開始，數據監控連線成功...</p>
-                        </div>
-                    </div>
-
-                </div>
-
-            </div>
-        </section>
-
-    </div>
-
-    <!-- MODAL 1: SKILL & TECH TREES -->
-    <div id="modal-tree" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-eco-card border border-eco-border rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-            <!-- Modal Header -->
-            <div class="p-4 bg-slate-900 border-b border-slate-800 flex justify-between items-center">
-                <div class="flex items-center gap-4">
-                    <button onclick="switchTreeTab('talent')" id="tab-btn-talent" class="text-sm font-bold text-cyber-gold border-b-2 border-cyber-gold pb-1">
-                        <i class="fa-solid fa-sitemap"></i> 20種天賦技能樹
-                    </button>
-                    <button onclick="switchTreeTab('tech')" id="tab-btn-tech" class="text-sm font-bold text-slate-400 hover:text-white pb-1">
-                        <i class="fa-solid fa-microchip"></i> 30種永續科技樹
-                    </button>
-                </div>
-                <button onclick="closeModal('modal-tree')" class="text-slate-400 hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-4 overflow-y-auto flex-grow space-y-4">
-                <!-- Talent Tree View -->
-                <div id="tree-view-talent" class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <!-- Dynamic Rendered Talent Nodes -->
-                </div>
-
-                <!-- Sustainable Tech Tree View -->
-                <div id="tree-view-tech" class="hidden grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <!-- Dynamic Rendered Tech Nodes -->
-                </div>
-            </div>
+  <!-- TOP HEADER HUD -->
+  <header class="h-14 bg-slate-900/90 border-b border-emerald-900/40 px-3 sm:px-4 flex items-center justify-between z-20 shrink-0">
+    <!-- Left: Title & Status -->
+    <div class="flex items-center space-x-2.5">
+      <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg font-black shadow-inner glow-green">
+        <i class="fa-solid fa-worm"></i>
+      </div>
+      <div>
+        <h1 class="text-xs sm:text-sm font-bold tracking-wider text-emerald-400 uppercase">歸蚓酷客：生態循環大亨</h1>
+        <div class="text-[10px] text-slate-400 flex items-center gap-2">
+          <button onclick="toggleGamePause()" id="pause-btn" class="hover:text-emerald-300 text-amber-400 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-pause" id="pause-icon"></i> <span id="pause-text">運行中</span>
+          </button>
         </div>
+      </div>
     </div>
 
-    <!-- MODAL 2: 4-SLOT RPG EQUIPMENT -->
-    <div id="modal-gear" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-eco-card border border-eco-border rounded-2xl max-w-2xl w-full p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-white text-base flex items-center gap-2">
-                    <i class="fa-solid fa-shirt text-cyber-gold"></i> 酷客防護與裝備系統 (4部位)
-                </h3>
-                <button onclick="closeModal('modal-gear')" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
-            </div>
+    <!-- Center: Main Economic Resources HUD -->
+    <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+      <!-- Currency (新台幣 NT$) -->
+      <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="新台幣資金 (NT$)">
+        <i class="fa-solid fa-sack-dollar text-amber-400"></i>
+        <span id="hud-coins" class="font-black text-amber-400">NT$ 5,000</span>
+      </div>
 
-            <!-- Gear Slots Container -->
-            <div class="grid grid-cols-2 gap-3" id="gear-slots-container">
-                <!-- Head, Body, Hands, Feet -->
-            </div>
+      <!-- Vermicompost (蚓糞庫存) -->
+      <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="採收的高純度蚓糞 (可封存固碳或販售)">
+        <i class="fa-solid fa-cubes-stacked text-amber-600"></i>
+        <span id="hud-vermicompost" class="font-bold text-amber-200">0.0 Kg</span>
+      </div>
 
-            <p class="text-xs text-slate-400 text-center">
-                裝備設有 Lv.1, Lv.5, Lv.10 門檻，可於商店購買，提供減臭、提高消化效率等強效加成。
-            </p>
+      <!-- Soil Carbon Sequestration (土壤碳匯) -->
+      <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="累積土壤碳匯量 (tCO2e)">
+        <i class="fa-solid fa-seedling text-emerald-400"></i>
+        <span id="hud-carbon-seq" class="font-bold text-emerald-300">0.000 t</span>
+      </div>
+
+      <!-- Player Level & ESG EXP -->
+      <div class="flex items-center space-x-1.5 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700">
+        <i class="fa-solid fa-award text-cyan-400"></i>
+        <span class="font-bold text-slate-200">Lv.<span id="hud-level">1</span></span>
+        <div class="w-12 bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-700 hidden sm:block" title="ESG 影響力 (經驗值)">
+          <div id="hud-exp-bar" class="bg-cyan-400 h-full transition-all duration-300" style="width: 0%"></div>
         </div>
+      </div>
+
+      <!-- Active Deck Capacity -->
+      <div class="hidden md:flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="出戰卡牌種類容量 (依等級提升)">
+        <i class="fa-solid fa-box-archive text-purple-400"></i>
+        <span id="hud-deck-cap" class="font-bold text-purple-300">3/3</span>
+      </div>
     </div>
 
-    <!-- MODAL 3: LEADERBOARD & FINAL RESULTS -->
-    <div id="modal-leaderboard" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-eco-card border border-eco-border rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4 text-center">
-            <h3 class="font-bold text-white text-lg flex items-center justify-center gap-2">
-                <i class="fa-solid fa-trophy text-cyber-gold"></i> ESG 生態賽事排行榜
-            </h3>
-            <p class="text-xs text-slate-400">10分鐘屆滿即依 ESG 影響力積分與零罰款發放榮譽</p>
+    <!-- Right: Quick Odor Status -->
+    <div class="flex items-center space-x-2">
+      <div id="hud-odor-badge" class="text-[11px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded-lg flex items-center gap-1">
+        <i class="fa-solid fa-wind" id="odor-icon"></i>
+        <span class="hidden sm:inline">臭味/蒼蠅:</span> <span id="hud-odor-val" class="font-bold">0 PPM</span>
+      </div>
+    </div>
+  </header>
 
-            <div id="final-leaderboard-list" class="space-y-2 text-left my-4">
-                <!-- Leaderboard rows -->
+  <!-- NAVIGATION TABS BAR -->
+  <nav class="bg-slate-900 border-b border-slate-800 px-3 py-1.5 flex items-center justify-center space-x-1 sm:space-x-2 overflow-x-auto shrink-0 text-xs font-bold">
+    <button onclick="switchTab('compost')" id="tab-btn-compost" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-emerald-400 bg-slate-800 border border-emerald-500/40">
+      <i class="fa-solid fa-vial-virus"></i> 堆肥主控台
+    </button>
+    <button onclick="switchTab('deck')" id="tab-btn-deck" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
+      <i class="fa-solid fa-cards"></i> 戰術牌組
+    </button>
+    <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200 relative">
+      <i class="fa-solid fa-user-ninja"></i> 天賦技能樹
+      <span id="badge-skill-pts" class="hidden px-1.5 py-0.2 bg-rose-500 text-white rounded-full text-[9px]">0</span>
+    </button>
+    <button onclick="switchTab('tech')" id="tab-btn-tech" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
+      <i class="fa-solid fa-diagram-project"></i> 永續科技樹
+    </button>
+    <button onclick="switchTab('shop')" id="tab-btn-shop" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
+      <i class="fa-solid fa-shirt"></i> 裝備與資材
+    </button>
+    <button onclick="switchTab('carbon')" id="tab-btn-carbon" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
+      <i class="fa-solid fa-chart-line"></i> 碳權交易所
+    </button>
+  </nav>
+
+  <!-- MAIN VIEW PANEL CONTAINER -->
+  <main id="main-view" class="flex-1 relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex flex-col">
+    <!-- Dynamic View Content -->
+  </main>
+
+  <!-- TOAST NOTIFICATIONS -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-800 border border-emerald-500/50 text-emerald-300 px-3.5 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5">
+    <i id="toast-icon" class="fa-solid fa-circle-info text-emerald-400 text-sm"></i>
+    <span id="toast-msg" class="text-xs font-bold">通知訊息</span>
+  </div>
+
+  <!-- GAME LOGIC JAVASCRIPT -->
+  <script>
+    /* =========================================================================
+       1. GAME DATA & REAL-WORLD PHYSICAL CONSTANTS
+       ========================================================================= */
+
+    const CARD_TYPES = {
+      CARBON: { name: '高碳資材', color: 'from-amber-950 to-amber-900 border-amber-600/60 text-amber-300' },
+      SERVICE: { name: '社區服務', color: 'from-emerald-950 to-teal-950 border-emerald-600/60 text-emerald-300' },
+      AERATION: { name: '翻堆通氣', color: 'from-blue-950 to-indigo-950 border-blue-600/60 text-blue-300' },
+      HARVEST: { name: '採收篩分', color: 'from-yellow-950 to-lime-950 border-lime-600/60 text-lime-300' },
+      SPECIAL: { name: '生物調理劑', color: 'from-purple-950 to-pink-950 border-purple-600/60 text-purple-300' }
+    };
+
+    // Master Consumable Card Definitions
+    const MASTER_CARDS = [
+      { id: 'c_community_leaves', name: '社區掃落葉 (C/N ~60)', type: 'SERVICE', cost: 1, price: 150, unlocked: true, desc: '收集落葉。提供高碳資材，C/N比 +4.5，含水率 -3.0%。' },
+      { id: 'c_sawdust', name: '乾燥木屑/稻殼 (C/N ~200)', type: 'CARBON', cost: 1, price: 250, unlocked: true, desc: '添加濃縮高碳資材。C/N比 +8.0，含水率 -5.0%，臭味 -15 PPM。' },
+      { id: 'c_aerate', name: '手工翻堆通氣', type: 'AERATION', cost: 1, price: 200, unlocked: true, desc: '翻動堆體增加好氧菌活力。通氣量 +20%，堆體溫度 -2.5°C。' },
+      { id: 'c_harvest', name: '優質蚓糞篩分採收', type: 'HARVEST', cost: 2, price: 400, unlocked: true, desc: '篩分採收熟成蚓糞。獲得 30 Kg 蚓糞，消耗 20 Kg 待處理有機廢棄物。' },
+      
+      // Purchasable / Tech Unlocked Advanced Cards
+      { id: 'c_biochar', name: '高溫多孔生物炭 (C/N ~300)', type: 'CARBON', cost: 2, price: 600, unlocked: false, techReq: 'tech_biochar', desc: '高效吸附臭味與多餘水份。C/N比 +14.0，含水率 -8.0%，臭味 -35 PPM。' },
+      { id: 'c_lime', name: '熟石灰/蛋殼微粉', type: 'SPECIAL', cost: 1, price: 350, unlocked: false, techReq: 'tech_lime', desc: '快速中和高氮導致的酸化環境。pH值 +0.8，抑制惡臭。' },
+      { id: 'c_em_spray', name: 'EM好氧複合菌劑', type: 'SPECIAL', cost: 2, price: 800, unlocked: false, techReq: 'tech_em', desc: '加速有機質好氧分解。分解速度 +40%，臭味 -25 PPM。' },
+      { id: 'c_worm_boost', name: '蚓卵催化蛋白素', type: 'SPECIAL', cost: 2, price: 1000, unlocked: false, techReq: 'tech_worm_gen', desc: '刺激繁殖與成長。蚯蚓數量 +1,200 條（不超過養殖上限）。' },
+      { id: 'c_auto_harvest', name: '滾筒離心篩分機', type: 'HARVEST', cost: 3, price: 1500, unlocked: false, techReq: 'tech_auto_harvest', desc: '大規模自動採收。獲得 80 Kg 蚓糞，並清理 50 Kg 有機廢棄物！' }
+    ];
+
+    // Skill Tree Nodes (5 Skill Points per Level Up)
+    const SKILL_TREE_NODES = [
+      { id: 'sk_ap', name: '高效精神敏捷', desc: '+1 每回合最大行動點數 (AP)', cost: 3, level: 0, maxLevel: 2, effect: { ap: 1 } },
+      { id: 'sk_calc', name: '資材精算專家', desc: '打出高碳卡牌時 C/N 比調升效果 +30%', cost: 2, level: 0, maxLevel: 3, effect: { carbonBonus: 0.30 } },
+      { id: 'sk_esg_marketing', name: 'ESG 綠色行銷', desc: '出售碳權與蚓糞時，獲取的 NT$ 與 ESG 經驗加成 +20%', cost: 2, level: 0, maxLevel: 3, effect: { tradeBonus: 0.20 } },
+      { id: 'sk_worm_breed', name: '蚯蚓極限馴化', desc: '+25% 蚯蚓每日自然繁殖速率與環境耐受力', cost: 1, level: 0, maxLevel: 4, effect: { breedRate: 0.25 } },
+      { id: 'sk_odor_suppress', name: '好氧抑臭發酵', desc: '-25% 高氮有機物積壓產生的臭味 (PPM) 與蒼蠅滋生速率', cost: 1, level: 0, maxLevel: 3, effect: { odorRed: 0.25 } }
+    ];
+
+    // Tech Tree Nodes
+    const TECH_TREE_NODES = [
+      { id: 'tech_box_1', name: '雙層模組化養殖箱 (1.0 m²)', cost: 3000, desc: '擴充養殖面積至 1.0 m²，蚯蚓養殖上限提升至 8,000 條 (~4.0 kg)。', unlocked: false, apply: () => { gameState.compost.areaM2 = 1.0; gameState.compost.maxWormCap = 8000; } },
+      { id: 'tech_biochar', name: '生物炭多孔吸附技術', cost: 4500, desc: '解鎖「高溫多孔生物炭」高級調控卡牌。', unlocked: false },
+      { id: 'tech_sensor', name: '微氣候自動感測器網格', cost: 6000, desc: '即時自動微調溫濕度，減少 20% 環境異常造成的蚯蚓損傷。', unlocked: false },
+      { id: 'tech_lime', name: '酸鹼離子調控技術', cost: 3500, desc: '解鎖「熟石灰/蛋殼微粉」酸鹼平衡卡牌。', unlocked: false },
+      { id: 'tech_em', name: '好氧微生物專利菌劑', cost: 8000, desc: '解鎖「EM好氧複合菌劑」分解卡牌。', unlocked: false, req: 'tech_biochar' },
+      { id: 'tech_box_2', name: '工業級溫控養殖床 (2.5 m²)', cost: 15000, desc: '擴充養殖面積至 2.5 m²，蚯蚓上限提升至 20,000 條 (~10.0 kg)。', unlocked: false, req: 'tech_box_1', apply: () => { gameState.compost.areaM2 = 2.5; gameState.compost.maxWormCap = 20000; } },
+      { id: 'tech_auto_harvest', name: '滾筒機械離心篩分機', cost: 12000, desc: '解鎖「滾筒離心篩分機」自動採收卡牌。', unlocked: false, req: 'tech_em' },
+      { id: 'tech_esg_project', name: 'VCS / GS 國際碳權認證對接', cost: 25000, desc: '解鎖高階碳權交易對接，使碳權銷售價格提升 50% (達 NT$ 1,500 / tCO2e)！', unlocked: false, req: 'tech_auto_harvest' }
+    ];
+
+    // Equipment Database (4 Slots: head, body, hands, feet)
+    const BASE_EQUIPMENT = [
+      // Head
+      { id: 'h_1', slot: 'head', minLevel: 1, name: '工安防塵透氣面罩', price: 800, desc: '防護堆肥粉塵與微粒，提升工作效率', effBonus: 0.05 },
+      { id: 'h_2', slot: 'head', minLevel: 3, name: '專業活性碳雙濾毒面具', price: 2500, desc: '大幅降低臭味影響，提高採收產率', effBonus: 0.12 },
+      
+      // Body
+      { id: 'b_1', slot: 'body', minLevel: 1, name: '耐磨帆布堆肥工作服', price: 1200, desc: '+5% 蚯蚓有機物分解效能', effBonus: 0.05 },
+      { id: 'b_2', slot: 'body', minLevel: 4, name: '高能溫控外骨骼工作服', price: 6500, desc: '+15% 蚯蚓效能，+1 最大 AP', effBonus: 0.15, ap: 1 },
+
+      // Hands
+      { id: 'g_1', slot: 'hands', minLevel: 1, name: '厚實防滑橡膠手套', price: 600, desc: '+5% 翻堆與採收速度', effBonus: 0.05 },
+      { id: 'g_2', slot: 'hands', minLevel: 3, name: '人體工學自動鏟土臂', price: 3800, desc: '+12% 採收效率，減少體力消耗', effBonus: 0.12 },
+
+      // Feet
+      { id: 'f_1', slot: 'feet', minLevel: 1, name: '防滑防水耐酸雨靴', price: 500, desc: '場地巡檢防護，提升穩定性', effBonus: 0.03 },
+      { id: 'f_2', slot: 'feet', minLevel: 4, name: '氣墊減震工程巡視靴', price: 4200, desc: '每回合獲取額外 ESG 經驗加成', effBonus: 0.10 }
+    ];
+
+    // Waste Inflow Organizations (High-Nitrogen Organic Waste, C/N ~ 10-15:1)
+    const HIGH_NITROGEN_SOURCES = [
+      { name: '連鎖美食街廚餘', weight: 40, tempImpact: 1.2, moisture: 10, phImpact: -0.2, cnImpact: -2.5 },
+      { name: '果菜批發集散市場殘渣', weight: 60, tempImpact: 0.8, moisture: 12, phImpact: -0.3, cnImpact: -3.0 },
+      { name: '觀光啤酒廠廢麥芽渣', weight: 50, tempImpact: 2.0, moisture: 8, phImpact: -0.1, cnImpact: -2.0 },
+      { name: '養豬場濃縮有機糞渣', weight: 75, tempImpact: 1.8, moisture: 14, phImpact: 0.1, cnImpact: -4.0 }
+    ];
+
+    /* =========================================================================
+       2. GAME STATE
+       ========================================================================= */
+    let activeTab = 'compost';
+    let gameLoopTimer = null;
+    let isPaused = false;
+
+    let gameState = {
+      level: 1,
+      exp: 0,
+      nextLevelExp: 100,
+      skillPoints: 0,
+      coins: 5000, // 新台幣 NT$
+      vermicompostKg: 0.0,
+      carbonSeqTon: 0.0,
+
+      ap: 3,
+      maxAp: 3,
+
+      // Vermicompost Physical Parameters
+      compost: {
+        temp: 24.0,           // °C (Optimal 20-28)
+        moisture: 65.0,       // % (Optimal 60-70)
+        ph: 7.0,              // pH (Optimal 6.5-7.5)
+        cnRatio: 27.0,        // C/N (Optimal 25-30:1)
+        oxygen: 20.0,         // % (Optimal >15%)
+        wormPop: 2500,        // Count (approx 0.5g each => 1.25 kg)
+        areaM2: 0.5,          // m²
+        maxWormCap: 4000,     // Max count (approx 8,000 count/m² limit)
+        unprocessedWasteKg: 15,
+        odorPpm: 0            // Odor PPM
+      },
+
+      // Consumable Card Inventory System
+      cardPool: JSON.parse(JSON.stringify(MASTER_CARDS)),
+      cardInventory: {
+        'c_community_leaves': 6,
+        'c_sawdust': 4,
+        'c_aerate': 5,
+        'c_harvest': 3,
+        'c_biochar': 0,
+        'c_lime': 0,
+        'c_em_spray': 0,
+        'c_worm_boost': 0,
+        'c_auto_harvest': 0
+      },
+      activeDeckIds: ['c_community_leaves', 'c_sawdust', 'c_aerate'], // Selected active cards
+
+      skillTree: JSON.parse(JSON.stringify(SKILL_TREE_NODES)),
+      techTree: JSON.parse(JSON.stringify(TECH_TREE_NODES)),
+
+      equipment: {
+        head: null,
+        body: null,
+        hands: null,
+        feet: null
+      },
+
+      gameTicks: 0
+    };
+
+    /* =========================================================================
+       3. HELPER FUNCTIONS & COMPUTED STATS
+       ========================================================================= */
+
+    function getDeckCapacity() {
+      return 2 + gameState.level; // Lv1 = 3 cards, Lv2 = 4, etc.
+    }
+
+    function getPlayerBonus() {
+      let bonus = {
+        maxAp: 3,
+        carbonBonus: 1.0,
+        tradeBonus: 1.0,
+        breedRate: 1.0,
+        odorRed: 0.0,
+        effBonus: 1.0
+      };
+
+      // Skill tree
+      gameState.skillTree.forEach(sk => {
+        if (sk.level > 0) {
+          if (sk.effect.ap) bonus.maxAp += sk.effect.ap * sk.level;
+          if (sk.effect.carbonBonus) bonus.carbonBonus += sk.effect.carbonBonus * sk.level;
+          if (sk.effect.tradeBonus) bonus.tradeBonus += sk.effect.tradeBonus * sk.level;
+          if (sk.effect.breedRate) bonus.breedRate += sk.effect.breedRate * sk.level;
+          if (sk.effect.odorRed) bonus.odorRed += sk.effect.odorRed * sk.level;
+        }
+      });
+
+      // Equipment
+      Object.values(gameState.equipment).forEach(item => {
+        if (item) {
+          if (item.ap) bonus.maxAp += item.ap;
+          if (item.effBonus) bonus.effBonus += item.effBonus;
+        }
+      });
+
+      return bonus;
+    }
+
+    function recalculateStats() {
+      const bonus = getPlayerBonus();
+      gameState.maxAp = bonus.maxAp;
+      if (gameState.ap > gameState.maxAp) gameState.ap = gameState.maxAp;
+      updateHUD();
+    }
+
+    function showToast(msg, icon = 'fa-circle-info') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      document.getElementById('toast-icon').className = `fa-solid ${icon} text-emerald-400`;
+      toast.classList.remove('translate-y-20', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 2500);
+    }
+
+    function updateHUD() {
+      const cap = getDeckCapacity();
+      document.getElementById('hud-coins').innerText = `NT$ ${gameState.coins.toLocaleString()}`;
+      document.getElementById('hud-vermicompost').innerText = `${gameState.vermicompostKg.toFixed(1)} Kg`;
+      document.getElementById('hud-carbon-seq').innerText = `${gameState.carbonSeqTon.toFixed(3)} t`;
+      document.getElementById('hud-level').innerText = gameState.level;
+      document.getElementById('hud-deck-cap').innerText = `${gameState.activeDeckIds.length}/${cap}`;
+
+      const expPercent = Math.min(100, Math.floor((gameState.exp / gameState.nextLevelExp) * 100));
+      document.getElementById('hud-exp-bar').style.width = `${expPercent}%`;
+
+      const odorVal = Math.floor(gameState.compost.odorPpm);
+      document.getElementById('hud-odor-val').innerText = `${odorVal} PPM`;
+      const odorBadge = document.getElementById('hud-odor-badge');
+      if (odorVal > 100) {
+        odorBadge.className = 'text-[11px] bg-rose-950 border border-rose-600 text-rose-300 px-2 py-1 rounded-lg flex items-center gap-1 pulse-danger';
+      } else {
+        odorBadge.className = 'text-[11px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded-lg flex items-center gap-1';
+      }
+
+      const badge = document.getElementById('badge-skill-pts');
+      if (gameState.skillPoints > 0) {
+        badge.innerText = gameState.skillPoints;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function addESGExp(amount) {
+      const bonus = getPlayerBonus();
+      const actualExp = Math.floor(amount * bonus.tradeBonus);
+      gameState.exp += actualExp;
+
+      if (gameState.exp >= gameState.nextLevelExp) {
+        gameState.exp -= gameState.nextLevelExp;
+        gameState.level += 1;
+        gameState.skillPoints += 5; // Rules: +5 skill points per level
+        gameState.nextLevelExp = Math.floor(gameState.nextLevelExp * 1.6);
+        recalculateStats();
+        showToast(`等級提升至 Lv.${gameState.level}！獲得 5 點天賦技能點數！`, 'fa-angles-up');
+      }
+      updateHUD();
+    }
+
+    /* =========================================================================
+       4. SIMULATION ENGINE & SMART DOM TICK UPDATER
+       ========================================================================= */
+
+    function tickSimulation() {
+      if (isPaused) return;
+
+      gameState.gameTicks += 1;
+      const c = gameState.compost;
+      const bonus = getPlayerBonus();
+
+      // Real World Physical Health factors
+      let tempHealth = (c.temp >= 18 && c.temp <= 28) ? 1.0 : (c.temp < 10 || c.temp > 35) ? 0.1 : 0.5;
+      let moistHealth = (c.moisture >= 60 && c.moisture <= 70) ? 1.0 : (c.moisture < 45 || c.moisture > 80) ? 0.2 : 0.6;
+      let phHealth = (c.ph >= 6.5 && c.ph <= 7.5) ? 1.0 : 0.3;
+      let oxyHealth = (c.oxygen >= 15) ? 1.0 : 0.3;
+
+      let overallHealth = (tempHealth + moistHealth + phHealth + oxyHealth) / 4.0;
+
+      // Real Consumption Capacity: Earthworms consume 50% - 100% of body weight daily.
+      // 1000 worms approx = 0.5 kg biomass.
+      let wormBiomassKg = c.wormPop * 0.0005;
+      let baseCapacityKgPerTick = (wormBiomassKg * 0.4) * overallHealth * bonus.effBonus;
+
+      if (c.unprocessedWasteKg > 0) {
+        let treated = Math.min(c.unprocessedWasteKg, baseCapacityKgPerTick);
+        c.unprocessedWasteKg -= treated;
+        gameState.vermicompostKg += treated * 0.70; // 70% converted to high purity vermicompost
+        addESGExp(Math.floor(treated * 2));
+      }
+
+      // Worm Breeding & Natural Dynamics
+      if (overallHealth > 0.7) {
+        if (c.wormPop < c.maxWormCap) {
+          let breed = Math.floor((c.wormPop * 0.012) * bonus.breedRate);
+          c.wormPop = Math.min(c.maxWormCap, c.wormPop + Math.max(1, breed));
+        }
+      } else if (overallHealth < 0.35) {
+        let die = Math.floor(c.wormPop * 0.025);
+        c.wormPop = Math.max(100, c.wormPop - die);
+      }
+
+      // High-Nitrogen Anaerobic Accumulation Penalty
+      if (c.unprocessedWasteKg > 20) {
+        let rawOdor = (c.unprocessedWasteKg - 20) * 1.5;
+        let odorInc = rawOdor * (1.0 - bonus.odorRed);
+        c.odorPpm = Math.min(300, c.odorPpm + odorInc);
+        c.cnRatio = Math.max(10.0, c.cnRatio - 0.12); // C/N drops due to raw high-nitrogen Sitting
+      } else {
+        c.odorPpm = Math.max(0, c.odorPpm - 2.5);
+      }
+
+      // Natural Environmental Drifts
+      c.oxygen = Math.max(5, c.oxygen - 0.15);
+      c.moisture = Math.max(15, c.moisture - 0.1);
+
+      // Random High-Nitrogen Waste Inflow Event (Every 10 ticks)
+      if (gameState.gameTicks % 10 === 0) {
+        triggerHighNitrogenInflow();
+      }
+
+      updateHUD();
+
+      // SMART DOM LOCAL UPDATE (PREVENTS SCROLL JUMP)
+      if (activeTab === 'compost') {
+        updateCompostDOMInPlace();
+      }
+    }
+
+    function triggerHighNitrogenInflow() {
+      const src = HIGH_NITROGEN_SOURCES[Math.floor(Math.random() * HIGH_NITROGEN_SOURCES.length)];
+      const c = gameState.compost;
+      c.unprocessedWasteKg += src.weight;
+      c.moisture = Math.min(95, c.moisture + src.moisture);
+      c.ph = Math.max(4.0, Math.min(9.0, c.ph + src.phImpact));
+      c.temp = Math.min(42, c.temp + src.tempImpact);
+      c.cnRatio = Math.max(10.0, c.cnRatio + src.cnImpact);
+
+      showToast(`注意：收到【${src.name}】高氮廢棄物 ${src.weight} Kg！C/N 比下降！`, 'fa-truck-ramp-box');
+    }
+
+    function toggleGamePause() {
+      isPaused = !isPaused;
+      document.getElementById('pause-text').innerText = isPaused ? '已暫停' : '運行中';
+      document.getElementById('pause-icon').className = isPaused ? 'fa-solid fa-play' : 'fa-solid fa-pause';
+      showToast(isPaused ? '遊戲已暫停' : '遊戲繼續進行', isPaused ? 'fa-pause' : 'fa-play');
+    }
+
+    /* =========================================================================
+       5. TAB ROUTING & VIEW RENDERING
+       ========================================================================= */
+
+    function switchTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.className = 'tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200';
+      });
+      const currentBtn = document.getElementById(`tab-btn-${tab}`);
+      if (currentBtn) {
+        currentBtn.className = 'tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-emerald-400 bg-slate-800 border border-emerald-500/40';
+      }
+
+      renderMainView();
+    }
+
+    function renderMainView() {
+      updateHUD();
+      if (activeTab === 'compost') renderCompostView();
+      else if (activeTab === 'deck') renderDeckView();
+      else if (activeTab === 'skills') renderSkillsView();
+      else if (activeTab === 'tech') renderTechView();
+      else if (activeTab === 'shop') renderShopView();
+      else if (activeTab === 'carbon') renderCarbonView();
+    }
+
+    /* =========================================================================
+       6. VIEW 1: COMPACT COMPOSTING DASHBOARD (NO-JUMP ARCHITECTURE)
+       ========================================================================= */
+
+    function renderCompostView() {
+      const view = document.getElementById('main-view');
+      const c = gameState.compost;
+      const activeCards = gameState.cardPool.filter(card => gameState.activeDeckIds.includes(card.id));
+
+      view.innerHTML = `
+        <div id="compost-scroll-area" class="flex-1 flex flex-col p-3 sm:p-4 max-w-5xl mx-auto w-full overflow-y-auto space-y-3">
+          
+          <!-- Compact Real Environmental Monitor Panel -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl">
+            <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
+              <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-gauge-high text-emerald-400 text-sm"></i>
+                <h3 class="font-bold text-slate-200 text-xs">堆肥環境動態數據 (目標 C/N 25-30:1 | 濕度 60-70%)</h3>
+              </div>
+              <div class="text-[11px] text-slate-400">
+                養殖面積: <b class="text-emerald-400" id="val-area">${c.areaM2.toFixed(1)} m²</b>
+              </div>
             </div>
 
-            <button onclick="closeModal('modal-leaderboard')" class="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs rounded-xl transition-all">
-                關閉面板
+            <!-- Compact Metrics Grid -->
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">堆體溫度 (°C)</span>
+                <span id="val-temp" class="font-black text-emerald-400 text-sm">${c.temp.toFixed(1)}°C</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">含水率 (%)</span>
+                <span id="val-moist" class="font-black text-emerald-400 text-sm">${c.moisture.toFixed(1)}%</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">酸鹼值 (pH)</span>
+                <span id="val-ph" class="font-black text-emerald-400 text-sm">${c.ph.toFixed(2)}</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">碳氮比 (C/N)</span>
+                <span id="val-cn" class="font-black text-amber-300 text-sm">${c.cnRatio.toFixed(1)}:1</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">通氣量 (%)</span>
+                <span id="val-oxy" class="font-black text-emerald-400 text-sm">${c.oxygen.toFixed(1)}%</span>
+              </div>
+              <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+                <span class="text-[9px] text-slate-500 font-bold block">臭味 (PPM)</span>
+                <span id="val-odor" class="font-black text-rose-400 text-sm">${Math.floor(c.odorPpm)} PPM</span>
+              </div>
+            </div>
+
+            <!-- Compact Worm Density Gauge Bar -->
+            <div class="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
+              <span class="text-slate-400 font-bold">蚯蚓族群: <b id="val-worm-pop" class="text-emerald-400">${c.wormPop.toLocaleString()}</b> / <span id="val-worm-cap">${c.maxWormCap.toLocaleString()}</span> 條 (~<span id="val-biomass">${(c.wormPop*0.0005).toFixed(2)}</span> kg)</span>
+              <div class="w-1/3 bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                <div id="bar-worm-pop" class="bg-emerald-500 h-full transition-all duration-300" style="width: ${(c.wormPop / c.maxWormCap) * 100}%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Unprocessed High-Nitrogen Waste Section -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl flex items-center justify-between">
+            <div>
+              <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-dumpster text-amber-400"></i> 暫存高氮有機廢棄物: 
+                <span id="val-waste-kg" class="text-amber-400 font-black text-sm ml-1">${Math.floor(c.unprocessedWasteKg)} Kg</span>
+              </h3>
+              <p class="text-[10px] text-slate-400 mt-0.5">高氮材料（廚餘/廢渣）積壓過久會快速拉低 C/N 比並引發厭氧惡臭，請使用高碳資材卡牌平衡。</p>
+            </div>
+            <button onclick="replenishAP()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-lg text-xs border border-slate-700 shrink-0">
+              <i class="fa-solid fa-bolt mr-1"></i> 回合休養 AP (<span id="val-ap">${gameState.ap}</span>/<span id="val-max-ap">${gameState.maxAp}</span>)
             </button>
+          </div>
+
+          <!-- Tactical Hand Cards & Inventory Display -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl flex-1 flex flex-col justify-between">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
+                <i class="fa-solid fa-cards text-purple-400"></i> 當前出戰戰術卡牌 (使用後扣除數量)
+              </h3>
+              <button onclick="switchTab('deck')" class="text-xs text-purple-400 font-bold hover:underline">
+                管理牌組/補給資材 &rarr;
+              </button>
+            </div>
+
+            <!-- Cards Container -->
+            <div class="flex items-center justify-center gap-3 overflow-x-auto py-1">
+              ${activeCards.map(card => {
+                const count = gameState.cardInventory[card.id] || 0;
+                const cardStyle = CARD_TYPES[card.type] || CARD_TYPES.CARBON;
+                const canAfford = gameState.ap >= card.cost && count > 0;
+
+                return `
+                  <div onclick="useCard('${card.id}')" 
+                    class="card-item cursor-pointer w-36 h-44 rounded-xl bg-gradient-to-b ${cardStyle.color} border p-2.5 flex flex-col justify-between shadow-xl shrink-0 ${!canAfford ? 'opacity-40 grayscale cursor-not-allowed disabled' : ''}">
+                    <div class="flex items-center justify-between">
+                      <span class="text-[8px] uppercase font-black px-1 rounded bg-slate-950/60">${cardStyle.name}</span>
+                      <span class="w-4 h-4 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">${card.cost} AP</span>
+                    </div>
+                    <div class="text-center my-auto">
+                      <h4 class="font-bold text-xs text-slate-100">${card.name}</h4>
+                      <p class="text-[8px] text-slate-300 mt-1 leading-tight">${card.desc}</p>
+                    </div>
+                    <div class="flex justify-between items-center text-[9px] font-bold text-slate-950 bg-slate-950/40 py-0.5 px-1.5 rounded">
+                      <span class="text-slate-300">持有庫存:</span>
+                      <span class="${count > 0 ? 'text-amber-400' : 'text-rose-400'} font-black text-xs">${count} 張</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
         </div>
-    </div>
+      `;
+    }
 
-    <!-- GAME LOGIC SCRIPT -->
-    <script>
-        /* ==========================================================================
-           1. GAME STATE & CONSTANTS
-           ========================================================================== */
-        const GAME_STATE = {
-            playerName: "酷客隊長",
-            roomId: "01",
-            level: 1,
-            exp: 0,
-            money: 10000,
-            esgScore: 0,
-            techPts: 0,
-            talentPts: 0,
-            handLimit: 3,
+    // Smart In-Place DOM Updater for Simulation Ticks (Prevents scroll jumping)
+    function updateCompostDOMInPlace() {
+      const c = gameState.compost;
+      
+      const elTemp = document.getElementById('val-temp');
+      if (elTemp) elTemp.innerText = `${c.temp.toFixed(1)}°C`;
+
+      const elMoist = document.getElementById('val-moist');
+      if (elMoist) elMoist.innerText = `${c.moisture.toFixed(1)}%`;
+
+      const elPh = document.getElementById('val-ph');
+      if (elPh) elPh.innerText = `${c.ph.toFixed(2)}`;
+
+      const elCn = document.getElementById('val-cn');
+      if (elCn) elCn.innerText = `${c.cnRatio.toFixed(1)}:1`;
+
+      const elOxy = document.getElementById('val-oxy');
+      if (elOxy) elOxy.innerText = `${c.oxygen.toFixed(1)}%`;
+
+      const elOdor = document.getElementById('val-odor');
+      if (elOdor) elOdor.innerText = `${Math.floor(c.odorPpm)} PPM`;
+
+      const elWorm = document.getElementById('val-worm-pop');
+      if (elWorm) elWorm.innerText = c.wormPop.toLocaleString();
+
+      const elCap = document.getElementById('val-worm-cap');
+      if (elCap) elCap.innerText = c.maxWormCap.toLocaleString();
+
+      const elBio = document.getElementById('val-biomass');
+      if (elBio) elBio.innerText = (c.wormPop * 0.0005).toFixed(2);
+
+      const barWorm = document.getElementById('bar-worm-pop');
+      if (barWorm) barWorm.style.width = `${(c.wormPop / c.maxWormCap) * 100}%`;
+
+      const elWaste = document.getElementById('val-waste-kg');
+      if (elWaste) elWaste.innerText = `${Math.floor(c.unprocessedWasteKg)} Kg`;
+
+      const elAp = document.getElementById('val-ap');
+      if (elAp) elAp.innerText = gameState.ap;
+
+      const elMaxAp = document.getElementById('val-max-ap');
+      if (elMaxAp) elMaxAp.innerText = gameState.maxAp;
+    }
+
+    /* =========================================================================
+       7. CARD ACTIONS & CONSUMPTION
+       ========================================================================= */
+
+    function useCard(cardId) {
+      const card = gameState.cardPool.find(c => c.id === cardId);
+      const count = gameState.cardInventory[cardId] || 0;
+
+      if (!card || count <= 0) {
+        showToast('該資材卡牌庫存不足！請至「牌組管理/商店」花費 NT$ 補充！', 'fa-triangle-exclamation');
+        return;
+      }
+
+      if (gameState.ap < card.cost) {
+        showToast('行動點數 (AP) 不足！請點擊回合休養。', 'fa-bolt');
+        return;
+      }
+
+      // Deduct AP & Consumable Card Count
+      gameState.ap -= card.cost;
+      gameState.cardInventory[cardId] -= 1;
+
+      const c = gameState.compost;
+      const bonus = getPlayerBonus();
+
+      // Card Physics Logic
+      if (card.id === 'c_community_leaves') {
+        c.cnRatio += 4.5 * bonus.carbonBonus;
+        c.moisture = Math.max(20, c.moisture - 3.0);
+      } else if (card.id === 'c_sawdust') {
+        c.cnRatio += 8.0 * bonus.carbonBonus;
+        c.moisture = Math.max(20, c.moisture - 5.0);
+        c.odorPpm = Math.max(0, c.odorPpm - 15);
+      } else if (card.id === 'c_aerate') {
+        c.oxygen = Math.min(100, c.oxygen + 20);
+        c.temp = Math.max(15, c.temp - 2.5);
+      } else if (card.id === 'c_harvest') {
+        gameState.vermicompostKg += 30;
+        c.unprocessedWasteKg = Math.max(0, c.unprocessedWasteKg - 20);
+        addESGExp(35);
+      } else if (card.id === 'c_biochar') {
+        c.cnRatio += 14.0 * bonus.carbonBonus;
+        c.moisture = Math.max(20, c.moisture - 8.0);
+        c.odorPpm = Math.max(0, c.odorPpm - 35);
+      } else if (card.id === 'c_lime') {
+        c.ph = Math.min(9.0, c.ph + 0.8);
+      } else if (card.id === 'c_em_spray') {
+        c.odorPpm = Math.max(0, c.odorPpm - 25);
+        c.temp += 1.5;
+      } else if (card.id === 'c_worm_boost') {
+        c.wormPop = Math.min(c.maxWormCap, c.wormPop + 1200);
+      } else if (card.id === 'c_auto_harvest') {
+        gameState.vermicompostKg += 80;
+        c.unprocessedWasteKg = Math.max(0, c.unprocessedWasteKg - 50);
+        addESGExp(85);
+      }
+
+      showToast(`使用【${card.name}】！剩餘 ${gameState.cardInventory[cardId]} 張`, 'fa-wand-magic-sparkles');
+      renderMainView();
+    }
+
+    function replenishAP() {
+      const bonus = getPlayerBonus();
+      gameState.ap = bonus.maxAp;
+      showToast('完成回合休養，AP 已重置滿格！', 'fa-bolt');
+      renderMainView();
+    }
+
+    /* =========================================================================
+       8. VIEW 2: CARD DECK MANAGEMENT & STORE (PURCHASE CONSUMABLES WITH NT$)
+       ========================================================================= */
+
+    function renderDeckView() {
+      const view = document.getElementById('main-view');
+      const capacity = getDeckCapacity();
+
+      view.innerHTML = `
+        <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-lg font-black text-purple-400 flex items-center gap-2">
+                <i class="fa-solid fa-cards"></i> 戰術牌組與資材補給商店
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">卡牌為一次性消耗資材，使用新台幣 (NT$) 購買補充。（出戰卡牌種類上限：<b class="text-purple-300">${capacity}</b>）</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-purple-500/40 px-3 py-1.5 rounded-xl text-purple-300 font-bold">
+              出戰卡牌: ${gameState.activeDeckIds.length} / ${capacity}
+            </div>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+            ${gameState.cardPool.map(card => {
+              const isActive = gameState.activeDeckIds.includes(card.id);
+              const count = gameState.cardInventory[card.id] || 0;
+              const cardStyle = CARD_TYPES[card.type] || CARD_TYPES.CARBON;
+
+              return `
+                <div class="rounded-xl bg-gradient-to-b ${cardStyle.color} border p-3 flex flex-col justify-between h-56 relative shadow-lg ${!card.unlocked ? 'opacity-40 grayscale' : ''}">
+                  <div class="flex justify-between items-center text-[10px] uppercase font-bold">
+                    <span>${cardStyle.name}</span>
+                    <span class="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black flex items-center justify-center text-xs">${card.cost} AP</span>
+                  </div>
+                  <div class="text-center my-auto">
+                    <h4 class="font-bold text-xs text-slate-100">${card.name}</h4>
+                    <p class="text-[9px] text-slate-300 mt-1 leading-tight">${card.desc}</p>
+                    <div class="mt-2 text-xs font-black text-amber-300">
+                      庫存: ${count} 張
+                    </div>
+                  </div>
+
+                  ${card.unlocked ? `
+                    <div class="space-y-1">
+                      <button onclick="buyCardConsumable('${card.id}')" class="w-full py-1 text-[10px] font-black bg-amber-500 hover:bg-amber-400 text-slate-950 rounded transition">
+                        購買 1 張 (NT$ ${card.price})
+                      </button>
+                      <button onclick="toggleDeckActive('${card.id}')" class="w-full py-1 text-[10px] font-bold rounded transition ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
+                        ${isActive ? '已出戰' : '選入出戰'}
+                      </button>
+                    </div>
+                  ` : `
+                    <div class="text-[10px] text-rose-400 font-bold text-center bg-slate-950/60 py-1 rounded">
+                      需於科技樹研發解鎖
+                    </div>
+                  `}
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function buyCardConsumable(cardId) {
+      const card = gameState.cardPool.find(c => c.id === cardId);
+      if (!card) return;
+
+      if (gameState.coins < card.price) {
+        showToast('資金 (NT$) 不足，無法購買資材卡牌！', 'fa-triangle-exclamation');
+        return;
+      }
+
+      gameState.coins -= card.price;
+      gameState.cardInventory[cardId] = (gameState.cardInventory[cardId] || 0) + 1;
+      showToast(`成功購買 1 張【${card.name}】！`, 'fa-cart-shopping');
+      renderDeckView();
+      updateHUD();
+    }
+
+    function toggleDeckActive(cardId) {
+      const idx = gameState.activeDeckIds.indexOf(cardId);
+      const cap = getDeckCapacity();
+
+      if (idx > -1) {
+        if (gameState.activeDeckIds.length <= 1) {
+          showToast('出戰牌組至少需保留 1 種卡牌！', 'fa-triangle-exclamation');
+          return;
+        }
+        gameState.activeDeckIds.splice(idx, 1);
+      } else {
+        if (gameState.activeDeckIds.length >= cap) {
+          showToast(`已達當前等級攜帶上限 (${cap} 種)！提升等級可解鎖更多攜帶數。`, 'fa-triangle-exclamation');
+          return;
+        }
+        gameState.activeDeckIds.push(cardId);
+      }
+      renderDeckView();
+      updateHUD();
+    }
+
+    /* =========================================================================
+       9. VIEW 3: SKILL TREE
+       ========================================================================= */
+
+    function renderSkillsView() {
+      const view = document.getElementById('main-view');
+
+      view.innerHTML = `
+        <div class="flex-1 flex flex-col p-5 max-w-4xl mx-auto w-full overflow-y-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-lg font-black text-cyan-400 flex items-center gap-2">
+                <i class="fa-solid fa-user-ninja"></i> 玩家天賦技能樹
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">每提升 1 級獲得 <b>5 點天賦點數</b>。</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-cyan-500/40 px-3 py-1 rounded-xl text-cyan-300 font-bold">
+              剩餘天賦點數: ${gameState.skillPoints}
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            ${gameState.skillTree.map(sk => `
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-lg">
+                <div>
+                  <h4 class="font-bold text-sm text-slate-100 flex items-center gap-2">
+                    ${sk.name}
+                    <span class="text-xs text-cyan-400 font-normal">(Lv.${sk.level}/${sk.maxLevel})</span>
+                  </h4>
+                  <p class="text-xs text-slate-400 mt-0.5">${sk.desc}</p>
+                </div>
+                <button onclick="upgradeSkill('${sk.id}')" ${gameState.skillPoints < sk.cost || sk.level >= sk.maxLevel ? 'disabled' : ''}
+                  class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase transition ${sk.level >= sk.maxLevel ? 'bg-slate-800 text-slate-500' : 'bg-cyan-600 hover:bg-cyan-500 text-slate-950 disabled:opacity-40'}">
+                  ${sk.level >= sk.maxLevel ? '已滿級' : `升級 (${sk.cost} 點)`}
+                </button>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function upgradeSkill(skillId) {
+      const sk = gameState.skillTree.find(s => s.id === skillId);
+      if (!sk || gameState.skillPoints < sk.cost || sk.level >= sk.maxLevel) return;
+
+      gameState.skillPoints -= sk.cost;
+      sk.level += 1;
+      recalculateStats();
+      showToast(`升級成功：${sk.name}！`, 'fa-circle-check');
+      renderSkillsView();
+    }
+
+    /* =========================================================================
+       10. VIEW 4: TECH TREE
+       ========================================================================= */
+
+    function renderTechView() {
+      const view = document.getElementById('main-view');
+
+      view.innerHTML = `
+        <div class="flex-1 flex flex-col p-5 max-w-4xl mx-auto w-full overflow-y-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-lg font-black text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-diagram-project"></i> 永續科技研發樹
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">投入資金 (NT$) 研發永續技術，解鎖強效資材卡牌與碳權認證。</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-emerald-500/40 px-3 py-1 rounded-xl text-emerald-300 font-bold">
+              資金: NT$ ${gameState.coins.toLocaleString()}
+            </div>
+          </div>
+
+          <div class="space-y-3">
+            ${gameState.techTree.map(t => {
+              const reqMet = !t.req || gameState.techTree.find(x => x.id === t.req && x.unlocked);
+              return `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-lg">
+                  <div>
+                    <h4 class="font-bold text-xs text-emerald-400">${t.name}</h4>
+                    <p class="text-[11px] text-slate-400 mt-0.5">${t.desc}</p>
+                  </div>
+                  <button onclick="unlockTech('${t.id}')" ${t.unlocked || gameState.coins < t.cost || !reqMet ? 'disabled' : ''}
+                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase transition ${t.unlocked ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-40'}">
+                    ${t.unlocked ? '已研發' : `研發 (NT$ ${t.cost.toLocaleString()})`}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function unlockTech(techId) {
+      const t = gameState.techTree.find(x => x.id === techId);
+      if (!t || gameState.coins < t.cost) return;
+
+      gameState.coins -= t.cost;
+      t.unlocked = true;
+      if (t.apply) t.apply();
+
+      gameState.cardPool.forEach(card => {
+        if (card.techReq === techId) card.unlocked = true;
+      });
+
+      showToast(`研發成功：${t.name}！`, 'fa-microchip');
+      renderTechView();
+      updateHUD();
+    }
+
+    /* =========================================================================
+       11. VIEW 5: EQUIPMENT & GEAR SHOP
+       ========================================================================= */
+
+    function renderShopView() {
+      const view = document.getElementById('main-view');
+
+      view.innerHTML = `
+        <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-lg font-black text-amber-400 flex items-center gap-2">
+                <i class="fa-solid fa-shirt"></i> 裝備穿戴與資材商店
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">【頭部】、【身體】、【手部】、【腳部】四部位專業裝備。</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-amber-500/40 px-3 py-1 rounded-xl text-amber-300 font-bold">
+              資金: NT$ ${gameState.coins.toLocaleString()}
+            </div>
+          </div>
+
+          <!-- Current Gear -->
+          <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">當前穿戴裝備</h3>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+              ${['head', 'body', 'hands', 'feet'].map(slot => {
+                const item = gameState.equipment[slot];
+                const slotName = { head: '頭部', body: '身體', hands: '手部', feet: '腳部' }[slot];
+                return `
+                  <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex flex-col justify-between">
+                    <span class="text-[9px] uppercase font-bold text-slate-500">${slotName}</span>
+                    <span class="font-bold ${item ? 'text-emerald-400' : 'text-slate-600'} mt-1 truncate">${item ? item.name : '未裝備'}</span>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Gear Store -->
+          <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">可購買裝備</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            ${BASE_EQUIPMENT.map(item => {
+              const isEquipped = gameState.equipment[item.slot]?.name === item.name;
+              const levelMet = gameState.level >= item.minLevel;
+              const canAfford = gameState.coins >= item.price;
+
+              return `
+                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h4 class="font-bold text-xs text-slate-100">${item.name}</h4>
+                      <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 font-bold">Lv.${item.minLevel}</span>
+                    </div>
+                    <p class="text-[11px] text-emerald-400 font-bold mt-0.5">${item.desc}</p>
+                    <div class="text-xs text-amber-400 font-bold mt-1">NT$ ${item.price.toLocaleString()}</div>
+                  </div>
+                  <button onclick="buyAndEquipGear('${item.id}')" ${isEquipped || !levelMet || !canAfford ? 'disabled' : ''}
+                    class="px-3 py-1.5 rounded-xl font-bold text-xs uppercase transition ${isEquipped ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-amber-500 hover:bg-amber-400 text-slate-950 disabled:opacity-40'}">
+                    ${isEquipped ? '裝備中' : '購買穿戴'}
+                  </button>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function buyAndEquipGear(gearId) {
+      const item = BASE_EQUIPMENT.find(g => g.id === gearId);
+      if (!item || gameState.coins < item.price || gameState.level < item.minLevel) return;
+
+      gameState.coins -= item.price;
+      gameState.equipment[item.slot] = item;
+      recalculateStats();
+      showToast(`成功購買並穿戴：${item.name}！`, 'fa-shield-halved');
+      renderShopView();
+    }
+
+    /* =========================================================================
+       12. VIEW 6: CARBON CREDIT MARKET & ESG TRADING (REAL STANDARD NT$)
+       ========================================================================= */
+
+    function renderCarbonView() {
+      const view = document.getElementById('main-view');
+      const bonus = getPlayerBonus();
+      const isTechEsgUnlocked = gameState.techTree.find(t => t.id === 'tech_esg_project')?.unlocked;
+
+      // Carbon Credit Trading Standards (Taiwan & International Carbon Market standard NT$ 800 - 1,500 / tCO2e)
+      let baseCarbonPricePerTon = isTechEsgUnlocked ? 1500 : 900;
+      const actualCarbonPricePerTon = Math.floor(baseCarbonPricePerTon * bonus.tradeBonus);
+
+      // Vermicompost direct sale price: NT$ 20 / kg
+      const vermicompostPricePerKg = Math.floor(20 * bonus.tradeBonus);
+
+      view.innerHTML = `
+        <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <div>
+              <h2 class="text-lg font-black text-emerald-400 flex items-center gap-2">
+                <i class="fa-solid fa-chart-line"></i> 碳權交易所與 ESG 專案
+              </h2>
+              <p class="text-xs text-slate-400 mt-0.5">對齊台灣碳費與國際碳權交易標準 (NT$ 800 - 1,500 / tCO2e)。1 kg 有機質可轉換約 1.83 kg CO2e 碳匯。</p>
+            </div>
+            <div class="text-xs bg-slate-900 border border-emerald-500/40 px-3 py-1 rounded-xl text-emerald-300 font-bold">
+              蚓糞庫存: ${gameState.vermicompostKg.toFixed(1)} Kg
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             
-            // Composting Physics
-            physics: {
-                temp: 35.0,        // °C
-                moisture: 60.0,    // %
-                ph: 7.0,           // pH
-                cnRatio: 25.0,     // Carbon to Nitrogen ratio
-                aeration: 50.0,    // %
-                odorPpm: 12.0,     // Odor/Flies PPM
-                wasteStock: 20.0,  // Organic waste stock kg
-                castings: 0.0      // Vermicompost harvested kg
-            },
-
-            // Earthworm Ecology
-            worms: {
-                count: 10000,
-                maxCapacity: 50000,
-                biomassKg: 5.0,
-                digestRatePerSec: 0.25
-            },
-
-            // Tournament Timing
-            timerSeconds: 600, // 10 mins
-            timerInterval: null,
-            physicsInterval: null,
-            isGameRunning: false,
-
-            // Fines
-            totalFinesNTD: 0,
-
-            // Cards & Deck
-            handCards: [],
-            shopCategoryFilter: 'all',
-
-            // Equipments (Head, Body, Hands, Feet)
-            gear: {
-                head: null,
-                body: null,
-                hands: null,
-                feet: null
-            },
-
-            // Competitors / AI Players
-            competitors: [],
-
-            // Talents & Tech Trees
-            talents: {},
-            techs: {}
-        };
-
-        /* ==========================================================================
-           2. CARDS & SHOP DATABASE (30 EXPENDBLE CARDS)
-           ========================================================================== */
-        const CARDS_DB = [
-            // High Carbon Cards (Raise C/N Ratio, lower odor)
-            { id: 'c1', name: '椰纖碎塊包', type: 'carbon', cost: 300, cnAdd: 8, moistureSub: 3, odorSub: 5, desc: '大量高碳纖維，可迅速吸濕升 C/N 比' },
-            { id: 'c2', name: '菇包廢木屑', type: 'carbon', cost: 250, cnAdd: 6, moistureSub: 2, odorSub: 3, desc: '質地疏鬆，幫助透氣並調高碳氮比' },
-            { id: 'c3', name: '乾燥瓦楞紙粉', type: 'carbon', cost: 150, cnAdd: 4, moistureSub: 5, odorSub: 2, desc: '回收再利用高碳資材，大幅吸收過多水分' },
-            { id: 'c4', name: '稻殼稻草剪段', type: 'carbon', cost: 200, cnAdd: 5, aerationAdd: 10, desc: '增加堆體孔隙率與通氣量' },
-            { id: 'c5', name: '竹炭多孔微粒', type: 'carbon', cost: 600, cnAdd: 10, odorSub: 15, desc: '強效吸附異味分子，提升蚯蚓微環境' },
-            { id: 'c6', name: '精細落葉堆肥', type: 'carbon', cost: 180, cnAdd: 4, phAdd: 0.2, desc: '自然溫和的腐殖質來源' },
-
-            // High Nitrogen Cards (Accelerate composting, increase waste stock)
-            { id: 'n1', name: '果菜市場廚餘包', type: 'nitrogen', cost: 100, wasteAdd: 15, cnSub: 4, odorAdd: 8, desc: '補充大量高氮有機質，但易生臭味' },
-            { id: 'n2', name: '豆渣豆餅濃縮資材', type: 'nitrogen', cost: 200, wasteAdd: 20, cnSub: 5, tempAdd: 4, desc: '快速引發升溫，促進微發酵' },
-            { id: 'n3', name: '咖啡渣消臭料', type: 'nitrogen', cost: 150, wasteAdd: 10, odorSub: 4, phSub: 0.3, desc: '微酸性高氮料，帶有天然香氣' },
-            { id: 'n4', name: '茶粕高氮顆粒', type: 'nitrogen', cost: 180, wasteAdd: 12, cnSub: 3, desc: '質地均勻的良好有機廢棄物' },
-            { id: 'n5', name: '酒糟發酵物', type: 'nitrogen', cost: 220, wasteAdd: 18, tempAdd: 5, desc: '快速升溫資材，需注意過熱' },
-
-            // Inoculants & Equipment Cards
-            { id: 't1', name: 'EM好氧菌高效粉末', type: 'tech', cost: 500, tempAdd: 6, odorSub: 10, digestBoost: 0.2, desc: '強效分解菌，加速廢棄物轉化' },
-            { id: 't2', name: '鈣鎂石灰調酸劑', type: 'tech', cost: 300, phAdd: 0.8, desc: '快速酸鹼中和，保護蚯蚓免於酸中毒' },
-            { id: 't3', name: '霧化自動噴水槍', type: 'tech', cost: 400, moistureAdd: 15, desc: '精準補充堆肥水分' },
-            { id: 't4', name: '滾筒翻堆通氣棒', type: 'tech', cost: 450, aerationAdd: 25, tempSub: 3, desc: '物理翻堆，提高 25% 通氣量' },
-            { id: 't5', name: '太平二號幼蟲補給', type: 'tech', cost: 800, wormAdd: 3000, desc: '直接增加 3,000 條健康蚯蚓族群' },
-
-            // Advanced Equipment Gear Cards (Purchase to equip)
-            { id: 'g1', name: '太陽能透氣安全帽', type: 'gear', slot: 'head', reqLvl: 1, cost: 1200, desc: '【頭部裝備】減少 10% 異味累積' },
-            { id: 'g2', name: 'ESG 酷客防護連身衣', type: 'gear', slot: 'body', reqLvl: 1, cost: 2000, desc: '【身體裝備】增加 15% 蚯蚓繁殖率' },
-            { id: 'g3', name: '生物奈米抓握手套', type: 'gear', slot: 'hands', reqLvl: 5, cost: 3500, desc: '【手部裝備】採收蚓糞收益 +20%' },
-            { id: 'g4', name: '低碳循環工安靴', type: 'gear', slot: 'feet', reqLvl: 5, cost: 2800, desc: '【腳部裝備】免疫環保局 12,000 元級初罰' }
-        ];
-
-        /* ==========================================================================
-           3. TALENT & TECH TREE DATA
-           ========================================================================== */
-        const TALENTS_DB = [
-            { id: 'tal1', name: '蚯蚓親和力', levelReq: 1, cost: 1, desc: '蚯蚓逃亡率降低 30%' },
-            { id: 'tal2', name: '翻堆大師', levelReq: 1, cost: 1, desc: '通氣量自然流失速度減半' },
-            { id: 'tal3', name: '臭味抑制專家', levelReq: 2, cost: 2, desc: '異味 PPM 觸發開罰門檻調高至 65 PPM' },
-            { id: 'tal4', name: '碳匯談判專家', levelReq: 3, cost: 2, desc: '土壤碳權銷售價格提升 25%' },
-            { id: 'tal5', name: '極限消化術', levelReq: 4, cost: 3, desc: '蚯蚓解化廢棄物速率提升 50%' }
-        ];
-
-        const TECH_DB = [
-            { id: 'tech1', name: '自動化 C/N 感測器', costPts: 2, desc: '當 C/N 低於 20 時自動警示' },
-            { id: 'tech2', name: '生物濾床除臭系統', costPts: 3, desc: '每秒自動降低 0.5 PPM 異味' },
-            { id: 'tech3', name: '溫控自動散熱風扇', costPts: 4, desc: '堆體溫度上限鎖定於 38°C 防止高熱殺死蚯蚓' },
-            { id: 'tech4', name: '高純度蚓糞篩分機', costPts: 5, desc: '採收蚓糞產量提升 30%' }
-        ];
-
-        /* ==========================================================================
-           4. INITIALIZATION & ROOM JOINING
-           ========================================================================== */
-        function selectRoomMode(mode) {
-            const container = document.getElementById('room-input-container');
-            const btnCreate = document.getElementById('btn-mode-create');
-            const btnJoin = document.getElementById('btn-mode-join');
-
-            if (mode === 'create') {
-                container.classList.add('hidden');
-                btnCreate.className = "py-2.5 px-4 rounded-xl border border-cyber-neon bg-cyber-neon/20 text-cyber-neon font-semibold text-xs flex items-center justify-center gap-2";
-                btnJoin.className = "py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 font-semibold text-xs flex items-center justify-center gap-2";
-                GAME_STATE.roomId = String(Math.floor(Math.random() * 99) + 1).padStart(2, '0');
-            } else {
-                container.classList.remove('hidden');
-                btnJoin.className = "py-2.5 px-4 rounded-xl border border-cyber-neon bg-cyber-neon/20 text-cyber-neon font-semibold text-xs flex items-center justify-center gap-2";
-                btnCreate.className = "py-2.5 px-4 rounded-xl border border-slate-700 bg-slate-800/50 text-slate-400 font-semibold text-xs flex items-center justify-center gap-2";
-            }
-        }
-
-        function startLobbyJoin() {
-            const nameInput = document.getElementById('input-player-name').value.trim();
-            const roomInput = document.getElementById('input-room-id').value;
-
-            if (nameInput) GAME_STATE.playerName = nameInput;
-            if (roomInput) GAME_STATE.roomId = String(roomInput).padStart(2, '0');
-
-            document.getElementById('btn-start-game').disabled = true;
-            document.getElementById('btn-start-game').classList.add('opacity-50');
-            document.getElementById('lobby-waiting').classList.remove('hidden');
-
-            // Generate AI Competitors
-            GAME_STATE.competitors = [
-                { name: GAME_STATE.playerName + " (玩家)", esg: 0, isPlayer: true },
-                { name: "永續綠洲 AI", esg: 120, isPlayer: false },
-                { name: "循環戰士 AI", esg: 90, isPlayer: false },
-                { name: "碳中和極客 AI", esg: 150, isPlayer: false }
-            ];
-
-            // 1.5 seconds mock latency then start game
-            setTimeout(() => {
-                document.getElementById('screen-login').classList.add('hidden');
-                document.getElementById('screen-game').classList.remove('hidden');
-                
-                initGameUI();
-                startGameLoop();
-                showToast("賽事開始！10 分鐘限時 ESG 競賽正式展開。", "success");
-            }, 1500);
-        }
-
-        /* ==========================================================================
-           5. GAME LOOP & CORE PHYSICAL SIMULATION ENGINE
-           ========================================================================== */
-        function startGameLoop() {
-            GAME_STATE.isGameRunning = true;
-
-            // Give 3 default basic starting hand cards
-            GAME_STATE.handCards = [
-                { ...CARDS_DB[0] }, // 椰纖碎塊包
-                { ...CARDS_DB[6] }, // 果菜廚餘包
-                { ...CARDS_DB[11] } // EM好氧菌
-            ];
-
-            renderHandCards();
-            refreshShop();
-            renderTalentsAndTech();
-            renderGearSlots();
-
-            // 1 Second Ticking Loop
-            GAME_STATE.physicsInterval = setInterval(tickPhysics, 1000);
-
-            // Timer interval
-            GAME_STATE.timerInterval = setInterval(() => {
-                if (GAME_STATE.timerSeconds > 0) {
-                    GAME_STATE.timerSeconds--;
-                    updateTimerUI();
-                    
-                    // Periodic AI score increment
-                    if (GAME_STATE.timerSeconds % 5 === 0) {
-                        GAME_STATE.competitors.forEach(c => {
-                            if (!c.isPlayer) {
-                                c.esg += Math.floor(Math.random() * 8) + 2;
-                            }
-                        });
-                        renderCompetitorsUI();
-                    }
-                } else {
-                    endMatch();
-                }
-            }, 1000);
-        }
-
-        function tickPhysics() {
-            if (!GAME_STATE.isGameRunning) return;
-
-            const p = GAME_STATE.physics;
-            const w = GAME_STATE.worms;
-
-            // 1. C/N Odor Physics Logic:
-            // CRITICAL LOGIC: If C/N >= 30:1, Odor PPM drops naturally. Else it rises if moisture/temp is high.
-            if (p.cnRatio >= 30.0) {
-                p.odorPpm = Math.max(0, p.odorPpm - 0.8);
-            } else {
-                p.odorPpm += (30.0 - p.cnRatio) * 0.15 + (p.wasteStock * 0.05);
-            }
-
-            // Tech 2 Auto Bio-filter
-            if (GAME_STATE.techs['tech2']) {
-                p.odorPpm = Math.max(0, p.odorPpm - 0.5);
-            }
-
-            // Aeration natural loss
-            p.aeration = Math.max(10, p.aeration - 0.3);
-
-            // Moisture natural loss due to temp
-            p.moisture = Math.max(20, p.moisture - 0.1 - (p.temp * 0.005));
-
-            // 2. Earthworm Population Dynamics:
-            // Ideal ranges: Temp (20-35), Moisture (50-70), pH (6.5-7.5), Aeration (>30)
-            const tempOk = p.temp >= 15 && p.temp <= 38;
-            const moistureOk = p.moisture >= 45 && p.moisture <= 75;
-            const phOk = p.ph >= 6.0 && p.ph <= 8.0;
-
-            if (tempOk && moistureOk && phOk) {
-                // Growth
-                if (w.count < w.maxCapacity) {
-                    w.count += Math.floor(w.count * 0.002);
-                }
-            } else {
-                // Stress / Death / Escape
-                const deathRate = GAME_STATE.talents['tal1'] ? 0.003 : 0.008;
-                w.count = Math.max(500, Math.floor(w.count * (1 - deathRate)));
-            }
-
-            w.biomassKg = (w.count / 2000).toFixed(2); // ~2000 worms per kg
-
-            // 3. Digest Waste -> Castings
-            if (p.wasteStock > 0 && w.count > 0) {
-                let digestSpeed = (w.biomassKg * 0.1); // kg per sec
-                if (GAME_STATE.talents['tal5']) digestSpeed *= 1.5;
-
-                const actualDigest = Math.min(p.wasteStock, digestSpeed);
-                p.wasteStock -= actualDigest;
-                p.castings += actualDigest * 0.85; // 85% conversion to vermicompost
-                GAME_STATE.esgScore += Math.floor(actualDigest * 3);
-            }
-
-            // 4. EPA Legal Fine Check:
-            const epaThreshold = GAME_STATE.talents['tal3'] ? 65 : 50;
-            const alertBox = document.getElementById('epa-fine-alert');
-            const badge = document.getElementById('epa-status-badge');
-
-            if (p.odorPpm >= epaThreshold) {
-                alertBox.classList.remove('hidden');
-                badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-rose-950 text-rose-400 border border-rose-800 animate-pulse";
-                badge.innerText = "環保局檢測：違規告發中";
-
-                // 5% chance per second of receiving an official fine
-                if (Math.random() < 0.08) {
-                    issueEpaFine();
-                }
-            } else {
-                alertBox.classList.add('hidden');
-                badge.className = "px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-400 border border-emerald-800";
-                badge.innerText = "環保局檢測：合規";
-            }
-
-            // Update Player ESG in competitor state
-            const playerComp = GAME_STATE.competitors.find(c => c.isPlayer);
-            if (playerComp) playerComp.esg = GAME_STATE.esgScore;
-
-            // Level Up Check
-            if (GAME_STATE.esgScore >= GAME_STATE.level * 200) {
-                GAME_STATE.level++;
-                GAME_STATE.talentPts += 5;
-                GAME_STATE.techPts += 2;
-                GAME_STATE.handLimit = Math.min(10, GAME_STATE.handLimit + 1);
-                showToast(`🎉 升級！恭喜到達 Lv.${GAME_STATE.level}！手牌上限提升至 ${GAME_STATE.handLimit}`, 'success');
-            }
-
-            updateDashboardUI();
-        }
-
-        /* ==========================================================================
-           6. TAIWAN EPA LEGAL SYSTEM (開罰系統)
-           ========================================================================== */
-        function issueEpaFine() {
-            // Check if foot gear immunizes初罰
-            if (GAME_STATE.gear.feet && GAME_STATE.totalFinesNTD === 0) {
-                showToast("🛡️ 環保局檢查：【低碳循環工安靴】發揮效果，免疫本次初罰！", "info");
-                addLog("[環保局] 稽查發現臭味過高，但防護設施合格，豁免開罰。");
-                return;
-            }
-
-            const fineAmount = Math.floor(Math.random() * 30000) + 12000; // NT$ 12,000 ~ 42,000
-            GAME_STATE.money = Math.max(0, GAME_STATE.money - fineAmount);
-            GAME_STATE.esgScore = Math.max(0, GAME_STATE.esgScore - 100);
-            GAME_STATE.totalFinesNTD += fineAmount;
-
-            addLog(`<span class="text-rose-400">[開罰通知] 異味(PPM)持續超標！環保局開立罰單 NT$ ${fineAmount.toLocaleString()} 元，扣除 100 ESG 積分！</span>`);
-            showToast(`⚠️ 環保局開罰 NT$ ${fineAmount.toLocaleString()}！請加速調高 C/N 比！`, "error");
-        }
-
-        /* ==========================================================================
-           7. CARDS & SHOP INTERACTIONS
-           ========================================================================== */
-        function renderHandCards() {
-            const container = document.getElementById('hand-cards-container');
-            container.innerHTML = '';
-
-            document.getElementById('val-hand-limit').innerText = GAME_STATE.handLimit;
-
-            if (GAME_STATE.handCards.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-8 text-slate-500 text-xs">目前沒有手牌，請至商店購買補充資材</div>`;
-                return;
-            }
-
-            GAME_STATE.handCards.forEach((card, idx) => {
-                const cardEl = document.createElement('div');
-                cardEl.className = "bg-slate-900/90 border border-slate-700/80 hover:border-cyber-neon p-3 rounded-xl flex flex-col justify-between transition-all transform hover:-translate-y-1 shadow-md";
-                
-                let typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-800 text-slate-300">一般</span>`;
-                if (card.type === 'carbon') typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-purple-950 text-purple-300 border border-purple-800">高碳</span>`;
-                if (card.type === 'nitrogen') typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-800">高氮</span>`;
-                if (card.type === 'tech') typeBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-teal-950 text-teal-300 border border-teal-800">菌劑</span>`;
-
-                cardEl.innerHTML = `
-                    <div>
-                        <div class="flex justify-between items-start mb-1.5">
-                            <h4 class="font-bold text-white text-xs">${card.name}</h4>
-                            ${typeBadge}
-                        </div>
-                        <p class="text-[10px] text-slate-400 mb-2 leading-snug">${card.desc}</p>
-                    </div>
-                    <button onclick="playCard(${idx})" class="w-full py-1.5 bg-eco-600 hover:bg-eco-500 text-white font-bold text-xs rounded-lg transition-all shadow">
-                        <i class="fa-solid fa-bolt"></i> 打出卡牌
-                    </button>
-                `;
-                container.appendChild(cardEl);
-            });
-        }
-
-        function playCard(index) {
-            const card = GAME_STATE.handCards[index];
-            if (!card) return;
-
-            const p = GAME_STATE.physics;
-            const w = GAME_STATE.worms;
-
-            // Apply card physical effects
-            if (card.cnAdd) p.cnRatio += card.cnAdd;
-            if (card.cnSub) p.cnRatio = Math.max(5, p.cnRatio - card.cnSub);
-            if (card.moistureAdd) p.moisture = Math.min(100, p.moisture + card.moistureAdd);
-            if (card.moistureSub) p.moisture = Math.max(10, p.moisture - card.moistureSub);
-            if (card.aerationAdd) p.aeration = Math.min(100, p.aeration + card.aerationAdd);
-            if (card.odorSub) p.odorPpm = Math.max(0, p.odorPpm - card.odorSub);
-            if (card.odorAdd) p.odorPpm += card.odorAdd;
-            if (card.wasteAdd) p.wasteStock += card.wasteAdd;
-            if (card.phAdd) p.ph = Math.min(10, p.ph + card.phAdd);
-            if (card.phSub) p.ph = Math.max(4, p.ph - card.phSub);
-            if (card.wormAdd) w.count = Math.min(w.maxCapacity, w.count + card.wormAdd);
-
-            // Consume card from hand
-            GAME_STATE.handCards.splice(index, 1);
-            renderHandCards();
-
-            addLog(`[卡牌] 打出了【${card.name}】，堆體物性發生變化！`);
-            showToast(`已使用【${card.name}】`, "success");
-            updateDashboardUI();
-        }
-
-        function refreshShop() {
-            const container = document.getElementById('shop-cards-container');
-            container.innerHTML = '';
-
-            let filtered = CARDS_DB;
-            if (GAME_STATE.shopCategoryFilter !== 'all') {
-                filtered = CARDS_DB.filter(c => c.type === GAME_STATE.shopCategoryFilter);
-            }
-
-            filtered.forEach(card => {
-                const shopEl = document.createElement('div');
-                shopEl.className = "bg-slate-900/60 border border-slate-800 p-2.5 rounded-xl flex justify-between items-center text-xs hover:border-slate-700 transition-all";
-                
-                shopEl.innerHTML = `
-                    <div class="space-y-0.5">
-                        <div class="font-bold text-white flex items-center gap-1.5">
-                            ${card.name}
-                            <span class="text-[10px] text-emerald-400 font-mono">NT$ ${card.cost}</span>
-                        </div>
-                        <p class="text-[10px] text-slate-400">${card.desc}</p>
-                    </div>
-                    <button onclick="buyCard('${card.id}')" class="px-3 py-1.5 bg-slate-800 hover:bg-cyber-neon/20 hover:text-cyber-neon border border-slate-700 hover:border-cyber-neon text-slate-200 font-bold rounded-lg transition-all whitespace-nowrap ml-2">
-                        購買
-                    </button>
-                `;
-                container.appendChild(shopEl);
-            });
-        }
-
-        function filterShop(type) {
-            GAME_STATE.shopCategoryFilter = type;
-            refreshShop();
-        }
-
-        function buyCard(cardId) {
-            const card = CARDS_DB.find(c => c.id === cardId);
-            if (!card) return;
-
-            if (GAME_STATE.money < card.cost) {
-                showToast("❌ 資金 (NT$) 不足，無法購買！", "error");
-                return;
-            }
-
-            // Gear special purchase check
-            if (card.type === 'gear') {
-                if (GAME_STATE.level < card.reqLvl) {
-                    showToast(`❌ 等級不足！裝備需等級 Lv.${card.reqLvl}`, "error");
-                    return;
-                }
-                GAME_STATE.money -= card.cost;
-                GAME_STATE.gear[card.slot] = card;
-                renderGearSlots();
-                showToast(`🛡️ 成功裝備【${card.name}】！`, "success");
-                addLog(`[裝備] 購買並穿戴了 ${card.name}`);
-                updateDashboardUI();
-                return;
-            }
-
-            // Hand Limit check for normal cards
-            if (GAME_STATE.handCards.length >= GAME_STATE.handLimit) {
-                showToast(`❌ 手牌容量已滿 (${GAME_STATE.handLimit}/${GAME_STATE.handLimit})！請先打出卡牌。`, "error");
-                return;
-            }
-
-            GAME_STATE.money -= card.cost;
-            GAME_STATE.handCards.push({ ...card });
-            renderHandCards();
-            showToast(`已購買【${card.name}】並存入庫存`, "success");
-            updateDashboardUI();
-        }
-
-        function drawHandCards() {
-            renderHandCards();
-            showToast("手牌重新整理完成", "info");
-        }
-
-        /* ==========================================================================
-           8. HARVEST & CARBON CREDIT ECONOMY
-           ========================================================================== */
-        function harvestCastings(mode) {
-            const p = GAME_STATE.physics;
-            if (p.castings < 1.0) {
-                showToast("⚠️ 產出的蚓糞不足 1.0 kg，無法採收！", "error");
-                return;
-            }
-
-            const amount = p.castings;
-            p.castings = 0;
-
-            if (mode === 'sell') {
-                // Sell for NTD (NT$ 80 per kg)
-                let bonus = 1.0;
-                if (GAME_STATE.gear.hands) bonus = 1.2; // Gear hands bonus
-                const revenue = Math.floor(amount * 80 * bonus);
-                GAME_STATE.money += revenue;
-                showToast(`💰 成功販售 ${amount.toFixed(1)} kg 蚓糞，獲利 NT$ ${revenue.toLocaleString()}！`, "success");
-                addLog(`[收益] 販售蚓糞獲得 NT$ ${revenue.toLocaleString()} 元`);
-            } else if (mode === 'carbon') {
-                // Sequestrate for ESG & Carbon Offsets
-                let priceMult = GAME_STATE.talents['tal4'] ? 1.25 : 1.0;
-                const carbonOffset = (amount * 0.002).toFixed(3); // tCO2e
-                const esgEarned = Math.floor(amount * 25 * priceMult);
-                GAME_STATE.esgScore += esgEarned;
-                showToast(`🌱 封存 ${amount.toFixed(1)} kg 蚓糞，抵換 ${carbonOffset} tCO2e 碳權，+${esgEarned} ESG 分！`, "success");
-                addLog(`[碳權] 封存土壤碳匯，獲得 +${esgEarned} ESG 影響力積分`);
-            }
-
-            updateDashboardUI();
-        }
-
-        /* ==========================================================================
-           9. TREES & GEAR UI RENDERERS
-           ========================================================================== */
-        function renderTalentsAndTech() {
-            // Render Talents
-            const talentBox = document.getElementById('tree-view-talent');
-            talentBox.innerHTML = '';
-            TALENTS_DB.forEach(t => {
-                const unlocked = GAME_STATE.talents[t.id];
-                talentBox.innerHTML += `
-                    <div class="bg-slate-900 border ${unlocked ? 'border-cyber-gold bg-amber-950/20' : 'border-slate-800'} p-3 rounded-xl flex justify-between items-center">
-                        <div>
-                            <div class="font-bold text-white text-xs flex items-center gap-2">
-                                ${t.name}
-                                <span class="text-[10px] text-slate-400">門檻: Lv.${t.levelReq}</span>
-                            </div>
-                            <p class="text-[11px] text-slate-400 mt-1">${t.desc}</p>
-                        </div>
-                        <button onclick="unlockTalent('${t.id}')" ${unlocked ? 'disabled' : ''} class="px-3 py-1 bg-cyber-gold/20 hover:bg-cyber-gold/30 border border-cyber-gold/50 text-cyber-gold font-bold text-xs rounded-lg ${unlocked ? 'opacity-40 cursor-not-allowed' : ''}">
-                            ${unlocked ? '已解鎖' : `解鎖 (${t.cost}點)`}
-                        </button>
-                    </div>
-                `;
-            });
-
-            // Render Tech
-            const techBox = document.getElementById('tree-view-tech');
-            techBox.innerHTML = '';
-            TECH_DB.forEach(tc => {
-                const unlocked = GAME_STATE.techs[tc.id];
-                techBox.innerHTML += `
-                    <div class="bg-slate-900 border ${unlocked ? 'border-cyber-neon bg-teal-950/20' : 'border-slate-800'} p-3 rounded-xl flex justify-between items-center">
-                        <div>
-                            <div class="font-bold text-white text-xs">${tc.name}</div>
-                            <p class="text-[11px] text-slate-400 mt-1">${tc.desc}</p>
-                        </div>
-                        <button onclick="unlockTech('${tc.id}')" ${unlocked ? 'disabled' : ''} class="px-3 py-1 bg-cyber-neon/20 hover:bg-cyber-neon/30 border border-cyber-neon/50 text-cyber-neon font-bold text-xs rounded-lg ${unlocked ? 'opacity-40 cursor-not-allowed' : ''}">
-                            ${unlocked ? '已研發' : `研發 (${tc.costPts}點)`}
-                        </button>
-                    </div>
-                `;
-            });
-        }
-
-        function unlockTalent(id) {
-            const t = TALENTS_DB.find(item => item.id === id);
-            if (!t) return;
-
-            if (GAME_STATE.level < t.levelReq) {
-                showToast(`❌ 等級不足，需要 Lv.${t.levelReq}`, "error");
-                return;
-            }
-            if (GAME_STATE.talentPts < t.cost) {
-                showToast("❌ 技能點數不足！", "error");
-                return;
-            }
-
-            GAME_STATE.talentPts -= t.cost;
-            GAME_STATE.talents[id] = true;
-            renderTalentsAndTech();
-            updateDashboardUI();
-            showToast(`🎉 成功解鎖天賦【${t.name}】！`, "success");
-        }
-
-        function unlockTech(id) {
-            const tc = TECH_DB.find(item => item.id === id);
-            if (!tc) return;
-
-            if (GAME_STATE.techPts < tc.costPts) {
-                showToast("❌ 研發點數不足！", "error");
-                return;
-            }
-
-            GAME_STATE.techPts -= tc.costPts;
-            GAME_STATE.techs[id] = true;
-            renderTalentsAndTech();
-            updateDashboardUI();
-            showToast(`🔬 成功研發科技【${tc.name}】！`, "success");
-        }
-
-        function renderGearSlots() {
-            const container = document.getElementById('gear-slots-container');
-            container.innerHTML = '';
-
-            const slots = [
-                { key: 'head', name: '頭部裝備', icon: 'fa-hardhat' },
-                { key: 'body', name: '身體裝備', icon: 'fa-vest' },
-                { key: 'hands', name: '手部裝備', icon: 'fa-mitten' },
-                { key: 'feet', name: '腳部裝備', icon: 'fa-shoe-prints' }
-            ];
-
-            slots.forEach(s => {
-                const item = GAME_STATE.gear[s.key];
-                container.innerHTML += `
-                    <div class="bg-slate-900 border border-slate-800 p-3 rounded-xl flex items-center gap-3">
-                        <div class="p-2.5 rounded-lg bg-slate-800 text-cyber-gold text-xl">
-                            <i class="fa-solid ${s.icon}"></i>
-                        </div>
-                        <div>
-                            <span class="text-[10px] text-slate-400 block">${s.name}</span>
-                            <span class="font-bold text-xs text-white">${item ? item.name : '未穿戴裝備'}</span>
-                            <p class="text-[10px] text-emerald-400 mt-0.5">${item ? item.desc : '可在商店購買穿戴'}</p>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-
-        /* ==========================================================================
-           10. UI UPDATERS (SMART DOM NO-RELOAD)
-           ========================================================================== */
-        function updateDashboardUI() {
-            document.getElementById('display-player-name').innerText = GAME_STATE.playerName;
-            document.getElementById('display-room-tag').innerText = "房號 #" + GAME_STATE.roomId;
-            document.getElementById('display-player-level').innerText = `Lv.${GAME_STATE.level} 生態酷客`;
-            document.getElementById('display-tech-pts').innerText = GAME_STATE.techPts;
-            document.getElementById('display-talent-pts').innerText = GAME_STATE.talentPts;
-            document.getElementById('display-esg-score').innerText = GAME_STATE.esgScore.toLocaleString();
-            document.getElementById('display-money').innerText = "$" + GAME_STATE.money.toLocaleString();
-
-            const p = GAME_STATE.physics;
-            const w = GAME_STATE.worms;
-
-            document.getElementById('val-temp').innerText = p.temp.toFixed(1) + " °C";
-            document.getElementById('bar-temp').style.width = Math.min(100, (p.temp / 60) * 100) + "%";
-
-            document.getElementById('val-moisture').innerText = p.moisture.toFixed(1) + " %";
-            document.getElementById('bar-moisture').style.width = p.moisture + "%";
-
-            document.getElementById('val-ph').innerText = p.ph.toFixed(1);
-            document.getElementById('bar-ph').style.width = (p.ph / 14) * 100 + "%";
-
-            document.getElementById('val-cn').innerText = p.cnRatio.toFixed(1) + " : 1";
-            document.getElementById('bar-cn').style.width = Math.min(100, (p.cnRatio / 50) * 100) + "%";
-
-            document.getElementById('val-aeration').innerText = p.aeration.toFixed(1) + " %";
-            document.getElementById('bar-aeration').style.width = p.aeration + "%";
-
-            document.getElementById('val-odor').innerText = p.odorPpm.toFixed(1) + " PPM";
-            document.getElementById('bar-odor').style.width = Math.min(100, (p.odorPpm / 100) * 100) + "%";
-
-            document.getElementById('val-worm-count').innerText = `${w.count.toLocaleString()} / ${w.maxCapacity.toLocaleString()} 條`;
-            document.getElementById('val-worm-biomass').innerText = w.biomassKg + " kg";
-            document.getElementById('val-waste-stock').innerText = p.wasteStock.toFixed(1) + " kg";
-            document.getElementById('val-digest-rate').innerText = (w.biomassKg * 0.1).toFixed(2) + " kg/s";
-            document.getElementById('val-castings').innerText = p.castings.toFixed(1) + " kg";
-        }
-
-        function updateTimerUI() {
-            const mins = Math.floor(GAME_STATE.timerSeconds / 60);
-            const secs = GAME_STATE.timerSeconds % 60;
-            document.getElementById('display-match-timer').innerText = 
-                `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-        }
-
-        function renderCompetitorsUI() {
-            const container = document.getElementById('competitor-list-container');
-            container.innerHTML = '';
-
-            // Sort by ESG descending
-            const sorted = [...GAME_STATE.competitors].sort((a, b) => b.esg - a.esg);
-
-            sorted.forEach((comp, rank) => {
-                container.innerHTML += `
-                    <div class="flex items-center justify-between p-2 rounded-lg ${comp.isPlayer ? 'bg-cyber-neon/10 border border-cyber-neon/40' : 'bg-slate-900/60'} text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="font-bold text-slate-400 font-mono">#${rank + 1}</span>
-                            <span class="font-semibold text-white">${comp.name}</span>
-                        </div>
-                        <span class="font-mono font-bold text-cyber-gold">${comp.esg.toLocaleString()} PTS</span>
-                    </div>
-                `;
-            });
-        }
-
-        /* ==========================================================================
-           11. MODALS & UTILITY FUNCTIONS
-           ========================================================================== */
-        function openModal(id) {
-            document.getElementById(id).classList.remove('hidden');
-            if (id === 'modal-leaderboard') {
-                renderFinalLeaderboard();
-            }
-        }
-
-        function closeModal(id) {
-            document.getElementById(id).classList.add('hidden');
-        }
-
-        function switchTreeTab(tab) {
-            const talBtn = document.getElementById('tab-btn-talent');
-            const techBtn = document.getElementById('tab-btn-tech');
-            const talView = document.getElementById('tree-view-talent');
-            const techView = document.getElementById('tree-view-tech');
-
-            if (tab === 'talent') {
-                talBtn.className = "text-sm font-bold text-cyber-gold border-b-2 border-cyber-gold pb-1";
-                techBtn.className = "text-sm font-bold text-slate-400 hover:text-white pb-1";
-                talView.classList.remove('hidden');
-                techView.classList.add('hidden');
-            } else {
-                techBtn.className = "text-sm font-bold text-cyber-neon border-b-2 border-cyber-neon pb-1";
-                talBtn.className = "text-sm font-bold text-slate-400 hover:text-white pb-1";
-                techView.classList.remove('hidden');
-                talView.classList.add('hidden');
-            }
-        }
-
-        function addLog(htmlText) {
-            const logBox = document.getElementById('game-logs');
-            const p = document.createElement('p');
-            const now = new Date();
-            const timeStr = `${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
-            p.innerHTML = `<span class="text-slate-500">[${timeStr}]</span> ${htmlText}`;
-            logBox.prepend(p);
-        }
-
-        function showToast(message, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            
-            let bg = "bg-slate-900 border-slate-700 text-slate-200";
-            if (type === "success") bg = "bg-emerald-950 border-emerald-600 text-emerald-200";
-            if (type === "error") bg = "bg-rose-950 border-rose-600 text-rose-200";
-
-            toast.className = `p-3 rounded-xl border text-xs font-semibold shadow-xl transition-all duration-300 pointer-events-auto flex items-center justify-between ${bg}`;
-            toast.innerHTML = `<span>${message}</span>`;
-
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3500);
-        }
-
-        function endMatch() {
-            clearInterval(GAME_STATE.physicsInterval);
-            clearInterval(GAME_STATE.timerInterval);
-            GAME_STATE.isGameRunning = false;
-
-            openModal('modal-leaderboard');
-            showToast("🏆 10 分鐘競賽結束！即刻發放 ESG 冠軍榮譽！", "success");
-        }
-
-        function renderFinalLeaderboard() {
-            const container = document.getElementById('final-leaderboard-list');
-            container.innerHTML = '';
-            
-            const sorted = [...GAME_STATE.competitors].sort((a, b) => b.esg - a.esg);
-
-            sorted.forEach((comp, idx) => {
-                let badge = "";
-                if (idx === 0) badge = "🥇 冠軍";
-                if (idx === 1) badge = "🥈 亞軍";
-                if (idx === 2) badge = "🥉 季軍";
-
-                container.innerHTML += `
-                    <div class="p-3 rounded-xl bg-slate-900 border ${comp.isPlayer ? 'border-cyber-gold' : 'border-slate-800'} flex justify-between items-center text-xs">
-                        <div>
-                            <span class="font-bold text-cyber-gold mr-2">${badge || '#' + (idx+1)}</span>
-                            <span class="font-bold text-white">${comp.name}</span>
-                        </div>
-                        <span class="font-mono font-bold text-emerald-400 text-sm">${comp.esg.toLocaleString()} ESG 積分</span>
-                    </div>
-                `;
-            });
-        }
-
-        function initGameUI() {
-            updateDashboardUI();
-            renderCompetitorsUI();
-        }
-    </script>
+            <!-- Soil Carbon Sequestration -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-xl">
+              <div>
+                <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                  <i class="fa-solid fa-seedling text-emerald-400"></i> 1. 蚓糞封存轉化碳匯
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-1">每 100 Kg 蚓糞投入土壤可固定約 0.183 tCO2e 土壤碳匯。</p>
+              </div>
+
+              <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
+                <div class="text-xl font-black text-emerald-400">${gameState.carbonSeqTon.toFixed(3)} <span class="text-xs text-slate-400">tCO2e</span></div>
+                <div class="text-[9px] text-slate-500 mt-0.5">目前累積碳匯總額</div>
+              </div>
+
+              <button onclick="convertVermicompostToCarbon()" ${gameState.vermicompostKg < 50 ? 'disabled' : ''}
+                class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase transition disabled:opacity-40">
+                封存 50 Kg 蚓糞為 0.091 tCO2e 碳匯
+              </button>
+            </div>
+
+            <!-- Carbon Credit Trading -->
+            <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-xl">
+              <div>
+                <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                  <i class="fa-solid fa-handshake text-amber-400"></i> 2. 碳權銷售與蚓糞零售
+                </h3>
+                <p class="text-[11px] text-slate-400 mt-1">碳權對企業有高額合規抵換價值，收益遠高於直接賣粗肥！</p>
+              </div>
+
+              <div class="space-y-2">
+                <!-- Carbon Credit Trading Button -->
+                <button onclick="sellCarbonCredits()" ${gameState.carbonSeqTon < 0.1 ? 'disabled' : ''}
+                  class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-xs uppercase transition shadow-lg disabled:opacity-40 flex flex-col items-center justify-center">
+                  <span>出售 0.10 t 認證碳權</span>
+                  <span class="text-[10px] font-bold text-slate-900">獲得 +NT$ ${Math.floor(actualCarbonPricePerTon * 0.10).toLocaleString()} (單價: NT$ ${actualCarbonPricePerTon}/t)</span>
+                </button>
+
+                <!-- Vermicompost Fertilizer Sale -->
+                <button onclick="sellFertilizerDirect()" ${gameState.vermicompostKg < 20 ? 'disabled' : ''}
+                  class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-[11px] transition border border-slate-700 disabled:opacity-40">
+                  零售 20 Kg 優質蚓糞 (獲 +NT$ ${(20 * vermicompostPricePerKg).toLocaleString()})
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      `;
+    }
+
+    function convertVermicompostToCarbon() {
+      if (gameState.vermicompostKg < 50) return;
+      gameState.vermicompostKg -= 50;
+      gameState.carbonSeqTon += 0.0915; // 50kg * 1.83kg CO2e = 91.5kg CO2e = 0.0915 tCO2e
+      addESGExp(50);
+      showToast('成功封存 50 Kg 蚓糞為 0.0915 tCO2e 土壤碳匯！', 'fa-seedling');
+      renderCarbonView();
+    }
+
+    function sellCarbonCredits() {
+      if (gameState.carbonSeqTon < 0.1) return;
+      const bonus = getPlayerBonus();
+      const isTechEsgUnlocked = gameState.techTree.find(t => t.id === 'tech_esg_project')?.unlocked;
+      let baseCarbonPricePerTon = isTechEsgUnlocked ? 1500 : 900;
+
+      const earnedCoins = Math.floor((baseCarbonPricePerTon * 0.10) * bonus.tradeBonus);
+
+      gameState.carbonSeqTon -= 0.1;
+      gameState.coins += earnedCoins;
+      addESGExp(100);
+
+      showToast(`成功出售 0.1t 碳權！獲得 +NT$ ${earnedCoins.toLocaleString()}`, 'fa-sack-dollar');
+      renderCarbonView();
+      updateHUD();
+    }
+
+    function sellFertilizerDirect() {
+      if (gameState.vermicompostKg < 20) return;
+      const bonus = getPlayerBonus();
+      const pricePerKg = Math.floor(20 * bonus.tradeBonus);
+      const earnedCoins = 20 * pricePerKg;
+
+      gameState.vermicompostKg -= 20;
+      gameState.coins += earnedCoins;
+      addESGExp(20);
+
+      showToast(`零售 20 Kg 優質蚓糞，獲得 +NT$ ${earnedCoins.toLocaleString()}`, 'fa-sack-dollar');
+      renderCarbonView();
+      updateHUD();
+    }
+
+    /* =========================================================================
+       13. INITIALIZATION
+       ========================================================================= */
+
+    window.onload = function() {
+      gameLoopTimer = setInterval(tickSimulation, 1500);
+      switchTab('compost');
+    };
+  </script>
 </body>
 </html>
