@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>歸蚓酷客：生態循環大亨 (Vermicompost Guardian)</title>
+  <title>歸蚓酷客：生態循環大亨 (Vermicompost Guardian: Circular Eco-Tycoon & RPG)</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome Icons -->
@@ -19,10 +19,9 @@
       user-select: none;
     }
     
-    /* Custom Scrollbars */
     ::-webkit-scrollbar {
-      width: 5px;
-      height: 5px;
+      width: 6px;
+      height: 6px;
     }
     ::-webkit-scrollbar-track {
       background: rgba(15, 23, 42, 0.8);
@@ -35,10 +34,8 @@
       background: rgba(16, 185, 129, 0.8);
     }
 
-    /* Card Glows & Animations */
     .glow-green { box-shadow: 0 0 12px rgba(16, 185, 129, 0.3); }
     .glow-amber { box-shadow: 0 0 12px rgba(245, 158, 11, 0.3); }
-    .glow-purple { box-shadow: 0 0 12px rgba(168, 85, 247, 0.3); }
 
     .card-item {
       transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -59,9 +56,8 @@
 </head>
 <body class="h-full overflow-hidden flex flex-col bg-slate-950 text-slate-100">
 
-  <!-- TOP HEADER HUD -->
+  <!-- TOP HUD -->
   <header class="h-14 bg-slate-900/90 border-b border-emerald-900/40 px-3 sm:px-4 flex items-center justify-between z-20 shrink-0">
-    <!-- Left: Title & Status -->
     <div class="flex items-center space-x-2.5">
       <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg font-black shadow-inner glow-green">
         <i class="fa-solid fa-worm"></i>
@@ -76,52 +72,47 @@
       </div>
     </div>
 
-    <!-- Center: Main Economic Resources HUD -->
+    <!-- Main Dynamic Indicators -->
     <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
-      <!-- Currency (新台幣 NT$) -->
       <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="新台幣資金 (NT$)">
         <i class="fa-solid fa-sack-dollar text-amber-400"></i>
         <span id="hud-coins" class="font-black text-amber-400">NT$ 5,000</span>
       </div>
 
-      <!-- Vermicompost (蚓糞庫存) -->
-      <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="採收的高純度蚓糞 (可封存固碳或販售)">
+      <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="蚓糞庫存">
         <i class="fa-solid fa-cubes-stacked text-amber-600"></i>
         <span id="hud-vermicompost" class="font-bold text-amber-200">0.0 Kg</span>
       </div>
 
-      <!-- Soil Carbon Sequestration (土壤碳匯) -->
       <div class="flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="累積土壤碳匯量 (tCO2e)">
         <i class="fa-solid fa-seedling text-emerald-400"></i>
         <span id="hud-carbon-seq" class="font-bold text-emerald-300">0.000 t</span>
       </div>
 
-      <!-- Player Level & ESG EXP -->
       <div class="flex items-center space-x-1.5 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700">
         <i class="fa-solid fa-award text-cyan-400"></i>
         <span class="font-bold text-slate-200">Lv.<span id="hud-level">1</span></span>
-        <div class="w-12 bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-700 hidden sm:block" title="ESG 影響力 (經驗值)">
+        <div class="w-12 bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-700 hidden sm:block">
           <div id="hud-exp-bar" class="bg-cyan-400 h-full transition-all duration-300" style="width: 0%"></div>
         </div>
       </div>
 
-      <!-- Active Deck Capacity -->
-      <div class="hidden md:flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="出戰卡牌種類容量 (依等級提升)">
+      <div class="hidden md:flex items-center space-x-1 bg-slate-800/90 px-2 py-1 rounded-lg border border-slate-700" title="出戰卡牌容量">
         <i class="fa-solid fa-box-archive text-purple-400"></i>
         <span id="hud-deck-cap" class="font-bold text-purple-300">3/3</span>
       </div>
     </div>
 
-    <!-- Right: Quick Odor Status -->
+    <!-- Odor PPM Badge -->
     <div class="flex items-center space-x-2">
       <div id="hud-odor-badge" class="text-[11px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded-lg flex items-center gap-1">
         <i class="fa-solid fa-wind" id="odor-icon"></i>
-        <span class="hidden sm:inline">臭味/蒼蠅:</span> <span id="hud-odor-val" class="font-bold">0 PPM</span>
+        <span class="hidden sm:inline">異味 PPM:</span> <span id="hud-odor-val" class="font-bold">0 PPM</span>
       </div>
     </div>
   </header>
 
-  <!-- NAVIGATION TABS BAR -->
+  <!-- NAVIGATION TABS -->
   <nav class="bg-slate-900 border-b border-slate-800 px-3 py-1.5 flex items-center justify-center space-x-1 sm:space-x-2 overflow-x-auto shrink-0 text-xs font-bold">
     <button onclick="switchTab('compost')" id="tab-btn-compost" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-emerald-400 bg-slate-800 border border-emerald-500/40">
       <i class="fa-solid fa-vial-virus"></i> 堆肥主控台
@@ -130,35 +121,33 @@
       <i class="fa-solid fa-cards"></i> 戰術牌組
     </button>
     <button onclick="switchTab('skills')" id="tab-btn-skills" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200 relative">
-      <i class="fa-solid fa-user-ninja"></i> 天賦技能樹
+      <i class="fa-solid fa-user-ninja"></i> 天賦技能樹 (10種)
       <span id="badge-skill-pts" class="hidden px-1.5 py-0.2 bg-rose-500 text-white rounded-full text-[9px]">0</span>
     </button>
     <button onclick="switchTab('tech')" id="tab-btn-tech" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
-      <i class="fa-solid fa-diagram-project"></i> 永續科技樹
+      <i class="fa-solid fa-diagram-project"></i> 科技樹 (20項)
     </button>
     <button onclick="switchTab('shop')" id="tab-btn-shop" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
-      <i class="fa-solid fa-shirt"></i> 裝備與資材
+      <i class="fa-solid fa-shirt"></i> 4部位裝備
     </button>
     <button onclick="switchTab('carbon')" id="tab-btn-carbon" class="tab-btn px-2.5 py-1 rounded-lg transition flex items-center gap-1 text-slate-400 hover:text-slate-200">
       <i class="fa-solid fa-chart-line"></i> 碳權交易所
     </button>
   </nav>
 
-  <!-- MAIN VIEW PANEL CONTAINER -->
+  <!-- MAIN CONTAINER -->
   <main id="main-view" class="flex-1 relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 flex flex-col">
-    <!-- Dynamic View Content -->
   </main>
 
-  <!-- TOAST NOTIFICATIONS -->
+  <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none bg-slate-800 border border-emerald-500/50 text-emerald-300 px-3.5 py-2.5 rounded-xl shadow-2xl flex items-center gap-2.5">
     <i id="toast-icon" class="fa-solid fa-circle-info text-emerald-400 text-sm"></i>
     <span id="toast-msg" class="text-xs font-bold">通知訊息</span>
   </div>
 
-  <!-- GAME LOGIC JAVASCRIPT -->
   <script>
     /* =========================================================================
-       1. GAME DATA & REAL-WORLD PHYSICAL CONSTANTS
+       1. CONSTANTS & DEFINITIONS
        ========================================================================= */
 
     const CARD_TYPES = {
@@ -169,74 +158,91 @@
       SPECIAL: { name: '生物調理劑', color: 'from-purple-950 to-pink-950 border-purple-600/60 text-purple-300' }
     };
 
-    // Master Consumable Card Definitions
     const MASTER_CARDS = [
-      { id: 'c_community_leaves', name: '社區掃落葉 (C/N ~60)', type: 'SERVICE', cost: 1, price: 150, unlocked: true, desc: '收集落葉。提供高碳資材，C/N比 +4.5，含水率 -3.0%。' },
-      { id: 'c_sawdust', name: '乾燥木屑/稻殼 (C/N ~200)', type: 'CARBON', cost: 1, price: 250, unlocked: true, desc: '添加濃縮高碳資材。C/N比 +8.0，含水率 -5.0%，臭味 -15 PPM。' },
-      { id: 'c_aerate', name: '手工翻堆通氣', type: 'AERATION', cost: 1, price: 200, unlocked: true, desc: '翻動堆體增加好氧菌活力。通氣量 +20%，堆體溫度 -2.5°C。' },
-      { id: 'c_harvest', name: '優質蚓糞篩分採收', type: 'HARVEST', cost: 2, price: 400, unlocked: true, desc: '篩分採收熟成蚓糞。獲得 30 Kg 蚓糞，消耗 20 Kg 待處理有機廢棄物。' },
+      { id: 'c_community_leaves', name: '社區落葉收集 (C/N ~60)', type: 'SERVICE', cost: 1, basePrice: 150, unlocked: true, desc: '收集社區落葉。C/N比 +4.5，含水率 -3.0%，處理廢棄物。' },
+      { id: 'c_sawdust', name: '乾燥木屑/稻殼 (C/N ~200)', type: 'CARBON', cost: 1, basePrice: 200, unlocked: true, desc: '添加濃縮高碳資材。C/N比 +8.0，含水率 -5.0%，異味 -15 PPM。' },
+      { id: 'c_aerate', name: '手工翻堆通氣', type: 'AERATION', cost: 1, basePrice: 150, unlocked: true, desc: '翻動堆體增加好氧菌活力。通氣量 +25%，堆體溫度 -2.0°C。' },
+      { id: 'c_harvest', name: '優質蚓糞篩分採收', type: 'HARVEST', cost: 2, basePrice: 350, unlocked: true, desc: '篩分採收熟成蚓糞。獲得 30 Kg 蚓糞。' },
       
-      // Purchasable / Tech Unlocked Advanced Cards
-      { id: 'c_biochar', name: '高溫多孔生物炭 (C/N ~300)', type: 'CARBON', cost: 2, price: 600, unlocked: false, techReq: 'tech_biochar', desc: '高效吸附臭味與多餘水份。C/N比 +14.0，含水率 -8.0%，臭味 -35 PPM。' },
-      { id: 'c_lime', name: '熟石灰/蛋殼微粉', type: 'SPECIAL', cost: 1, price: 350, unlocked: false, techReq: 'tech_lime', desc: '快速中和高氮導致的酸化環境。pH值 +0.8，抑制惡臭。' },
-      { id: 'c_em_spray', name: 'EM好氧複合菌劑', type: 'SPECIAL', cost: 2, price: 800, unlocked: false, techReq: 'tech_em', desc: '加速有機質好氧分解。分解速度 +40%，臭味 -25 PPM。' },
-      { id: 'c_worm_boost', name: '蚓卵催化蛋白素', type: 'SPECIAL', cost: 2, price: 1000, unlocked: false, techReq: 'tech_worm_gen', desc: '刺激繁殖與成長。蚯蚓數量 +1,200 條（不超過養殖上限）。' },
-      { id: 'c_auto_harvest', name: '滾筒離心篩分機', type: 'HARVEST', cost: 3, price: 1500, unlocked: false, techReq: 'tech_auto_harvest', desc: '大規模自動採收。獲得 80 Kg 蚓糞，並清理 50 Kg 有機廢棄物！' }
+      { id: 'c_biochar', name: '高溫多孔生物炭 (C/N ~300)', type: 'CARBON', cost: 2, basePrice: 500, unlocked: false, techReq: 'tech_biochar', desc: '高效吸附異味與多餘水分。C/N比 +15.0，含水率 -8.0%，異味 -40 PPM。' },
+      { id: 'c_lime', name: '熟石灰/蛋殼微粉', type: 'SPECIAL', cost: 1, basePrice: 300, unlocked: false, techReq: 'tech_microbe_lowtemp', desc: '快速中和高氮導致的酸化環境。pH值 +0.8。' },
+      { id: 'c_em_spray', name: '高滲透好氧酵素菌劑', type: 'SPECIAL', cost: 2, basePrice: 700, unlocked: false, techReq: 'tech_enzyme', desc: '加速有機質好氧分解。異味 -30 PPM，分解速度提升。' },
+      { id: 'c_worm_boost', name: '蚯蚓孵化催化劑', type: 'SPECIAL', cost: 2, basePrice: 900, unlocked: false, techReq: 'tech_incubator', desc: '刺激繁殖與成長。增加 0.8 kg 蚯蚓 (~1,600 條)。' },
+      { id: 'c_auto_harvest', name: '滾筒離心篩分機', type: 'HARVEST', cost: 3, basePrice: 1200, unlocked: false, techReq: 'tech_sifter', desc: '大規模自動採收。獲得 80 Kg 蚓糞。' }
     ];
 
-    // Skill Tree Nodes (5 Skill Points per Level Up)
+    // 10 SKILL NODES (Max level 5 each)
     const SKILL_TREE_NODES = [
-      { id: 'sk_ap', name: '高效精神敏捷', desc: '+1 每回合最大行動點數 (AP)', cost: 3, level: 0, maxLevel: 2, effect: { ap: 1 } },
-      { id: 'sk_calc', name: '資材精算專家', desc: '打出高碳卡牌時 C/N 比調升效果 +30%', cost: 2, level: 0, maxLevel: 3, effect: { carbonBonus: 0.30 } },
-      { id: 'sk_esg_marketing', name: 'ESG 綠色行銷', desc: '出售碳權與蚓糞時，獲取的 NT$ 與 ESG 經驗加成 +20%', cost: 2, level: 0, maxLevel: 3, effect: { tradeBonus: 0.20 } },
-      { id: 'sk_worm_breed', name: '蚯蚓極限馴化', desc: '+25% 蚯蚓每日自然繁殖速率與環境耐受力', cost: 1, level: 0, maxLevel: 4, effect: { breedRate: 0.25 } },
-      { id: 'sk_odor_suppress', name: '好氧抑臭發酵', desc: '-25% 高氮有機物積壓產生的臭味 (PPM) 與蒼蠅滋生速率', cost: 1, level: 0, maxLevel: 3, effect: { odorRed: 0.25 } }
+      { id: 'sk_density', name: '【蚯蚓極限馴化】', desc: '系統每平方米最大容納密度從 3.0 kg/m² 擴充至 6.0 kg/m² (+0.6 kg/m²/級)，減少高密度逃亡。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_cn_control', name: '【好氧堆肥大師】', desc: '使用高碳資材卡牌時，C/N 比調控效率與乾燥吸水效果提升 +20%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_community', name: '【社區運籌學】', desc: '發動落葉收集卡牌時，獲得落葉量 +25%/級，並額外獲得 +10 ESG 經驗/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_carbon_audit', name: '【碳匯精算師】', desc: '每單位蚓糞轉換為碳權的認證轉換率 +10%/級，企業收購價格 +5%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_odor_mitigate', name: '【優質品質控管】', desc: '異味值 (Odor PPM) 對蚯蚓逃亡與死亡的負面打擊降低 -15%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_climate_guard', name: '【極端氣候防護】', desc: '降低堆體溫度過高(>32°C)或過低(<15°C)造成的蚯蚓死亡率 -20%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_bargain', name: '【資材談判專家】', desc: '卡牌商店補充卡牌與購買裝備的 NT$ 費用折扣 -5%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_breed_master', name: '【超能繁殖培育】', desc: '最適環境下蚯蚓每日繁殖速率 +15%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_agile_ap', name: '【敏捷分揀技巧】', desc: '最大行動點數 (AP) +1 (每 2 級)，處理廢棄物效率 +10%/級。', cost: 1, level: 0, maxLevel: 5 },
+      { id: 'sk_esg_prestige', name: '【環保巡查公信力】', desc: '完成各類廢棄物處理任務獲得的 ESG 經驗值 (EXP) +20%/級。', cost: 1, level: 0, maxLevel: 5 }
     ];
 
-    // Tech Tree Nodes
+    // 20 TECH NODES IN 4 DOMAINS
     const TECH_TREE_NODES = [
-      { id: 'tech_box_1', name: '雙層模組化養殖箱 (1.0 m²)', cost: 3000, desc: '擴充養殖面積至 1.0 m²，蚯蚓養殖上限提升至 8,000 條 (~4.0 kg)。', unlocked: false, apply: () => { gameState.compost.areaM2 = 1.0; gameState.compost.maxWormCap = 8000; } },
-      { id: 'tech_biochar', name: '生物炭多孔吸附技術', cost: 4500, desc: '解鎖「高溫多孔生物炭」高級調控卡牌。', unlocked: false },
-      { id: 'tech_sensor', name: '微氣候自動感測器網格', cost: 6000, desc: '即時自動微調溫濕度，減少 20% 環境異常造成的蚯蚓損傷。', unlocked: false },
-      { id: 'tech_lime', name: '酸鹼離子調控技術', cost: 3500, desc: '解鎖「熟石灰/蛋殼微粉」酸鹼平衡卡牌。', unlocked: false },
-      { id: 'tech_em', name: '好氧微生物專利菌劑', cost: 8000, desc: '解鎖「EM好氧複合菌劑」分解卡牌。', unlocked: false, req: 'tech_biochar' },
-      { id: 'tech_box_2', name: '工業級溫控養殖床 (2.5 m²)', cost: 15000, desc: '擴充養殖面積至 2.5 m²，蚯蚓上限提升至 20,000 條 (~10.0 kg)。', unlocked: false, req: 'tech_box_1', apply: () => { gameState.compost.areaM2 = 2.5; gameState.compost.maxWormCap = 20000; } },
-      { id: 'tech_auto_harvest', name: '滾筒機械離心篩分機', cost: 12000, desc: '解鎖「滾筒離心篩分機」自動採收卡牌。', unlocked: false, req: 'tech_em' },
-      { id: 'tech_esg_project', name: 'VCS / GS 國際碳權認證對接', cost: 25000, desc: '解鎖高階碳權交易對接，使碳權銷售價格提升 50% (達 NT$ 1,500 / tCO2e)！', unlocked: false, req: 'tech_auto_harvest' }
+      // Domain 1: 基礎設施
+      { id: 'tech_box_1', domain: '基礎設施', name: '1. 基礎木製堆肥箱', cost: 0, desc: '預設解鎖基礎養殖箱體 (0.5 m²)。', unlocked: true },
+      { id: 'tech_mesh', domain: '基礎設施', name: '2. 通風防蟲網模組', cost: 2000, desc: '防止害蟲入侵並改善氣體通氣率。', unlocked: false, req: 'tech_box_1' },
+      { id: 'tech_drain', domain: '基礎設施', name: '4. 水分滲透排水盤', cost: 3500, desc: '防止底部積水溺水，提高極限含水容忍度。', unlocked: false, req: 'tech_mesh' },
+      { id: 'tech_shade', domain: '基礎設施', name: '7. 極端氣候遮陽棚', cost: 6000, desc: '減緩戶外曝曬高溫上升速度 -30%。', unlocked: false, req: 'tech_drain' },
+      { id: 'tech_steel_box', domain: '基礎設施', name: '15. 模組化不鏽鋼蚯蚓箱 V1.0', cost: 15000, desc: '擴充養殖面積至 2.0 m²，提高上限。', unlocked: false, req: 'tech_shade', apply: () => { gameState.compost.areaM2 = 2.0; } },
+
+      // Domain 2: 微生物與資材
+      { id: 'tech_microbe_lowtemp', domain: '微生物與資材', name: '3. 低溫微生物菌種', cost: 2800, desc: '解鎖「熟石灰/蛋殼微粉」酸鹼調理卡牌。', unlocked: false, req: 'tech_box_1' },
+      { id: 'tech_shredder', domain: '微生物與資材', name: '5. 落葉高效粉碎機', cost: 4000, desc: '使落葉卡牌的 C/N 提升效果增強 30%。', unlocked: false, req: 'tech_microbe_lowtemp' },
+      { id: 'tech_biochar', domain: '微生物與資材', name: '9. 生物炭吸附層', cost: 8000, desc: '解鎖「高溫多孔生物炭」強效去味固碳卡牌。', unlocked: false, req: 'tech_shredder' },
+      { id: 'tech_pre_ferment', domain: '微生物與資材', name: '12. 高氮廚餘預發酵槽', cost: 12000, desc: '降低送達廚餘的初始異味 -40%。', unlocked: false, req: 'tech_biochar' },
+      { id: 'tech_enzyme', domain: '微生物與資材', name: '13. 高滲透性生物酵素', cost: 14000, desc: '解鎖「高滲透好氧酵素菌劑」卡牌。', unlocked: false, req: 'tech_pre_ferment' },
+
+      // Domain 3: 感測器與自動化
+      { id: 'tech_sensor', domain: '感測器與自動化', name: '6. 智能溫濕度感測器', cost: 5000, desc: '即時精確警報，調控卡牌效果 +15%。', unlocked: false, req: 'tech_box_1' },
+      { id: 'tech_misting', domain: '感測器與自動化', name: '8. 噴霧自動補水系統', cost: 7000, desc: '水分低於 50% 時自動補水，防止乾枯。', unlocked: false, req: 'tech_sensor' },
+      { id: 'tech_sifter', domain: '感測器與自動化', name: '10. 蚓糞篩分機械機', cost: 9000, desc: '解鎖「滾筒離心篩分機」自動採收卡牌。', unlocked: false, req: 'tech_misting' },
+      { id: 'tech_incubator', domain: '感測器與自動化', name: '11. 蚯蚓孵化促進箱', cost: 10000, desc: '解鎖「蚯蚓孵化催化劑」卡牌，繁殖上限 +20%。', unlocked: false, req: 'tech_sifter' },
+      { id: 'tech_solar_fan', domain: '感測器與自動化', name: '14. 太陽能循環風扇', cost: 13000, desc: '維持內部基礎通氣率，減少厭氧發酵。', unlocked: false, req: 'tech_incubator' },
+
+      // Domain 4: 高階碳資產
+      { id: 'tech_liquid_refine', domain: '高階碳資產', name: '16. 蚓萃液肥精煉機', cost: 18000, desc: '解鎖有機液肥自動累積與銷售。', unlocked: false, req: 'tech_box_1' },
+      { id: 'tech_iso14064', domain: '高階碳資產', name: '17. ISO 14064 碳足跡盤查', cost: 22000, desc: '碳權銷售單價提高 25%。', unlocked: false, req: 'tech_liquid_refine' },
+      { id: 'tech_vcs_standard', domain: '高階碳資產', name: '18. VCS 國際碳權認證標準', cost: 30000, desc: '解鎖高階大宗碳權合約交易。', unlocked: false, req: 'tech_iso14064' },
+      { id: 'tech_ai_closedloop', domain: '高階碳資產', name: '19. AI 微氣候閉環調控', cost: 40000, desc: '自動維持最適 C/N 比與濕度。', unlocked: false, req: 'tech_vcs_standard' },
+      { id: 'tech_zero_farm', domain: '高階碳資產', name: '20. 零碳循環示範農場', cost: 60000, desc: '終極科技：ESG 經驗與碳權收益翻倍！', unlocked: false, req: 'tech_ai_closedloop' }
     ];
 
-    // Equipment Database (4 Slots: head, body, hands, feet)
+    // RPG GEAR (Head, Body, Hands, Feet)
     const BASE_EQUIPMENT = [
-      // Head
-      { id: 'h_1', slot: 'head', minLevel: 1, name: '工安防塵透氣面罩', price: 800, desc: '防護堆肥粉塵與微粒，提升工作效率', effBonus: 0.05 },
-      { id: 'h_2', slot: 'head', minLevel: 3, name: '專業活性碳雙濾毒面具', price: 2500, desc: '大幅降低臭味影響，提高採收產率', effBonus: 0.12 },
+      { id: 'h_1', slot: 'head', minLevel: 1, name: '工安防塵透氣面罩', price: 800, desc: '防護堆肥粉塵與微粒，工作效率 +5%' },
+      { id: 'h_2', slot: 'head', minLevel: 3, name: '專業活性碳雙濾毒面具', price: 2500, desc: '大幅降低臭味影響，異味損害 -15%' },
       
-      // Body
-      { id: 'b_1', slot: 'body', minLevel: 1, name: '耐磨帆布堆肥工作服', price: 1200, desc: '+5% 蚯蚓有機物分解效能', effBonus: 0.05 },
-      { id: 'b_2', slot: 'body', minLevel: 4, name: '高能溫控外骨骼工作服', price: 6500, desc: '+15% 蚯蚓效能，+1 最大 AP', effBonus: 0.15, ap: 1 },
+      { id: 'b_1', slot: 'body', minLevel: 1, name: '耐磨帆布堆肥工作服', price: 1200, desc: '分解效能 +5%' },
+      { id: 'b_2', slot: 'body', minLevel: 4, name: '高能溫控外骨骼工作服', price: 6500, desc: '分解效能 +15%，最大 AP +1' },
 
-      // Hands
-      { id: 'g_1', slot: 'hands', minLevel: 1, name: '厚實防滑橡膠手套', price: 600, desc: '+5% 翻堆與採收速度', effBonus: 0.05 },
-      { id: 'g_2', slot: 'hands', minLevel: 3, name: '人體工學自動鏟土臂', price: 3800, desc: '+12% 採收效率，減少體力消耗', effBonus: 0.12 },
+      { id: 'g_1', slot: 'hands', minLevel: 1, name: '厚實防滑橡膠手套', price: 600, desc: '翻堆與採收速度 +5%' },
+      { id: 'g_2', slot: 'hands', minLevel: 3, name: '人體工學自動鏟土臂', price: 3800, desc: '採收效率 +12%' },
 
-      // Feet
-      { id: 'f_1', slot: 'feet', minLevel: 1, name: '防滑防水耐酸雨靴', price: 500, desc: '場地巡檢防護，提升穩定性', effBonus: 0.03 },
-      { id: 'f_2', slot: 'feet', minLevel: 4, name: '氣墊減震工程巡視靴', price: 4200, desc: '每回合獲取額外 ESG 經驗加成', effBonus: 0.10 }
+      { id: 'f_1', slot: 'feet', minLevel: 1, name: '防滑防水耐酸雨靴', price: 500, desc: '穩定度提升' },
+      { id: 'f_2', slot: 'feet', minLevel: 4, name: '氣墊減震工程巡視靴', price: 4200, desc: '獲得額外 ESG 經驗 +10%' }
     ];
 
-    // Waste Inflow Organizations (High-Nitrogen Organic Waste, C/N ~ 10-15:1)
+    // RANDOM INFLOW EVENTS
     const HIGH_NITROGEN_SOURCES = [
-      { name: '連鎖美食街廚餘', weight: 40, tempImpact: 1.2, moisture: 10, phImpact: -0.2, cnImpact: -2.5 },
-      { name: '果菜批發集散市場殘渣', weight: 60, tempImpact: 0.8, moisture: 12, phImpact: -0.3, cnImpact: -3.0 },
-      { name: '觀光啤酒廠廢麥芽渣', weight: 50, tempImpact: 2.0, moisture: 8, phImpact: -0.1, cnImpact: -2.0 },
-      { name: '養豬場濃縮有機糞渣', weight: 75, tempImpact: 1.8, moisture: 14, phImpact: 0.1, cnImpact: -4.0 }
+      { name: '學校與社區高氮廚餘', weight: 45, tempImpact: 1.5, moisture: 12, phImpact: -0.3, cnImpact: -3.5 },
+      { name: '果菜批發集散市場殘渣', weight: 65, tempImpact: 1.0, moisture: 15, phImpact: -0.4, cnImpact: -4.0 },
+      { name: '觀光啤酒廠廢麥芽渣', weight: 55, tempImpact: 2.2, moisture: 9, phImpact: -0.2, cnImpact: -2.5 },
+      { name: '畜牧養殖濃縮糞渣', weight: 80, tempImpact: 2.5, moisture: 18, phImpact: 0.2, cnImpact: -5.0 }
     ];
 
     /* =========================================================================
        2. GAME STATE
        ========================================================================= */
     let activeTab = 'compost';
-    let gameLoopTimer = null;
     let isPaused = false;
 
     let gameState = {
@@ -244,93 +250,89 @@
       exp: 0,
       nextLevelExp: 100,
       skillPoints: 0,
-      coins: 5000, // 新台幣 NT$
+      coins: 5000,
       vermicompostKg: 0.0,
       carbonSeqTon: 0.0,
 
       ap: 3,
       maxAp: 3,
 
-      // Vermicompost Physical Parameters
       compost: {
         temp: 24.0,           // °C (Optimal 20-28)
         moisture: 65.0,       // % (Optimal 60-70)
         ph: 7.0,              // pH (Optimal 6.5-7.5)
         cnRatio: 27.0,        // C/N (Optimal 25-30:1)
         oxygen: 20.0,         // % (Optimal >15%)
-        wormPop: 2500,        // Count (approx 0.5g each => 1.25 kg)
-        areaM2: 0.5,          // m²
-        maxWormCap: 4000,     // Max count (approx 8,000 count/m² limit)
-        unprocessedWasteKg: 15,
-        odorPpm: 0            // Odor PPM
+        wormKg: 1.5,          // Earthworm total biomass in kg (1kg ≈ 1,000 worms)
+        areaM2: 0.5,          // Base 0.5 m²
+        unprocessedWasteKg: 20,
+        odorPpm: 0.0          // Odor PPM
       },
 
-      // Consumable Card Inventory System
       cardPool: JSON.parse(JSON.stringify(MASTER_CARDS)),
       cardInventory: {
-        'c_community_leaves': 6,
-        'c_sawdust': 4,
-        'c_aerate': 5,
-        'c_harvest': 3,
+        'c_community_leaves': 8,
+        'c_sawdust': 5,
+        'c_aerate': 6,
+        'c_harvest': 4,
         'c_biochar': 0,
         'c_lime': 0,
         'c_em_spray': 0,
         'c_worm_boost': 0,
         'c_auto_harvest': 0
       },
-      activeDeckIds: ['c_community_leaves', 'c_sawdust', 'c_aerate'], // Selected active cards
+      activeDeckIds: ['c_community_leaves', 'c_sawdust', 'c_aerate'],
 
       skillTree: JSON.parse(JSON.stringify(SKILL_TREE_NODES)),
       techTree: JSON.parse(JSON.stringify(TECH_TREE_NODES)),
 
-      equipment: {
-        head: null,
-        body: null,
-        hands: null,
-        feet: null
-      },
-
+      equipment: { head: null, body: null, hands: null, feet: null },
       gameTicks: 0
     };
 
     /* =========================================================================
-       3. HELPER FUNCTIONS & COMPUTED STATS
+       3. HELPER & CALCULATIONS
        ========================================================================= */
 
     function getDeckCapacity() {
-      return 2 + gameState.level; // Lv1 = 3 cards, Lv2 = 4, etc.
+      return 2 + gameState.level;
+    }
+
+    function getSkillLevel(id) {
+      const sk = gameState.skillTree.find(s => s.id === id);
+      return sk ? sk.level : 0;
+    }
+
+    function getBargainDiscount() {
+      return 1.0 - (getSkillLevel('sk_bargain') * 0.05);
+    }
+
+    function getMaxWormDensityKgPerM2() {
+      // Base 3.0 kg/m² + 0.6 kg/m² per skill level
+      return 3.0 + (getSkillLevel('sk_density') * 0.6);
+    }
+
+    function getMaxWormCapacityKg() {
+      let cap = gameState.compost.areaM2 * getMaxWormDensityKgPerM2();
+      if (gameState.techTree.find(t => t.id === 'tech_incubator')?.unlocked) cap *= 1.2;
+      return cap;
     }
 
     function getPlayerBonus() {
-      let bonus = {
-        maxAp: 3,
-        carbonBonus: 1.0,
-        tradeBonus: 1.0,
-        breedRate: 1.0,
-        odorRed: 0.0,
-        effBonus: 1.0
+      let apBonus = Math.floor(getSkillLevel('sk_agile_ap') / 2);
+      let bodyItem = gameState.equipment.body;
+      if (bodyItem && bodyItem.id === 'b_2') apBonus += 1;
+
+      return {
+        maxAp: 3 + apBonus,
+        cnControlBonus: 1.0 + (getSkillLevel('sk_cn_control') * 0.20),
+        carbonAuditBonus: 1.0 + (getSkillLevel('sk_carbon_audit') * 0.10),
+        carbonPriceBonus: 1.0 + (getSkillLevel('sk_carbon_audit') * 0.05),
+        odorDamageRed: 1.0 - (getSkillLevel('sk_odor_mitigate') * 0.15),
+        climateGuard: 1.0 - (getSkillLevel('sk_climate_guard') * 0.20),
+        breedBonus: 1.0 + (getSkillLevel('sk_breed_master') * 0.15),
+        esgBonus: 1.0 + (getSkillLevel('sk_esg_prestige') * 0.20)
       };
-
-      // Skill tree
-      gameState.skillTree.forEach(sk => {
-        if (sk.level > 0) {
-          if (sk.effect.ap) bonus.maxAp += sk.effect.ap * sk.level;
-          if (sk.effect.carbonBonus) bonus.carbonBonus += sk.effect.carbonBonus * sk.level;
-          if (sk.effect.tradeBonus) bonus.tradeBonus += sk.effect.tradeBonus * sk.level;
-          if (sk.effect.breedRate) bonus.breedRate += sk.effect.breedRate * sk.level;
-          if (sk.effect.odorRed) bonus.odorRed += sk.effect.odorRed * sk.level;
-        }
-      });
-
-      // Equipment
-      Object.values(gameState.equipment).forEach(item => {
-        if (item) {
-          if (item.ap) bonus.maxAp += item.ap;
-          if (item.effBonus) bonus.effBonus += item.effBonus;
-        }
-      });
-
-      return bonus;
     }
 
     function recalculateStats() {
@@ -352,7 +354,7 @@
 
     function updateHUD() {
       const cap = getDeckCapacity();
-      document.getElementById('hud-coins').innerText = `NT$ ${gameState.coins.toLocaleString()}`;
+      document.getElementById('hud-coins').innerText = `NT$ ${Math.floor(gameState.coins).toLocaleString()}`;
       document.getElementById('hud-vermicompost').innerText = `${gameState.vermicompostKg.toFixed(1)} Kg`;
       document.getElementById('hud-carbon-seq').innerText = `${gameState.carbonSeqTon.toFixed(3)} t`;
       document.getElementById('hud-level').innerText = gameState.level;
@@ -364,7 +366,7 @@
       const odorVal = Math.floor(gameState.compost.odorPpm);
       document.getElementById('hud-odor-val').innerText = `${odorVal} PPM`;
       const odorBadge = document.getElementById('hud-odor-badge');
-      if (odorVal > 100) {
+      if (odorVal > 80) {
         odorBadge.className = 'text-[11px] bg-rose-950 border border-rose-600 text-rose-300 px-2 py-1 rounded-lg flex items-center gap-1 pulse-danger';
       } else {
         odorBadge.className = 'text-[11px] bg-slate-800 border border-slate-700 text-slate-300 px-2 py-1 rounded-lg flex items-center gap-1';
@@ -381,22 +383,22 @@
 
     function addESGExp(amount) {
       const bonus = getPlayerBonus();
-      const actualExp = Math.floor(amount * bonus.tradeBonus);
+      const actualExp = Math.floor(amount * bonus.esgBonus);
       gameState.exp += actualExp;
 
       if (gameState.exp >= gameState.nextLevelExp) {
         gameState.exp -= gameState.nextLevelExp;
         gameState.level += 1;
-        gameState.skillPoints += 5; // Rules: +5 skill points per level
-        gameState.nextLevelExp = Math.floor(gameState.nextLevelExp * 1.6);
+        gameState.skillPoints += 5; // 5 skill points per level
+        gameState.nextLevelExp = Math.floor(gameState.nextLevelExp * 1.5);
         recalculateStats();
-        showToast(`等級提升至 Lv.${gameState.level}！獲得 5 點天賦技能點數！`, 'fa-angles-up');
+        showToast(`等級提升至 Lv.${gameState.level}！獲得 5 點天賦點數！`, 'fa-angles-up');
       }
       updateHUD();
     }
 
     /* =========================================================================
-       4. SIMULATION ENGINE & SMART DOM TICK UPDATER
+       4. SIMULATION ENGINE & PHYSICS KINETICS
        ========================================================================= */
 
     function tickSimulation() {
@@ -406,59 +408,80 @@
       const c = gameState.compost;
       const bonus = getPlayerBonus();
 
-      // Real World Physical Health factors
-      let tempHealth = (c.temp >= 18 && c.temp <= 28) ? 1.0 : (c.temp < 10 || c.temp > 35) ? 0.1 : 0.5;
-      let moistHealth = (c.moisture >= 60 && c.moisture <= 70) ? 1.0 : (c.moisture < 45 || c.moisture > 80) ? 0.2 : 0.6;
-      let phHealth = (c.ph >= 6.5 && c.ph <= 7.5) ? 1.0 : 0.3;
-      let oxyHealth = (c.oxygen >= 15) ? 1.0 : 0.3;
+      // Real World Health Factors (0.0 ~ 1.0)
+      let tempHealth = (c.temp >= 20 && c.temp <= 28) ? 1.0 : (c.temp < 12 || c.temp > 35) ? 0.1 : 0.6;
+      let moistHealth = (c.moisture >= 60 && c.moisture <= 70) ? 1.0 : (c.moisture < 40 || c.moisture > 85) ? 0.2 : 0.6;
+      let phHealth = (c.ph >= 6.5 && c.ph <= 7.5) ? 1.0 : 0.4;
+      let cnHealth = (c.cnRatio >= 25 && c.cnRatio <= 35) ? 1.0 : (c.cnRatio < 18) ? 0.3 : 0.7;
 
-      let overallHealth = (tempHealth + moistHealth + phHealth + oxyHealth) / 4.0;
+      let overallHealth = (tempHealth + moistHealth + phHealth + cnHealth) / 4.0;
 
-      // Real Consumption Capacity: Earthworms consume 50% - 100% of body weight daily.
-      // 1000 worms approx = 0.5 kg biomass.
-      let wormBiomassKg = c.wormPop * 0.0005;
-      let baseCapacityKgPerTick = (wormBiomassKg * 0.4) * overallHealth * bonus.effBonus;
+      // 1) REAL CONSUMPTION RATE
+      // 1 kg earthworm consumes 0.5 kg ~ 0.8 kg waste daily (approx 0.03~0.05 kg per tick)
+      let dailyRate = 0.6 * overallHealth; 
+      let tickConsumptionCapacity = (c.wormKg * dailyRate) * 0.1; // per simulation tick
 
       if (c.unprocessedWasteKg > 0) {
-        let treated = Math.min(c.unprocessedWasteKg, baseCapacityKgPerTick);
-        c.unprocessedWasteKg -= treated;
-        gameState.vermicompostKg += treated * 0.70; // 70% converted to high purity vermicompost
-        addESGExp(Math.floor(treated * 2));
+        let processed = Math.min(c.unprocessedWasteKg, tickConsumptionCapacity);
+        c.unprocessedWasteKg -= processed;
+        gameState.vermicompostKg += processed; // 1:1 conversion to raw vermicompost
+        addESGExp(Math.floor(processed * 3));
       }
 
-      // Worm Breeding & Natural Dynamics
-      if (overallHealth > 0.7) {
-        if (c.wormPop < c.maxWormCap) {
-          let breed = Math.floor((c.wormPop * 0.012) * bonus.breedRate);
-          c.wormPop = Math.min(c.maxWormCap, c.wormPop + Math.max(1, breed));
-        }
-      } else if (overallHealth < 0.35) {
-        let die = Math.floor(c.wormPop * 0.025);
-        c.wormPop = Math.max(100, c.wormPop - die);
-      }
-
-      // High-Nitrogen Anaerobic Accumulation Penalty
-      if (c.unprocessedWasteKg > 20) {
-        let rawOdor = (c.unprocessedWasteKg - 20) * 1.5;
-        let odorInc = rawOdor * (1.0 - bonus.odorRed);
-        c.odorPpm = Math.min(300, c.odorPpm + odorInc);
-        c.cnRatio = Math.max(10.0, c.cnRatio - 0.12); // C/N drops due to raw high-nitrogen Sitting
+      // 2) ODOR PPM KINETICS (CRITICAL REQUIREMENT)
+      // When C/N >= 30:1 (or 25-35:1 zone), odor DOES NOT INCREASE; it natural DECAYS slowly.
+      if (c.cnRatio >= 28.0) {
+        let decayRate = 3.0 + (c.cnRatio - 28.0) * 0.2; // Natural decay rate
+        if (gameState.techTree.find(t => t.id === 'tech_biochar')?.unlocked) decayRate += 2.0;
+        c.odorPpm = Math.max(0.0, c.odorPpm - decayRate);
       } else {
-        c.odorPpm = Math.max(0, c.odorPpm - 2.5);
+        // C/N < 25: Low C/N, high nitrogen anaerobic fermentation causes odor spike
+        let odorSpike = (28.0 - c.cnRatio) * 1.8 * (c.unprocessedWasteKg > 15 ? 1.5 : 1.0);
+        c.odorPpm = Math.min(300.0, c.odorPpm + odorSpike);
       }
 
-      // Natural Environmental Drifts
-      c.oxygen = Math.max(5, c.oxygen - 0.15);
-      c.moisture = Math.max(15, c.moisture - 0.1);
+      // 3) EARTHWORM POPULATION DYNAMICS (Breeding, Escape, Death)
+      const maxCapKg = getMaxWormCapacityKg();
 
-      // Random High-Nitrogen Waste Inflow Event (Every 10 ticks)
-      if (gameState.gameTicks % 10 === 0) {
+      // Breeding: In optimal conditions
+      if (overallHealth > 0.75 && c.wormKg < maxCapKg) {
+        let breedRate = 0.008 * bonus.breedBonus;
+        c.wormKg = Math.min(maxCapKg, c.wormKg + (c.wormKg * breedRate));
+      }
+
+      // Escape & Death Triggers
+      let lossRate = 0.0;
+      // High odor / Anaerobic penalty
+      if (c.odorPpm > 100) lossRate += 0.03 * bonus.odorDamageRed;
+      // Extreme moisture penalty
+      if (c.moisture > 85 || c.moisture < 40) lossRate += 0.04;
+      // Extreme temp penalty
+      if (c.temp > 32 || c.temp < 15) lossRate += 0.05 * bonus.climateGuard;
+      // Density overload penalty
+      if (c.wormKg > maxCapKg) lossRate += 0.05;
+
+      if (lossRate > 0) {
+        let lossKg = c.wormKg * lossRate;
+        c.wormKg = Math.max(0.1, c.wormKg - lossKg);
+      }
+
+      // Environmental Drift Dynamics
+      c.moisture = Math.max(20.0, c.moisture - 0.15);
+      c.oxygen = Math.max(5.0, c.oxygen - 0.2);
+
+      // Random Waste Inflow Event (Every 12 ticks)
+      if (gameState.gameTicks % 12 === 0) {
         triggerHighNitrogenInflow();
+      }
+
+      // Auto misting system check
+      if (c.moisture < 50.0 && gameState.techTree.find(t => t.id === 'tech_misting')?.unlocked) {
+        c.moisture = Math.min(68.0, c.moisture + 15.0);
       }
 
       updateHUD();
 
-      // SMART DOM LOCAL UPDATE (PREVENTS SCROLL JUMP)
+      // In-place DOM update
       if (activeTab === 'compost') {
         updateCompostDOMInPlace();
       }
@@ -467,13 +490,19 @@
     function triggerHighNitrogenInflow() {
       const src = HIGH_NITROGEN_SOURCES[Math.floor(Math.random() * HIGH_NITROGEN_SOURCES.length)];
       const c = gameState.compost;
-      c.unprocessedWasteKg += src.weight;
+      
+      let incomingWeight = src.weight;
+      if (gameState.techTree.find(t => t.id === 'tech_pre_ferment')?.unlocked) {
+        incomingWeight *= 0.8;
+      }
+
+      c.unprocessedWasteKg += incomingWeight;
       c.moisture = Math.min(95, c.moisture + src.moisture);
       c.ph = Math.max(4.0, Math.min(9.0, c.ph + src.phImpact));
-      c.temp = Math.min(42, c.temp + src.tempImpact);
+      c.temp = Math.min(40, c.temp + src.tempImpact);
       c.cnRatio = Math.max(10.0, c.cnRatio + src.cnImpact);
 
-      showToast(`注意：收到【${src.name}】高氮廢棄物 ${src.weight} Kg！C/N 比下降！`, 'fa-truck-ramp-box');
+      showToast(`注意：收到【${src.name}】高氮廢棄物 ${Math.floor(incomingWeight)} Kg！C/N 比下降！`, 'fa-truck-ramp-box');
     }
 
     function toggleGamePause() {
@@ -484,7 +513,7 @@
     }
 
     /* =========================================================================
-       5. TAB ROUTING & VIEW RENDERING
+       5. VIEW ROUTING & DOM CONTROLLERS
        ========================================================================= */
 
     function switchTab(tab) {
@@ -511,7 +540,7 @@
     }
 
     /* =========================================================================
-       6. VIEW 1: COMPACT COMPOSTING DASHBOARD (NO-JUMP ARCHITECTURE)
+       6. VIEW 1: COMPOSTING DASHBOARD (IN-PLACE NO-JUMP UPDATES)
        ========================================================================= */
 
     function renderCompostView() {
@@ -522,19 +551,19 @@
       view.innerHTML = `
         <div id="compost-scroll-area" class="flex-1 flex flex-col p-3 sm:p-4 max-w-5xl mx-auto w-full overflow-y-auto space-y-3">
           
-          <!-- Compact Real Environmental Monitor Panel -->
+          <!-- Environmental Monitoring Panel -->
           <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl">
             <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2">
               <div class="flex items-center space-x-2">
                 <i class="fa-solid fa-gauge-high text-emerald-400 text-sm"></i>
-                <h3 class="font-bold text-slate-200 text-xs">堆肥環境動態數據 (目標 C/N 25-30:1 | 濕度 60-70%)</h3>
+                <h3 class="font-bold text-slate-200 text-xs">堆肥環境動態數據 (目標 C/N 25-35:1 | 濕度 60-70%)</h3>
               </div>
               <div class="text-[11px] text-slate-400">
                 養殖面積: <b class="text-emerald-400" id="val-area">${c.areaM2.toFixed(1)} m²</b>
               </div>
             </div>
 
-            <!-- Compact Metrics Grid -->
+            <!-- Dashboard Grid -->
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-2 text-center text-xs">
               <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
                 <span class="text-[9px] text-slate-500 font-bold block">堆體溫度 (°C)</span>
@@ -557,46 +586,49 @@
                 <span id="val-oxy" class="font-black text-emerald-400 text-sm">${c.oxygen.toFixed(1)}%</span>
               </div>
               <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
-                <span class="text-[9px] text-slate-500 font-bold block">臭味 (PPM)</span>
+                <span class="text-[9px] text-slate-500 font-bold block">異味 (PPM)</span>
                 <span id="val-odor" class="font-black text-rose-400 text-sm">${Math.floor(c.odorPpm)} PPM</span>
               </div>
             </div>
 
-            <!-- Compact Worm Density Gauge Bar -->
+            <!-- Worm Population & Density Bar -->
             <div class="mt-2 pt-2 border-t border-slate-800/60 flex items-center justify-between text-[11px]">
-              <span class="text-slate-400 font-bold">蚯蚓族群: <b id="val-worm-pop" class="text-emerald-400">${c.wormPop.toLocaleString()}</b> / <span id="val-worm-cap">${c.maxWormCap.toLocaleString()}</span> 條 (~<span id="val-biomass">${(c.wormPop*0.0005).toFixed(2)}</span> kg)</span>
+              <span class="text-slate-400 font-bold">
+                蚯蚓總生物量: <b id="val-worm-kg" class="text-emerald-400">${c.wormKg.toFixed(2)}</b> / <span id="val-max-worm-kg">${getMaxWormCapacityKg().toFixed(2)}</span> Kg 
+                (~<span id="val-worm-count">${Math.floor(c.wormKg * 1000).toLocaleString()}</span> 條)
+              </span>
               <div class="w-1/3 bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
-                <div id="bar-worm-pop" class="bg-emerald-500 h-full transition-all duration-300" style="width: ${(c.wormPop / c.maxWormCap) * 100}%"></div>
+                <div id="bar-worm-pop" class="bg-emerald-500 h-full transition-all duration-300" style="width: ${(c.wormKg / getMaxWormCapacityKg()) * 100}%"></div>
               </div>
             </div>
           </div>
 
-          <!-- Unprocessed High-Nitrogen Waste Section -->
+          <!-- Unprocessed Organic Waste & Action Panel -->
           <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl flex items-center justify-between">
             <div>
               <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-                <i class="fa-solid fa-dumpster text-amber-400"></i> 暫存高氮有機廢棄物: 
+                <i class="fa-solid fa-dumpster text-amber-400"></i> 待消化有機廢棄物: 
                 <span id="val-waste-kg" class="text-amber-400 font-black text-sm ml-1">${Math.floor(c.unprocessedWasteKg)} Kg</span>
               </h3>
-              <p class="text-[10px] text-slate-400 mt-0.5">高氮材料（廚餘/廢渣）積壓過久會快速拉低 C/N 比並引發厭氧惡臭，請使用高碳資材卡牌平衡。</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">消化速率：約 ${(c.wormKg * 0.06).toFixed(2)} kg/tick。C/N 比在 30:1 以上時異味會自然下降！</p>
             </div>
             <button onclick="replenishAP()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-amber-400 font-bold rounded-lg text-xs border border-slate-700 shrink-0">
               <i class="fa-solid fa-bolt mr-1"></i> 回合休養 AP (<span id="val-ap">${gameState.ap}</span>/<span id="val-max-ap">${gameState.maxAp}</span>)
             </button>
           </div>
 
-          <!-- Tactical Hand Cards & Inventory Display -->
+          <!-- Active Cards Panel -->
           <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-3 shadow-xl flex-1 flex flex-col justify-between">
             <div class="flex justify-between items-center mb-2">
               <h3 class="font-bold text-xs text-slate-200 flex items-center gap-1.5">
-                <i class="fa-solid fa-cards text-purple-400"></i> 當前出戰戰術卡牌 (使用後扣除數量)
+                <i class="fa-solid fa-cards text-purple-400"></i> 當前出戰戰術卡牌 (發動扣減數量)
               </h3>
               <button onclick="switchTab('deck')" class="text-xs text-purple-400 font-bold hover:underline">
-                管理牌組/補給資材 &rarr;
+                卡牌商店 / 管理牌組 &rarr;
               </button>
             </div>
 
-            <!-- Cards Container -->
+            <!-- Cards Grid -->
             <div class="flex items-center justify-center gap-3 overflow-x-auto py-1">
               ${activeCards.map(card => {
                 const count = gameState.cardInventory[card.id] || 0;
@@ -628,52 +660,36 @@
       `;
     }
 
-    // Smart In-Place DOM Updater for Simulation Ticks (Prevents scroll jumping)
+    // In-place DOM update during simulation tick to avoid jump/re-render
     function updateCompostDOMInPlace() {
       const c = gameState.compost;
       
-      const elTemp = document.getElementById('val-temp');
-      if (elTemp) elTemp.innerText = `${c.temp.toFixed(1)}°C`;
+      const setTxt = (id, txt) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = txt;
+      };
 
-      const elMoist = document.getElementById('val-moist');
-      if (elMoist) elMoist.innerText = `${c.moisture.toFixed(1)}%`;
+      setTxt('val-temp', `${c.temp.toFixed(1)}°C`);
+      setTxt('val-moist', `${c.moisture.toFixed(1)}%`);
+      setTxt('val-ph', `${c.ph.toFixed(2)}`);
+      setTxt('val-cn', `${c.cnRatio.toFixed(1)}:1`);
+      setTxt('val-oxy', `${c.oxygen.toFixed(1)}%`);
+      setTxt('val-odor', `${Math.floor(c.odorPpm)} PPM`);
 
-      const elPh = document.getElementById('val-ph');
-      if (elPh) elPh.innerText = `${c.ph.toFixed(2)}`;
-
-      const elCn = document.getElementById('val-cn');
-      if (elCn) elCn.innerText = `${c.cnRatio.toFixed(1)}:1`;
-
-      const elOxy = document.getElementById('val-oxy');
-      if (elOxy) elOxy.innerText = `${c.oxygen.toFixed(1)}%`;
-
-      const elOdor = document.getElementById('val-odor');
-      if (elOdor) elOdor.innerText = `${Math.floor(c.odorPpm)} PPM`;
-
-      const elWorm = document.getElementById('val-worm-pop');
-      if (elWorm) elWorm.innerText = c.wormPop.toLocaleString();
-
-      const elCap = document.getElementById('val-worm-cap');
-      if (elCap) elCap.innerText = c.maxWormCap.toLocaleString();
-
-      const elBio = document.getElementById('val-biomass');
-      if (elBio) elBio.innerText = (c.wormPop * 0.0005).toFixed(2);
+      setTxt('val-worm-kg', c.wormKg.toFixed(2));
+      setTxt('val-max-worm-kg', getMaxWormCapacityKg().toFixed(2));
+      setTxt('val-worm-count', Math.floor(c.wormKg * 1000).toLocaleString());
 
       const barWorm = document.getElementById('bar-worm-pop');
-      if (barWorm) barWorm.style.width = `${(c.wormPop / c.maxWormCap) * 100}%`;
+      if (barWorm) barWorm.style.width = `${Math.min(100, (c.wormKg / getMaxWormCapacityKg()) * 100)}%`;
 
-      const elWaste = document.getElementById('val-waste-kg');
-      if (elWaste) elWaste.innerText = `${Math.floor(c.unprocessedWasteKg)} Kg`;
-
-      const elAp = document.getElementById('val-ap');
-      if (elAp) elAp.innerText = gameState.ap;
-
-      const elMaxAp = document.getElementById('val-max-ap');
-      if (elMaxAp) elMaxAp.innerText = gameState.maxAp;
+      setTxt('val-waste-kg', `${Math.floor(c.unprocessedWasteKg)} Kg`);
+      setTxt('val-ap', gameState.ap);
+      setTxt('val-max-ap', gameState.maxAp);
     }
 
     /* =========================================================================
-       7. CARD ACTIONS & CONSUMPTION
+       7. CARD ACTIONS
        ========================================================================= */
 
     function useCard(cardId) {
@@ -681,7 +697,7 @@
       const count = gameState.cardInventory[cardId] || 0;
 
       if (!card || count <= 0) {
-        showToast('該資材卡牌庫存不足！請至「牌組管理/商店」花費 NT$ 補充！', 'fa-triangle-exclamation');
+        showToast('該資材卡牌庫存不足！請至卡牌商店用 NT$ 補充！', 'fa-triangle-exclamation');
         return;
       }
 
@@ -690,84 +706,81 @@
         return;
       }
 
-      // Deduct AP & Consumable Card Count
       gameState.ap -= card.cost;
       gameState.cardInventory[cardId] -= 1;
 
       const c = gameState.compost;
       const bonus = getPlayerBonus();
 
-      // Card Physics Logic
       if (card.id === 'c_community_leaves') {
-        c.cnRatio += 4.5 * bonus.carbonBonus;
-        c.moisture = Math.max(20, c.moisture - 3.0);
+        c.cnRatio += 4.5 * bonus.cnControlBonus;
+        c.moisture = Math.max(20, c.moisture - 3.0 * bonus.cnControlBonus);
+        addESGExp(15 + getSkillLevel('sk_community') * 10);
       } else if (card.id === 'c_sawdust') {
-        c.cnRatio += 8.0 * bonus.carbonBonus;
-        c.moisture = Math.max(20, c.moisture - 5.0);
+        c.cnRatio += 8.0 * bonus.cnControlBonus;
+        c.moisture = Math.max(20, c.moisture - 5.0 * bonus.cnControlBonus);
         c.odorPpm = Math.max(0, c.odorPpm - 15);
       } else if (card.id === 'c_aerate') {
-        c.oxygen = Math.min(100, c.oxygen + 20);
-        c.temp = Math.max(15, c.temp - 2.5);
+        c.oxygen = Math.min(100, c.oxygen + 25);
+        c.temp = Math.max(15, c.temp - 2.0);
       } else if (card.id === 'c_harvest') {
         gameState.vermicompostKg += 30;
-        c.unprocessedWasteKg = Math.max(0, c.unprocessedWasteKg - 20);
         addESGExp(35);
       } else if (card.id === 'c_biochar') {
-        c.cnRatio += 14.0 * bonus.carbonBonus;
-        c.moisture = Math.max(20, c.moisture - 8.0);
-        c.odorPpm = Math.max(0, c.odorPpm - 35);
+        c.cnRatio += 15.0 * bonus.cnControlBonus;
+        c.moisture = Math.max(20, c.moisture - 8.0 * bonus.cnControlBonus);
+        c.odorPpm = Math.max(0, c.odorPpm - 40);
       } else if (card.id === 'c_lime') {
         c.ph = Math.min(9.0, c.ph + 0.8);
       } else if (card.id === 'c_em_spray') {
-        c.odorPpm = Math.max(0, c.odorPpm - 25);
-        c.temp += 1.5;
+        c.odorPpm = Math.max(0, c.odorPpm - 30);
       } else if (card.id === 'c_worm_boost') {
-        c.wormPop = Math.min(c.maxWormCap, c.wormPop + 1200);
+        c.wormKg = Math.min(getMaxWormCapacityKg(), c.wormKg + 0.8);
       } else if (card.id === 'c_auto_harvest') {
         gameState.vermicompostKg += 80;
-        c.unprocessedWasteKg = Math.max(0, c.unprocessedWasteKg - 50);
-        addESGExp(85);
+        addESGExp(90);
       }
 
-      showToast(`使用【${card.name}】！剩餘 ${gameState.cardInventory[cardId]} 張`, 'fa-wand-magic-sparkles');
+      showToast(`發動【${card.name}】！剩餘 ${gameState.cardInventory[cardId]} 張`, 'fa-wand-magic-sparkles');
       renderMainView();
     }
 
     function replenishAP() {
       const bonus = getPlayerBonus();
       gameState.ap = bonus.maxAp;
-      showToast('完成回合休養，AP 已重置滿格！', 'fa-bolt');
+      showToast('完成回合休養，AP 重置滿格！', 'fa-bolt');
       renderMainView();
     }
 
     /* =========================================================================
-       8. VIEW 2: CARD DECK MANAGEMENT & STORE (PURCHASE CONSUMABLES WITH NT$)
+       8. VIEW 2: CARD DECK & SHOP
        ========================================================================= */
 
     function renderDeckView() {
       const view = document.getElementById('main-view');
       const capacity = getDeckCapacity();
+      const discount = getBargainDiscount();
 
       view.innerHTML = `
         <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-5">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 class="text-lg font-black text-purple-400 flex items-center gap-2">
-                <i class="fa-solid fa-cards"></i> 戰術牌組與資材補給商店
+                <i class="fa-solid fa-cards"></i> 戰術牌組與資材補充商店
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">卡牌為一次性消耗資材，使用新台幣 (NT$) 購買補充。（出戰卡牌種類上限：<b class="text-purple-300">${capacity}</b>）</p>
+              <p class="text-xs text-slate-400 mt-0.5">資材卡牌使用完畢後可使用 NT$ 補充。（出戰攜帶上限：<b class="text-purple-300">${capacity}</b> 種）</p>
             </div>
             <div class="text-xs bg-slate-900 border border-purple-500/40 px-3 py-1.5 rounded-xl text-purple-300 font-bold">
-              出戰卡牌: ${gameState.activeDeckIds.length} / ${capacity}
+              出戰狀態: ${gameState.activeDeckIds.length} / ${capacity}
             </div>
           </div>
 
-          <!-- Cards Grid -->
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
             ${gameState.cardPool.map(card => {
               const isActive = gameState.activeDeckIds.includes(card.id);
               const count = gameState.cardInventory[card.id] || 0;
               const cardStyle = CARD_TYPES[card.type] || CARD_TYPES.CARBON;
+              const discountedPrice = Math.floor(card.basePrice * discount);
 
               return `
                 <div class="rounded-xl bg-gradient-to-b ${cardStyle.color} border p-3 flex flex-col justify-between h-56 relative shadow-lg ${!card.unlocked ? 'opacity-40 grayscale' : ''}">
@@ -786,7 +799,7 @@
                   ${card.unlocked ? `
                     <div class="space-y-1">
                       <button onclick="buyCardConsumable('${card.id}')" class="w-full py-1 text-[10px] font-black bg-amber-500 hover:bg-amber-400 text-slate-950 rounded transition">
-                        購買 1 張 (NT$ ${card.price})
+                        補充 1 張 (NT$ ${discountedPrice})
                       </button>
                       <button onclick="toggleDeckActive('${card.id}')" class="w-full py-1 text-[10px] font-bold rounded transition ${isActive ? 'bg-emerald-500 text-slate-950' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'}">
                         ${isActive ? '已出戰' : '選入出戰'}
@@ -794,7 +807,7 @@
                     </div>
                   ` : `
                     <div class="text-[10px] text-rose-400 font-bold text-center bg-slate-950/60 py-1 rounded">
-                      需於科技樹研發解鎖
+                      須在科技樹研發解鎖
                     </div>
                   `}
                 </div>
@@ -809,14 +822,15 @@
       const card = gameState.cardPool.find(c => c.id === cardId);
       if (!card) return;
 
-      if (gameState.coins < card.price) {
-        showToast('資金 (NT$) 不足，無法購買資材卡牌！', 'fa-triangle-exclamation');
+      const price = Math.floor(card.basePrice * getBargainDiscount());
+      if (gameState.coins < price) {
+        showToast('資金 (NT$) 不足，無法補充卡牌！', 'fa-triangle-exclamation');
         return;
       }
 
-      gameState.coins -= card.price;
+      gameState.coins -= price;
       gameState.cardInventory[cardId] = (gameState.cardInventory[cardId] || 0) + 1;
-      showToast(`成功購買 1 張【${card.name}】！`, 'fa-cart-shopping');
+      showToast(`成功補充 1 張【${card.name}】！`, 'fa-cart-shopping');
       renderDeckView();
       updateHUD();
     }
@@ -833,7 +847,7 @@
         gameState.activeDeckIds.splice(idx, 1);
       } else {
         if (gameState.activeDeckIds.length >= cap) {
-          showToast(`已達當前等級攜帶上限 (${cap} 種)！提升等級可解鎖更多攜帶數。`, 'fa-triangle-exclamation');
+          showToast(`已達當前攜帶上限 (${cap} 種)！提升等級可擴充攜帶數。`, 'fa-triangle-exclamation');
           return;
         }
         gameState.activeDeckIds.push(cardId);
@@ -843,7 +857,7 @@
     }
 
     /* =========================================================================
-       9. VIEW 3: SKILL TREE
+       9. VIEW 3: SKILL TREE (10 SKILLS, MAX LEVEL 5 EACH)
        ========================================================================= */
 
     function renderSkillsView() {
@@ -854,29 +868,31 @@
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 class="text-lg font-black text-cyan-400 flex items-center gap-2">
-                <i class="fa-solid fa-user-ninja"></i> 玩家天賦技能樹
+                <i class="fa-solid fa-user-ninja"></i> 天賦技能樹 (完整 10 種技能)
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">每提升 1 級獲得 <b>5 點天賦點數</b>。</p>
+              <p class="text-xs text-slate-400 mt-0.5">每提升 1 級獲得 <b>5 點天賦點數</b>，每項天賦上限為 5 級。</p>
             </div>
             <div class="text-xs bg-slate-900 border border-cyan-500/40 px-3 py-1 rounded-xl text-cyan-300 font-bold">
-              剩餘天賦點數: ${gameState.skillPoints}
+              剩餘技能點數: ${gameState.skillPoints}
             </div>
           </div>
 
-          <div class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${gameState.skillTree.map(sk => `
-              <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-lg">
+              <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex flex-col justify-between shadow-lg">
                 <div>
-                  <h4 class="font-bold text-sm text-slate-100 flex items-center gap-2">
-                    ${sk.name}
-                    <span class="text-xs text-cyan-400 font-normal">(Lv.${sk.level}/${sk.maxLevel})</span>
-                  </h4>
-                  <p class="text-xs text-slate-400 mt-0.5">${sk.desc}</p>
+                  <div class="flex items-center justify-between">
+                    <h4 class="font-bold text-xs text-cyan-300">${sk.name}</h4>
+                    <span class="text-[10px] text-cyan-400 font-bold bg-slate-950 px-2 py-0.5 rounded">Lv.${sk.level} / ${sk.maxLevel}</span>
+                  </div>
+                  <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${sk.desc}</p>
                 </div>
-                <button onclick="upgradeSkill('${sk.id}')" ${gameState.skillPoints < sk.cost || sk.level >= sk.maxLevel ? 'disabled' : ''}
-                  class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase transition ${sk.level >= sk.maxLevel ? 'bg-slate-800 text-slate-500' : 'bg-cyan-600 hover:bg-cyan-500 text-slate-950 disabled:opacity-40'}">
-                  ${sk.level >= sk.maxLevel ? '已滿級' : `升級 (${sk.cost} 點)`}
-                </button>
+                <div class="mt-3 text-right">
+                  <button onclick="upgradeSkill('${sk.id}')" ${gameState.skillPoints < sk.cost || sk.level >= sk.maxLevel ? 'disabled' : ''}
+                    class="px-3 py-1 rounded-xl font-bold text-xs uppercase transition ${sk.level >= sk.maxLevel ? 'bg-slate-800 text-slate-500' : 'bg-cyan-600 hover:bg-cyan-500 text-slate-950 disabled:opacity-40'}">
+                    ${sk.level >= sk.maxLevel ? '已滿級' : `升級 (${sk.cost} 點)`}
+                  </button>
+                </div>
               </div>
             `).join('')}
           </div>
@@ -891,44 +907,57 @@
       gameState.skillPoints -= sk.cost;
       sk.level += 1;
       recalculateStats();
-      showToast(`升級成功：${sk.name}！`, 'fa-circle-check');
+      showToast(`升級成功：${sk.name} (Lv.${sk.level})！`, 'fa-circle-check');
       renderSkillsView();
     }
 
     /* =========================================================================
-       10. VIEW 4: TECH TREE
+       10. VIEW 4: TECH TREE (20 TECHS IN 4 DOMAINS)
        ========================================================================= */
 
     function renderTechView() {
       const view = document.getElementById('main-view');
+      const domains = ['基礎設施', '微生物與資材', '感測器與自動化', '高階碳資產'];
 
       view.innerHTML = `
-        <div class="flex-1 flex flex-col p-5 max-w-4xl mx-auto w-full overflow-y-auto space-y-4">
+        <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 class="text-lg font-black text-emerald-400 flex items-center gap-2">
-                <i class="fa-solid fa-diagram-project"></i> 永續科技研發樹
+                <i class="fa-solid fa-diagram-project"></i> 永續科技樹研發系統 (四大領域共 20 項)
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">投入資金 (NT$) 研發永續技術，解鎖強效資材卡牌與碳權認證。</p>
+              <p class="text-xs text-slate-400 mt-0.5">花費資金 (NT$) 研發科技，解鎖特殊資材卡牌與高級碳權交易。</p>
             </div>
             <div class="text-xs bg-slate-900 border border-emerald-500/40 px-3 py-1 rounded-xl text-emerald-300 font-bold">
-              資金: NT$ ${gameState.coins.toLocaleString()}
+              資金: NT$ ${Math.floor(gameState.coins).toLocaleString()}
             </div>
           </div>
 
-          <div class="space-y-3">
-            ${gameState.techTree.map(t => {
-              const reqMet = !t.req || gameState.techTree.find(x => x.id === t.req && x.unlocked);
+          <div class="space-y-5">
+            ${domains.map(dom => {
+              const nodes = gameState.techTree.filter(t => t.domain === dom);
               return `
-                <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 flex items-center justify-between shadow-lg">
-                  <div>
-                    <h4 class="font-bold text-xs text-emerald-400">${t.name}</h4>
-                    <p class="text-[11px] text-slate-400 mt-0.5">${t.desc}</p>
+                <div class="space-y-2">
+                  <h3 class="text-xs font-black text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="fa-solid fa-layer-group"></i> ${dom}
+                  </h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    ${nodes.map(t => {
+                      const reqMet = !t.req || gameState.techTree.find(x => x.id === t.req && x.unlocked);
+                      return `
+                        <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between shadow-md">
+                          <div>
+                            <h4 class="font-bold text-xs text-slate-200">${t.name}</h4>
+                            <p class="text-[10px] text-slate-400 mt-0.5">${t.desc}</p>
+                          </div>
+                          <button onclick="unlockTech('${t.id}')" ${t.unlocked || gameState.coins < t.cost || !reqMet ? 'disabled' : ''}
+                            class="px-3 py-1.5 rounded-xl font-bold text-[10px] uppercase transition shrink-0 ml-2 ${t.unlocked ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-40'}">
+                            ${t.unlocked ? '已研發' : `研發 NT$ ${t.cost.toLocaleString()}`}
+                          </button>
+                        </div>
+                      `;
+                    }).join('')}
                   </div>
-                  <button onclick="unlockTech('${t.id}')" ${t.unlocked || gameState.coins < t.cost || !reqMet ? 'disabled' : ''}
-                    class="px-3.5 py-1.5 rounded-xl font-bold text-xs uppercase transition ${t.unlocked ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 disabled:opacity-40'}">
-                    ${t.unlocked ? '已研發' : `研發 (NT$ ${t.cost.toLocaleString()})`}
-                  </button>
                 </div>
               `;
             }).join('')}
@@ -955,27 +984,28 @@
     }
 
     /* =========================================================================
-       11. VIEW 5: EQUIPMENT & GEAR SHOP
+       11. VIEW 5: EQUIPMENT SHOP (4 SLOTS)
        ========================================================================= */
 
     function renderShopView() {
       const view = document.getElementById('main-view');
+      const discount = getBargainDiscount();
 
       view.innerHTML = `
         <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <div>
               <h2 class="text-lg font-black text-amber-400 flex items-center gap-2">
-                <i class="fa-solid fa-shirt"></i> 裝備穿戴與資材商店
+                <i class="fa-solid fa-shirt"></i> 專業裝備穿戴 (4 部位)
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">【頭部】、【身體】、【手部】、【腳部】四部位專業裝備。</p>
+              <p class="text-xs text-slate-400 mt-0.5">【頭部】、【身體】、【手部】、【腳部】四部位裝備。</p>
             </div>
             <div class="text-xs bg-slate-900 border border-amber-500/40 px-3 py-1 rounded-xl text-amber-300 font-bold">
-              資金: NT$ ${gameState.coins.toLocaleString()}
+              資金: NT$ ${Math.floor(gameState.coins).toLocaleString()}
             </div>
           </div>
 
-          <!-- Current Gear -->
+          <!-- Current Gear Slots -->
           <div class="bg-slate-900 border border-slate-800 rounded-xl p-3">
             <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">當前穿戴裝備</h3>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
@@ -992,13 +1022,13 @@
             </div>
           </div>
 
-          <!-- Gear Store -->
-          <h3 class="text-xs font-bold text-emerald-400 uppercase tracking-wider">可購買裝備</h3>
+          <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider">可購買裝備</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             ${BASE_EQUIPMENT.map(item => {
               const isEquipped = gameState.equipment[item.slot]?.name === item.name;
               const levelMet = gameState.level >= item.minLevel;
-              const canAfford = gameState.coins >= item.price;
+              const price = Math.floor(item.price * discount);
+              const canAfford = gameState.coins >= price;
 
               return `
                 <div class="bg-slate-900 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
@@ -1008,7 +1038,7 @@
                       <span class="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-amber-400 font-bold">Lv.${item.minLevel}</span>
                     </div>
                     <p class="text-[11px] text-emerald-400 font-bold mt-0.5">${item.desc}</p>
-                    <div class="text-xs text-amber-400 font-bold mt-1">NT$ ${item.price.toLocaleString()}</div>
+                    <div class="text-xs text-amber-400 font-bold mt-1">NT$ ${price.toLocaleString()}</div>
                   </div>
                   <button onclick="buyAndEquipGear('${item.id}')" ${isEquipped || !levelMet || !canAfford ? 'disabled' : ''}
                     class="px-3 py-1.5 rounded-xl font-bold text-xs uppercase transition ${isEquipped ? 'bg-emerald-950 text-emerald-400 border border-emerald-500/50' : 'bg-amber-500 hover:bg-amber-400 text-slate-950 disabled:opacity-40'}">
@@ -1024,9 +1054,12 @@
 
     function buyAndEquipGear(gearId) {
       const item = BASE_EQUIPMENT.find(g => g.id === gearId);
-      if (!item || gameState.coins < item.price || gameState.level < item.minLevel) return;
+      if (!item) return;
 
-      gameState.coins -= item.price;
+      const price = Math.floor(item.price * getBargainDiscount());
+      if (gameState.coins < price || gameState.level < item.minLevel) return;
+
+      gameState.coins -= price;
       gameState.equipment[item.slot] = item;
       recalculateStats();
       showToast(`成功購買並穿戴：${item.name}！`, 'fa-shield-halved');
@@ -1034,20 +1067,27 @@
     }
 
     /* =========================================================================
-       12. VIEW 6: CARBON CREDIT MARKET & ESG TRADING (REAL STANDARD NT$)
+       12. VIEW 6: CARBON CREDIT MARKET & NT$ ECONOMY
        ========================================================================= */
 
     function renderCarbonView() {
       const view = document.getElementById('main-view');
       const bonus = getPlayerBonus();
-      const isTechEsgUnlocked = gameState.techTree.find(t => t.id === 'tech_esg_project')?.unlocked;
 
-      // Carbon Credit Trading Standards (Taiwan & International Carbon Market standard NT$ 800 - 1,500 / tCO2e)
-      let baseCarbonPricePerTon = isTechEsgUnlocked ? 1500 : 900;
-      const actualCarbonPricePerTon = Math.floor(baseCarbonPricePerTon * bonus.tradeBonus);
+      const isIsoUnlocked = gameState.techTree.find(t => t.id === 'tech_iso14064')?.unlocked;
+      const isVcsUnlocked = gameState.techTree.find(t => t.id === 'tech_vcs_standard')?.unlocked;
+      const isZeroFarmUnlocked = gameState.techTree.find(t => t.id === 'tech_zero_farm')?.unlocked;
 
-      // Vermicompost direct sale price: NT$ 20 / kg
-      const vermicompostPricePerKg = Math.floor(20 * bonus.tradeBonus);
+      // Base carbon credit price (NT$ 1,200/tCO2e baseline)
+      let baseCarbonPrice = 1200;
+      if (isIsoUnlocked) baseCarbonPrice *= 1.25;
+      if (isVcsUnlocked) baseCarbonPrice *= 1.35;
+      if (isZeroFarmUnlocked) baseCarbonPrice *= 2.0;
+
+      const actualCarbonPrice = Math.floor(baseCarbonPrice * bonus.carbonPriceBonus);
+
+      // Raw fertilizer direct sale price: NT$ 20 / kg
+      const vermicompostPricePerKg = 20;
 
       view.innerHTML = `
         <div class="flex-1 flex flex-col p-5 max-w-5xl mx-auto w-full overflow-y-auto space-y-5">
@@ -1056,7 +1096,7 @@
               <h2 class="text-lg font-black text-emerald-400 flex items-center gap-2">
                 <i class="fa-solid fa-chart-line"></i> 碳權交易所與 ESG 專案
               </h2>
-              <p class="text-xs text-slate-400 mt-0.5">對齊台灣碳費與國際碳權交易標準 (NT$ 800 - 1,500 / tCO2e)。1 kg 有機質可轉換約 1.83 kg CO2e 碳匯。</p>
+              <p class="text-xs text-slate-400 mt-0.5">對齊台灣與國際碳權行情 (基準 NT$ 1,200 / tCO2e)。1 kg 蚓糞封存約可抵換 0.00183 tCO2e。</p>
             </div>
             <div class="text-xs bg-slate-900 border border-emerald-500/40 px-3 py-1 rounded-xl text-emerald-300 font-bold">
               蚓糞庫存: ${gameState.vermicompostKg.toFixed(1)} Kg
@@ -1069,9 +1109,9 @@
             <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3 shadow-xl">
               <div>
                 <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
-                  <i class="fa-solid fa-seedling text-emerald-400"></i> 1. 蚓糞封存轉化碳匯
+                  <i class="fa-solid fa-seedling text-emerald-400"></i> 1. 蚓糞封存轉化土壤碳匯
                 </h3>
-                <p class="text-[11px] text-slate-400 mt-1">每 100 Kg 蚓糞投入土壤可固定約 0.183 tCO2e 土壤碳匯。</p>
+                <p class="text-[11px] text-slate-400 mt-1">每 50 Kg 蚓糞封存入土壤可轉換為土壤碳匯。</p>
               </div>
 
               <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 text-center">
@@ -1081,7 +1121,7 @@
 
               <button onclick="convertVermicompostToCarbon()" ${gameState.vermicompostKg < 50 ? 'disabled' : ''}
                 class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-xl text-xs uppercase transition disabled:opacity-40">
-                封存 50 Kg 蚓糞為 0.091 tCO2e 碳匯
+                封存 50 Kg 蚓糞轉化為 0.0915 tCO2e 碳匯
               </button>
             </div>
 
@@ -1091,21 +1131,19 @@
                 <h3 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
                   <i class="fa-solid fa-handshake text-amber-400"></i> 2. 碳權銷售與蚓糞零售
                 </h3>
-                <p class="text-[11px] text-slate-400 mt-1">碳權對企業有高額合規抵換價值，收益遠高於直接賣粗肥！</p>
+                <p class="text-[11px] text-slate-400 mt-1">將認證碳權出售給企業獲得高額資金。</p>
               </div>
 
               <div class="space-y-2">
-                <!-- Carbon Credit Trading Button -->
                 <button onclick="sellCarbonCredits()" ${gameState.carbonSeqTon < 0.1 ? 'disabled' : ''}
                   class="w-full py-3 bg-gradient-to-r from-amber-500 to-yellow-400 hover:from-amber-400 hover:to-yellow-300 text-slate-950 font-black rounded-xl text-xs uppercase transition shadow-lg disabled:opacity-40 flex flex-col items-center justify-center">
                   <span>出售 0.10 t 認證碳權</span>
-                  <span class="text-[10px] font-bold text-slate-900">獲得 +NT$ ${Math.floor(actualCarbonPricePerTon * 0.10).toLocaleString()} (單價: NT$ ${actualCarbonPricePerTon}/t)</span>
+                  <span class="text-[10px] font-bold text-slate-900">獲得 +NT$ ${Math.floor(actualCarbonPrice * 0.10).toLocaleString()} (單價: NT$ ${actualCarbonPrice}/t)</span>
                 </button>
 
-                <!-- Vermicompost Fertilizer Sale -->
                 <button onclick="sellFertilizerDirect()" ${gameState.vermicompostKg < 20 ? 'disabled' : ''}
                   class="w-full py-2 bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold rounded-xl text-[11px] transition border border-slate-700 disabled:opacity-40">
-                  零售 20 Kg 優質蚓糞 (獲 +NT$ ${(20 * vermicompostPricePerKg).toLocaleString()})
+                  賤賣 20 Kg 原始蚓糞 (獲 +NT$ ${(20 * vermicompostPricePerKg).toLocaleString()})
                 </button>
               </div>
             </div>
@@ -1117,24 +1155,31 @@
 
     function convertVermicompostToCarbon() {
       if (gameState.vermicompostKg < 50) return;
+      const bonus = getPlayerBonus();
+      const amountTon = 0.0915 * bonus.carbonAuditBonus;
+
       gameState.vermicompostKg -= 50;
-      gameState.carbonSeqTon += 0.0915; // 50kg * 1.83kg CO2e = 91.5kg CO2e = 0.0915 tCO2e
+      gameState.carbonSeqTon += amountTon;
       addESGExp(50);
-      showToast('成功封存 50 Kg 蚓糞為 0.0915 tCO2e 土壤碳匯！', 'fa-seedling');
+      showToast(`成功封存 50 Kg 蚓糞為 ${amountTon.toFixed(4)} tCO2e 土壤碳匯！`, 'fa-seedling');
       renderCarbonView();
     }
 
     function sellCarbonCredits() {
       if (gameState.carbonSeqTon < 0.1) return;
       const bonus = getPlayerBonus();
-      const isTechEsgUnlocked = gameState.techTree.find(t => t.id === 'tech_esg_project')?.unlocked;
-      let baseCarbonPricePerTon = isTechEsgUnlocked ? 1500 : 900;
 
-      const earnedCoins = Math.floor((baseCarbonPricePerTon * 0.10) * bonus.tradeBonus);
+      let baseCarbonPrice = 1200;
+      if (gameState.techTree.find(t => t.id === 'tech_iso14064')?.unlocked) baseCarbonPrice *= 1.25;
+      if (gameState.techTree.find(t => t.id === 'tech_vcs_standard')?.unlocked) baseCarbonPrice *= 1.35;
+      if (gameState.techTree.find(t => t.id === 'tech_zero_farm')?.unlocked) baseCarbonPrice *= 2.0;
+
+      const actualCarbonPrice = Math.floor(baseCarbonPrice * bonus.carbonPriceBonus);
+      const earnedCoins = Math.floor(actualCarbonPrice * 0.10);
 
       gameState.carbonSeqTon -= 0.1;
       gameState.coins += earnedCoins;
-      addESGExp(100);
+      addESGExp(120);
 
       showToast(`成功出售 0.1t 碳權！獲得 +NT$ ${earnedCoins.toLocaleString()}`, 'fa-sack-dollar');
       renderCarbonView();
@@ -1143,15 +1188,13 @@
 
     function sellFertilizerDirect() {
       if (gameState.vermicompostKg < 20) return;
-      const bonus = getPlayerBonus();
-      const pricePerKg = Math.floor(20 * bonus.tradeBonus);
-      const earnedCoins = 20 * pricePerKg;
+      const earnedCoins = 20 * 20; // NT$ 20/kg
 
       gameState.vermicompostKg -= 20;
       gameState.coins += earnedCoins;
-      addESGExp(20);
+      addESGExp(15);
 
-      showToast(`零售 20 Kg 優質蚓糞，獲得 +NT$ ${earnedCoins.toLocaleString()}`, 'fa-sack-dollar');
+      showToast(`零售 20 Kg 蚓糞，獲得 +NT$ ${earnedCoins.toLocaleString()}`, 'fa-sack-dollar');
       renderCarbonView();
       updateHUD();
     }
@@ -1161,7 +1204,7 @@
        ========================================================================= */
 
     window.onload = function() {
-      gameLoopTimer = setInterval(tickSimulation, 1500);
+      setInterval(tickSimulation, 1500);
       switchTab('compost');
     };
   </script>
