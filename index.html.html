@@ -3,225 +3,493 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器</title>
+  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器 V2.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; user-select: none; }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-thumb { background: rgba(16, 185, 129, 0.4); border-radius: 9999px; }
+    .modal-backdrop { background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(4px); }
   </style>
 </head>
 <body class="h-full overflow-hidden flex flex-col bg-slate-950 text-slate-100">
 
   <!-- HUD 頂部數據列 -->
-  <header class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0">
+  <header class="h-14 bg-slate-900 border-b border-slate-800 px-4 flex items-center justify-between shrink-0 z-10">
     <div class="flex items-center space-x-2">
-      <i class="fa-solid fa-worm text-emerald-400 text-xl"></i>
-      <h1 class="text-sm font-bold text-emerald-400">歸蚓酷客：擬真堆肥物理模擬器</h1>
-    </div>
-    <div class="flex items-center space-x-3 text-xs">
-      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
-        <i class="fa-solid fa-sack-dollar text-amber-400 mr-1"></i><span id="hud-coins" class="font-bold text-amber-400">NT$ 5,000</span>
+      <div class="w-8 h-8 rounded-lg bg-emerald-950 border border-emerald-500/40 flex items-center justify-center text-emerald-400 text-lg font-black shadow-inner">
+        <i class="fa-solid fa-worm"></i>
       </div>
-      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+      <div>
+        <h1 class="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">歸蚓酷客：擬真堆肥物理模擬器</h1>
+        <div class="text-[10px] text-slate-400">時間流速: <span class="text-emerald-300 font-bold">1秒 = 1小時</span> (1.5分鐘 = 1天)</div>
+      </div>
+    </div>
+    
+    <!-- 經濟資源 HUD -->
+    <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
+      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="現金準備金">
+        <i class="fa-solid fa-sack-dollar text-amber-400 mr-1"></i><span id="hud-coins" class="font-black text-amber-400">NT$ 5,000</span>
+      </div>
+      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="可販售熟成蚓糞">
         <i class="fa-solid fa-cubes-stacked text-amber-600 mr-1"></i><span id="hud-vermicompost" class="font-bold text-amber-200">0.0 Kg</span>
       </div>
-      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700">
+      <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="累積固碳量">
         <i class="fa-solid fa-seedling text-emerald-400 mr-1"></i><span id="hud-carbon-seq" class="font-bold text-emerald-300">0.000 t</span>
       </div>
     </div>
   </header>
 
-  <!-- 擬真儀表板與數據呈現 -->
-  <main class="flex-1 p-4 max-w-6xl mx-auto w-full overflow-y-auto space-y-4">
+  <!-- 主模擬儀表板 -->
+  <main class="flex-1 p-3 sm:p-4 max-w-6xl mx-auto w-full overflow-y-auto space-y-3 sm:space-y-4">
     
-    <!-- 物理與化學參數 Panel -->
-    <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl">
-      <h3 class="text-xs font-bold text-slate-300 mb-3 flex items-center gap-2">
-        <i class="fa-solid fa-flask text-emerald-400"></i> 生物化學與物理動態監測（對齊學術文獻）
-      </h3>
+    <!-- 1. 生物化學與物理動態 Panel -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2.5">
+        <h3 class="text-xs font-bold text-slate-200 flex items-center gap-2">
+          <i class="fa-solid fa-flask text-emerald-400"></i> 生態系統動態物理監測 (學術規範對齊)
+        </h3>
+        <div class="text-[11px] text-slate-400">
+          箱體總面積: <b class="text-emerald-400" id="val-area">0.5 m²</b>
+        </div>
+      </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2 text-center text-xs">
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">堆體溫度 (°C)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">堆體溫度 (°C)</span>
           <span id="val-temp" class="font-black text-emerald-400 text-sm">24.0°C</span>
-          <span class="text-[9px] text-slate-500 block">最適 15-25°C</span>
+          <span class="text-[8px] text-slate-500 block">最適 15-25°C</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">含水率 (MC %)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">含水率 (MC %)</span>
           <span id="val-moist" class="font-black text-emerald-400 text-sm">65.0%</span>
-          <span class="text-[9px] text-slate-500 block">最適 60-80%</span>
+          <span class="text-[8px] text-slate-500 block">最適 60-80%</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">酸鹼值 (pH)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">酸鹼值 (pH)</span>
           <span id="val-ph" class="font-black text-emerald-400 text-sm">7.00</span>
-          <span class="text-[9px] text-slate-500 block">最適 6.5-8.0</span>
+          <span class="text-[8px] text-slate-500 block">最適 6.5-8.0</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">碳氮比 (C/N)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">碳氮比 (C/N)</span>
           <span id="val-cn" class="font-black text-amber-300 text-sm">27.0:1</span>
-          <span class="text-[9px] text-slate-500 block">目標 25-30:1</span>
+          <span class="text-[8px] text-slate-500 block">目標 25-30:1</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">電導度 (EC)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">電導度 (EC)</span>
           <span id="val-ec" class="font-black text-cyan-400 text-sm">1.8 mS/cm</span>
-          <span class="text-[9px] text-slate-500 block">上限 &lt; 4.0</span>
+          <span class="text-[8px] text-slate-500 block">上限 &lt; 4.0</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">通氣率 (O2 %)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">通氣率 (O2 %)</span>
           <span id="val-oxy" class="font-black text-emerald-400 text-sm">18.5%</span>
-          <span class="text-[9px] text-slate-500 block">最適 &gt; 15%</span>
+          <span class="text-[8px] text-slate-500 block">最適 &gt; 15%</span>
         </div>
-        <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800">
-          <span class="text-[10px] text-slate-400 block">惡臭 (PPM)</span>
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80">
+          <span class="text-[9px] text-slate-500 font-bold block">惡臭 (PPM)</span>
           <span id="val-odor" class="font-black text-rose-400 text-sm">0 PPM</span>
-          <span class="text-[9px] text-slate-500 block">開罰門檻 50</span>
+          <span class="text-[8px] text-slate-500 block">開罰門檻 50</span>
         </div>
       </div>
     </div>
 
-    <!-- 生物族群與進料動態 Panel -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- 2. 生物族群與物質轉換 Panel -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
       
-      <!-- 蚯蚓族群狀態 -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl">
-        <h3 class="text-xs font-bold text-slate-300 mb-2 flex items-center justify-between">
-          <span><i class="fa-solid fa-bug text-emerald-400 mr-1"></i> 蚯蚓族群動力學 (Eisenia fetida)</span>
-          <span class="text-[10px] text-slate-400">密度 limit: <b class="text-emerald-400" id="val-density">2.5</b> kg/m²</span>
-        </h3>
-        <div class="space-y-2 text-xs">
-          <div class="flex justify-between">
-            <span class="text-slate-400">族群總數 / 上限：</span>
-            <span class="font-bold"><span id="val-worm-pop" class="text-emerald-400">2,500</span> / <span id="val-worm-cap">4,000</span> 條</span>
+      <!-- 左側：蚯蚓族群與養殖箱狀態 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-worm text-emerald-400"></i> 蚯蚓族群動力學 (Eisenia fetida)
+            </h3>
+            <span id="badge-status" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-700/50">狀態良好</span>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">總生物量 (Biomass)：</span>
-            <span class="font-bold text-amber-300"><span id="val-biomass">1.25</span> kg</span>
+
+          <div class="space-y-1.5 text-xs">
+            <div class="flex justify-between border-b border-slate-800/60 pb-1">
+              <span class="text-slate-400">族群數量 / 箱體容量：</span>
+              <span class="font-bold"><span id="val-worm-pop" class="text-emerald-400">2,500</span> / <span id="val-worm-cap">4,000</span> 條</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-800/60 pb-1">
+              <span class="text-slate-400">總生物量 (Biomass)：</span>
+              <span class="font-bold text-amber-300"><span id="val-biomass">1.25</span> kg</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-800/60 pb-1">
+              <span class="text-slate-400">養殖密度 (Density)：</span>
+              <span class="font-bold"><span id="val-density" class="text-emerald-400">2.50</span> kg/m² <span class="text-[10px] text-slate-500">(上限 4.0)</span></span>
+            </div>
+            <div class="flex justify-between border-b border-slate-800/60 pb-1">
+              <span class="text-slate-400">日均估算消化能：</span>
+              <span class="font-bold text-cyan-300"><span id="val-feed-rate">0.88</span> kg / 模擬天</span>
+            </div>
           </div>
-          <div class="flex justify-between">
-            <span class="text-slate-400">每日估計消化能：</span>
-            <span class="font-bold text-cyan-300"><span id="val-feed-rate">0.88</span> kg / 天</span>
-          </div>
+        </div>
+
+        <!-- 蚯蚓管理與買賣按鈕 -->
+        <div class="grid grid-cols-3 gap-2 mt-3 pt-2 border-t border-slate-800/80">
+          <button onclick="splitCulture()" class="py-1.5 bg-purple-950 hover:bg-purple-900 text-purple-300 border border-purple-700/60 font-bold rounded-lg text-[11px] transition">
+            <i class="fa-solid fa-code-branch mr-1"></i> 分養箱體 (NT$1,500)
+          </button>
+          <button onclick="upgradeBox()" class="py-1.5 bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-700/60 font-bold rounded-lg text-[11px] transition">
+            <i class="fa-solid fa-expand mr-1"></i> 擴建養殖床 (NT$2,500)
+          </button>
+          <button onclick="sellWorms()" class="py-1.5 bg-amber-950 hover:bg-amber-900 text-amber-300 border border-amber-700/60 font-bold rounded-lg text-[11px] transition">
+            <i class="fa-solid fa-hand-holding-dollar mr-1"></i> 賣蚯蚓 (NT$1,000/kg)
+          </button>
         </div>
       </div>
 
-      <!-- 待處理廢棄物與調控面板 -->
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl flex flex-col justify-between">
+      <!-- 右側：有機廢棄物與轉化蚓糞狀態 -->
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl flex flex-col justify-between">
         <div>
-          <h3 class="text-xs font-bold text-slate-300 mb-2">
-            <i class="fa-solid fa-dumpster text-amber-400 mr-1"></i> 高氮廢棄物積壓：
-            <span id="val-waste-kg" class="text-amber-400 font-black text-sm ml-1">15.0 Kg</span>
+          <h3 class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-recycle text-amber-400"></i> 有機質轉化與物質平衡 (35% 乾重轉化率)
           </h3>
-          <p class="text-[11px] text-slate-400">高氮物料積壓過久會引起酸化、升溫與厭氧惡臭，請使用高碳資材調控。</p>
+
+          <div class="space-y-2">
+            <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between">
+              <div>
+                <span class="text-[10px] text-slate-400 block font-bold">待消化有機廢棄物</span>
+                <span id="val-waste-kg" class="text-sm font-black text-amber-400">15.00 Kg</span>
+              </div>
+              <div class="text-right">
+                <span class="text-[10px] text-slate-400 block font-bold">已轉化熟成蚓糞</span>
+                <span id="val-vermi-kg" class="text-sm font-black text-emerald-400">0.00 Kg</span>
+              </div>
+            </div>
+
+            <p class="text-[10px] text-slate-400 leading-tight">
+              高氮廢棄物過多會造成酸化與惡臭。蚯蚓消化將有機物轉化為優質蚓糞，可銷售換取現金或進行土壤固碳。
+            </p>
+          </div>
         </div>
-        <div class="flex gap-2 mt-3">
-          <button onclick="applyAction('leaves')" class="flex-1 py-1.5 bg-amber-900/60 hover:bg-amber-800 text-amber-300 border border-amber-700/60 font-bold rounded-lg text-xs">
-            + 枯枝落葉 (高碳 C/N +5)
+
+        <!-- 物理操作與資材選單按鈕 -->
+        <div class="grid grid-cols-4 gap-1.5 mt-3 pt-2 border-t border-slate-800/80">
+          <button onclick="openOrganicModal()" class="col-span-2 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-xs transition">
+            <i class="fa-solid fa-leaf mr-1"></i> 添加有機資材
           </button>
-          <button onclick="applyAction('aerate')" class="flex-1 py-1.5 bg-blue-900/60 hover:bg-blue-800 text-blue-300 border border-blue-700/60 font-bold rounded-lg text-xs">
-            翻堆通氣 (O2 +15%)
+          <button onclick="waterBox()" class="py-1.5 bg-blue-900/80 hover:bg-blue-800 text-blue-200 border border-blue-700/60 font-bold rounded-lg text-[11px] transition">
+            <i class="fa-solid fa-droplet mr-1"></i> 補水降溫
+          </button>
+          <button onclick="aerateBox()" class="py-1.5 bg-cyan-900/80 hover:bg-cyan-800 text-cyan-200 border border-cyan-700/60 font-bold rounded-lg text-[11px] transition">
+            <i class="fa-solid fa-wind mr-1"></i> 翻堆通氣
           </button>
         </div>
       </div>
 
     </div>
+
+    <!-- 3. 蚓糞銷售與碳匯轉換 Panel -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl flex items-center justify-between">
+      <div>
+        <h4 class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+          <i class="fa-solid fa-chart-line text-emerald-400"></i> 產物商業化與碳匯變現
+        </h4>
+        <p class="text-[10px] text-slate-400 mt-0.5">熟成蚓糞市場價約 NT$ 20 / kg；封存至土壤 1 kg 蚓糞相當於 0.183 kg CO2e 碳匯。</p>
+      </div>
+
+      <div class="flex gap-2 shrink-0">
+        <button onclick="sellVermicompost()" class="px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-lg text-xs transition">
+          販售 10kg 蚓糞 (+NT$ 200)
+        </button>
+        <button onclick="convertCarbonSeq()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-black rounded-lg text-xs transition">
+          封存 10kg 固碳 (+0.002t)
+        </button>
+      </div>
+    </div>
+
   </main>
 
+  <!-- MODAL: 有機資材選擇彈窗 -->
+  <div id="organic-modal" class="fixed inset-0 modal-backdrop z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-lg w-full p-4 shadow-2xl space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-2">
+        <h3 class="text-sm font-bold text-emerald-400 flex items-center gap-2">
+          <i class="fa-solid fa-boxes-packing"></i> 選擇有機資材調整堆肥箱
+        </h3>
+        <button onclick="closeOrganicModal()" class="text-slate-400 hover:text-slate-200 text-sm">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="space-y-2 text-xs">
+        
+        <!-- 廚餘/生鮮廢水渣 -->
+        <div onclick="addFeedstock('kitchen')" class="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="font-bold text-amber-300">生鮮廚餘渣 (高氮物料) +10 kg</div>
+            <div class="text-[10px] text-slate-400">C/N 12:1 | 濕度 +8% | 拉低 C/N 比、引發升溫與發臭</div>
+          </div>
+          <span class="px-2 py-1 bg-amber-950 text-amber-300 rounded font-bold text-[10px]">添加</span>
+        </div>
+
+        <!-- 乾燥木屑/稻殼 -->
+        <div onclick="addFeedstock('sawdust')" class="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="font-bold text-amber-200">乾燥木屑 / 稻殼 (高碳資材) +5 kg</div>
+            <div class="text-[10px] text-slate-400">C/N 200:1 | 濕度 -5% | 提升 C/N 比、大幅降低濕度</div>
+          </div>
+          <span class="px-2 py-1 bg-amber-950 text-amber-200 rounded font-bold text-[10px]">添加</span>
+        </div>
+
+        <!-- 枯枝落葉 -->
+        <div onclick="addFeedstock('leaves')" class="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="font-bold text-emerald-300">枯枝落葉 (調控資材) +5 kg</div>
+            <div class="text-[10px] text-slate-400">C/N 60:1 | 濕度 -3% | 穩健調升 C/N 比、改善堆體通氣</div>
+          </div>
+          <span class="px-2 py-1 bg-emerald-950 text-emerald-300 rounded font-bold text-[10px]">添加</span>
+        </div>
+
+        <!-- 高溫生物炭 -->
+        <div onclick="addFeedstock('biochar')" class="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="font-bold text-purple-300">多孔高溫生物炭 +2 kg</div>
+            <div class="text-[10px] text-slate-400">C/N 300:1 | 吸附臭味 -25 PPM | 增加結構孔隙度</div>
+          </div>
+          <span class="px-2 py-1 bg-purple-950 text-purple-300 rounded font-bold text-[10px]">添加</span>
+        </div>
+
+        <!-- 熟石灰中和粉 -->
+        <div onclick="addFeedstock('lime')" class="p-2.5 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl cursor-pointer transition flex justify-between items-center">
+          <div>
+            <div class="font-bold text-cyan-300">熟石灰 / 蛋殼微粉 +1 kg</div>
+            <div class="text-[10px] text-slate-400">pH +0.8 | 快速中和高氮酸中毒、抑制酸化惡臭</div>
+          </div>
+          <span class="px-2 py-1 bg-cyan-950 text-cyan-300 rounded font-bold text-[10px]">添加</span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
   <script>
-    // 遊戲與物理模擬狀態數據 (依學術標準初始化)
+    /* =========================================================================
+       1. 遊戲狀態與物理參數數據結構
+       ========================================================================= */
     let state = {
       coins: 5000,
       vermicompostKg: 0.0,
       carbonSeqTon: 0.0,
-      
+
       compost: {
-        temp: 24.0,           // °C
-        moisture: 65.0,       // %
-        ph: 7.00,             // pH
-        cnRatio: 27.0,        // C/N
-        ec: 1.80,             // mS/cm
-        oxygen: 18.5,         // %
-        odorPpm: 0.0,         // Odor PPM
-        
-        wormPop: 2500,        // 條數 (0.5g/條)
-        areaM2: 0.5,          // m²
-        maxWormCap: 4000,     // 養殖上限條數
-        unprocessedWasteKg: 15.0
+        temp: 24.0,           // °C (最適 15 - 25°C)
+        moisture: 65.0,       // % (最適 60 - 80%)
+        ph: 7.00,             // pH (最適 6.5 - 8.0)
+        cnRatio: 27.0,        // C/N 比 (目標 25 - 30:1)
+        ec: 1.80,             // mS/cm (上限 < 4.0)
+        oxygen: 18.5,         // % (最適 > 15%)
+        odorPpm: 0.0,         // 惡臭 PPM (開罰門檻 50)
+
+        wormPop: 2500,        // 蚯蚓條數 (0.5g/條)
+        areaM2: 0.5,          // 養殖箱面積 m²
+        maxWormCap: 4000,     // 箱體容納條數上限
+        unprocessedWasteKg: 15.0 // 待消化有機廢棄物 (Kg)
       }
     };
 
-    // 實時物理與生物學 Tick 運算迴圈 (每 1.5 秒為 1 物理時間步)
+    /* =========================================================================
+       2. 核心時間縮放與物理/生物學 TICK 模擬器 (1秒 = 1小時)
+       ========================================================================= */
     function tickSimulation() {
       const c = state.compost;
 
-      // 1. 環境健康度綜合評分 (即時反映論文最佳區間)
-      let tempHealth = (c.temp >= 15 && c.temp <= 25) ? 1.0 : (c.temp > 35 || c.temp < 10) ? 0.1 : 0.5;
-      let moistHealth = (c.moisture >= 60 && c.moisture <= 80) ? 1.0 : (c.moisture < 45 || c.moisture > 85) ? 0.2 : 0.6;
-      let phHealth = (c.ph >= 6.5 && c.ph <= 8.0) ? 1.0 : 0.3;
-      let oxyHealth = (c.oxygen >= 15) ? 1.0 : 0.3;
-      let ecHealth = (c.ec <= 3.0) ? 1.0 : 0.4;
+      // --- A. 學術健康度綜合評分 (0.0 ~ 1.0) ---
+      let tempHealth = (c.temp >= 15 && c.temp <= 25) ? 1.0 : (c.temp > 35 || c.temp < 10) ? 0.0 : 0.4;
+      let moistHealth = (c.moisture >= 60 && c.moisture <= 80) ? 1.0 : (c.moisture < 45 || c.moisture > 85) ? 0.1 : 0.5;
+      let phHealth = (c.ph >= 6.5 && c.ph <= 8.0) ? 1.0 : 0.2;
+      let oxyHealth = (c.oxygen >= 15.0) ? 1.0 : 0.2;
+      let ecHealth = (c.ec <= 3.0) ? 1.0 : 0.3;
 
       let overallHealth = (tempHealth + moistHealth + phHealth + oxyHealth + ecHealth) / 5.0;
 
-      // 2. 蚯蚓消化與廢棄物轉化 (每日食量為體重 50%-100%)
-      let wormBiomassKg = c.wormPop * 0.0005; // 條數轉 Kg
-      let maxDailyConsumptionKg = wormBiomassKg * 0.8; // 平均 80% 體重消化率
-      let stepConsumptionKg = (maxDailyConsumptionKg / 10) * overallHealth; // 單步消化量
+      // --- B. 蚯蚓消化與 35% 乾重轉化率 (Organic Waste -> Vermicompost) ---
+      let wormBiomassKg = c.wormPop * 0.0005; // 條數轉為公斤生物量
+      // 現實中蚯蚓每日約進食體重 50%~100% (取 80%)；1秒=1小時，除以24小時
+      let hourlyConsumptionCap = (wormBiomassKg * 0.8 / 24.0) * overallHealth;
 
       if (c.unprocessedWasteKg > 0) {
-        let treated = Math.min(c.unprocessedWasteKg, stepConsumptionKg);
-        c.unprocessedWasteKg -= treated;
-        state.vermicompostKg += treated * 0.70; // 70% 轉化為熟成蚓糞
+        let actualTreatedKg = Math.min(c.unprocessedWasteKg, hourlyConsumptionCap);
+        c.unprocessedWasteKg -= actualTreatedKg;
+        // 真實轉化率：約 35% 轉化為熟成蚓糞，其餘為代謝耗損
+        state.vermicompostKg += actualTreatedKg * 0.35;
       }
 
-      // 3. 蚯蚓族群動態消長 (最適環境自然繁殖，不良環境死亡/逃亡)
-      if (overallHealth > 0.75) {
-        if (c.wormPop < c.maxWormCap) {
-          c.wormPop = Math.min(c.maxWormCap, Math.floor(c.wormPop * 1.015)); // 1.5% 繁殖成長
-        }
+      // --- C. 蚯蚓族群成長/死亡與逃亡機制 ---
+      let currentDensity = wormBiomassKg / c.areaM2; // kg/m² (上限 4.0 kg/m²)
+
+      // 觸發逃亡條件：過熱 (>35°C)、高濕厭氧 (>85% 或 O2<8%)、酸中毒 (pH<5.5)、空間嚴重過載
+      let isEscapeTriggered = (c.temp > 35.0 || (c.moisture > 85.0 && c.oxygen < 8.0) || c.ph < 5.5 || currentDensity > 4.5);
+
+      if (isEscapeTriggered) {
+        // 逃亡與集體死亡：每小時損失 8% 族群
+        let escapedCount = Math.floor(c.wormPop * 0.08);
+        c.wormPop = Math.max(0, c.wormPop - escapedCount);
+        updateStatusBadge('危險！蚯蚓逃亡中', 'rose');
+      } else if (overallHealth > 0.75 && currentDensity < 3.8) {
+        // 優良環境自然繁殖 (縮放時間下每小時 0.08% 增殖率)
+        let newBorn = Math.floor(c.wormPop * 0.0008);
+        c.wormPop = Math.min(c.maxWormCap, c.wormPop + Math.max(1, newBorn));
+        updateStatusBadge('最適生長繁殖中', 'emerald');
       } else if (overallHealth < 0.35) {
-        c.wormPop = Math.max(100, Math.floor(c.wormPop * 0.975)); // 2.5% 應激死亡
-      }
-
-      // 4. 惡臭 (Odor PPM) 與 C/N 比連動物理學
-      if (c.cnRatio >= 30.0) {
-        // 高碳多孔資材主動吸附並抑臭，PPM 呈現自然指數衰減
-        c.odorPpm = Math.max(0.0, c.odorPpm - 3.5);
-      } else if (c.unprocessedWasteKg > 20.0 || c.moisture > 80.0 || c.oxygen < 10.0) {
-        // 低 C/N 或高濕厭氧狀況下，惡臭 PPM 累積飆升
-        c.odorPpm = Math.min(300.0, c.odorPpm + 2.8);
-        c.cnRatio = Math.max(10.0, c.cnRatio - 0.1);
+        // 脅迫環境自然死亡
+        let dieCount = Math.floor(c.wormPop * 0.02);
+        c.wormPop = Math.max(0, c.wormPop - dieCount);
+        updateStatusBadge('環境惡劣 (衰退)', 'amber');
       } else {
-        c.odorPpm = Math.max(0.0, c.odorPpm - 1.0);
+        updateStatusBadge('維持中', 'blue');
       }
 
-      // 5. 環保局 PPM 開罰機制
+      // --- D. 氣味 (Odor PPM) 與 C/N 比動態運算 ---
+      if (c.cnRatio >= 30.0 && c.oxygen >= 12.0) {
+        // 高碳多孔資材主動吸附氣味，PPM 指數級下降
+        c.odorPpm = Math.max(0.0, c.odorPpm - 2.5);
+      } else if (c.unprocessedWasteKg > 20.0 || c.moisture > 80.0 || c.oxygen < 10.0) {
+        // 高氮積壓或缺氧腐敗，惡臭飆升
+        c.odorPpm = Math.min(300.0, c.odorPpm + 3.0);
+        c.cnRatio = Math.max(10.0, c.cnRatio - 0.08);
+        c.ph = Math.max(4.5, c.ph - 0.03); // 發酵酸化
+      } else {
+        c.odorPpm = Math.max(0.0, c.odorPpm - 0.8);
+      }
+
+      // --- E. 環保局開罰機制 ---
       if (c.odorPpm >= 80.0 && state.coins >= 12000) {
         state.coins -= 12000;
-        alert(`【環保局開罰通知】堆肥場臭味高達 ${Math.floor(c.odorPpm)} PPM，違反《空氣污染防制法》，直接開罰台幣 NT$ 12,000 元！`);
+        alert(`【環保局開罰通知】堆肥場臭味達 ${Math.floor(c.odorPpm)} PPM，違反《空氣污染防制法》，直接開罰台幣 NT$ 12,000！`);
       }
 
-      // 6. 自然環境漂移
-      c.oxygen = Math.max(5.0, c.oxygen - 0.1);
-      c.moisture = Math.max(20.0, c.moisture - 0.08);
+      // --- F. 自然環境漂移 (水分蒸發與溶氧消耗) ---
+      c.oxygen = Math.max(5.0, c.oxygen - 0.15);
+      c.moisture = Math.max(15.0, c.moisture - 0.05);
 
-      // 更新畫面 DOM
       updateUI();
     }
 
-    function applyAction(type) {
+    /* =========================================================================
+       3. 互動調控與有機資材處理
+       ========================================================================= */
+    function openOrganicModal() {
+      document.getElementById('organic-modal').classList.remove('hidden');
+    }
+
+    function closeOrganicModal() {
+      document.getElementById('organic-modal').classList.add('hidden');
+    }
+
+    function addFeedstock(type) {
       const c = state.compost;
-      if (type === 'leaves') {
-        c.cnRatio = Math.min(100.0, c.cnRatio + 5.0);
+      if (type === 'kitchen') {
+        c.unprocessedWasteKg += 10.0;
+        c.moisture = Math.min(95.0, c.moisture + 8.0);
+        c.cnRatio = Math.max(10.0, c.cnRatio - 3.5);
+        c.ph = Math.max(4.5, c.ph - 0.2);
+      } else if (type === 'sawdust') {
+        c.unprocessedWasteKg += 5.0;
+        c.cnRatio = Math.min(100.0, c.cnRatio + 15.0);
+        c.moisture = Math.max(20.0, c.moisture - 5.0);
+        c.odorPpm = Math.max(0.0, c.odorPpm - 15.0);
+      } else if (type === 'leaves') {
+        c.unprocessedWasteKg += 5.0;
+        c.cnRatio = Math.min(100.0, c.cnRatio + 6.0);
         c.moisture = Math.max(20.0, c.moisture - 3.0);
-      } else if (type === 'aerate') {
-        c.oxygen = Math.min(100.0, c.oxygen + 15.0);
-        c.temp = Math.max(15.0, c.temp - 1.5);
+        c.oxygen = Math.min(100.0, c.oxygen + 5.0);
+      } else if (type === 'biochar') {
+        c.cnRatio = Math.min(100.0, c.cnRatio + 10.0);
+        c.odorPpm = Math.max(0.0, c.odorPpm - 25.0);
+        c.oxygen = Math.min(100.0, c.oxygen + 8.0);
+      } else if (type === 'lime') {
+        c.ph = Math.min(9.0, c.ph + 0.8);
       }
+
+      closeOrganicModal();
       updateUI();
     }
 
+    function waterBox() {
+      const c = state.compost;
+      c.moisture = Math.min(95.0, c.moisture + 10.0);
+      c.temp = Math.max(15.0, c.temp - 2.0); // 補水蒸發降溫
+      updateUI();
+    }
+
+    function aerateBox() {
+      const c = state.compost;
+      c.oxygen = Math.min(100.0, c.oxygen + 20.0);
+      c.temp = Math.max(15.0, c.temp - 1.5); // 翻堆散熱
+      c.moisture = Math.max(20.0, c.moisture - 4.0); // 散失水分
+      updateUI();
+    }
+
+    /* =========================================================================
+       4. 箱體管理與商業買賣 (以台幣現金計價)
+       ========================================================================= */
+    function splitCulture() {
+      if (state.coins < 1500) { alert('現金不足 NT$ 1,500，無法分養！'); return; }
+      state.coins -= 1500;
+      state.compost.wormPop = Math.floor(state.compost.wormPop * 0.5); // 移走 50%
+      state.compost.areaM2 += 0.5; // 擴建新箱體
+      state.compost.maxWormCap += 4000;
+      alert('成功進行分養！已將 50% 蚯蚓移至新養殖箱，降低密度！');
+      updateUI();
+    }
+
+    function upgradeBox() {
+      if (state.coins < 2500) { alert('現金不足 NT$ 2,500！'); return; }
+      state.coins -= 2500;
+      state.compost.areaM2 += 0.5;
+      state.compost.maxWormCap += 4000;
+      alert('成功擴建養殖床！養殖面積增加 0.5 m²！');
+      updateUI();
+    }
+
+    function sellWorms() {
+      let biomassKg = (state.compost.wormPop * 0.0005);
+      if (biomassKg < 0.5) { alert('蚯蚓生物量不足 0.5 kg，無法採收！'); return; }
+      
+      let sellKg = 0.5;
+      let earned = sellKg * 1000; // 市價 NT$ 1000/kg
+      state.compost.wormPop -= 1000; // 扣除 1000 條 (0.5kg)
+      state.coins += earned;
+      alert(`成功採收販售 0.5 kg 活體種蚓，獲得 NT$ ${earned} 元！`);
+      updateUI();
+    }
+
+    function sellVermicompost() {
+      if (state.vermicompostKg < 10.0) { alert('熟成蚓糞不足 10 kg！'); return; }
+      state.vermicompostKg -= 10.0;
+      let earned = 10.0 * 20; // NT$ 20/kg
+      state.coins += earned;
+      updateUI();
+    }
+
+    function convertCarbonSeq() {
+      if (state.vermicompostKg < 10.0) { alert('熟成蚓糞不足 10 kg！'); return; }
+      state.vermicompostKg -= 10.0;
+      state.carbonSeqTon += 0.00183; // 10kg * 0.183kg CO2e
+      updateUI();
+    }
+
+    function updateStatusBadge(text, color) {
+      const badge = document.getElementById('badge-status');
+      badge.innerText = text;
+      if (color === 'rose') {
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-700/50 animate-pulse';
+      } else if (color === 'emerald') {
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-700/50';
+      } else if (color === 'amber') {
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-700/50';
+      } else {
+        badge.className = 'text-[10px] font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-700/50';
+      }
+    }
+
+    /* =========================================================================
+       5. SMART UI 渲染更新
+       ========================================================================= */
     function updateUI() {
       const c = state.compost;
       document.getElementById('hud-coins').innerText = `NT$ ${state.coins.toLocaleString()}`;
@@ -236,6 +504,7 @@
       document.getElementById('val-oxy').innerText = `${c.oxygen.toFixed(1)}%`;
       document.getElementById('val-odor').innerText = `${Math.floor(c.odorPpm)} PPM`;
 
+      document.getElementById('val-area').innerText = `${c.areaM2.toFixed(1)} m²`;
       document.getElementById('val-worm-pop').innerText = c.wormPop.toLocaleString();
       document.getElementById('val-worm-cap').innerText = c.maxWormCap.toLocaleString();
       
@@ -243,11 +512,13 @@
       document.getElementById('val-biomass').innerText = biomass.toFixed(2);
       document.getElementById('val-density').innerText = (biomass / c.areaM2).toFixed(2);
       document.getElementById('val-feed-rate').innerText = (biomass * 0.8).toFixed(2);
-      document.getElementById('val-waste-kg').innerText = `${c.unprocessedWasteKg.toFixed(1)} Kg`;
+
+      document.getElementById('val-waste-kg').innerText = `${c.unprocessedWasteKg.toFixed(2)} Kg`;
+      document.getElementById('val-vermi-kg').innerText = `${state.vermicompostKg.toFixed(2)} Kg`;
     }
 
     window.onload = function() {
-      setInterval(tickSimulation, 1500);
+      setInterval(tickSimulation, 1000); // 1秒 = 1小時
       updateUI();
     };
   </script>
