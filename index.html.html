@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器 V5.0 減碳與效率引擎</title>
+  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器 V6.0 實景天候與飢餓機制</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -23,14 +23,14 @@
       </div>
       <div>
         <h1 class="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">歸蚓酷客：擬真堆肥物理模擬器</h1>
-        <div class="text-[10px] text-slate-400">執行天數: <span id="hud-days" class="text-amber-400 font-bold">第 1 天</span> (1秒 = 1小時, 24秒 = 1天)</div>
+        <div class="text-[10px] text-slate-400">執行天數: <span id="hud-days" class="text-amber-400 font-bold">第 1 天</span> | 天候: <span id="hud-weather" class="text-cyan-400 font-bold">晴朗舒適 (25°C)</span></div>
       </div>
     </div>
     
     <!-- 經濟與減碳 HUD -->
     <div class="flex items-center space-x-2 sm:space-x-3 text-xs">
       <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="現金準備金">
-        <i class="fa-solid fa-sack-dollar text-amber-400 mr-1"></i><span id="hud-coins" class="font-black text-amber-400">NT$ 5,000</span>
+        <i class="fa-solid fa-sack-dollar text-amber-400 mr-1"></i><span id="hud-coins" class="font-black text-amber-400">NT$ 100,000</span>
       </div>
       <div class="bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-700" title="可販售熟成蚓糞">
         <i class="fa-solid fa-cubes-stacked text-amber-600 mr-1"></i><span id="hud-vermicompost" class="font-bold text-amber-200">0.0 Kg</span>
@@ -117,8 +117,8 @@
               <span class="font-bold text-amber-300"><span id="val-biomass">1.25</span> kg</span>
             </div>
             <div class="flex justify-between border-b border-slate-800/60 pb-1">
-              <span class="text-slate-400">養殖密度 (Density)：</span>
-              <span class="font-bold"><span id="val-density" class="text-emerald-400">2.50</span> kg/m² <span class="text-[10px] text-slate-500">(上限 4.0)</span></span>
+              <span class="text-slate-400">飢餓狀態計時：</span>
+              <span class="font-bold text-rose-300"><span id="val-starve-days">0.0</span> 天 (斷糧上限 ~14天)</span>
             </div>
             <div class="flex justify-between border-b border-slate-800/60 pb-1">
               <span class="text-slate-400">即時建議處理量上限：</span>
@@ -141,7 +141,7 @@
         </div>
       </div>
 
-      <!-- 右側：有機廢棄物與累積總處理量 -->
+      <!-- 右側：有機廢棄物與歷史總處理量 -->
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl flex flex-col justify-between">
         <div>
           <h3 class="text-xs font-bold text-slate-200 mb-2 flex items-center gap-1.5">
@@ -175,8 +175,8 @@
           <button onclick="waterBox()" class="py-1.5 bg-blue-900/80 hover:bg-blue-800 text-blue-200 border border-blue-700/60 font-bold rounded-lg text-[11px] transition">
             <i class="fa-solid fa-droplet mr-1"></i> 補水降溫
           </button>
-          <button onclick="aerateBox()" class="py-1.5 bg-cyan-900/80 hover:bg-cyan-800 text-cyan-200 border border-cyan-700/60 font-bold rounded-lg text-[11px] transition">
-            <i class="fa-solid fa-wind mr-1"></i> 翻堆通氣
+          <button onclick="aerateBox()" class="py-1.5 bg-cyan-900/80 hover:bg-cyan-800 text-cyan-200 border border-cyan-700/60 font-bold rounded-lg text-[11px] transition" title="依現實物理熱平衡朝環境氣溫散熱">
+            <i class="fa-solid fa-wind mr-1"></i> 翻堆散熱
           </button>
         </div>
       </div>
@@ -273,16 +273,22 @@
 
   <script>
     /* =========================================================================
-       1. 遊戲狀態與物理參數數據結構
+       1. 遊戲狀態與物理參數數據結構 (初始資金設為 10 萬元)
        ========================================================================= */
     let state = {
-      coins: 5000,
+      coins: 100000,
       vermicompostKg: 0.0,
       carbonSeqTon: 0.0,
       totalHours: 0, // 累計小時數 (24小時 = 1天)
 
-      totalProcessedWasteKg: 0.0, // 歷史總處理有機質
-      totalVermicompostProducedKg: 0.0, // 歷史總產出蚓糞
+      totalProcessedWasteKg: 0.0,
+      totalVermicompostProducedKg: 0.0,
+
+      weather: {
+        name: '晴朗舒適',
+        ambientTemp: 25.0, // 外界氣溫
+        humidity: 65.0     // 空氣濕度
+      },
 
       compost: {
         temp: 24.0,           // °C
@@ -296,38 +302,71 @@
         wormPop: 2500,        // 蚯蚓條數
         areaM2: 0.5,          // 養殖箱面積 m²
         maxWormCap: 4000,     // 容納上限條數
-        unprocessedWasteKg: 15.0 // 待消化有機廢棄物 (Kg)
+        unprocessedWasteKg: 15.0, // 待消化有機廢棄物 (Kg)
+        starveHours: 0        // 斷糧飢餓累積小時數
       }
     };
 
     /* =========================================================================
-       2. 核心時間縮放與物理/生物學 TICK 模擬器 (1秒 = 1小時，24秒 = 1天)
+       2. 天候動態模擬 (每 24 模擬小時切換一次天氣)
+       ========================================================================= */
+    function updateWeather() {
+      let day = Math.floor(state.totalHours / 24);
+      let weathers = [
+        { name: '晴朗舒適', temp: 24.0, moistDelta: -0.2 },
+        { name: '豔陽高溫', temp: 33.0, moistDelta: -0.8 },
+        { name: '陰雨潮濕', temp: 20.0, moistDelta: +0.6 },
+        { name: '涼爽秋風', temp: 19.0, moistDelta: -0.1 }
+      ];
+      let w = weathers[(day + Math.floor(state.totalHours / 6)) % weathers.length];
+      state.weather.name = w.name;
+      state.weather.ambientTemp = w.temp;
+    }
+
+    /* =========================================================================
+       3. 核心物理與生物學 TICK 模擬器 (1秒 = 1小時)
        ========================================================================= */
     function tickSimulation() {
       const c = state.compost;
       state.totalHours += 1;
 
-      // --- A. 濕度與通氣性 (O2) 的強烈物理連動 ---
+      if (state.totalHours % 24 === 0) {
+        updateWeather();
+      }
+
+      // --- A. 濕度與通氣性 (O2) 聯動 ---
       if (c.moisture > 80.0) {
         c.oxygen = Math.max(3.0, c.oxygen - ((c.moisture - 80.0) * 0.15));
       }
 
-      // --- B. 動態箱體分解效率計算 (0% ~ 100%) ---
-      let tempEff = (c.temp >= 15 && c.temp <= 25) ? 1.0 : (c.temp >= 10 && c.temp <= 30) ? 0.7 : 0.2;
+      // --- B. 分解效率計算 ---
+      let tempEff = (c.temp >= 15 && c.temp <= 28) ? 1.0 : (c.temp >= 10 && c.temp <= 33) ? 0.7 : 0.2;
       let moistEff = (c.moisture >= 60 && c.moisture <= 80) ? 1.0 : (c.moisture >= 50 && c.moisture <= 85) ? 0.6 : 0.2;
       let phEff = (c.ph >= 6.5 && c.ph <= 8.0) ? 1.0 : 0.3;
       let oxyEff = (c.oxygen >= 15.0) ? 1.0 : (c.oxygen >= 10.0) ? 0.6 : 0.2;
       let ecEff = (c.ec <= 3.5) ? 1.0 : 0.4;
 
       let decompositionEfficiency = (tempEff * moistEff * phEff * oxyEff * ecEff);
-
-      // --- C. 學術健康度綜合評分 ---
       let overallHealth = (tempEff + moistEff + phEff + oxyEff + ecEff) / 5.0;
 
-      // --- D. 蚯蚓消化與 35% 乾重轉化率 (受即時分解效率影響) ---
+      // --- C. 蚯蚓飢餓機制 (當無有機質可吃時) ---
       let wormBiomassKg = c.wormPop * 0.0005;
-      let hourlyConsumptionCap = (wormBiomassKg * 0.8 / 24.0) * overallHealth * decompositionEfficiency;
+      if (c.unprocessedWasteKg <= 0.1) {
+        c.starveHours += 1;
+        // 超過 7 天 (168小時) 開始出現飢餓死亡，極限約 14 天 (336小時)
+        if (c.starveHours > 72) {
+          let starveDeath = Math.floor(c.wormPop * 0.015);
+          c.wormPop = Math.max(0, c.wormPop - starveDeath);
+          updateStatusBadge('警告：嚴重斷糧飢餓中！', 'rose');
+        } else {
+          updateStatusBadge('注意：食物耗盡尋找中', 'amber');
+        }
+      } else {
+        c.starveHours = Math.max(0, c.starveHours - 2); // 有食物補充則逐步恢復
+      }
 
+      // --- D. 蚯蚓消化與轉化 ---
+      let hourlyConsumptionCap = (wormBiomassKg * 0.8 / 24.0) * overallHealth * decompositionEfficiency;
       if (c.unprocessedWasteKg > 0) {
         let actualTreatedKg = Math.min(c.unprocessedWasteKg, hourlyConsumptionCap);
         c.unprocessedWasteKg -= actualTreatedKg;
@@ -338,47 +377,44 @@
         state.totalVermicompostProducedKg += producedVermi;
       }
 
-      // --- E. 堆置過久未消化有機質造成的厭氧腐敗與 PPM 飆升 ---
+      // --- E. 堆置過久有機質腐敗與 PPM 飆升 ---
       if (c.unprocessedWasteKg > 20.0) {
         let excessWaste = c.unprocessedWasteKg - 20.0;
-        let odorSpike = excessWaste * 0.5;
-        c.odorPpm = Math.min(300.0, c.odorPpm + odorSpike);
+        c.odorPpm = Math.min(300.0, c.odorPpm + (excessWaste * 0.5));
         c.ph = Math.max(4.0, c.ph - 0.02);
         c.oxygen = Math.max(2.0, c.oxygen - 0.2);
       }
 
-      // --- F. 蚯蚓族群成長/死亡與逃亡機制 ---
+      // --- F. 族群生長與逃亡機制 ---
       let currentDensity = wormBiomassKg / c.areaM2;
-      let isEscapeTriggered = (c.temp > 34.0 || (c.moisture > 85.0 && c.oxygen < 8.0) || c.ph < 5.5 || c.ec > 4.0 || currentDensity > 4.5 || c.odorPpm > 100.0);
+      let isEscapeTriggered = (c.temp > 35.0 || (c.moisture > 85.0 && c.oxygen < 8.0) || c.ph < 5.5 || c.ec > 4.0 || currentDensity > 4.5 || c.odorPpm > 100.0 || c.starveHours > 250);
 
       if (isEscapeTriggered) {
         let escapedCount = Math.floor(c.wormPop * 0.08);
         c.wormPop = Math.max(0, c.wormPop - escapedCount);
-        updateStatusBadge('危險！環境惡劣逃亡中', 'rose');
-      } else if (overallHealth > 0.75 && currentDensity < 3.8) {
+        if (c.starveHours > 250) updateStatusBadge('危險！斷糧過久集體逃亡', 'rose');
+        else updateStatusBadge('危險！環境惡劣逃亡中', 'rose');
+      } else if (overallHealth > 0.75 && currentDensity < 3.8 && c.unprocessedWasteKg > 0) {
         let newBorn = Math.floor(c.wormPop * 0.0008);
         c.wormPop = Math.min(c.maxWormCap, c.wormPop + Math.max(1, newBorn));
         updateStatusBadge('最適生長繁殖中', 'emerald');
       } else if (overallHealth < 0.35) {
-        let dieCount = Math.floor(c.wormPop * 0.02);
-        c.wormPop = Math.max(0, c.wormPop - dieCount);
         updateStatusBadge('環境脅迫 (衰退)', 'amber');
-      } else {
-        updateStatusBadge('穩定維持中', 'blue');
       }
 
-      // --- G. 氣味 (Odor PPM) 與 C/N、溫度自然漂移 ---
+      // --- G. 氣味與溫度熱平衡向外界氣溫靠攏 ---
       if (c.cnRatio >= 30.0 && c.oxygen >= 12.0 && c.ec <= 3.0 && c.unprocessedWasteKg <= 20.0) {
         c.odorPpm = Math.max(0.0, c.odorPpm - 2.5);
       } else {
         c.odorPpm = Math.min(300.0, c.odorPpm + 1.2);
       }
 
-      let targetEnvTemp = 24.0;
-      if (c.unprocessedWasteKg > 10 && c.oxygen > 10) {
-        targetEnvTemp += Math.min(10, c.unprocessedWasteKg * 0.2);
+      // 堆體溫度朝外界氣溫（ambientTemp）及微生物發酵熱靠攏
+      let targetTemp = state.weather.ambientTemp;
+      if (c.unprocessedWasteKg > 5 && c.oxygen > 10) {
+        targetTemp += Math.min(12, c.unprocessedWasteKg * 0.25);
       }
-      c.temp += (targetEnvTemp - c.temp) * 0.05;
+      c.temp += (targetTemp - c.temp) * 0.04;
       c.ec = Math.max(1.2, c.ec - 0.005);
 
       // --- H. 環保局開罰機制 ---
@@ -387,7 +423,7 @@
         alert(`【環保局開罰通知】堆肥場臭味達 ${Math.floor(c.odorPpm)} PPM，違反《空氣污染防制法》，直接開罰台幣 NT$ 12,000！`);
       }
 
-      // --- I. 自然環境漂移 ---
+      // --- I. 自然環境微調 ---
       c.oxygen = Math.max(3.0, c.oxygen - 0.1);
       c.moisture = Math.max(15.0, c.moisture - 0.03);
 
@@ -395,52 +431,26 @@
     }
 
     /* =========================================================================
-       3. 互動調控與有機資材處理
+       4. 互動調控 (修正翻堆降溫：依現實熱平衡，絕不可能降到 15°C)
        ========================================================================= */
-    function openOrganicModal() {
-      document.getElementById('organic-modal').classList.remove('hidden');
-    }
-
-    function closeOrganicModal() {
-      document.getElementById('organic-modal').classList.add('hidden');
-    }
+    function openOrganicModal() { document.getElementById('organic-modal').classList.remove('hidden'); }
+    function closeOrganicModal() { document.getElementById('organic-modal').classList.add('hidden'); }
 
     function addFeedstock(type) {
       const c = state.compost;
       if (type === 'kitchen') {
-        c.unprocessedWasteKg += 10.0;
-        c.moisture = Math.min(95.0, c.moisture + 8.0);
-        c.cnRatio = Math.max(10.0, c.cnRatio - 3.5);
-        c.ph = Math.max(4.5, c.ph - 0.2);
-        c.temp += 2.5;
+        c.unprocessedWasteKg += 10.0; c.moisture = Math.min(95.0, c.moisture + 8.0); c.cnRatio = Math.max(10.0, c.cnRatio - 3.5); c.ph = Math.max(4.5, c.ph - 0.2); c.temp += 2.5;
       } else if (type === 'cooked_food') {
-        c.unprocessedWasteKg += 5.0;
-        c.ec = Math.min(6.0, c.ec + 0.8);
-        c.oxygen = Math.max(3.0, c.oxygen - 4.0);
-        c.temp += 4.0;
-        c.moisture = Math.min(95.0, c.moisture + 5.0);
-        c.cnRatio = Math.max(10.0, c.cnRatio - 4.0);
+        c.unprocessedWasteKg += 5.0; c.ec = Math.min(6.0, c.ec + 0.8); c.oxygen = Math.max(3.0, c.oxygen - 4.0); c.temp += 4.0; c.moisture = Math.min(95.0, c.moisture + 5.0); c.cnRatio = Math.max(10.0, c.cnRatio - 4.0);
       } else if (type === 'sawdust') {
-        c.unprocessedWasteKg += 5.0;
-        c.cnRatio = Math.min(100.0, c.cnRatio + 15.0);
-        c.moisture = Math.max(20.0, c.moisture - 5.0);
-        c.ec = Math.max(1.0, c.ec - 0.2);
-        c.odorPpm = Math.max(0.0, c.odorPpm - 15.0);
+        c.unprocessedWasteKg += 5.0; c.cnRatio = Math.min(100.0, c.cnRatio + 15.0); c.moisture = Math.max(20.0, c.moisture - 5.0); c.ec = Math.max(1.0, c.ec - 0.2); c.odorPpm = Math.max(0.0, c.odorPpm - 15.0);
       } else if (type === 'leaves') {
-        c.unprocessedWasteKg += 5.0;
-        c.cnRatio = Math.min(100.0, c.cnRatio + 6.0);
-        c.moisture = Math.max(20.0, c.moisture - 3.0);
-        c.ec = Math.max(1.0, c.ec - 0.1);
-        c.oxygen = Math.min(100.0, c.oxygen + 5.0);
+        c.unprocessedWasteKg += 5.0; c.cnRatio = Math.min(100.0, c.cnRatio + 6.0); c.moisture = Math.max(20.0, c.moisture - 3.0); c.ec = Math.max(1.0, c.ec - 0.1); c.oxygen = Math.min(100.0, c.oxygen + 5.0);
       } else if (type === 'biochar') {
-        c.cnRatio = Math.min(100.0, c.cnRatio + 10.0);
-        c.odorPpm = Math.max(0.0, c.odorPpm - 25.0);
-        c.oxygen = Math.min(100.0, c.oxygen + 8.0);
-        c.ec = Math.max(1.0, c.ec - 0.3);
+        c.cnRatio = Math.min(100.0, c.cnRatio + 10.0); c.odorPpm = Math.max(0.0, c.odorPpm - 25.0); c.oxygen = Math.min(100.0, c.oxygen + 8.0); c.ec = Math.max(1.0, c.ec - 0.3);
       } else if (type === 'lime') {
         c.ph = Math.min(9.0, c.ph + 0.8);
       }
-
       closeOrganicModal();
       updateUI();
     }
@@ -448,7 +458,8 @@
     function waterBox() {
       const c = state.compost;
       c.moisture = Math.min(95.0, c.moisture + 10.0);
-      c.temp = Math.max(15.0, c.temp - 1.5);
+      // 水分蒸發帶走微量熱能，但受限於外界氣溫
+      c.temp = Math.max(state.weather.ambientTemp, c.temp - 1.0);
       if (c.moisture > 80) c.oxygen = Math.max(3.0, c.oxygen - 3.0);
       updateUI();
     }
@@ -457,12 +468,16 @@
       const c = state.compost;
       c.oxygen = Math.min(100.0, c.oxygen + 20.0);
       c.moisture = Math.max(20.0, c.moisture - 5.0);
-      c.temp = Math.max(15.0, c.temp - 2.0);
+      // 【真實熱平衡修正】：翻堆散熱，溫度只能緩慢向「外界氣溫」靠近，絕不會無條件降到不合理的 15°C
+      let diff = c.temp - state.weather.ambientTemp;
+      if (diff > 0) {
+        c.temp -= Math.min(diff, 3.5); // 最多散熱降低 3.5°C，且不會低於氣溫
+      }
       updateUI();
     }
 
     /* =========================================================================
-       4. 箱體管理與商業買賣
+       5. 箱體管理與商業買賣
        ========================================================================= */
     function buyWorms() {
       let cost = 1000;
@@ -487,11 +502,9 @@
     function sellWorms() {
       let biomassKg = (state.compost.wormPop * 0.0005);
       if (biomassKg < 0.5) { alert('蚯蚓生物量不足 0.5 kg，無法採收！'); return; }
-      
-      let earned = 0.5 * 1000;
       state.compost.wormPop -= 1000;
-      state.coins += earned;
-      alert(`成功採收販售 0.5 kg 活體種蚓，獲得 NT$ ${earned} 元！`);
+      state.coins += 500;
+      alert('成功採收販售 0.5 kg 活體種蚓，獲得 NT$ 500 元！');
       updateUI();
     }
 
@@ -524,19 +537,20 @@
     }
 
     /* =========================================================================
-       5. SMART UI 渲染更新
+       6. UI 渲染更新
        ========================================================================= */
     function updateUI() {
       const c = state.compost;
       
       let currentDays = Math.floor(state.totalHours / 24) + 1;
       document.getElementById('hud-days').innerText = `第 ${currentDays} 天`;
+      document.getElementById('hud-weather').innerText = `${state.weather.name} (${state.weather.ambientTemp}°C)`;
 
       document.getElementById('hud-coins').innerText = `NT$ ${state.coins.toLocaleString()}`;
       document.getElementById('hud-vermicompost').innerText = `${state.vermicompostKg.toFixed(1)} Kg`;
 
-      // 計算即時分解效率 (%)
-      let tempEff = (c.temp >= 15 && c.temp <= 25) ? 1.0 : (c.temp >= 10 && c.temp <= 30) ? 0.7 : 0.2;
+      // 計算即時分解效率
+      let tempEff = (c.temp >= 15 && c.temp <= 28) ? 1.0 : (c.temp >= 10 && c.temp <= 33) ? 0.7 : 0.2;
       let moistEff = (c.moisture >= 60 && c.moisture <= 80) ? 1.0 : (c.moisture >= 50 && c.moisture <= 85) ? 0.6 : 0.2;
       let phEff = (c.ph >= 6.5 && c.ph <= 8.0) ? 1.0 : 0.3;
       let oxyEff = (c.oxygen >= 15.0) ? 1.0 : (c.oxygen >= 10.0) ? 0.6 : 0.2;
@@ -558,9 +572,8 @@
       
       let biomass = c.wormPop * 0.0005;
       document.getElementById('val-biomass').innerText = biomass.toFixed(2);
-      document.getElementById('val-density').innerText = (biomass / c.areaM2).toFixed(2);
+      document.getElementById('val-starve-days').innerText = (c.starveHours / 24.0).toFixed(1);
       
-      // 建議處理量上限 (每日消化能)
       let dailyMaxFeed = biomass * 0.8 * (currentEffPercent / 100);
       document.getElementById('val-suggested-max').innerText = dailyMaxFeed.toFixed(2);
 
@@ -568,7 +581,6 @@
       document.getElementById('val-total-processed').innerText = `${state.totalProcessedWasteKg.toFixed(2)} Kg`;
       document.getElementById('val-total-vermi').innerText = `${state.totalVermicompostProducedKg.toFixed(2)} Kg`;
 
-      // 減碳貢獻計算：處理有機質避開掩埋產生的甲烷 (每kg約 0.485 kg CO2e) + 土壤碳匯封存 (state.carbonSeqTon)
       let avoidedCo2Ton = (state.totalProcessedWasteKg * 0.485) / 1000.0;
       let totalCo2eTon = avoidedCo2Ton + state.carbonSeqTon;
       
@@ -578,7 +590,7 @@
     }
 
     window.onload = function() {
-      setInterval(tickSimulation, 1000); // 1秒 = 1小時 (24秒 = 1天)
+      setInterval(tickSimulation, 1000); // 1秒 = 1小時
       updateUI();
     };
   </script>
