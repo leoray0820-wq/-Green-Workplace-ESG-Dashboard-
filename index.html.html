@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器 V13.0 超擬真體驗版</title>
+  <title>歸蚓酷客：擬真蚯蚓堆肥物理模擬器 V14.0 完美擬真專業版</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <style>
@@ -27,7 +27,7 @@
         <i class="fa-solid fa-worm"></i>
       </div>
       <div>
-        <h1 class="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">歸蚓酷客：真實動態 C/N 與實時有機質控制台 V13.0</h1>
+        <h1 class="text-xs sm:text-sm font-bold text-emerald-400 uppercase tracking-wider">歸蚓酷客：完美擬真物理與酸鹼自癒模擬器 V14.0</h1>
         <div class="text-[10px] text-slate-400">執行天數: <span id="hud-days" class="text-amber-400 font-bold">第 1 天</span> | 天候: <span id="hud-weather" class="text-cyan-400 font-bold">晴朗舒適 (25°C)</span></div>
       </div>
     </div>
@@ -56,7 +56,7 @@
           <i class="fa-solid fa-flask text-emerald-400"></i> 生態系統動態物理監測 (即時分解效率: <span id="val-efficiency" class="text-emerald-400 font-black">100%</span>)
         </h3>
         <div class="text-[11px] text-slate-400">
-          箱體總面積: <b class="text-emerald-400" id="val-area">0.5 m²</b> | 有機質負荷率: <b class="text-amber-300" id="val-load-ratio">0.0%</b> (安全 &lt; 40%)
+          箱體總面積: <b class="text-emerald-400" id="val-area">0.5 m²</b> | 有機質負荷率 (OLR): <b class="text-amber-300" id="val-load-ratio">0.0%</b> (安全 &lt; 40%)
         </div>
       </div>
 
@@ -71,12 +71,12 @@
           <span id="val-moist" class="font-black text-emerald-400 text-sm">65.0%</span>
           <span class="text-[8px] text-slate-500 block">最適 60-80%</span>
         </div>
-        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80" title="好氧狀態下具備酸鹼緩衝能力自癒機制">
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80" title="具備好氧有機酸分解與鈣腺/腐植酸自癒緩衝機制">
           <span class="text-[9px] text-slate-500 font-bold block">酸鹼值 (pH)</span>
           <span id="val-ph" class="font-black text-emerald-400 text-sm">7.00</span>
           <span class="text-[8px] text-slate-500 block">最適 6.5-8.0</span>
         </div>
-        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80" title="既有熟成堆肥與未分解物料加權混和的真實動態 C/N">
+        <div class="bg-slate-950 p-2 rounded-lg border border-slate-800/80" title="全箱未分解資材與基質之動態 C/N 比">
           <span class="text-[9px] text-slate-500 font-bold block">混合動態 C/N</span>
           <span id="val-cn" class="font-black text-amber-300 text-sm">18.0:1</span>
           <span class="text-[8px] text-slate-500 block">目標 20-25:1</span>
@@ -156,22 +156,22 @@
           <div class="space-y-2">
             <div class="bg-slate-950 p-2.5 rounded-lg border border-slate-800 grid grid-cols-2 gap-2 text-center">
               <div>
-                <span class="text-[9px] text-slate-400 block font-bold" title="包含初始20kg熟成堆肥與未分解有機質">待分解有機質總量</span>
+                <span class="text-[9px] text-slate-400 block font-bold" title="當前箱內所有未腐熟/待分解資材 (成熟堆肥剩餘 + 未分解新資材)">待分解有機質總量</span>
                 <span id="val-total-waste-mass" class="text-sm font-black text-amber-400">20.00 Kg</span>
               </div>
               <div>
-                <span class="text-[9px] text-slate-400 block font-bold" title="微生物與蚯蚓已轉化消化之有機質">已分解有機質總量</span>
+                <span class="text-[9px] text-slate-400 block font-bold" title="累積成功轉化消化之有機質總公斤數">已分解有機質總量</span>
                 <span id="val-total-processed" class="text-sm font-black text-cyan-300">0.00 Kg</span>
               </div>
             </div>
 
             <div class="bg-slate-950 p-2 rounded-lg border border-slate-800 grid grid-cols-2 gap-2 text-xs px-3">
               <div class="flex justify-between items-center">
-                <span class="text-slate-400 font-bold">歷史已產出蚓糞：</span>
+                <span class="text-slate-400 font-bold">歷史累積產出蚓糞：</span>
                 <span id="val-total-vermi-produced" class="font-black text-emerald-400 text-xs">0.00 Kg</span>
               </div>
               <div class="flex justify-between items-center border-l border-slate-800 pl-2">
-                <span class="text-slate-400 font-bold">當前可售庫存：</span>
+                <span class="text-slate-400 font-bold">當前箱內可售庫存：</span>
                 <span id="val-vermi-stock" class="font-black text-amber-300 text-xs">0.00 Kg</span>
               </div>
             </div>
@@ -195,7 +195,7 @@
     <div class="bg-slate-900 border border-slate-800 rounded-xl p-3.5 shadow-xl">
       <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-2.5">
         <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-          <i class="fa-solid fa-boxes-packing"></i> 精準資材調配控制台 (直覺點擊投入)
+          <i class="fa-solid fa-boxes-packing"></i> 精準資材調配控制台 (直覺點擊投入，零彈窗阻斷)
         </h4>
         <span class="text-[10px] text-slate-400">最小調配單位：1.0 kg / 0.5 kg</span>
       </div>
@@ -275,7 +275,7 @@
        ========================================================================= */
     let state = {
       coins: 100000,
-      vermicompostKg: 0.0, // 可售庫存
+      vermicompostKg: 0.0, // 當前留在箱內可售庫存
       carbonSeqTon: 0.0,
       totalHours: 0,
 
@@ -355,7 +355,7 @@
         updateWeather();
       }
 
-      // --- A. 計算未分解有機質總重與全箱總加權 C/N ---
+      // --- A. 計算未分解新有機質總重與全箱總加權 C/N ---
       let unProcessedNewWasteMass = 0;
       let totalC = state.matureCarbonKg;
       let totalN = state.matureNitrogenKg;
@@ -366,11 +366,14 @@
         totalN += item.nitrogenKg;
       });
 
-      // 箱內當前總待分解量體 = 既有剩餘熟成堆肥 + 新投入未分解有機質
-      let totalCompostMass = state.matureCompostKg + unProcessedNewWasteMass;
+      // 箱內當前待分解資材總量 = 剩餘熟成堆肥 + 新投入未分解有機質
+      let totalUnProcessedCompostMass = state.matureCompostKg + unProcessedNewWasteMass;
       
-      // 【關鍵修正】：有機質動態負荷率 = 未分解新有機物 / 箱內當前總量體
-      let organicLoadRatio = totalCompostMass > 0 ? (unProcessedNewWasteMass / totalCompostMass) : 0;
+      // 【V14.0 核心學理修正】：分母為箱內所有物料總質量 (剩餘熟成堆肥 + 未分解新資材 + 當前箱內累積之蚓糞土)
+      let totalBeddingMatrixMass = totalUnProcessedCompostMass + state.vermicompostKg;
+      
+      // 有機質負荷率 (Volumetric Organic Loading Rate) % = (未分解新資材 / 箱內總物料 mass) * 100%
+      let organicLoadRatio = totalBeddingMatrixMass > 0 ? (unProcessedNewWasteMass / totalBeddingMatrixMass) : 0;
 
       if (totalN > 0.001) {
         c.cnRatio = totalC / totalN;
@@ -395,7 +398,7 @@
 
       // --- D. 蚯蚓飢餓機制 ---
       let wormBiomassKg = c.wormPop * 0.0005;
-      if (totalCompostMass <= 0.1) {
+      if (totalUnProcessedCompostMass <= 0.1) {
         c.starveHours += 1;
         if (c.starveHours > 72) {
           let starveDeath = Math.floor(c.wormPop * 0.015);
@@ -411,16 +414,16 @@
       // --- E. 按動態比例消化分解既有堆肥與新物料 ---
       let hourlyConsumptionCap = (wormBiomassKg * 0.8 / 24.0) * overallHealth * decompositionEfficiency;
       
-      if (totalCompostMass > 0 && hourlyConsumptionCap > 0) {
-        let actualTreatedKg = Math.min(totalCompostMass, hourlyConsumptionCap);
-        let ratio = actualTreatedKg / totalCompostMass;
+      if (totalUnProcessedCompostMass > 0 && hourlyConsumptionCap > 0) {
+        let actualTreatedKg = Math.min(totalUnProcessedCompostMass, hourlyConsumptionCap);
+        let ratio = actualTreatedKg / totalUnProcessedCompostMass;
 
         if (state.matureCompostKg > 0) {
           let matureConsumed = state.matureCompostKg * ratio;
           state.matureCompostKg -= matureConsumed;
           state.matureCarbonKg -= state.matureCarbonKg * ratio;
           state.matureNitrogenKg -= state.matureNitrogenKg * ratio;
-          state.totalProcessedWasteKg += matureConsumed; // 累加已分解總量
+          state.totalProcessedWasteKg += matureConsumed; // 累加歷史已分解總量
           
           let producedVermi = matureConsumed * 0.35;
           state.vermicompostKg += producedVermi;
@@ -433,7 +436,7 @@
           item.carbonKg -= item.carbonKg * ratio;
           item.nitrogenKg -= item.nitrogenKg * ratio;
 
-          state.totalProcessedWasteKg += consumedMass; // 累加已分解總量
+          state.totalProcessedWasteKg += consumedMass; // 累加歷史已分解總量
           let producedVermi = consumedMass * 0.35;
           state.vermicompostKg += producedVermi;
           state.totalVermicompostProducedKg += producedVermi;
@@ -442,7 +445,7 @@
         state.feedstockPool = state.feedstockPool.filter(item => item.massKg > 0.001);
       }
 
-      // --- F. 【pH 自癒與動態負荷連動氣味機制】 ---
+      // --- F. 【V14.0 酸鹼緩衝自癒 (Self-Buffering) 與惡臭連動機制】 ---
       let isOverloaded = (organicLoadRatio > 0.40);
       let isCnUnbalanced = (c.cnRatio < 14.0 || c.cnRatio > 45.0);
       let isAnoxic = (c.oxygen < 12.0 || c.moisture > 82.0);
@@ -453,20 +456,29 @@
         let odorSpike = 0.5 * loadFactor * (1.0 + cnFactor);
         
         c.odorPpm = Math.min(300.0, c.odorPpm + odorSpike);
-        c.ph = Math.max(4.0, c.ph - 0.015);
+        c.ph = Math.max(4.5, c.ph - 0.015); // 厭氧揮發性脂肪酸累積使 pH 下降
         c.oxygen = Math.max(2.0, c.oxygen - 0.12);
       } else {
-        if (c.cnRatio >= 15.0 && c.cnRatio <= 28.0 && c.oxygen >= 14.0) {
-          c.odorPpm = Math.max(0.0, c.odorPpm - 5.0);
-          
-          // pH 自癒修復 (回升至理想 7.2 中性區間)
-          if (c.ph < 7.2) {
-            c.ph = Math.min(7.2, c.ph + 0.01);
-          } else if (c.ph > 7.4) {
-            c.ph = Math.max(7.4, c.ph - 0.01);
+        // 環境回歸好氧（O2 >= 14%）時：臭味正常消散
+        if (c.oxygen >= 14.0) {
+          if (c.cnRatio >= 15.0 && c.cnRatio <= 30.0) {
+            c.odorPpm = Math.max(0.0, c.odorPpm - 5.0);
+            
+            // 好氧微生物代謝有機酸 + 蚯蚓鈣腺分泌物自癒緩衝修復 (穩定向中性微鹼 7.2 收斂)
+            if (c.ph < 7.2) {
+              c.ph = Math.min(7.2, c.ph + 0.02);
+            } else if (c.ph > 7.5) {
+              c.ph = Math.max(7.5, c.ph - 0.01);
+            }
+          } else {
+            // C/N 比稍微偏離時，自癒速度變慢
+            c.odorPpm = Math.max(0.0, c.odorPpm - 2.0);
+            if (c.ph < 7.0) {
+              c.ph = Math.min(7.0, c.ph + 0.005);
+            }
           }
         } else {
-          c.odorPpm = Math.max(0.0, c.odorPpm - 1.5);
+          c.odorPpm = Math.max(0.0, c.odorPpm - 1.0);
         }
       }
 
@@ -478,7 +490,7 @@
         let escapedCount = Math.floor(c.wormPop * 0.08);
         c.wormPop = Math.max(0, c.wormPop - escapedCount);
         updateStatusBadge('危險！環境惡劣逃亡中', 'rose');
-      } else if (overallHealth > 0.75 && currentDensity < 3.8 && totalCompostMass > 0) {
+      } else if (overallHealth > 0.75 && currentDensity < 3.8 && totalUnProcessedCompostMass > 0) {
         let newBorn = Math.floor(c.wormPop * 0.0008);
         c.wormPop = Math.min(c.maxWormCap, c.wormPop + Math.max(1, newBorn));
         updateStatusBadge('最適生長繁殖中', 'emerald');
@@ -615,7 +627,7 @@
     }
 
     function sellVermicompost() {
-      if (state.vermicompostKg < 10.0) { showToast('❌ 可售熟成蚓糞庫存不足 10 kg！'); return; }
+      if (state.vermicompostKg < 10.0) { showToast('❌ 箱內可售熟成蚓糞庫存不足 10 kg！'); return; }
       state.vermicompostKg -= 10.0;
       state.coins += 200;
       showToast('💰 成功販售 10kg 蚓糞 (+NT$ 200)');
@@ -623,7 +635,7 @@
     }
 
     function convertCarbonSeq() {
-      if (state.vermicompostKg < 10.0) { showToast('❌ 熟成蚓糞庫存不足 10 kg！'); return; }
+      if (state.vermicompostKg < 10.0) { showToast('❌ 箱內熟成蚓糞庫存不足 10 kg！'); return; }
       state.vermicompostKg -= 10.0;
       state.carbonSeqTon += 0.00183;
       showToast('🌱 成功封存 10kg 蚓糞固碳 (+0.002t CO2e)');
@@ -674,10 +686,11 @@
       document.getElementById('val-odor').innerText = `${Math.floor(c.odorPpm)} PPM`;
 
       let unProcessedNewWasteMass = state.feedstockPool.reduce((sum, item) => sum + item.massKg, 0);
-      let totalCompostMass = state.matureCompostKg + unProcessedNewWasteMass;
+      let totalUnProcessedCompostMass = state.matureCompostKg + unProcessedNewWasteMass;
+      let totalBeddingMatrixMass = totalUnProcessedCompostMass + state.vermicompostKg;
       
-      // 有機質負荷率 (%) 依動態待分解量實時更新
-      let organicLoadRatio = totalCompostMass > 0 ? (unProcessedNewWasteMass / totalCompostMass) * 100 : 0;
+      // 有機質負荷率 (%) 依修正後之真實分母計算
+      let organicLoadRatio = totalBeddingMatrixMass > 0 ? (unProcessedNewWasteMass / totalBeddingMatrixMass) * 100 : 0;
       document.getElementById('val-load-ratio').innerText = `${organicLoadRatio.toFixed(1)}%`;
 
       document.getElementById('val-area').innerText = `${c.areaM2.toFixed(1)} m²`;
@@ -691,8 +704,8 @@
       let dailyMaxFeed = biomass * 0.8 * (currentEffPercent / 100);
       document.getElementById('val-suggested-max').innerText = dailyMaxFeed.toFixed(2);
 
-      // UI 顯示數據呈現
-      document.getElementById('val-total-waste-mass').innerText = `${totalCompostMass.toFixed(2)} Kg`;
+      // UI 顯示數據呈現精準分類
+      document.getElementById('val-total-waste-mass').innerText = `${totalUnProcessedCompostMass.toFixed(2)} Kg`;
       document.getElementById('val-total-processed').innerText = `${state.totalProcessedWasteKg.toFixed(2)} Kg`;
       
       document.getElementById('val-total-vermi-produced').innerText = `${state.totalVermicompostProducedKg.toFixed(2)} Kg`;
