@@ -526,7 +526,7 @@
       sawdust: { name: '乾燥木屑', cRatio: 0.88, nRatio: 0.0044, moistDrop: 1.0, ecDrop: 0.05, odorDrop: 10.0 },
       leaves: { name: '枯枝落葉', cRatio: 0.72, nRatio: 0.012, moistDrop: 0.8, oxyAdd: 1.5 },
       biochar: { name: '多孔生物炭', cRatio: 0.95, nRatio: 0.003, oxyAdd: 3.0, ecDrop: 0.1, odorDrop: 25.0 },
-      woodash: { name: '草木灰', cRatio: 0.20, nRatio: 0.005, phAdd: 1.5, ecAdd: 0.15 },
+      woodash: { name: '草木灰', cRatio: 0.15, nRatio: 0.002, phAdd: 0.4, ecAdd: 0.8, odorDrop: 5.0 }// 草木灰屬性：高 EC 衝擊，適量升 pH
       lime: { name: '熟石灰微粉', cRatio: 0.10, nRatio: 0.0, phAdd: 2.0 }
     };
 
@@ -642,11 +642,11 @@
       if (state.aiSystems.aerateOwned && state.aiSystems.aerateActive) {
         if (c.oxygen < 15.0 || c.odorPpm > 20.0 || c.moisture > 80.0) aerateBox(true);
       }
-      // 新增：pH < 6.5 時自動補充草木灰微粉穩定 pH
+     // 當 pH < 6.5 時，微量多次補充草木灰微粉 (0.05kg)，避免 EC 暴增
       if (state.aiSystems.phOwned && state.aiSystems.phActive) {
         if (c.ph < 6.5) {
-          applySingleFeedstock('woodash', 0.2);
-          showToast('🤖 AI pH穩定系統已自動補充 0.2kg 草木灰回歸中性');
+          applySingleFeedstock('woodash', 0.05);
+          showToast('🤖 AI pH穩定系統已微量補充 0.05kg 草木灰');
         }
       }
       if (state.aiSystems.feedOwned && state.aiSystems.feedActive) {
@@ -791,6 +791,12 @@
 
       updateUI();
     }
+    // ---I.EC 滲透壓過高對蚯蚓的毒害 (EC > 4.0 mS/cm)
+    if (c.ec > 4.0) {
+      let ecDead = Math.floor(c.wormPop * (c.ec - 4.0) * 0.02);
+      c.wormPop = Math.max(0, c.wormPop - ecDead);
+      updateStatusBadge('警告：鹽分/電導度過高造成蚯蚓灼傷！', 'rose');
+    }
 
     /* =========================================================================
        3. 資材快速投入與自訂配方組合
@@ -884,16 +890,20 @@
     }
 
     function aerateBox(isAuto = false) {
-      const c = state.compost;
-      c.oxygen = Math.min(100.0, c.oxygen + 25.0);
-      c.moisture = Math.max(20.0, c.moisture - 4.0);
-      c.odorPpm = Math.max(0.0, c.odorPpm - 20.0);
-      if (c.temp > state.weather.ambientTemp) {
-        c.temp -= Math.min(c.temp - state.weather.ambientTemp, 4.0);
-      }
-      if (!isAuto) showToast('已完成手動翻堆排臭');
-      updateUI();
-    }
+  const c = state.compost;
+  // 自然大氣氧氣上限為 20.9%
+  c.oxygen = Math.min(20.9, c.oxygen + 5.0); 
+  c.moisture = Math.max(20.0, c.moisture - 2.0);
+  c.odorPpm = Math.max(0.0, c.odorPpm - 15.0);
+  
+  // 機械翻堆對蚯蚓族群造成物理擾動驚嚇 (輕微死亡/抑制)
+  if (!isAuto && Math.random() < 0.3) {
+    c.wormPop = Math.max(0, c.wormPop - Math.floor(c.wormPop * 0.005));
+  }
+  
+  if (!isAuto) showToast('已完成手動翻堆排臭（注意：頻繁翻堆會擾動蚯蚓）');
+  updateUI();
+}
 
     function buyWorms() {
       if (state.coins < 1000) { showToast('❌ 現金不足 NT$ 1,000！'); return; }
@@ -1038,12 +1048,13 @@
       document.getElementById('val-total-processed').innerText = `${state.totalProcessedWasteKg.toFixed(2)} Kg`;
       document.getElementById('val-total-vermi-produced').innerText = `${state.totalVermicompostProducedKg.toFixed(2)} Kg`;
 
-      let avoidedCo2Ton = (state.totalProcessedWasteKg * 0.485) / 1000.0;
+      // 依據 US EPA WARM 模型：每處理 1 kg 有機廢棄物避排約 0.00072 噸 CO2e (0.72 kg CO2e)
+      let avoidedCo2Ton = (state.totalProcessedWasteKg * 0.72) / 1000.0;
       let totalCo2eTon = avoidedCo2Ton + state.carbonSeqTon;
-      
-      document.getElementById('hud-carbon-co2e').innerText = `${totalCo2eTon.toFixed(3)} t`;
-      document.getElementById('val-carbon-avoided').innerText = `${avoidedCo2Ton.toFixed(3)} t`;
-      document.getElementById('val-carbon-sequestered').innerText = `${state.carbonSeqTon.toFixed(3)} t`;
+      document.getElementById('hud-carbon-co2e').innerText = `${totalCo2eTon.toFixed(4)} t`;
+      document.getElementById('val-carbon-avoided').innerText = `${avoidedCo2Ton.toFixed(4)} t`;
+      document.getElementById('val-carbon-sequestered').innerText = `${state.carbonSeqTon.toFixed(4)} t`;
+    }
     }
 
     window.onload = function() {
