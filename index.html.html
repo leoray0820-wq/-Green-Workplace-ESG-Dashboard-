@@ -1012,6 +1012,7 @@
             SFX.click();
 
             const species = gameState.currentTrace;
+            // 確保確實標記為已解鎖
             species.unlocked = true;
             saveGame();
             updateHeaderStats();
@@ -1028,20 +1029,23 @@
             document.getElementById('trace-card').classList.add('hidden');
             document.getElementById('encounter-card').classList.remove('hidden');
 
-            document.getElementById('encounter-icon').textContent = species.icon;
-            document.getElementById('encounter-name').textContent = species.name;
-            document.getElementById('encounter-scientific').textContent = species.scientificName;
-            document.getElementById('encounter-rarity').textContent = species.rarity;
-            document.getElementById('encounter-trophic').textContent = `${species.trophic} (Lv.${species.trophicLevel})`;
+            // 確保正確讀取屬性，避免未定義
+            document.getElementById('encounter-icon').textContent = species.icon || '🐾';
+            document.getElementById('encounter-name').textContent = species.name || '未知生物';
+            document.getElementById('encounter-scientific').textContent = species.scientificName || 'TaiCOL Species';
+            document.getElementById('encounter-rarity').textContent = species.rarity || '原生種';
+            document.getElementById('encounter-trophic').textContent = `${species.trophic || '生態位'} (Lv.${species.trophicLevel || 1})`;
 
             const traitsBox = document.getElementById('encounter-traits');
             traitsBox.innerHTML = '';
-            species.tags.forEach(t => {
-                const tag = document.createElement('span');
-                tag.className = 'bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px] border border-slate-700';
-                tag.textContent = t;
-                traitsBox.appendChild(tag);
-            });
+            if (species.tags && Array.isArray(species.tags)) {
+                species.tags.forEach(t => {
+                    const tag = document.createElement('span');
+                    tag.className = 'bg-slate-800 text-slate-300 px-1.5 py-0.5 rounded text-[10px] border border-slate-700';
+                    tag.textContent = t;
+                    traitsBox.appendChild(tag);
+                });
+            }
 
             const odds = calculateCaptureOdds(species);
             document.getElementById('capture-success-rate').textContent = `預估成功率: ${Math.round(odds * 100)}%`;
